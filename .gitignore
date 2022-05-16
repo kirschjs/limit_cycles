@@ -1,0 +1,17 @@
+*.*
+*
+!.gitattributes
+!.gitignore
+!readme.md
+!.gitkeep
+!*.tex
+!*.gnu
+!*.dat
+!*.txt
+!*.bib
+!*.py
+!*.png
+!*.jpg
+!*.sh
+!*.pdf
+!*/
