@@ -21,19 +21,22 @@ def disk_avail(path):
 
     return used / free
 
-def polynomial_sum_weight(nbr,order=1):
-    switch(order){
-    case 1:
+
+def polynomial_sum_weight(nbr, order=1):
+    if order == 1:
         nor = int(0.5 * nbr * (nbr + 1))
-        p= [ n/ nor for n in range(nbr+1)  ]
-    case 2:
-        nor = int(nbr * (nbr + 1)* (2*nbr + 1)/6)
-        p=[ n**2/ nor for n in range(nbr+1)  ]
-    case 3:
+        p = [n / nor for n in range(nbr + 1)]
+    elif order == 2:
+        nor = int(nbr * (nbr + 1) * (2 * nbr + 1) / 6)
+        p = [n**2 / nor for n in range(nbr + 1)]
+    elif order == 3:
         nor = int(0.25 * nbr**2 * (nbr + 1)**2)
-        p=[ n**3/ nor for n in range(nbr+1)  ]
-    case 4:
-        nor = int(nbr * (nbr + 1) * (2*nbr + 1) * (3*nbr**2+3*nbr - 1))
-        p=[ n**4/ nor for n in range(nbr+1)  ]
-    }
+        p = [n**3 / nor for n in range(nbr + 1)]
+    elif order == 4:
+        nor = int(nbr * (nbr + 1) * (2 * nbr + 1) * (3 * nbr**2 + 3 * nbr - 1))
+        p = [n**4 / nor for n in range(nbr + 1)]
+    else:
+        print("(polynomial sum weight) no implementation for this order!")
+        exit()
+
     return p

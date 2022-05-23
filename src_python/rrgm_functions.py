@@ -43,7 +43,7 @@ def nearest(list1, list2):
     return indlistn, indlistf
 
 
-def sparse(inset, mindist=0.1):
+def sparse(inset, mindist=0.001):
     mindiff = 10E4
     delset = []
     inset = np.sort(inset)[::-1]

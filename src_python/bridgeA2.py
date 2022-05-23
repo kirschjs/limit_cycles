@@ -17,20 +17,14 @@ from multiprocessing.pool import ThreadPool
 home = os.getenv("HOME")
 
 pathbase = home + '/kette_repo/limit_cycles'
-suffix = '3'
+suffix = '2'
 sysdir = pathbase + '/systems/' + suffix
 
 BINBDGpath = pathbase + '/src_nucl/'
 
-parall = -1
-anzproc = 6  #int(len(os.sched_getaffinity(0)) / 1)
-
 # numerical stability
 minCond = 10**-15
 denseEVinterval = [-2, 2]
-
-# NN: tnni=10   NN+NNN: tnni=11
-tnni = 11
 
 # genetic parameters
 anzNewBV = 1
@@ -40,40 +34,35 @@ anzGen = 26
 os.chdir(sysdir)
 
 nnpot = 'nn_pot'
-nnnpot = 'nnn_pot'
 
-J0 = 1 / 2
+J0 = 1
 la = 4.00
 cloW = -470.0613865
 cloB = -35.1029135
-d0 = 677.7989
 
 prep_pot_file_2N(lam=la, wiC=cloW, baC=cloB, ps2=nnpot)
-prep_pot_file_3N(lam=la, d10=d0, ps3=nnnpot)
 
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
 channels = [
-    ['000', ['he_no1', 'he_no6']],
+    ['np3s1'],
 ]
 
 costr = ''
-zop = 31 if tnni == 11 else 14
+zop  14
 for nn in range(1, zop):
     cf = 1.0 if (1 <= nn <= 28) else 0.0
     costr += '%12.7f' % cf if (nn % 7 != 0) else '%12.7f\n' % cf
-
-prepare_einzel(sysdir, BINBDGpath)
 
 # 1) prepare an initial basis --------------------------------------------------------------------------------
 
 basCond = -1
 while basCond < minCond:
-    seedMat = span_initial_basis(fragments=channels,
+    seedMat = span_initial_basis2(fragments=channels,
                                  coefstr=costr,
                                  Jstreu=float(J0),
                                  funcPath=sysdir,
                                  ini_grid_bounds=[0.01, 12.5, 0.001, 16.5],
-                                 ini_dims=[8, 8, 8, 8],
+                                 ini_dims=[8, 8],
                                  binPath=BINBDGpath)
 
     seedMat = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
