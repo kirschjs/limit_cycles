@@ -35,7 +35,6 @@ os.chdir(sysdir)
 
 nnpot = 'nn_pot'
 
-J0 = 1
 la = 4.00
 cloW = -470.0613865
 cloB = -35.1029135
@@ -43,12 +42,13 @@ cloB = -35.1029135
 prep_pot_file_2N(lam=la, wiC=cloW, baC=cloB, ps2=nnpot)
 
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
-channels = [
-    ['np3s1'],
+channel = [
+    'np3s',
 ]
+J0 = 1
 
 costr = ''
-zop  14
+zop = 14
 for nn in range(1, zop):
     cf = 1.0 if (1 <= nn <= 28) else 0.0
     costr += '%12.7f' % cf if (nn % 7 != 0) else '%12.7f\n' % cf
@@ -57,16 +57,15 @@ for nn in range(1, zop):
 
 basCond = -1
 while basCond < minCond:
-    seedMat = span_initial_basis2(fragments=channels,
-                                 coefstr=costr,
-                                 Jstreu=float(J0),
-                                 funcPath=sysdir,
-                                 ini_grid_bounds=[0.01, 12.5, 0.001, 16.5],
-                                 ini_dims=[8, 8],
-                                 binPath=BINBDGpath)
+    seedMat = span_initial_basis2(fragments=channel,
+                                  coefstr=costr,
+                                  Jstreu=float(J0),
+                                  funcPath=sysdir,
+                                  ini_grid_bounds=[0.00001, 5.5],
+                                  ini_dims=8,
+                                  binPath=BINBDGpath)
 
     seedMat = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
-
     dim = int(np.sqrt(len(seedMat) * 0.5))
 
     # read Norm and Hamilton matrices
@@ -82,9 +81,8 @@ while basCond < minCond:
     gsREF = ewH[0]
     gsvREF = evH[:, 0]
     condREF = basCond
-    subprocess.call('cp -rf INQUA_M_V18 INQUA_M_V18_REF', shell=True)
-    subprocess.call('cp -rf INQUA_M_UIX INQUA_M_UIX_REF', shell=True)
     print("initial basis: E0 = %f  cond = %e" % (gsREF, basCond))
+    exit()
 
 print('GENERATION X) Egs = ', ewH[:4])
 

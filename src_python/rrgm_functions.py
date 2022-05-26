@@ -1,4 +1,4 @@
-import os, re
+import os, re, itertools, math
 import numpy as np
 import random
 from parameters_and_constants import *
@@ -43,32 +43,24 @@ def nearest(list1, list2):
     return indlistn, indlistf
 
 
-def sparse(inset, mindist=0.001):
-    mindiff = 10E4
-    delset = []
-    inset = np.sort(inset)[::-1]
+def sparse_subset(inset, mindist=0.001):
+    """Return a maximal list of elements of points such that no pairs of
+    points in the result have distance less than r.
 
-    for n in range(len(inset) - 1):
-        difff = np.abs((inset[n + 1] - inset[n]) / (inset[n + 1] + inset[n]))
-        if difff < mindist:
-            delset.append(n)
+    """
+    points = np.sort(inset)[::-1].tolist()
 
-    return np.delete(inset, delset)
+    removing = True
+    tmpts = points
 
+    while removing:
+        for p, q in itertools.combinations(tmpts, 2):
+            if np.linalg.norm(np.array(p) - np.array(q)) < mindist:
+                tmpts.remove(q)
+                break
+        removing = False if len(tmpts) == len(points) else True
 
-def sparse2(inset, relset, mindist=0.1):
-    mindiff = 10E4
-    delset = []
-    inset = np.sort(inset)[::-1]
-    relset = np.sort(relset)[::-1]
-
-    for n in range(len(inset)):
-        for m in range(len(relset)):
-            difff = np.abs((inset[n] - relset[m]) / (inset[n] + relset[m]))
-            if difff < mindist:
-                delset.append(m)
-
-    return np.delete(relset, delset)
+    return np.array(tmpts)
 
 
 def suche_fehler(ifi='OUTPUT'):

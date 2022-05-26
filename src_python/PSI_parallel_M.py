@@ -22,8 +22,8 @@ def span_initial_basis2(fragments,
                         coefstr,
                         funcPath,
                         binPath,
-                        ini_grid_bounds=[0.01, 9.5, 0.001, 11.5],
-                        ini_dims=[8, 12]):
+                        ini_grid_bounds=[0.01, 9.5],
+                        ini_dims=20):
 
     os.chdir(funcPath)
 
@@ -36,253 +36,146 @@ def span_initial_basis2(fragments,
 
     # minimal distance allowed for between width parameters
     rwma = 20
-    bvma = 8
-    mindist_int = 0.001
-    mindist_rel = 0.001
+    bvma = 18
+    mindist = 0.2
 
     # lower bound for width parameters '=' IR cutoff (broadest state)
     rWmin = 0.0001
 
     # orbital-angular-momentum dependent upper bound '=' UV cutoff (narrowest state)
-    iLcutoff = [12., 4., 3.]
-    rLcutoff = [12., 4., 3.]
+    iLcutoff = [120., 4., 3.]
 
-    rel_scale = 1.
-    wi, wf, nw = ini_grid_bounds[0], ini_grid_bounds[1], ini_dims[0]
+    wi, wf, nw = ini_grid_bounds[0], ini_grid_bounds[1], ini_dims
 
-    if nwrel >= rwma:
+    if ini_dims >= rwma:
         print(
             'The set number for relative width parameters per basis vector > max!'
         )
         exit()
 
-    lit_rw_sparse = np.empty(1, dtype=list)
-
     wii = wi
     wff = wf
-    lit_w_tmp = wii + np.random.random(nw) * (wff - wii)
-    #lit_w_tmp = np.abs(
-    #    np.geomspace(start=wii,
-    #                 stop=wff,
-    #                 num=nw[frg],
-    #                 endpoint=True,
-    #                 dtype=None))
 
-    lit_w = lit_w_tmp
-    lit_w = [
-        ww for ww in sparse(lit_w, mindist=mindist_int)
-        if rWmin < ww < iLcutoff[0]
-    ]
-    #  -- relative widths --------------------------------------------------
-    wir, wfr, nwr = rel_scale * ini_grid_bounds[
-        2], rel_scale * ini_grid_bounds[3], ini_dims[1]
+    itera = 1
+    while len(lit_w) != ini_dims:
+        lit_w_tmp = wii + np.random.random(nw) * (wff - wii)
 
-    wiir = wir
-    wffr = wfr
-    lit_w_tmp = wiir + np.random.random(nwr) * (wffr - wiir)
-    #lit_w_tmp = np.geomspace(start=wiir,
-    #                         stop=wffr,
-    #                         num=nwr,
-    #                         endpoint=True,
-    #                         dtype=None)
+        #lit_w_tmp = np.abs(
+        #    np.geomspace(start=wii,
+        #                 stop=wff,
+        #                 num=nw[frg],
+        #                 endpoint=True,
+        #                 dtype=None))
 
-    lit_rw_tmp = [
-        ww for ww in sparse(np.abs(
-            np.sort(np.array(lit_w_tmp).flatten())[::-1].tolist()),
-                            mindist=mindist_rel) if rWmin < ww < rLcutoff[0]
-    ]
+        lit_w = sparse_subset(lit_w_tmp, mindist)
+        #lit_w = sparse(lit_w_tmp, mindist=mindist)
+        lit_w = [ww for ww in lit_w if rWmin < ww < iLcutoff[0]]
 
-    if lit_rw_tmp == []:
-        lit_rw_tmp = [np.random.random()]
-    lit_rw = lit_rw_tmp
+        itera += 1
+        assert itera <= 1000
 
     widi = []
-    widr = []
 
-    tmp = np.sort(lit_w)[::-1]
-    #tmp = sparse(tmp, mindist_int)
-    zer_per_ws = int(np.ceil(len(tmp) / bvma))
+    zer_per_ws = int(np.ceil(len(lit_w) / bvma))
     bins = [0 for nmmm in range(zer_per_ws + 1)]
     bins[0] = 0
-    for mn in range(len(tmp)):
+    for mn in range(len(lit_w)):
         bins[1 + mn % zer_per_ws] += 1
     bnds = np.cumsum(bins)
-    tmp2 = [list(tmp[bnds[nn]:bnds[nn + 1]]) for nn in range(zer_per_ws)]
-    tmp3 = [lit_rw[n][bnds[nn]:bnds[nn + 1]] for nn in range(zer_per_ws)]
-    sfrags2 += len(tmp2) * [fragments]
-    lfrags2 += len(tmp2) * [fragments]
-    widi += tmp2
-    widr += tmp3
+    tmp2 = [list(lit_w[bnds[nn]:bnds[nn + 1]]) for nn in range(zer_per_ws)]
+
+    frags = len(tmp2) * fragments
+
+    widi = tmp2
 
     anzBV = sum([len(zer) for zer in widi])
     print(
         'seed state with (%d) basis-vector blocks with [orbital][(iso)spin] configurations:'
         % anzBV)
-    print(lfrags2, sfrags2, '\n')
-
+    print(frags, '\n')
+    print(widi)
     sbas = []
-    bv = 1
-    for n in range(len(lfrags2)):
-        bvv = 0
-        for m in range(len(widi[n])):
-            bvv += 1
-            #sbas += [[bv, [(bvv) % (1 + len(widr[n][m]))]]]
-            sbas += [[
-                bv,
-                [
-                    x for x in range(1, 1 + max([len(wid)
-                                                 for wid in widr[n]]), 1)
-                ]
-            ]]
-            bv += 1
+    bv = two_body_channels[fragments[0]]
+    for n in range(len(frags)):
+        sbas += [[bv, [x for x in range(1, 1 + len(widi[n]))]]]
+        bv += 13
 
     os.chdir(funcPath)
 
-    n3_inlu(8, fn='INLU', fr=lfrags2, indep=parall)
-    os.system(binPath + 'DRLUD.exe')
-    n3_inlu(8, fn='INLUCN', fr=lfrags2, indep=parall)
+    h2_inlu(anzo=8, anzf=len(frags))
     os.system(binPath + 'LUDW_CN.exe')
-    n3_inob(sfrags2, 8, fn='INOB', indep=parall)
+    h2_inob(anzo=8, anzf=len(frags))
     os.system(binPath + 'KOBER.exe')
-    n3_inob(sfrags2, 15, fn='INOB', indep=parall)
-    os.system(binPath + 'DROBER.exe')
 
-    he3inquaBS(intwi=widi, relwi=widr, potf='./nn_pot')
-    parallel_mod_of_3inqua(lfrags2,
-                           sfrags2,
-                           infile='INQUA_M',
-                           outfile='INQUA_M',
-                           einzel_path=funcPath + '/')
+    h2_inqua(relw=widi, ps2='./nn_pot')
+    subprocess.run([binPath + 'QUAFL_N.exe'])
 
-    insam(len(lfrags2))
+    print(sbas)
+    h2_inen_bs(sbas, j=Jstreu, costr=coefstr)
 
-    anzproc = max(2, min(len(lfrags2), MaxProc))
-    #print('Anzahl der Sklaven + 1: %d' % anzproc)
-    #exit()
+    subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
 
-    n3_inen_bdg(sbas, Jstreu, coefstr, fn='INEN', pari=0)
+    subprocess.run([binPath + 'DR2END_AK.exe'])
 
-    if parall == -1:
-        diskfil = disk_avail(funcPath)
-
-        if diskfil < 0.2:
-            print('more than %s of disk space is already used!' %
-                  (str(diskfil) + '%'))
-            exit()
-
-        subprocess.run(
-            [MPIRUN, '-np',
-             '%d' % anzproc, binPath + 'V18_PAR/mpi_quaf_v7'])
-        subprocess.run([binPath + 'V18_PAR/sammel'])
-        subprocess.call('rm -rf DMOUT.*', shell=True)
-
-    else:
-        subprocess.run([binPath + 'QUAFL_M.exe'])
-
-    subprocess.call('cp -rf INQUA_M INQUA_M_V18', shell=True)
-
-    if tnni == 11:
-        he3inquaBS(intwi=widi, relwi=widr, potf='./nnn_pot')
-        parallel_mod_of_3inqua(lfrags2,
-                               sfrags2,
-                               infile='INQUA_M',
-                               outfile='INQUA_M',
-                               tni=1,
-                               einzel_path=funcPath + '/')
-        if parall == -1:
-            diskfil = disk_avail(funcPath)
-
-            if diskfil < 0.2:
-                print('more than %s of disk space is already used!' %
-                      (str(diskfil) + '%'))
-                exit()
-
-            subprocess.run([
-                MPIRUN, '-np',
-                '%d' % anzproc, binPath + 'UIX_PAR/mpi_drqua_v7'
-            ])
-
-            subprocess.run([binPath + 'UIX_PAR/SAMMEL-uix'])
-            subprocess.call('rm -rf DRDMOUT.*', shell=True)
-
-            subprocess.run([
-                binPath + 'TDR2END_PYpoolnoo.exe', 'INEN',
-                'OUTPUT_TDR2END_PYpoolnoo', 'MATOUTB'
-            ])
-            subprocess.call('cp OUTPUT out_normal', shell=True)
-        else:
-            subprocess.run([binPath + 'DRQUA_AK_M.exe'])
-            subprocess.run([binPath + 'DR2END_AK.exe'])
-
-    elif tnni == 10:
-        if parall == -1:
-            subprocess.run([
-                binPath + 'TDR2END_PYpoolnoo.exe', 'INEN',
-                'OUTPUT_TDR2END_PYpoolnoo', 'MATOUTB'
-            ])
-            subprocess.call('cp OUTPUT out_normal', shell=True)
-        else:
-            subprocess.run([binPath + 'DR2END_NORMAL.exe'])
-
-    subprocess.call('cp -rf INQUA_M INQUA_M_UIX', shell=True)
     suche_fehler()
 
     ew_threshold = 10**(-8)
 
     matout = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
 
-    # write basis structure on tape
-
-    path_bas_dims = funcPath + '/bas_dims.dat'
-    with open(path_bas_dims, 'wb') as f:
-        np.savetxt(f, [np.size(wid) for wid in widr], fmt='%d')
-        f.seek(NEWLINE_SIZE_IN_BYTES, 2)
-        f.truncate()
-    f.close()
-    path_bas_int_rel_pairs = funcPath + '/bas_full.dat'
-    if os.path.exists(path_bas_int_rel_pairs):
-        os.remove(path_bas_int_rel_pairs)
-    with open(path_bas_int_rel_pairs, 'w') as oof:
-        #np.savetxt(f, [[jj[0], kk] for jj in sbas for kk in jj[1]], fmt='%d')
-        #f.seek(NEWLINE_SIZE_IN_BYTES, 2)
-        #f.truncate()
-        so = ''
-        for bv in sbas:
-            so += '%4s' % str(bv[0])
-            for rww in bv[1]:
-                so += '%4s' % str(rww)
-            so += '\n'
-        oof.write(so)
-    oof.close()
-    path_frag_stru = funcPath + '/frags.dat'
-    if os.path.exists(path_frag_stru): os.remove(path_frag_stru)
-
-    with open(path_frag_stru, 'wb') as f:
-        np.savetxt(f,
-                   np.column_stack([sfrags2, lfrags2]),
-                   fmt='%s',
-                   delimiter=' ',
-                   newline=os.linesep)
-        f.seek(NEWLINE_SIZE_IN_BYTES, 2)
-        f.truncate()
-    f.close()
-    path_intw = funcPath + '/intw.dat'
-    if os.path.exists(path_intw): os.remove(path_intw)
-    with open(path_intw, 'wb') as f:
-        for ws in widi:
-            np.savetxt(f, [ws], fmt='%12.6f', delimiter=' ')
-        f.seek(NEWLINE_SIZE_IN_BYTES, 2)
-        f.truncate()
-    f.close()
-    path_relw = funcPath + '/relw.dat'
-    if os.path.exists(path_relw): os.remove(path_relw)
-    with open(path_relw, 'wb') as f:
-        for wss in widr:
-            for ws in wss:
-                np.savetxt(f, [ws], fmt='%12.6f', delimiter=' ')
-        f.seek(NEWLINE_SIZE_IN_BYTES, 2)
-        f.truncate()
-    f.close()
+    #    # write basis structure on tape
+    #    exit()
+    #
+    #    path_bas_dims = funcPath + '/bas_dims.dat'
+    #    with open(path_bas_dims, 'wb') as f:
+    #        np.savetxt(f, [np.size(wid) for wid in widr], fmt='%d')
+    #        f.seek(NEWLINE_SIZE_IN_BYTES, 2)
+    #        f.truncate()
+    #    f.close()
+    #    path_bas_int_rel_pairs = funcPath + '/bas_full.dat'
+    #    if os.path.exists(path_bas_int_rel_pairs):
+    #        os.remove(path_bas_int_rel_pairs)
+    #    with open(path_bas_int_rel_pairs, 'w') as oof:
+    #        #np.savetxt(f, [[jj[0], kk] for jj in sbas for kk in jj[1]], fmt='%d')
+    #        #f.seek(NEWLINE_SIZE_IN_BYTES, 2)
+    #        #f.truncate()
+    #        so = ''
+    #        for bv in sbas:
+    #            so += '%4s' % str(bv[0])
+    #            for rww in bv[1]:
+    #                so += '%4s' % str(rww)
+    #            so += '\n'
+    #        oof.write(so)
+    #    oof.close()
+    #    path_frag_stru = funcPath + '/frags.dat'
+    #    if os.path.exists(path_frag_stru): os.remove(path_frag_stru)
+    #
+    #    with open(path_frag_stru, 'wb') as f:
+    #        np.savetxt(f,
+    #                   np.column_stack([sfrags2, lfrags2]),
+    #                   fmt='%s',
+    #                   delimiter=' ',
+    #                   newline=os.linesep)
+    #        f.seek(NEWLINE_SIZE_IN_BYTES, 2)
+    #        f.truncate()
+    #    f.close()
+    #    path_intw = funcPath + '/intw.dat'
+    #    if os.path.exists(path_intw): os.remove(path_intw)
+    #    with open(path_intw, 'wb') as f:
+    #        for ws in widi:
+    #            np.savetxt(f, [ws], fmt='%12.6f', delimiter=' ')
+    #        f.seek(NEWLINE_SIZE_IN_BYTES, 2)
+    #        f.truncate()
+    #    f.close()
+    #    path_relw = funcPath + '/relw.dat'
+    #    if os.path.exists(path_relw): os.remove(path_relw)
+    #    with open(path_relw, 'wb') as f:
+    #        for wss in widr:
+    #            for ws in wss:
+    #                np.savetxt(f, [ws], fmt='%12.6f', delimiter=' ')
+    #        f.seek(NEWLINE_SIZE_IN_BYTES, 2)
+    #        f.truncate()
+    #    f.close()
 
     return matout
 
