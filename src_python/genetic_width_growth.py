@@ -5,8 +5,9 @@ import struct
 def loveliness(groundstateEnergy, conditionNumber, HeigenvaluesbelowX,
                minimalConditionnumber):
 
-    pulchritude = HeigenvaluesbelowX**0 * np.abs(
-        groundstateEnergy)**1 / np.abs(np.log(conditionNumber))**2
+    pulchritude = HeigenvaluesbelowX**0 * np.abs(groundstateEnergy + 0.2)**(
+        (0.5 - np.sign(groundstateEnergy)) * 4) / np.abs(
+            np.log(conditionNumber))**2
 
     return pulchritude
 
@@ -14,18 +15,18 @@ def loveliness(groundstateEnergy, conditionNumber, HeigenvaluesbelowX,
 def basQ(normSpectrum,
          hamiltonianSpectrum,
          minCond=10**-10,
-         denseEnergyInterval=[5, 120]):
+         denseEnergyInterval=[-35, 120]):
 
     anzSigEV = len(
         [bvv for bvv in hamiltonianSpectrum if bvv < denseEnergyInterval[1]])
 
-    gsEnergy = hamiltonianSpectrum[-1]
+    gsEnergy = hamiltonianSpectrum[0]
 
     basCond = np.min(np.abs(normSpectrum)) / np.max(np.abs(normSpectrum))
 
     attractiveness = loveliness(gsEnergy, basCond, anzSigEV, minCond)
 
-    return attractiveness, basCond
+    return attractiveness, gsEnergy, basCond
 
 
 def breed_offspring(iws, rws, parentBVs=[], chpa=[1, 1]):

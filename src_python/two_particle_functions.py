@@ -171,7 +171,7 @@ def h2_inqua(relw, ps2):
     #  9   :   1  2  3D1         2
 
 
-def h2_inen_bs(bas, costr, j=0, ch=1, anzo=14):
+def h2_inen_bs(bas, costr, j, ch=1, anzo=14, fn='INEN', pari=0, tni=10):
     s = ''
     s += ' 10  3 11%3d  1  1  0  0  0 -1\n' % int(anzo)
     #       N  T Co CD^2 LS  T
@@ -196,7 +196,7 @@ def h2_inen_bs(bas, costr, j=0, ch=1, anzo=14):
         tmp += '\n'
         s += tmp
 
-    with open('INEN', 'w') as outfile:
+    with open(fn, 'w') as outfile:
         outfile.write(s)
     return
 

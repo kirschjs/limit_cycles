@@ -17,13 +17,103 @@ NEWLINE_SIZE_IN_BYTES = -1
 dt = 'float64'
 
 
-def span_initial_basis2(fragments,
+def endmat2(para, send_end):
+
+    child_id = ''.join(str(x) for x in np.array(para[5]))
+
+    inenf = 'inen_%s' % child_id
+    outf = 'endout_%s' % child_id
+    maoutf = 'MATOUTB_%s' % child_id
+
+    #           basis
+    #           jay
+    #           costring
+    #           nzopt
+    #           tnnii
+
+    h2_inen_bs(para[0], j=para[1], costr=para[2], fn=inenf, pari=0)
+
+    cmdend = para[6] + 'DR2END_AK_PYpoolnoo.exe %s %s %s' % (inenf, outf,
+                                                             maoutf)
+
+    pend = subprocess.Popen(shlex.split(cmdend),
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+    #cwd=workdir)
+
+    # <communicate> is needed in order to ensure the process ended before parsing its output!
+    out, err = pend.communicate()
+
+    try:
+        NormHam = np.core.records.fromfile(maoutf, formats='f8', offset=4)
+        dim = int(np.sqrt(len(NormHam) * 0.5))
+
+        # read Norm and Hamilton matrices
+        normat = np.reshape(
+            np.array(NormHam[:dim**2]).astype(float), (dim, dim))
+        hammat = np.reshape(
+            np.array(NormHam[dim**2:]).astype(float), (dim, dim))
+        # diagonalize normalized norm (using "eigh(ermitian)" to speed-up the computation)
+        ewN, evN = eigh(normat)
+        idx = ewN.argsort()[::-1]
+        ewN = [eww for eww in ewN[idx]]
+        evN = evN[:, idx]
+
+        try:
+            ewH, evH = eigh(hammat, normat)
+            idx = ewH.argsort()[::-1]
+            ewH = [eww for eww in ewH[idx]]
+            evH = evH[:, idx]
+            #print('lowest eigen values (N): ', ewN[-4:])
+            #print('lowest eigen values (H): ', ewH[-4:])
+
+        except:
+            #print(
+            #    'failed to solve generalized eigenvalue problem (norm ev\'s < 0 ?)'
+            #)
+            attractiveness = 0.
+            basCond = 0.
+            gsEnergy = 0.
+            ewH = []
+
+        if ewH != []:
+
+            anzSigEV = len(
+                [bvv for bvv in ewH if para[8][0] < bvv < para[8][1]])
+
+            gsEnergy = ewH[-1]
+
+            basCond = np.min(np.abs(ewN)) / np.max(np.abs(ewN))
+
+            minCond = para[7]
+
+            attractiveness = loveliness(gsEnergy, basCond, anzSigEV, minCond)
+
+        os.system('rm -rf ./%s' % inenf)
+        os.system('rm -rf ./%s' % outf)
+        os.system('rm -rf ./%s' % maoutf)
+
+        send_end.send([basCond, attractiveness, gsEnergy, para[5], para[0]])
+
+    except:
+
+        os.system('rm -rf ./%s' % inenf)
+        os.system('rm -rf ./%s' % outf)
+        os.system('rm -rf ./%s' % maoutf)
+
+        print(para[5], child_id)
+        print(maoutf)
+        send_end.send([0.0, 0.0, -42.7331, para[5], para[0]])
+
+
+def span_initial_basis2(channel,
                         Jstreu,
                         coefstr,
                         funcPath,
                         binPath,
                         ini_grid_bounds=[0.01, 9.5],
-                        ini_dims=20):
+                        ini_dims=20,
+                        mindist=0.02):
 
     os.chdir(funcPath)
 
@@ -36,8 +126,7 @@ def span_initial_basis2(fragments,
 
     # minimal distance allowed for between width parameters
     rwma = 20
-    bvma = 18
-    mindist = 0.2
+    bvma = 20
 
     # lower bound for width parameters '=' IR cutoff (broadest state)
     rWmin = 0.0001
@@ -47,7 +136,7 @@ def span_initial_basis2(fragments,
 
     wi, wf, nw = ini_grid_bounds[0], ini_grid_bounds[1], ini_dims
 
-    if ini_dims >= rwma:
+    if ini_dims > rwma:
         print(
             'The set number for relative width parameters per basis vector > max!'
         )
@@ -57,9 +146,14 @@ def span_initial_basis2(fragments,
     wff = wf
 
     itera = 1
-    while len(lit_w) != ini_dims:
-        lit_w_tmp = wii + np.random.random(nw) * (wff - wii)
 
+    lit_w = [wii + np.random.random() * (wff - wii)]
+    while len(lit_w) != ini_dims:
+
+        lit_w_tmp = wii + np.random.random() * (wff - wii)
+        dists = [np.linalg.norm(wp - lit_w_tmp) for wp in lit_w]
+        if ((np.min(dists) > mindist) & (lit_w_tmp < iLcutoff[0])):
+            lit_w.append(lit_w_tmp)
         #lit_w_tmp = np.abs(
         #    np.geomspace(start=wii,
         #                 stop=wff,
@@ -67,13 +161,14 @@ def span_initial_basis2(fragments,
         #                 endpoint=True,
         #                 dtype=None))
 
-        lit_w = sparse_subset(lit_w_tmp, mindist)
+        #lit_w = sparse_subset(lit_w_tmp, mindist)
         #lit_w = sparse(lit_w_tmp, mindist=mindist)
-        lit_w = [ww for ww in lit_w if rWmin < ww < iLcutoff[0]]
+        #lit_w = [ww for ww in lit_w if rWmin < ww < iLcutoff[0]]
 
         itera += 1
-        assert itera <= 1000
+        assert itera <= 10000
 
+    lit_w = np.sort(lit_w)[::-1]
     widi = []
 
     zer_per_ws = int(np.ceil(len(lit_w) / bvma))
@@ -84,18 +179,14 @@ def span_initial_basis2(fragments,
     bnds = np.cumsum(bins)
     tmp2 = [list(lit_w[bnds[nn]:bnds[nn + 1]]) for nn in range(zer_per_ws)]
 
-    frags = len(tmp2) * fragments
+    frags = len(tmp2) * [channel]
 
     widi = tmp2
 
     anzBV = sum([len(zer) for zer in widi])
-    print(
-        'seed state with (%d) basis-vector blocks with [orbital][(iso)spin] configurations:'
-        % anzBV)
-    print(frags, '\n')
-    print(widi)
+
     sbas = []
-    bv = two_body_channels[fragments[0]]
+    bv = two_body_channels[channel]
     for n in range(len(frags)):
         sbas += [[bv, [x for x in range(1, 1 + len(widi[n]))]]]
         bv += 13
@@ -110,7 +201,6 @@ def span_initial_basis2(fragments,
     h2_inqua(relw=widi, ps2='./nn_pot')
     subprocess.run([binPath + 'QUAFL_N.exe'])
 
-    print(sbas)
     h2_inen_bs(sbas, j=Jstreu, costr=coefstr)
 
     subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
@@ -123,6 +213,16 @@ def span_initial_basis2(fragments,
 
     matout = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
 
+    path_relw = funcPath + '/relw.dat'
+
+    if os.path.exists(path_relw): os.remove(path_relw)
+    with open(path_relw, 'wb') as f:
+        for wss in widi:
+            for ws in wss:
+                np.savetxt(f, [ws], fmt='%12.6f', delimiter=' ')
+        f.seek(NEWLINE_SIZE_IN_BYTES, 2)
+        f.truncate()
+    f.close()
     #    # write basis structure on tape
     #    exit()
     #
@@ -164,15 +264,6 @@ def span_initial_basis2(fragments,
     #    with open(path_intw, 'wb') as f:
     #        for ws in widi:
     #            np.savetxt(f, [ws], fmt='%12.6f', delimiter=' ')
-    #        f.seek(NEWLINE_SIZE_IN_BYTES, 2)
-    #        f.truncate()
-    #    f.close()
-    #    path_relw = funcPath + '/relw.dat'
-    #    if os.path.exists(path_relw): os.remove(path_relw)
-    #    with open(path_relw, 'wb') as f:
-    #        for wss in widr:
-    #            for ws in wss:
-    #                np.savetxt(f, [ws], fmt='%12.6f', delimiter=' ')
     #        f.seek(NEWLINE_SIZE_IN_BYTES, 2)
     #        f.truncate()
     #    f.close()
@@ -794,5 +885,34 @@ def blunt_ev(cfgs,
 
     subprocess.call('cp -rf INQUA_M INQUA_M_UIX', shell=True)
     NormHam = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
+
+    return NormHam
+
+
+def blunt_ev2(cfgs, widi, basis, nzopt, costring, binpath, potNN, jay,
+              funcPath):
+
+    #assert basisDim(basis) == len(sum(sum(relws, []), []))
+    anzcfg = len(cfgs)
+
+    os.chdir(funcPath)
+
+    h2_inlu(anzo=8, anzf=anzcfg)
+    os.system(binpath + 'LUDW_CN.exe')
+    h2_inob(anzo=8, anzf=anzcfg)
+    os.system(binpath + 'KOBER.exe')
+
+    h2_inqua(relw=widi, ps2='./nn_pot')
+    subprocess.run([binpath + 'QUAFL_N.exe'])
+
+    h2_inen_bs(basis, j=jay, costr=costring)
+
+    subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
+
+    subprocess.run([binpath + 'DR2END_AK.exe'])
+
+    NormHam = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
+
+    suche_fehler()
 
     return NormHam
