@@ -5,9 +5,10 @@ import struct
 def loveliness(groundstateEnergy, conditionNumber, HeigenvaluesbelowX,
                minimalConditionnumber):
 
-    pulchritude = HeigenvaluesbelowX**0 * np.abs(groundstateEnergy + 0.2)**(
-        (0.5 - np.sign(groundstateEnergy)) * 4) / np.abs(
-            np.log(conditionNumber))**2
+    try:
+        pulchritude = np.exp((-1) * groundstateEnergy)
+    except:
+        pulchritude = 0.0
 
     return pulchritude
 

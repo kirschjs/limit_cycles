@@ -24,21 +24,22 @@ BINBDGpath = pathbase + '/src_nucl/'
 
 # numerical stability
 minCond = 10**-12
+minidi = 0.03
 denseEVinterval = [-2, 2]
 
 # genetic parameters
-anzNewBV = 4
-muta_initial = 0.03
-anzGen = 31
-civ_size = 30
+anzNewBV = 10
+muta_initial = 0.02
+anzGen = 2
+civ_size = 10
 
 os.chdir(sysdir)
 
 nnpot = 'nn_pot'
 
 la = 4.00
-cloW = -470.0613865
-cloB = -35.1029135
+cloW = -505.20166016
+cloB = -0.0
 
 prep_pot_file_2N(lam=la, wiC=cloW, baC=cloB, ps2=nnpot)
 
@@ -46,7 +47,7 @@ prep_pot_file_2N(lam=la, wiC=cloW, baC=cloB, ps2=nnpot)
 channel = 'np3s'
 
 J0 = 1
-deutDim = 10
+deutDim = 8
 
 costr = ''
 zop = 14
@@ -64,10 +65,10 @@ while len(civs) < civ_size:
                                       coefstr=costr,
                                       Jstreu=float(J0),
                                       funcPath=sysdir,
-                                      ini_grid_bounds=[0.00001, 6.5],
+                                      ini_grid_bounds=[0.00001, 12.5],
                                       ini_dims=deutDim,
                                       binPath=BINBDGpath,
-                                      mindist=0.025)
+                                      mindist=minidi)
 
         seedMat = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
         dim = int(np.sqrt(len(seedMat) * 0.5))
@@ -112,15 +113,15 @@ for civ in civs:
     print(civ[2:])
 
 for nGen in range(anzGen):
-    qualCUT, gsCUT, basCondCUT = civs[-anzNewBV][2:]
+    qualCUT, gsCUT, basCondCUT = civs[-len(civs)][2:]
 
     # 3) select a subset of basis vectors which are to be replaced -----------------------------------------------
 
     weights = polynomial_sum_weight(civ_size, order=1)[1::]
     # 4) select a subset of basis vectors from which replacements are generated ----------------------------------
-    children = []
+    children = 0
 
-    while len(children) < anzNewBV:
+    while children < anzNewBV:
 
         parent_pair = np.random.choice(range(civ_size),
                                        size=2,
@@ -180,23 +181,53 @@ for nGen in range(anzGen):
             twin[2:] = qualTWIN, gsTWIN, basCondTWIN
 
             if ((qualTWIN > qualCUT) & (basCondTWIN > minCond)):
-                children.append(twin)
-                if len(children) == anzNewBV:
+                civs.append(twin)
+                children += 1
+                if children == anzNewBV:
                     break
 
-    print('\n qualCUT = %4.4e\n qualGSE = %4.4e' % (qualCUT, gsCUT))
+    print('\n qualCUT = %4.4e   gsCUT = %4.4e' % (qualCUT, gsCUT), end="")
     #    for civ in civs:
     #        print(civ[2:])
     #    print('\n')
     #    for child in children:
     #        print(child[2:])
 
-    civs[-anzNewBV:] = children
     civs.sort(key=lambda tup: tup[3])
+
+    civs = civs[:anzNewBV]
 
     nGen += 1
 
-print('\n')
+print('\n\n')
 
 for civ in civs:
-    print(civ[2:])
+    print(civ[1:])
+
+ma = blunt_ev2(cfgs=[channel],
+               widi=[civs[0][1]],
+               basis=sbas,
+               nzopt=zop,
+               costring=costr,
+               binpath=BINBDGpath,
+               potNN=nnpot,
+               jay=J0,
+               funcPath=sysdir)
+
+dim = int(np.sqrt(len(ma) * 0.5))
+# read Norm and Hamilton matrices
+normat = np.reshape(np.array(ma[:dim**2]).astype(float), (dim, dim))
+hammat = np.reshape(np.array(ma[dim**2:]).astype(float), (dim, dim))
+# diagonalize normalized norm (using "eigh(ermitian)" to speed-up the computation)
+ewN, evN = eigh(normat)
+ewH, evH = eigh(hammat, normat)
+
+path_out = sysdir + '/opt_deut.dat'
+if os.path.exists(path_out): os.remove(path_out)
+sout = ''
+for n in range(len(civs[0][1])):
+    sout += '%12.4e %12.4e\n' % (evH[0][n], civs[0][1][n])
+
+with open(path_out, 'w') as oof:
+    oof.write(sout)
+oof.close()
