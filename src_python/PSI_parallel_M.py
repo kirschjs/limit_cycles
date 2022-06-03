@@ -209,8 +209,6 @@ def span_initial_basis2(channel,
 
     suche_fehler()
 
-    ew_threshold = 10**(-8)
-
     matout = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
 
     path_relw = funcPath + '/relw.dat'
@@ -528,8 +526,6 @@ def span_initial_basis(fragments,
     subprocess.call('cp -rf INQUA_M INQUA_M_UIX', shell=True)
     suche_fehler()
 
-    ew_threshold = 10**(-8)
-
     matout = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
 
     # write basis structure on tape
@@ -581,6 +577,244 @@ def span_initial_basis(fragments,
         for wss in widr:
             for ws in wss:
                 np.savetxt(f, [ws], fmt='%12.6f', delimiter=' ')
+        f.seek(NEWLINE_SIZE_IN_BYTES, 2)
+        f.truncate()
+    f.close()
+
+    return matout
+
+
+def span_initial_basis3(fragments,
+                        Jstreu,
+                        coefstr,
+                        funcPath,
+                        binPath,
+                        mindists=[0.01, 0.01],
+                        ini_grid_bounds=[0.01, 9.5, 0.001, 11.5],
+                        ini_dims=[4, 4],
+                        parall=-1):
+
+    os.chdir(funcPath)
+
+    Jstreustring = '%s' % str(Jstreu)[:3]
+
+    lfrags = []
+    sfrags = []
+    lfrags2 = []
+    sfrags2 = []
+
+    for lcfg in range(len(fragments)):
+        sfrags = sfrags + fragments[lcfg][1]
+        for scfg in fragments[lcfg][1]:
+            lfrags = lfrags + [fragments[lcfg][0]]
+
+    lit_w = {}
+    lit_rw = {}
+
+    he_iw = he_rw = he_frgs = ob_stru = lu_stru = sbas = []
+
+    # minimal distance allowed for between width parameters
+    rwma = 20
+    bvma = 2
+    mindist_int = mindists[0]
+    mindist_rel = mindists[1]
+
+    # lower bound for width parameters '=' IR cutoff (broadest state)
+    rWmin = 0.0001
+
+    # orbital-angular-momentum dependent upper bound '=' UV cutoff (narrowest state)
+    iLcutoff = [12., 4., 3.]
+    rLcutoff = [12., 4., 3.]
+    nwint = ini_dims[0]
+    nwrel = ini_dims[1]
+    rel_scale = 1.
+
+    if nwrel >= rwma:
+        print(
+            'The set number for relative width parameters per basis vector > max!'
+        )
+        exit()
+
+    lit_rw_sparse = np.empty(len(sfrags), dtype=list)
+    for frg in range(len(lfrags)):
+
+        #  -- internal widths --------------------------------------------------
+        itera = 1
+        lit_w_t = [
+            ini_grid_bounds[0] + np.random.random() *
+            (ini_grid_bounds[1] - ini_grid_bounds[0])
+        ]
+        while len(lit_w_t) != nwint:
+
+            lit_w_tmp = ini_grid_bounds[0] + np.random.random() * (
+                ini_grid_bounds[1] - ini_grid_bounds[0])
+            dists = [np.linalg.norm(wp - lit_w_tmp) for wp in lit_w_t]
+            if ((np.min(dists) > mindist_int) & (lit_w_tmp < iLcutoff[0])):
+                lit_w_t.append(lit_w_tmp)
+
+            itera += 1
+            assert itera <= 10000
+
+        lit_w[frg] = np.sort(lit_w_t)[::-1]
+
+        #  -- relative widths --------------------------------------------------
+        itera = 1
+        lit_w_t = [
+            ini_grid_bounds[2] + np.random.random() *
+            (ini_grid_bounds[3] - ini_grid_bounds[2])
+        ]
+        while len(lit_w_t) != nwrel:
+
+            lit_w_tmp = ini_grid_bounds[2] + np.random.random() * (
+                ini_grid_bounds[3] - ini_grid_bounds[2])
+            dists = [np.linalg.norm(wp - lit_w_tmp) for wp in lit_w_t]
+            if ((np.min(dists) > mindist_rel) & (lit_w_tmp < rLcutoff[0])):
+                lit_w_t.append(lit_w_tmp)
+
+            itera += 1
+            assert itera <= 10000
+
+        lit_rw[frg] = np.sort(lit_w_t)[::-1]
+
+    widi = []
+    widr = []
+    for n in range(len(lit_w)):
+        tmp = np.sort(lit_w[n])[::-1]
+        #tmp = sparse(tmp, mindist_int)
+        zer_per_ws = int(np.ceil(len(tmp) / bvma))
+        bins = [0 for nmmm in range(zer_per_ws + 1)]
+        bins[0] = 0
+        for mn in range(len(tmp)):
+            bins[1 + mn % zer_per_ws] += 1
+        bnds = np.cumsum(bins)
+        tmp2 = [list(tmp[bnds[nn]:bnds[nn + 1]]) for nn in range(zer_per_ws)]
+        tmp3 = [list(lit_rw[nn]) for nn in range(zer_per_ws)]
+        sfrags2 += len(tmp2) * [sfrags[n]]
+        lfrags2 += len(tmp2) * [lfrags[n]]
+        widi += tmp2
+        widr += tmp3
+
+    anzBV = sum([len(zer) for zer in widi])
+
+    sbas = []
+    bv = 1
+    for n in range(len(lfrags2)):
+        for m in range(len(widi[n])):
+            sbas += [[bv, [x for x in range(1 + bv % 2, 1 + len(widr[n]), 2)]]]
+            bv += 1
+
+    os.chdir(funcPath)
+
+    n3_inlu(8, fn='INLU', fr=lfrags2, indep=parall)
+    os.system(binPath + 'DRLUD.exe')
+    n3_inlu(8, fn='INLUCN', fr=lfrags2, indep=parall)
+    os.system(binPath + 'LUDW_CN.exe')
+    n3_inob(sfrags2, 8, fn='INOB', indep=parall)
+    os.system(binPath + 'KOBER.exe')
+    n3_inob(sfrags2, 15, fn='INOB', indep=parall)
+    os.system(binPath + 'DROBER.exe')
+    n3_inqua_N(intwi=widi, relwi=widr, potf='nn_pot', inquaout='INQUA_N')
+    parallel_mod_of_3inqua(lfrags2,
+                           sfrags2,
+                           infile='INQUA_N',
+                           outfile='INQUA_N',
+                           einzel_path=funcPath + '/')
+
+    insam(len(lfrags2))
+
+    anzproc = max(2, min(len(lfrags2), MaxProc))
+
+    n3_inen_bdg(sbas, Jstreu, coefstr, fn='INEN', pari=0)
+
+    if parall == -1:
+        diskfil = disk_avail(funcPath)
+
+        if diskfil < 0.2:
+            print('more than %s of disk space is already used!' %
+                  (str(diskfil) + '%'))
+            exit()
+
+        subprocess.run(
+            [MPIRUN, '-np',
+             '%d' % anzproc, binPath + 'V18_PAR/mpi_quaf_v6'])
+        subprocess.run([binPath + 'V18_PAR/sammel'])
+        subprocess.call('rm -rf DMOUT.*', shell=True)
+
+    else:
+        subprocess.run([binPath + 'QUAFL_N.exe'])
+
+    subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
+
+    if tnni == 11:
+        n3_inqua_N(intwi=widi, relwi=widr, potf='nnn_pot', inquaout='INQUA_N')
+        parallel_mod_of_3inqua(lfrags2,
+                               sfrags2,
+                               infile='INQUA_N',
+                               outfile='INQUA_N',
+                               tni=1,
+                               einzel_path=funcPath + '/')
+        if parall == -1:
+            diskfil = disk_avail(funcPath)
+
+            if diskfil < 0.2:
+                print('more than %s of disk space is already used!' %
+                      (str(diskfil) + '%'))
+                exit()
+
+            subprocess.run([
+                MPIRUN, '-np',
+                '%d' % anzproc, binPath + 'UIX_PAR/mpi_drqua_uix'
+            ])
+
+            subprocess.run([binPath + 'UIX_PAR/SAMMEL-uix'])
+            subprocess.call('rm -rf DRDMOUT.*', shell=True)
+
+            subprocess.run([binPath + 'TDR2END_AK.exe'])
+            subprocess.call('cp OUTPUT out_normal', shell=True)
+        else:
+            subprocess.run([binPath + 'DRQUA_AK_N.exe'])
+            subprocess.run([binPath + 'DR2END_AK.exe'])
+
+    elif tnni == 10:
+        if parall == -1:
+            subprocess.run([binPath + 'TDR2END_AK.exe'])
+            subprocess.call('cp OUTPUT out_normal', shell=True)
+        else:
+            subprocess.run([binPath + 'DR2END_AK.exe'])
+
+    subprocess.call('cp -rf INQUA_N INQUA_N_UIX', shell=True)
+    suche_fehler()
+
+    matout = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
+
+    # write basis structure on tape
+
+    path_frag_stru = funcPath + '/frags.dat'
+    if os.path.exists(path_frag_stru): os.remove(path_frag_stru)
+    with open(path_frag_stru, 'wb') as f:
+        np.savetxt(f,
+                   np.column_stack([sfrags2, lfrags2]),
+                   fmt='%s',
+                   delimiter=' ',
+                   newline=os.linesep)
+        f.seek(NEWLINE_SIZE_IN_BYTES, 2)
+        f.truncate()
+    f.close()
+
+    path_intw = funcPath + '/intw.dat'
+    if os.path.exists(path_intw): os.remove(path_intw)
+    with open(path_intw, 'wb') as f:
+        for ws in widi:
+            np.savetxt(f, [ws], fmt='%12.6f', delimiter=' ')
+        f.seek(NEWLINE_SIZE_IN_BYTES, 2)
+        f.truncate()
+    f.close()
+
+    path_relw = funcPath + '/relw.dat'
+    if os.path.exists(path_relw): os.remove(path_relw)
+    with open(path_relw, 'wb') as f:
+        for ws in widr:
+            np.savetxt(f, [ws], fmt='%12.6f', delimiter=' ')
         f.seek(NEWLINE_SIZE_IN_BYTES, 2)
         f.truncate()
     f.close()
@@ -914,5 +1148,114 @@ def blunt_ev2(cfgs, widi, basis, nzopt, costring, binpath, potNN, jay,
     NormHam = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
 
     suche_fehler()
+
+    return NormHam
+
+
+def blunt_ev3(cfgs,
+              intws,
+              relws,
+              basis,
+              nzopt,
+              costring,
+              bin_path,
+              mpipath,
+              potNN,
+              potNNN='',
+              parall=-1,
+              tnnii=10,
+              jay=0.5,
+              anzcores=6,
+              funcPath='',
+              dia=True):
+
+    #assert basisDim(basis) == len(sum(sum(relws, []), []))
+
+    lfrag = np.array(cfgs)[:, 1].tolist()
+    sfrag = np.array(cfgs)[:, 0].tolist()
+    insam(len(lfrag))
+
+    n3_inlu(8, fn='INLUCN', fr=lfrag, indep=parall)
+    os.system(bin_path + 'LUDW_CN.exe')
+    n3_inob(sfrag, 8, fn='INOB', indep=parall)
+    os.system(bin_path + 'KOBER.exe')
+
+    n3_inqua_N(intwi=intws, relwi=relws, potf=potNN, inquaout='INQUA_N')
+    parallel_mod_of_3inqua(lfrag,
+                           sfrag,
+                           infile='INQUA_N',
+                           outfile='INQUA_N',
+                           einzel_path=funcPath + '/')
+
+    n3_inen_bdg(basis, jay, costring, fn='INEN', pari=0, nzop=nzopt, tni=tnnii)
+
+    if parall == -1:
+        diskfil = disk_avail(funcPath)
+
+        if diskfil < 0.2:
+            print('more than %s of disk space is already used!' %
+                  (str(diskfil) + '%'))
+            exit()
+
+        subprocess.run([
+            mpipath, '-np',
+            '%d' % anzcores, bin_path + 'V18_PAR/mpi_quaf_v6'
+        ])
+        subprocess.run([bin_path + 'V18_PAR/sammel'])
+        subprocess.call('rm -rf DMOUT.*', shell=True)
+    else:
+        subprocess.run([bin_path + 'QUAFL_N.exe'])
+
+    subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
+    if tnnii == 11:
+        n3_inlu(8, fn='INLU', fr=lfrag, indep=parall)
+        os.system(bin_path + 'DRLUD.exe')
+        n3_inob(sfrag, 15, fn='INOB', indep=parall)
+        os.system(bin_path + 'DROBER.exe')
+
+        n3_inqua_N(intwi=intws, relwi=relws, potf=potNNN, inquaout='INQUA_N')
+        parallel_mod_of_3inqua(lfrag,
+                               sfrag,
+                               infile='INQUA_N',
+                               outfile='INQUA_N',
+                               tni=1,
+                               einzel_path=funcPath + '/')
+
+        if parall == -1:
+            diskfil = disk_avail(funcPath)
+
+            if diskfil < 0.2:
+                print('more than %s of disk space is already used!' %
+                      (str(diskfil) + '%'))
+                exit()
+
+            subprocess.run([
+                mpipath, '-np',
+                '%d' % anzcores, bin_path + 'UIX_PAR/mpi_drqua_uix'
+            ])
+            subprocess.run([bin_path + 'UIX_PAR/SAMMEL-uix'])
+            subprocess.call('rm -rf DRDMOUT.*', shell=True)
+            subprocess.run([
+                bin_path + 'TDR2END_PYpoolnoo.exe', 'INEN',
+                'OUTPUT_TDR2END_PYpoolnoo', 'MATOUTB'
+            ],
+                           capture_output=True,
+                           text=True)
+        else:
+            subprocess.run([bin_path + 'DRQUA_AK_N.exe'])
+            subprocess.run([bin_path + 'DR2END_AK.exe'])
+    elif tnnii == 10:
+        if parall == -1:
+            subprocess.run([
+                bin_path + 'TDR2END_PYpoolnoo.exe', 'INEN',
+                'OUTPUT_TDR2END_PYpoolnoo', 'MATOUTB'
+            ],
+                           capture_output=True,
+                           text=True)
+        else:
+            subprocess.run([bin_path + 'DR2END_AK.exe'])
+
+    subprocess.call('cp -rf INQUA_N INQUA_N_UIX', shell=True)
+    NormHam = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
 
     return NormHam

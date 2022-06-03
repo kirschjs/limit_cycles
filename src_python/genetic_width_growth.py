@@ -5,9 +5,9 @@ import struct
 def loveliness(groundstateEnergy, conditionNumber, HeigenvaluesbelowX,
                minimalConditionnumber):
 
-    try:
+    if np.abs(groundstateEnergy) < 500:
         pulchritude = np.exp((-1) * groundstateEnergy)
-    except:
+    else:
         pulchritude = 0.0
 
     return pulchritude

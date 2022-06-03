@@ -10,7 +10,6 @@ from three_particle_functions import *
 from PSI_parallel_M import *
 from rrgm_functions import *
 from genetic_width_growth import *
-from plot_dist import *
 
 import multiprocessing
 from multiprocessing.pool import ThreadPool
@@ -18,28 +17,37 @@ from multiprocessing.pool import ThreadPool
 home = os.getenv("HOME")
 
 pathbase = home + '/kette_repo/limit_cycles'
-suffix = '2'
+suffix = '3'
 sysdir = pathbase + '/systems/' + suffix
-subprocess.call('rm -rf %s/civ_*' % sysdir, shell=True)
 
 BINBDGpath = pathbase + '/src_nucl/'
 
+parall = +0
+anzproc = 6  #int(len(os.sched_getaffinity(0)) / 1)
+
 # numerical stability
-minCond = 10**-15
-minidi = 0.01
-denseEVinterval = [-2, 2]
+nBV = 4
+nREL = 4
+mindisti = [0.02, 0.02]
+width_bnds = [0.001, 1.5, 0.001, 1.5]
+minCond = 10**-11
+
+# NN: tnni=10   NN+NNN: tnni=11
+tnni = 11
 
 # genetic parameters
 anzNewBV = 4
 muta_initial = 0.03
 anzGen = 14
-civ_size = 10
+civ_size = 4
 target_pop_size = 10
 
 os.chdir(sysdir)
 
 nnpot = 'nn_pot'
+nnnpot = 'nnn_pot'
 
+J0 = 1 / 2
 la = 4.00
 # B2 = 1 MeV and B3 = 8.48 MeV
 cloW = -484.92093
@@ -47,35 +55,40 @@ cloB = -0.0
 d0 = 2495.36419052
 
 prep_pot_file_2N(lam=la, wiC=cloW, baC=cloB, ps2=nnpot)
+prep_pot_file_3N(lam=la, d10=d0, ps3=nnnpot)
 
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
-channel = 'np3s'
-
-J0 = 1
-deutDim = 12
+channels = [
+    ['000', ['he_no1', 'he_no6']],
+]
 
 costr = ''
-zop = 14
+zop = 31 if tnni == 11 else 14
 for nn in range(1, zop):
-    cf = 1.0 if (1 <= nn <= 28) else 0.0
+    cf = 1.0 if ((nn == 1) | (nn == 2) | (nn == 14)) else 0.0
     costr += '%12.7f' % cf if (nn % 7 != 0) else '%12.7f\n' % cf
+prepare_einzel(sysdir, BINBDGpath)
 
 # 1) prepare an initial set of bases ----------------------------------------------------------------------------------
 civs = []
 while len(civs) < civ_size:
     basCond = -1
     gsREF = 42.0
-    while ((basCond < minCond) | (gsREF > 0)):
-        seedMat = span_initial_basis2(channel=channel,
+
+    while ((basCond < minCond) | (gsREF < 0)):
+
+        seedMat = span_initial_basis3(fragments=channels,
                                       coefstr=costr,
                                       Jstreu=float(J0),
                                       funcPath=sysdir,
-                                      ini_grid_bounds=[0.00001, 2.5],
-                                      ini_dims=deutDim,
+                                      mindists=mindisti,
+                                      ini_grid_bounds=width_bnds,
+                                      ini_dims=[nBV, nREL],
                                       binPath=BINBDGpath,
-                                      mindist=minidi)
+                                      parall=parall)
 
         seedMat = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
+
         dim = int(np.sqrt(len(seedMat) * 0.5))
 
         # read Norm and Hamilton matrices
@@ -88,8 +101,16 @@ while len(civs) < civ_size:
         try:
             ewN, evN = eigh(normat)
             ewH, evH = eigh(hammat, normat)
+
+            basCond = np.min(np.abs(ewN)) / np.max(np.abs(ewN))
+            gsREF = ewH[0]
+            gsvREF = evH[:, 0]
+            condREF = basCond
+            subprocess.call('cp -rf INQUA_M_V18 INQUA_M_V18_REF', shell=True)
+            subprocess.call('cp -rf INQUA_M_UIX INQUA_M_UIX_REF', shell=True)
         except:
-            basCond = -0.0
+            basCond = 0.0
+            gsREF = 42.
             continue
 
         qualREF, gsREF, basCond = basQ(ewN, ewH, minCond)
@@ -97,18 +118,21 @@ while len(civs) < civ_size:
         gsvREF = evH[:, 0]
         condREF = basCond
 
-        #print(gsvREF)
-        #exit()
-
     print('%d ' % (civ_size - len(civs)), end='')
 
     # 2) rate each basis-vector block according to its contribution to the ground-state energy -------------------
 
-    relw = sum([
-        np.array(ln.split()).astype(float).tolist() for ln in open('relw.dat')
-    ], [])
+    intw = [
+        np.array(ln.split()).astype(float).tolist() for ln in open('intw.dat')
+    ]
 
-    initialCiv = [channel, relw, qualREF, gsREF, basCond, gsvREF]
+    relw = [
+        np.array(ln.split()).astype(float).tolist() for ln in open('relw.dat')
+    ]
+
+    cfgs = [con.split() for con in open('frags.dat')]
+
+    initialCiv = [cfgs, [intw, relw], qualREF, gsREF, basCond, gsvREF]
 
     civs.append(initialCiv)
 
@@ -136,38 +160,63 @@ for nGen in range(anzGen):
         mother = civs[parent_pair[0]]
         father = civs[parent_pair[1]]
 
-        daughterson = [
-            intertwining(mother[1][n],
-                         father[1][n],
-                         mutation_rate=muta_initial)
-            for n in range(len(mother[1]))
-        ]
-
-        rw1 = np.array(daughterson)[:, 0]  #.sort()
-        rw1.sort()
-        rw2 = np.array(daughterson)[:, 1]  #.sort()
-        rw2.sort()
-
         sbas = []
-        bv = two_body_channels[channel]
+        bv = 1
+        for n in range(len(mother[0])):
+            for m in range(len(mother[1][0][n])):
+                sbas += [[
+                    bv,
+                    [
+                        x
+                        for x in range(1 + bv % 2, 1 + len(mother[1][1][n]), 2)
+                    ]
+                ]]
+                bv += 1
 
-        sbas += [[bv, [x for x in range(1, 1 + len(rw1))]]]
+        # 1) N-1 widths sets
+        wson = []
+        wdau = []
+        for wset in range(len(mother[1])):
+            # 2) basis-dependent nbr. of cfgs
+            wdau.append([])
+            wson.append([])
+            for cfg in range(len(mother[0])):
 
-        daughter = [channel, rw1[::-1], 0, 0, 0, []]
-        son = [channel, rw2[::-1], 0, 0, 0, []]
+                daughterson = [
+                    intertwining(mother[1][wset][cfg][n],
+                                 father[1][wset][cfg][n],
+                                 mutation_rate=muta_initial)
+                    for n in range(len(mother[1][wset][cfg]))
+                ]
+
+                rw1 = np.array(daughterson)[:, 0]  #.sort()
+                rw1.sort()
+                rw2 = np.array(daughterson)[:, 1]  #.sort()
+                rw2.sort()
+                wdau[-1].append(list(rw1)[::-1])
+                wson[-1].append(list(rw2)[::-1])
+
+        daughter = [mother[0], wdau, 0, 0, 0, []]
+        son = [mother[0], wson, 0, 0, 0, []]
         twins = [daughter, son]
 
         for twin in twins:
-            ma = blunt_ev2(cfgs=[channel],
-                           widi=[twin[1]],
-                           basis=sbas,
+
+            ma = blunt_ev3(twin[0],
+                           twin[1][0],
+                           twin[1][1],
+                           sbas,
+                           funcPath=sysdir,
                            nzopt=zop,
                            costring=costr,
-                           binpath=BINBDGpath,
-                           potNN=nnpot,
-                           jay=J0,
-                           funcPath=sysdir)
-
+                           bin_path=BINBDGpath,
+                           mpipath=MPIRUN,
+                           potNN='./%s' % nnpot,
+                           potNNN='./%s' % nnnpot,
+                           parall=-0,
+                           anzcores=max(2, min(len(initialCiv[0]), MaxProc)),
+                           tnnii=tnni,
+                           jay=J0)
             try:
                 dim = int(np.sqrt(len(ma) * 0.5))
                 # read Norm and Hamilton matrices
@@ -178,12 +227,11 @@ for nGen in range(anzGen):
                 # diagonalize normalized norm (using "eigh(ermitian)" to speed-up the computation)
                 ewN, evN = eigh(normat)
                 ewH, evH = eigh(hammat, normat)
+                qualTWIN, gsTWIN, basCondTWIN = basQ(ewN, ewH, minCond)
+                twin[2:] = qualTWIN, gsTWIN, basCondTWIN, evH[:, 0]
             except:
                 # ('unstable child!')
-                qualTWIN = -42.0
-
-            qualTWIN, gsTWIN, basCondTWIN = basQ(ewN, ewH, minCond)
-            twin[2:] = qualTWIN, gsTWIN, basCondTWIN, evH[:, 0]
+                qualTWIN, gsTWIN, basCondTWIN = -42, 42, 0
 
             if ((qualTWIN > qualCUT) & (basCondTWIN > minCond)):
                 civs.append(twin)
@@ -191,7 +239,9 @@ for nGen in range(anzGen):
                 if children == anzNewBV:
                     break
 
-    civs = sortprint(civs, pr=False)
+    civs = sortprint(civs, pr=True)
+
+    exit()
 
     if len(civs) > target_pop_size:
         currentdim = len(civs)

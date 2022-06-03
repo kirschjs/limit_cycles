@@ -539,17 +539,10 @@ def lit_3inqua_M(intwi=[], relwi=[], LREG='', anzo=13, outfile='INQUA'):
     #  2   :   1  0  3S1         2
 
 
-def lit_3inqua_seq(intwi=[], relwi=[], LREG='', anzo=13, outfile='INQUA'):
+def n3_inqua_N(intwi=[], relwi=[], potf='', inquaout='INQUA_N'):
     s = ''
-
     # NBAND1,NBAND2,NBAND3,NBAND4,NBAND5,NAUS,MOBAUS,LUPAUS,NBAUS
-    s += ' 10  8  9  3 00  0  0  0  0\n'
-    if (LREG == ''):
-        for n in range(anzo):
-            s += '  1'
-    else:
-        s += LREG
-    s += '\n'
+    s += ' 10  8  9  3 00  0  0  0  0\n%s\n' % potf
 
     zerl_counter = 0
     bv_counter = 1
@@ -582,7 +575,7 @@ def lit_3inqua_seq(intwi=[], relwi=[], LREG='', anzo=13, outfile='INQUA'):
                     s += '\n'
 
     appe = 'w'
-    with open(outfile, appe) as outfi:
+    with open(inquaout, appe) as outfi:
         outfi.write(s)
     return
     # r7 c2:   S  L           S_c

@@ -40,3 +40,30 @@ def polynomial_sum_weight(nbr, order=1):
         exit()
 
     return p
+
+
+def sortprint(civi, pr=False):
+
+    civi.sort(key=lambda tup: tup[2])
+    civi = civi[::-1]
+    if pr:
+        print(
+            '\n        pulchritude       E_groundstate cond. number (norm)\n-----------------------------------------------------------'
+        )
+
+        for civ in civi:
+            print('%19.5f %19.5f %19.5e' % (civ[2], civ[3], civ[4]))
+        print('-----------------------------------------------------------')
+    return civi
+
+
+def write_indiv(indi, outf):
+
+    if os.path.exists(outf): os.remove(outf)
+    sout = '%12.8f\n' % indi[3]
+    for n in range(len(indi[1])):
+        sout += '%12.4e %12.4e\n' % (float(indi[-1][n]), float(indi[1][n]))
+
+    with open(outf, 'w') as oof:
+        oof.write(sout)
+    oof.close()
