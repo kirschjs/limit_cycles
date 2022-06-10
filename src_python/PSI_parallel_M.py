@@ -615,7 +615,7 @@ def span_initial_basis3(fragments,
 
     # minimal distance allowed for between width parameters
     rwma = 20
-    bvma = 2
+    bvma = 8
     mindist_int = mindists[0]
     mindist_rel = mindists[1]
 
@@ -680,7 +680,6 @@ def span_initial_basis3(fragments,
     widr = []
     for n in range(len(lit_w)):
         tmp = np.sort(lit_w[n])[::-1]
-        #tmp = sparse(tmp, mindist_int)
         zer_per_ws = int(np.ceil(len(tmp) / bvma))
         bins = [0 for nmmm in range(zer_per_ws + 1)]
         bins[0] = 0
@@ -688,7 +687,7 @@ def span_initial_basis3(fragments,
             bins[1 + mn % zer_per_ws] += 1
         bnds = np.cumsum(bins)
         tmp2 = [list(tmp[bnds[nn]:bnds[nn + 1]]) for nn in range(zer_per_ws)]
-        tmp3 = [list(lit_rw[nn]) for nn in range(zer_per_ws)]
+        tmp3 = [list(lit_rw[n]) for nn in range(zer_per_ws)]
         sfrags2 += len(tmp2) * [sfrags[n]]
         lfrags2 += len(tmp2) * [lfrags[n]]
         widi += tmp2
@@ -838,6 +837,8 @@ def prepare_einzel(funcPath, binPath):
             'he_no5y',
             'he_no6',
             'he_no6y',
+            't_no1',
+            't_no6',
         ],
                 8,
                 fn='INOB',
@@ -858,6 +859,8 @@ def prepare_einzel(funcPath, binPath):
             'he_no5y',
             'he_no6',
             'he_no6y',
+            't_no1',
+            't_no6',
         ],
                 15,
                 fn='INOB',

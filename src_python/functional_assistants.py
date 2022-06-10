@@ -59,11 +59,45 @@ def sortprint(civi, pr=False):
 
 def write_indiv(indi, outf):
 
+    # indi = channel, relw, qualREF, gsREF, basCond, gsvREF
     if os.path.exists(outf): os.remove(outf)
     sout = '%12.8f\n' % indi[3]
+
     for n in range(len(indi[1])):
         sout += '%12.4e %12.4e\n' % (float(indi[-1][n]), float(indi[1][n]))
 
     with open(outf, 'w') as oof:
         oof.write(sout)
+    oof.close()
+
+
+def write_indiv3(indi, outf):
+
+    if os.path.exists(outf): os.remove(outf)
+    sout = '%12.8f\n' % indi[3]
+
+    sbas = []
+    bv = 1
+    for n in range(len(indi[0])):
+        sbas.append([])
+        for m in range(len(indi[1][0][n])):
+            sbas[-1].append([
+                bv, [x for x in range(1 + bv % 2, 1 + len(indi[1][1][n]), 2)]
+            ])
+            bv += 1
+
+    w1 = sum(indi[1][0], [])
+
+    nbv = 0
+    for ncfg in range(len(indi[0])):
+        for bv in sbas[ncfg]:
+            for rel in bv[1]:
+                sout += '%12.4e %12.4e %12.4e\n' % (float(
+                    indi[5][nbv]), float(
+                        w1[bv[0] - 1]), float(indi[1][1][ncfg][rel - 1]))
+                nbv += 1
+
+    with open(outf, 'w') as oof:
+        oof.write(sout)
+    indi[6].tofile('n_' + outf)
     oof.close()

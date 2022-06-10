@@ -333,7 +333,7 @@ def prep_pot_file_3N(lam, ps3='', d10=0.0):
     return
 
 
-def parse_ev_coeffs(mult=0, infil='OUTPUT', outf='COEFF'):
+def parse_ev_coeffs(mult=0, infil='OUTPUT', outf='COEFF', bvnr=1):
     os.system('cp ' + infil + ' tmp')
     out = [line2 for line2 in open(infil)]
     #for n in range(1,len(out)):
@@ -344,9 +344,11 @@ def parse_ev_coeffs(mult=0, infil='OUTPUT', outf='COEFF'):
     coeff_mult = []
     bvc = 0
     for line in range(0, len(out) - 1):
-        if re.search('ENTWICKLUNG DES  1 TEN EIGENVEKTORS', out[line]):
+        if re.search('ENTWICKLUNG DES%3d TEN EIGENVEKTORS' % bvnr, out[line]):
             for bvl in range(line + 2, len(out)):
-                if ((out[bvl][:3] == ' KO') | (out[bvl][:3] == '\n')):
+                if ((out[bvl][:3] == ' KO') | (out[bvl][:3] == '\n') |
+                    (out[bvl][:3] == '0 D')):
+                    print(out[bvl - 1])
                     bvc = int(out[bvl -
                                   1].strip().split('/')[-1].split(')')[0])
                     break

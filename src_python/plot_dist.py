@@ -66,3 +66,73 @@ def plotwidths(sysdir):
 
     plt.clf()
     plt.close()
+
+
+def sGauss3(rr, co, wi):
+
+    assert len(co) == len(wi)
+
+    return np.sum(
+        np.array([
+            co[n] * np.exp(-wi[n][0] * rr[0]**2) * np.exp(-wi[n][1] * rr[1]**2)
+            for n in range(len(co))
+        ]))
+
+
+def plotwidths3(sysdir):
+
+    co_wi = []
+    for root, dirs, files in os.walk(sysdir):
+        for f in files:
+            if re.search('civ_', f):
+                idx = int(f.split('_')[1].split('.')[0])
+                lines = [line for line in open(sysdir + '/' + f)]
+                co_wi.append([
+                    np.array([line.split()
+                              for line in lines[1:]]).astype(float),
+                    float(lines[0]), idx
+                ])
+
+    co_wi.sort(key=lambda tup: tup[2])
+    dime = len(co_wi[0][0][0])
+
+    rSpace = np.linspace(0, 2.1, 50)
+
+    wfkts = []
+    widths = []
+    coeffs = []
+
+    for n in range(len(co_wi)):
+        coeffs.append(co_wi[n][0][:, 0])
+        widths.append(co_wi[n][0][:, 1:])
+
+    for m in range(len(co_wi)):
+        wfkts.append(
+            [[[sGauss3([rx, ry], coeffs[m], widths[m]) for rx in rSpace]
+              for ry in rSpace], co_wi[m][1], co_wi[m][2]])
+
+    fig = plt.figure(figsize=(10, 12), dpi=95)
+    ax = plt.axes(projection='3d')
+
+    x = rSpace
+    y = rSpace
+
+    X, Y = np.meshgrid(x, y)
+    fig.subplots_adjust(hspace=0.4, wspace=0.4)
+    ax = plt.axes(projection='3d')
+
+    ax.set_xlabel(r'$r_{12}$')
+    ax.set_ylabel(r'$r_{3,12}$')
+    ax.set_zlabel(r'$\Psi(r_{12},r_{3,12})$')
+    ax.view_init(10, -20)
+
+    [ax.contour3D(X, Y, gswfkt[0], 50) for gswfkt in wfkts]
+
+    #plt.show()
+
+    fig.savefig(sysdir + '/bases3.pdf')
+    plt.clf()
+    plt.close()
+
+
+#plotwidths3('/home/kirscher/kette_repo/limit_cycles/systems/3')

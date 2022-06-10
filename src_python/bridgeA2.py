@@ -32,9 +32,9 @@ denseEVinterval = [-2, 2]
 # genetic parameters
 anzNewBV = 4
 muta_initial = 0.03
-anzGen = 14
-civ_size = 10
-target_pop_size = 10
+anzGen = 42
+civ_size = 30
+target_pop_size = 30
 
 os.chdir(sysdir)
 
@@ -44,7 +44,7 @@ la = 4.00
 # B2 = 1 MeV and B3 = 8.48 MeV
 cloW = -484.92093
 cloB = -0.0
-d0 = 2495.36419052
+d0 = 2495.36419052 * (0.34)
 
 prep_pot_file_2N(lam=la, wiC=cloW, baC=cloB, ps2=nnpot)
 
@@ -52,7 +52,7 @@ prep_pot_file_2N(lam=la, wiC=cloW, baC=cloB, ps2=nnpot)
 channel = 'np3s'
 
 J0 = 1
-deutDim = 12
+deutDim = 6
 
 costr = ''
 zop = 14

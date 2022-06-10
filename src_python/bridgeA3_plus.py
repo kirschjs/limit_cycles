@@ -10,6 +10,7 @@ from three_particle_functions import *
 from PSI_parallel_M import *
 from rrgm_functions import *
 from genetic_width_growth import *
+from plot_dist import *
 
 import multiprocessing
 from multiprocessing.pool import ThreadPool
@@ -22,12 +23,12 @@ sysdir = pathbase + '/systems/' + suffix
 
 BINBDGpath = pathbase + '/src_nucl/'
 
-parall = +0
+parall = -0
 anzproc = 6  #int(len(os.sched_getaffinity(0)) / 1)
 
 # numerical stability
-nBV = 4
-nREL = 4
+nBV = 6
+nREL = 8
 mindisti = [0.02, 0.02]
 width_bnds = [0.001, 1.5, 0.001, 1.5]
 minCond = 10**-11
@@ -37,12 +38,13 @@ tnni = 11
 
 # genetic parameters
 anzNewBV = 4
-muta_initial = 0.03
-anzGen = 14
-civ_size = 4
-target_pop_size = 10
+muta_initial = 0.05
+anzGen = 50
+civ_size = 30
+target_pop_size = 20
 
 os.chdir(sysdir)
+subprocess.call('rm -rf *.dat', shell=True)
 
 nnpot = 'nn_pot'
 nnnpot = 'nnn_pot'
@@ -52,14 +54,16 @@ la = 4.00
 # B2 = 1 MeV and B3 = 8.48 MeV
 cloW = -484.92093
 cloB = -0.0
-d0 = 2495.36419052
+d0 = 2495.36419052 * (0.34)
 
 prep_pot_file_2N(lam=la, wiC=cloW, baC=cloB, ps2=nnpot)
 prep_pot_file_3N(lam=la, d10=d0, ps3=nnnpot)
 
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
 channels = [
-    ['000', ['he_no1', 'he_no6']],
+    #['000', ['he_no1', 'he_no6']],
+    ['000', ['t_no1', 't_no6']],
+    #['000', ['he_no0']],
 ]
 
 costr = ''
@@ -75,7 +79,7 @@ while len(civs) < civ_size:
     basCond = -1
     gsREF = 42.0
 
-    while ((basCond < minCond) | (gsREF < 0)):
+    while ((basCond < minCond) | (gsREF == 0)):
 
         seedMat = span_initial_basis3(fragments=channels,
                                       coefstr=costr,
@@ -132,7 +136,7 @@ while len(civs) < civ_size:
 
     cfgs = [con.split() for con in open('frags.dat')]
 
-    initialCiv = [cfgs, [intw, relw], qualREF, gsREF, basCond, gsvREF]
+    initialCiv = [cfgs, [intw, relw], qualREF, gsREF, basCond, gsvREF, normat]
 
     civs.append(initialCiv)
 
@@ -140,8 +144,9 @@ civs = sortprint(civs, pr=True)
 
 for nGen in range(anzGen):
 
-    qualCUT, gsCUT, basCondCUT, coeffCUT = civs[-int(len(civs) / 2)][2:]
-    qualREF, gsREF, basCondREF, coeffREF = civs[0][2:]
+    qualCUT, gsCUT, basCondCUT, coeffCUT, normCUT = civs[-int(len(civs) /
+                                                              2)][2:]
+    qualREF, gsREF, basCondREF, coeffREF, normREF = civs[0][2:]
 
     # 3) select a subset of basis vectors which are to be replaced -----------------------------------------------
 
@@ -196,8 +201,8 @@ for nGen in range(anzGen):
                 wdau[-1].append(list(rw1)[::-1])
                 wson[-1].append(list(rw2)[::-1])
 
-        daughter = [mother[0], wdau, 0, 0, 0, []]
-        son = [mother[0], wson, 0, 0, 0, []]
+        daughter = [mother[0], wdau, 0, 0, 0, [], np.array([])]
+        son = [mother[0], wson, 0, 0, 0, [], np.array([])]
         twins = [daughter, son]
 
         for twin in twins:
@@ -228,7 +233,8 @@ for nGen in range(anzGen):
                 ewN, evN = eigh(normat)
                 ewH, evH = eigh(hammat, normat)
                 qualTWIN, gsTWIN, basCondTWIN = basQ(ewN, ewH, minCond)
-                twin[2:] = qualTWIN, gsTWIN, basCondTWIN, evH[:, 0]
+                twin[2:] = qualTWIN, gsTWIN, basCondTWIN, evH[:, 0], normat
+
             except:
                 # ('unstable child!')
                 qualTWIN, gsTWIN, basCondTWIN = -42, 42, 0
@@ -239,9 +245,7 @@ for nGen in range(anzGen):
                 if children == anzNewBV:
                     break
 
-    civs = sortprint(civs, pr=True)
-
-    exit()
+    civs = sortprint(civs, pr=False)
 
     if len(civs) > target_pop_size:
         currentdim = len(civs)
@@ -263,7 +267,7 @@ for nGen in range(anzGen):
     outfile = 'civ_%d.dat' % nGen
     if civs[0][2] > qualREF:
         print('%d) New optimum.' % nGen)
-        write_indiv(civs[0], outfile)
+        write_indiv3(civs[0], outfile)
         print('   opt E = %4.4f   opt cond. = %4.4e' %
               (civs[0][3], civs[0][4]),
               end='\n')
@@ -271,17 +275,23 @@ for nGen in range(anzGen):
 print('\n\n')
 
 civs = sortprint(civs, pr=True)
-plotwidths(sysdir)
+#plotwidths3(sysdir)
 
-ma = blunt_ev2(cfgs=[channel],
-               widi=[civs[0][1]],
-               basis=sbas,
+ma = blunt_ev3(civs[0][0],
+               civs[0][1][0],
+               civs[0][1][1],
+               sbas,
+               funcPath=sysdir,
                nzopt=zop,
                costring=costr,
-               binpath=BINBDGpath,
-               potNN=nnpot,
-               jay=J0,
-               funcPath=sysdir)
+               bin_path=BINBDGpath,
+               mpipath=MPIRUN,
+               potNN='./%s' % nnpot,
+               potNNN='./%s' % nnnpot,
+               parall=-0,
+               anzcores=max(2, min(len(initialCiv[0]), MaxProc)),
+               tnnii=tnni,
+               jay=J0)
 
 dim = int(np.sqrt(len(ma) * 0.5))
 # read Norm and Hamilton matrices
