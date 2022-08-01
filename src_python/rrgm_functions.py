@@ -348,7 +348,7 @@ def parse_ev_coeffs(mult=0, infil='OUTPUT', outf='COEFF', bvnr=1):
             for bvl in range(line + 2, len(out)):
                 if ((out[bvl][:3] == ' KO') | (out[bvl][:3] == '\n') |
                     (out[bvl][:3] == '0 D')):
-                    print(out[bvl - 1])
+
                     bvc = int(out[bvl -
                                   1].strip().split('/')[-1].split(')')[0])
                     break
@@ -377,7 +377,7 @@ def parse_ev_coeffs(mult=0, infil='OUTPUT', outf='COEFF', bvnr=1):
     with open(outf, 'w') as outfile:
         outfile.write(ss)
 
-    return
+    return ss.split()
 
 
 def parse_ev_coeffs_normiert(mult=0, infil='OUTPUT', outf='COEFF_NORMAL'):
@@ -441,7 +441,11 @@ def read_phase(phaout='PHAOUT', ch=[1, 1], meth=1, th_shift=''):
     return phase
 
 
-def write_phases(ph_array, filename='tmp.dat', append=0, comment=''):
+def write_phases(ph_array,
+                 filename='tmp.dat',
+                 append=0,
+                 comment='',
+                 mu=mn['137']):
 
     outs = ''
 
@@ -465,11 +469,15 @@ def write_phases(ph_array, filename='tmp.dat', append=0, comment=''):
                 outs += oldfile[n]
 
     elif append == 0:
-        outs = '#% -10s  %12s %12s' % ('E_tot', 'E_tot-Eth', 'Phase(s)\n')
+        outs = '#% -10s  %12s %12s %12s' % ('E_tot', 'E_tot-Eth', 'Phase(s)',
+                                            'scatt. length\n')
         for line in range(len(ph_array)):
-            outs += '%12.8f %12.8f %12.8f' % (float(
+            atmp = MeVfm * (-1) * np.tan(
+                ph_array[line][2] * np.pi / 180.) / np.sqrt(
+                    2 * mu * ph_array[line][0])
+            outs += '%12.8f %12.8f %12.8f %12.8f' % (float(
                 ph_array[line][0]), float(
-                    ph_array[line][1]), float(ph_array[line][2]))
+                    ph_array[line][1]), float(ph_array[line][2]), atmp)
             outs += '\n'
 
     if comment != '': outs += comment + '\n'

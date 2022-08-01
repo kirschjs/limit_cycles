@@ -42,24 +42,24 @@ def h2_inen_str_pdp(relw, costr, j=0, sc=0, ch=[1]):
     return
 
 
-def h2_spole(nzen=20,
-             e0=0.01,
-             d0=0.075,
-             eps=0.01,
-             bet=1.1,
-             nzrw=400,
-             frr=0.06,
-             rhg=8.0,
-             rhf=1.0,
-             pw=1):
+def spole_2(nzen=20,
+            e0=0.01,
+            d0=0.075,
+            eps=0.01,
+            bet=1.1,
+            nzrw=400,
+            frr=0.06,
+            rhg=8.0,
+            rhf=1.0,
+            pw=1):
     s = ''
-    s += ' 11  3  0  0  0  1\n'
-    s += '%3d  0  0\n' % int(nzen)
+    s += ' 11  3  0  0  0  0\n'
+    s += '%3d  0  1\n' % int(nzen)
     s += '%12.4f%12.4f\n' % (float(e0), float(d0))
     s += '%12.4f%12.4f%12.4f\n' % (float(eps), float(eps), float(eps))
     s += '%12.4f%12.4f%12.4f\n' % (float(bet), float(bet), float(bet))
     #    OUT
-    s += '  0  0  1  0  1  0 -0  0\n'
+    s += '  0  0  1  0  1  0  2  0\n'
     s += '%3d\n' % int(nzrw)
     s += '%12.4f%12.4f%12.4f\n' % (float(frr), float(rhg), float(rhf))
     s += '  1  2  3  4\n'
@@ -77,7 +77,7 @@ def h2_spole(nzen=20,
     return
 
 
-def h2_inlu(anzo=5, anzf=1):
+def inlu_2(anzo=5, anzf=1):
     s = ''
     s += '  9\n'
     for n in range(anzo):
@@ -92,7 +92,7 @@ def h2_inlu(anzo=5, anzf=1):
     return
 
 
-def h2_inob(anzo=5, anzf=1):
+def inob_2(anzo=5, anzf=1):
     s = ''
     s += '  0  0\n'
     for n in range(anzo):
@@ -109,7 +109,7 @@ def h2_inob(anzo=5, anzf=1):
         s += '  2  1\n'
         s += '  3  4\n'
         s += '  4  3\n'
-        s += '  3  3\n'  # n-up, n-up
+        s += '  3  4\n'  # n-up, n-down
         s += '  1  1\n'  # p-up, p-up
         s += '  1  1\n'
         s += '  0  1  1  2\n'
@@ -125,7 +125,7 @@ def h2_inob(anzo=5, anzf=1):
     return
 
 
-def h2_inqua(relw, ps2):
+def inqua_2(relw, ps2):
     s = ''
     s += ' 10  8  9  3 00  0  0  0  0\n'
     #s += pot_dir + ps2 + '\n'
@@ -143,7 +143,7 @@ def h2_inqua(relw, ps2):
         s += '  2  1\n1.\n'  # 1:  n-p 1S0
         s += '  1  1\n1.\n'  # 2:  n-p 3S1
         # ------------
-        s += '  4  1\n1.\n'  # 3:  n-n 1S0
+        s += '  5  1\n1.\n'  # 3:  n-n 1S0
         s += '  5  2\n1.\n'  # 4:  n-n 3P0,1,2
         s += '  4  3\n1.\n'  # 5:  n-n 1D2
         s += '  5  4\n1.\n'  # 6:  n-n 3F2,3,4
@@ -171,7 +171,7 @@ def h2_inqua(relw, ps2):
     #  9   :   1  2  3D1         2
 
 
-def h2_inen_bs(bas, costr, j, ch=1, anzo=14, fn='INEN', pari=0, tni=10):
+def inen_bdg_2(bas, costr, j, ch=1, anzo=14, fn='INEN', pari=0, tni=10):
     s = ''
     s += ' 10  3 11%3d  1  1  0  0  0 -1\n' % int(anzo)
     #       N  T Co CD^2 LS  T
@@ -201,7 +201,7 @@ def h2_inen_bs(bas, costr, j, ch=1, anzo=14, fn='INEN', pari=0, tni=10):
     return
 
 
-def h2_inen_str(relw, costr, j=0, sc=0, ch=1, anzo=7):
+def inen_str_2(costr, anzrelw=20, j=0, sc=0, ch=1, anzo=14, fn='INEN'):
     s = ''
     s += ' 10  2 12%3d  1  1 -0  0  0 -1\n' % int(anzo)
     #      N  T Co  CD^2 LS  T
@@ -212,11 +212,11 @@ def h2_inen_str(relw, costr, j=0, sc=0, ch=1, anzo=7):
     s += '%4d   1   0   0   2\n' % int(2 * j)
     s += '  1  1%3d\n' % int(2 * sc)
     s += '   1%4d\n' % int(ch)
-    for rr in range(1, len(relw) + 1):
+    for rr in range(1, anzrelw + 1):
         if ((rr % 30 == 0)):
             s += '  1'
             s += '\n'
         s += '  1'
-    with open('INEN', 'w') as outfile:
+    with open(fn, 'w') as outfile:
         outfile.write(s)
     return

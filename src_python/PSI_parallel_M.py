@@ -3,6 +3,7 @@ import operator
 import shlex
 
 from parameters_and_constants import *
+from four_particle_functions import *
 from three_particle_functions import *
 from two_particle_functions import *
 from functional_assistants import *
@@ -10,7 +11,8 @@ from rrgm_functions import *
 from scipy.linalg import eigh
 from genetic_width_growth import *
 
-MaxProc = int(len(os.sched_getaffinity(0)) / 2)
+MaxProc = int(len(os.sched_getaffinity(0)) / 1)
+print('requesting N = %d computing cores.' % MaxProc)
 MPIRUN = subprocess.getoutput("which mpirun")
 tnni = 11
 NEWLINE_SIZE_IN_BYTES = -1
@@ -31,7 +33,7 @@ def endmat2(para, send_end):
     #           nzopt
     #           tnnii
 
-    h2_inen_bs(para[0], j=para[1], costr=para[2], fn=inenf, pari=0)
+    inen_bdg_2(para[0], j=para[1], costr=para[2], fn=inenf, pari=0)
 
     cmdend = para[6] + 'DR2END_AK_PYpoolnoo.exe %s %s %s' % (inenf, outf,
                                                              maoutf)
@@ -193,15 +195,15 @@ def span_initial_basis2(channel,
 
     os.chdir(funcPath)
 
-    h2_inlu(anzo=8, anzf=len(frags))
+    inlu_2(anzo=8, anzf=len(frags))
     os.system(binPath + 'LUDW_CN.exe')
-    h2_inob(anzo=8, anzf=len(frags))
+    inob_2(anzo=8, anzf=len(frags))
     os.system(binPath + 'KOBER.exe')
 
-    h2_inqua(relw=widi, ps2='./nn_pot')
+    inqua_2(relw=widi, ps2='./nn_pot')
     subprocess.run([binPath + 'QUAFL_N.exe'])
 
-    h2_inen_bs(sbas, j=Jstreu, costr=coefstr)
+    inen_bdg_2(sbas, j=Jstreu, costr=coefstr)
 
     subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
 
@@ -437,16 +439,16 @@ def span_initial_basis(fragments,
 
     os.chdir(funcPath)
 
-    n3_inlu(8, fn='INLU', fr=lfrags2, indep=parall)
+    inlu_3(8, fn='INLU', fr=lfrags2, indep=parall)
     os.system(binPath + 'DRLUD.exe')
-    n3_inlu(8, fn='INLUCN', fr=lfrags2, indep=parall)
+    inlu_3(8, fn='INLUCN', fr=lfrags2, indep=parall)
     os.system(binPath + 'LUDW_CN.exe')
-    n3_inob(sfrags2, 8, fn='INOB', indep=parall)
+    inob_3(sfrags2, 8, fn='INOB', indep=parall)
     os.system(binPath + 'KOBER.exe')
-    n3_inob(sfrags2, 15, fn='INOB', indep=parall)
+    inob_3(sfrags2, 15, fn='INOB', indep=parall)
     os.system(binPath + 'DROBER.exe')
 
-    he3inquaBS(intwi=widi, relwi=widr, potf='./nn_pot')
+    inqua_3(intwi=widi, relwi=widr, potf='./nn_pot')
     parallel_mod_of_3inqua(lfrags2,
                            sfrags2,
                            infile='INQUA_M',
@@ -459,7 +461,7 @@ def span_initial_basis(fragments,
     #print('Anzahl der Sklaven + 1: %d' % anzproc)
     #exit()
 
-    n3_inen_bdg(sbas, Jstreu, coefstr, fn='INEN', pari=0)
+    inen_bdg_3(sbas, Jstreu, coefstr, fn='INEN', pari=0)
 
     if parall == -1:
         diskfil = disk_avail(funcPath)
@@ -481,7 +483,7 @@ def span_initial_basis(fragments,
     subprocess.call('cp -rf INQUA_M INQUA_M_V18', shell=True)
 
     if tnni == 11:
-        he3inquaBS(intwi=widi, relwi=widr, potf='./nnn_pot')
+        inqua_3(intwi=widi, relwi=widr, potf='./nnn_pot')
         parallel_mod_of_3inqua(lfrags2,
                                sfrags2,
                                infile='INQUA_M',
@@ -704,15 +706,15 @@ def span_initial_basis3(fragments,
 
     os.chdir(funcPath)
 
-    n3_inlu(8, fn='INLU', fr=lfrags2, indep=parall)
+    inlu_3(8, fn='INLU', fr=lfrags2, indep=parall)
     os.system(binPath + 'DRLUD.exe')
-    n3_inlu(8, fn='INLUCN', fr=lfrags2, indep=parall)
+    inlu_3(8, fn='INLUCN', fr=lfrags2, indep=parall)
     os.system(binPath + 'LUDW_CN.exe')
-    n3_inob(sfrags2, 8, fn='INOB', indep=parall)
+    inob_3(sfrags2, 8, fn='INOB', indep=parall)
     os.system(binPath + 'KOBER.exe')
-    n3_inob(sfrags2, 15, fn='INOB', indep=parall)
+    inob_3(sfrags2, 15, fn='INOB', indep=parall)
     os.system(binPath + 'DROBER.exe')
-    n3_inqua_N(intwi=widi, relwi=widr, potf='nn_pot', inquaout='INQUA_N')
+    inqua_N(intwi=widi, relwi=widr, potf='nn_pot', inquaout='INQUA_N')
     parallel_mod_of_3inqua(lfrags2,
                            sfrags2,
                            infile='INQUA_N',
@@ -723,7 +725,7 @@ def span_initial_basis3(fragments,
 
     anzproc = max(2, min(len(lfrags2), MaxProc))
 
-    n3_inen_bdg(sbas, Jstreu, coefstr, fn='INEN', pari=0)
+    inen_bdg_3(sbas, Jstreu, coefstr, fn='INEN', pari=0)
 
     if parall == -1:
         diskfil = disk_avail(funcPath)
@@ -745,7 +747,7 @@ def span_initial_basis3(fragments,
     subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
 
     if tnni == 11:
-        n3_inqua_N(intwi=widi, relwi=widr, potf='nnn_pot', inquaout='INQUA_N')
+        inqua_N(intwi=widi, relwi=widr, potf='nnn_pot', inquaout='INQUA_N')
         parallel_mod_of_3inqua(lfrags2,
                                sfrags2,
                                infile='INQUA_N',
@@ -821,12 +823,12 @@ def span_initial_basis3(fragments,
     return matout
 
 
-def prepare_einzel(funcPath, binPath):
+def prepare_einzel3(funcPath, binPath):
 
     if os.path.isdir(funcPath + '/eob') == False:
         subprocess.check_call(['mkdir', '-p', funcPath + '/eob'])
         os.chdir(funcPath + '/eob')
-        n3_inob([
+        inob_3([
             'he_no1',
             'he_no1y',
             'he_no2',
@@ -840,15 +842,15 @@ def prepare_einzel(funcPath, binPath):
             't_no1',
             't_no6',
         ],
-                8,
-                fn='INOB',
-                indep=+1)
+               8,
+               fn='INOB',
+               indep=+1)
         os.system(binPath + 'KOBER.exe')
 
     if os.path.isdir(funcPath + '/eob-tni') == False:
         subprocess.check_call(['mkdir', '-p', funcPath + '/eob-tni'])
         os.chdir(funcPath + '/eob-tni')
-        n3_inob([
+        inob_3([
             'he_no1',
             'he_no1y',
             'he_no2',
@@ -862,66 +864,96 @@ def prepare_einzel(funcPath, binPath):
             't_no1',
             't_no6',
         ],
-                15,
-                fn='INOB',
-                indep=+1)
+               15,
+               fn='INOB',
+               indep=+1)
         os.system(binPath + 'DROBER.exe')
 
     if os.path.isdir(funcPath + '/elu') == False:
         subprocess.check_call(['mkdir', '-p', funcPath + '/elu'])
         os.chdir(funcPath + '/elu')
-        n3_inlu(8,
-                fn='INLUCN',
-                fr=[
-                    '000',
-                    '202',
-                    '022',
-                    '110',
-                    '101',
-                    '011',
-                    '111',
-                    '112',
-                    '211',
-                    '212',
-                    '213',
-                    '123',
-                    '121',
-                    '122',
-                    '212',
-                    '222',
-                    '221',
-                    '220',
-                ],
-                indep=+1)
+        inlu_3(8,
+               fn='INLUCN',
+               fr=[
+                   '000',
+                   '202',
+                   '022',
+                   '110',
+                   '101',
+                   '011',
+                   '111',
+                   '112',
+                   '211',
+                   '212',
+                   '213',
+                   '123',
+                   '121',
+                   '122',
+                   '212',
+                   '222',
+                   '221',
+                   '220',
+               ],
+               indep=+1)
         os.system(binPath + 'LUDW_CN.exe')
 
     if os.path.isdir(funcPath + '/elu-tni') == False:
         subprocess.check_call(['mkdir', '-p', funcPath + '/elu-tni'])
         os.chdir(funcPath + '/elu-tni')
-        n3_inlu(8,
-                fn='INLU',
-                fr=[
-                    '000',
-                    '202',
-                    '022',
-                    '110',
-                    '101',
-                    '011',
-                    '111',
-                    '112',
-                    '211',
-                    '212',
-                    '213',
-                    '123',
-                    '121',
-                    '122',
-                    '212',
-                    '222',
-                    '221',
-                    '220',
-                ],
-                indep=+1)
+        inlu_3(8,
+               fn='INLU',
+               fr=[
+                   '000',
+                   '202',
+                   '022',
+                   '110',
+                   '101',
+                   '011',
+                   '111',
+                   '112',
+                   '211',
+                   '212',
+                   '213',
+                   '123',
+                   '121',
+                   '122',
+                   '212',
+                   '222',
+                   '221',
+                   '220',
+               ],
+               indep=+1)
         os.system(binPath + 'DRLUD.exe')
+
+
+def prepare_einzel4(funcPath, binPath, channels):
+
+    frgsS = [ch[1] for ch in channels]
+    frgsL = [ch[0] for ch in channels]
+
+    if os.path.isdir(funcPath + '/eob') == False:
+        subprocess.check_call(['mkdir', '-p', funcPath + '/eob'])
+    os.chdir(funcPath + '/eob')
+    inob_4(frgsS, 8, fn='INOB', indep=+1)
+    os.system(binPath + 'KOBER.exe')
+
+    if os.path.isdir(funcPath + '/eob-tni') == False:
+        subprocess.check_call(['mkdir', '-p', funcPath + '/eob-tni'])
+    os.chdir(funcPath + '/eob-tni')
+    inob_4(frgsS, 15, fn='INOB', indep=+1)
+    os.system(binPath + 'DROBER.exe')
+
+    if os.path.isdir(funcPath + '/elu') == False:
+        subprocess.check_call(['mkdir', '-p', funcPath + '/elu'])
+    os.chdir(funcPath + '/elu')
+    inlu_4(8, fn='INLUCN', fr=frgsL, indep=+1)
+    os.system(binPath + 'LUDW_CN.exe')
+
+    if os.path.isdir(funcPath + '/elu-tni') == False:
+        subprocess.check_call(['mkdir', '-p', funcPath + '/elu-tni'])
+    os.chdir(funcPath + '/elu-tni')
+    inlu_4(8, fn='INLU', fr=frgsL, indep=+1)
+    os.system(binPath + 'DRLUD.exe')
 
 
 def endmat(para, send_end):
@@ -937,13 +969,13 @@ def endmat(para, send_end):
     #           costring
     #           nzopt
     #           tnnii
-    n3_inen_bdg(para[0],
-                para[1],
-                para[2],
-                fn=inenf,
-                pari=0,
-                nzop=para[3],
-                tni=para[4])
+    inen_bdg_3(para[0],
+               para[1],
+               para[2],
+               fn=inenf,
+               pari=0,
+               nzop=para[3],
+               tni=para[4])
 
     cmdend = para[6] + 'TDR2END_PYpoolnoo.exe %s %s %s' % (inenf, outf, maoutf)
 
@@ -1040,19 +1072,19 @@ def blunt_ev(cfgs,
     sfrag = np.array(cfgs)[:, 0].tolist()
     insam(len(lfrag))
 
-    n3_inlu(8, fn='INLUCN', fr=lfrag, indep=parall)
+    inlu_3(8, fn='INLUCN', fr=lfrag, indep=parall)
     os.system(bin_path + 'LUDW_CN.exe')
-    n3_inob(sfrag, 8, fn='INOB', indep=parall)
+    inob_3(sfrag, 8, fn='INOB', indep=parall)
     os.system(bin_path + 'KOBER.exe')
 
-    he3inquaBS(intwi=intws, relwi=relws, potf=potNN, inquaout='INQUA_M_0')
+    inqua_3(intwi=intws, relwi=relws, potf=potNN, inquaout='INQUA_M_0')
     parallel_mod_of_3inqua(lfrag,
                            sfrag,
                            infile='INQUA_M_0',
                            outfile='INQUA_M',
                            einzel_path=funcPath + '/')
 
-    n3_inen_bdg(basis, jay, costring, fn='INEN', pari=0, nzop=nzopt, tni=tnnii)
+    inen_bdg_3(basis, jay, costring, fn='INEN', pari=0, nzop=nzopt, tni=tnnii)
 
     if parall == -1:
         diskfil = disk_avail(funcPath)
@@ -1073,12 +1105,12 @@ def blunt_ev(cfgs,
 
     subprocess.call('cp -rf INQUA_M INQUA_M_V18', shell=True)
     if tnnii == 11:
-        n3_inlu(8, fn='INLU', fr=lfrag, indep=parall)
+        inlu_3(8, fn='INLU', fr=lfrag, indep=parall)
         os.system(bin_path + 'DRLUD.exe')
-        n3_inob(sfrag, 15, fn='INOB', indep=parall)
+        inob_3(sfrag, 15, fn='INOB', indep=parall)
         os.system(bin_path + 'DROBER.exe')
 
-        he3inquaBS(intwi=intws, relwi=relws, potf=potNNN, inquaout='INQUA_M_0')
+        inqua_3(intwi=intws, relwi=relws, potf=potNNN, inquaout='INQUA_M_0')
         parallel_mod_of_3inqua(lfrag,
                                sfrag,
                                infile='INQUA_M_0',
@@ -1134,15 +1166,24 @@ def blunt_ev2(cfgs, widi, basis, nzopt, costring, binpath, potNN, jay,
 
     os.chdir(funcPath)
 
-    h2_inlu(anzo=8, anzf=anzcfg)
+    inlu_2(anzo=8, anzf=anzcfg)
     os.system(binpath + 'LUDW_CN.exe')
-    h2_inob(anzo=8, anzf=anzcfg)
+    inob_2(anzo=8, anzf=anzcfg)
     os.system(binpath + 'KOBER.exe')
 
-    h2_inqua(relw=widi, ps2='./nn_pot')
+    inqua_2(relw=widi, ps2='./nn_pot')
     subprocess.run([binpath + 'QUAFL_N.exe'])
 
-    h2_inen_bs(basis, j=jay, costr=costring)
+    inen_bdg_2(basis, j=jay, costr=costring, fn='INEN')
+
+    sc = jay
+    inen_str_2(costring,
+               anzrelw=len(basis[0][1]),
+               j=jay,
+               sc=sc,
+               ch=basis[0][0],
+               anzo=nzopt,
+               fn='INEN_STR')
 
     subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
 
@@ -1178,19 +1219,19 @@ def blunt_ev3(cfgs,
     sfrag = np.array(cfgs)[:, 0].tolist()
     insam(len(lfrag))
 
-    n3_inlu(8, fn='INLUCN', fr=lfrag, indep=parall)
+    inlu_3(8, fn='INLUCN', fr=lfrag, indep=parall)
     os.system(bin_path + 'LUDW_CN.exe')
-    n3_inob(sfrag, 8, fn='INOB', indep=parall)
+    inob_3(sfrag, 8, fn='INOB', indep=parall)
     os.system(bin_path + 'KOBER.exe')
 
-    n3_inqua_N(intwi=intws, relwi=relws, potf=potNN, inquaout='INQUA_N')
+    inqua_N(intwi=intws, relwi=relws, potf=potNN, inquaout='INQUA_N')
     parallel_mod_of_3inqua(lfrag,
                            sfrag,
                            infile='INQUA_N',
                            outfile='INQUA_N',
                            einzel_path=funcPath + '/')
 
-    n3_inen_bdg(basis, jay, costring, fn='INEN', pari=0, nzop=nzopt, tni=tnnii)
+    inen_bdg_3(basis, jay, costring, fn='INEN', pari=0, nzop=nzopt, tni=tnnii)
 
     if parall == -1:
         diskfil = disk_avail(funcPath)
@@ -1211,12 +1252,12 @@ def blunt_ev3(cfgs,
 
     subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
     if tnnii == 11:
-        n3_inlu(8, fn='INLU', fr=lfrag, indep=parall)
+        inlu_3(8, fn='INLU', fr=lfrag, indep=parall)
         os.system(bin_path + 'DRLUD.exe')
-        n3_inob(sfrag, 15, fn='INOB', indep=parall)
+        inob_3(sfrag, 15, fn='INOB', indep=parall)
         os.system(bin_path + 'DROBER.exe')
 
-        n3_inqua_N(intwi=intws, relwi=relws, potf=potNNN, inquaout='INQUA_N')
+        inqua_N(intwi=intws, relwi=relws, potf=potNNN, inquaout='INQUA_N')
         parallel_mod_of_3inqua(lfrag,
                                sfrag,
                                infile='INQUA_N',
@@ -1255,6 +1296,126 @@ def blunt_ev3(cfgs,
             ],
                            capture_output=True,
                            text=True)
+        else:
+            subprocess.run([bin_path + 'DR2END_AK.exe'])
+
+    subprocess.call('cp -rf INQUA_N INQUA_N_UIX', shell=True)
+    NormHam = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
+
+    return NormHam
+
+
+def blunt_ev4(cfgs,
+              bas,
+              nzopt,
+              costring,
+              bin_path,
+              mpipath,
+              potNN,
+              frgCoff,
+              j1j2sc,
+              dmaa=[1, 0, 1, 0, 1, 0, 1],
+              potNNN='',
+              parall=-1,
+              tnnii=10,
+              jay=0.5,
+              anzcores=6,
+              funcPath='',
+              dia=True):
+
+    #assert basisDim(basis) == len(sum(sum(relws, []), []))
+
+    lfrag = np.array(cfgs)[:, 0].tolist()
+    sfrag = np.array(cfgs)[:, 1].tolist()
+    insam(len(lfrag))
+
+    inlu_4(8, fn='INLUCN', fr=lfrag, indep=parall)
+    os.system(bin_path + 'LUDW_CN.exe')
+    inob_4(sfrag, 8, fn='INOB', indep=parall)
+    os.system(bin_path + 'KOBER.exe')
+
+    repl_line('INQUA_N', 1, potNN + '\n')
+    parallel_mod_of_3inqua(lfrag,
+                           sfrag,
+                           infile='INQUA_N',
+                           outfile='INQUA_N',
+                           einzel_path=funcPath + '/')
+
+    inen_bdg_4(bas,
+               jay,
+               costring,
+               fn='INEN_BDG',
+               pari=0,
+               nzop=nzopt,
+               tni=tnnii)
+
+    inen_str_4(phys_chan=j1j2sc,
+               coeff=costring,
+               wr=w120,
+               bvs=bas,
+               uec=frgCoff,
+               dma=dmaa,
+               jay=jay,
+               pari=0,
+               nzop=nzopt,
+               tni=tnnii,
+               fn='INEN')
+
+    if parall == -1:
+
+        subprocess.run([
+            mpipath, '-np',
+            '%d' % anzcores, bin_path + 'V18_PAR/mpi_quaf_v6'
+        ])
+        subprocess.run([bin_path + 'V18_PAR/sammel'])
+        subprocess.call('rm -rf DMOUT.*', shell=True)
+    else:
+        subprocess.run([bin_path + 'QUAFL_N.exe'])
+
+    subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
+    if tnnii == 11:
+        inlu_4(8, fn='INLU', fr=lfrag, indep=parall)
+        os.system(bin_path + 'DRLUD.exe')
+        inob_4(sfrag, 15, fn='INOB', indep=parall)
+        os.system(bin_path + 'DROBER.exe')
+
+        repl_line('INQUA_N', 1, potNNN + '\n')
+
+        parallel_mod_of_3inqua(lfrag,
+                               sfrag,
+                               infile='INQUA_N',
+                               outfile='INQUA_N',
+                               tni=1,
+                               einzel_path=funcPath + '/')
+
+        if parall == -1:
+            subprocess.run([
+                mpipath, '-np',
+                '%d' % anzcores, bin_path + 'UIX_PAR/mpi_drqua_uix'
+            ])
+            subprocess.run([bin_path + 'UIX_PAR/SAMMEL-uix'])
+            subprocess.call('rm -rf DRDMOUT.*', shell=True)
+            #subprocess.run([
+            #    bin_path + 'TDR2END_PYpoolnoo.exe', 'INEN',
+            #    'OUTPUT_TDR2END_PYpoolnoo', 'MATOUTB'
+            #],capture_output=True, text=True)
+            subprocess.run([bin_path + 'TDR2END_AK.exe'],
+                           capture_output=True,
+                           text=True)
+        else:
+            subprocess.run([bin_path + 'DRQUA_AK_N.exe'])
+            subprocess.run([bin_path + 'DR2END_AK.exe'])
+    elif tnnii == 10:
+        if parall == -1:
+            subprocess.run([bin_path + 'TDR2END_AK.exe'],
+                           capture_output=True,
+                           text=True)
+            #subprocess.run([
+            #    bin_path + 'TDR2END_PYpoolnoo.exe', 'INEN',
+            #    'OUTPUT_TDR2END_PYpoolnoo', 'MATOUTB'
+            #],
+            #               capture_output=True,
+            #               text=True)
         else:
             subprocess.run([bin_path + 'DR2END_AK.exe'])
 

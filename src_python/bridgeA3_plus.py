@@ -11,6 +11,7 @@ from PSI_parallel_M import *
 from rrgm_functions import *
 from genetic_width_growth import *
 from plot_dist import *
+from parameters_and_constants import lec_list_c
 
 import multiprocessing
 from multiprocessing.pool import ThreadPool
@@ -30,8 +31,8 @@ anzproc = 6  #int(len(os.sched_getaffinity(0)) / 1)
 nBV = 6
 nREL = 8
 mindisti = [0.02, 0.02]
-width_bnds = [0.001, 1.5, 0.001, 1.5]
-minCond = 10**-11
+width_bnds = [0.001, 1.15, 0.001, 1.25]
+minCond = 10**-12
 
 # NN: tnni=10   NN+NNN: tnni=11
 tnni = 11
@@ -50,13 +51,22 @@ nnpot = 'nn_pot'
 nnnpot = 'nnn_pot'
 
 J0 = 1 / 2
-la = 4.00
-# B2 = 1 MeV and B3 = 8.48 MeV
-cloW = -484.92093
-cloB = -0.0
-d0 = 2495.36419052 * (0.34)
 
-prep_pot_file_2N(lam=la, wiC=cloW, baC=cloB, ps2=nnpot)
+lam = 4.00
+la = ('%-4.2f' % lam)[:4]
+if la in lec_list_def.keys():
+    pass
+else:
+    print('LECs unavailable for chosen cutoff! Available cutoffs:\n',
+          lec_list_def.keys())
+    exit()
+
+# B2 = 1 MeV and B3 = 8.48 MeV
+cloW = lec_list_def[la][0]
+cloB = 0.0
+d0 = lec_list_def[la][1]
+
+prep_pot_file_2N(lam=lam, wiC=cloW, baC=0.0, ps2=nnpot)
 prep_pot_file_3N(lam=la, d10=d0, ps3=nnnpot)
 
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8

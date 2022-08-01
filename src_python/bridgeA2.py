@@ -11,6 +11,7 @@ from PSI_parallel_M import *
 from rrgm_functions import *
 from genetic_width_growth import *
 from plot_dist import *
+from parameters_and_constants import lec_list_c
 
 import multiprocessing
 from multiprocessing.pool import ThreadPool
@@ -25,13 +26,13 @@ subprocess.call('rm -rf %s/civ_*' % sysdir, shell=True)
 BINBDGpath = pathbase + '/src_nucl/'
 
 # numerical stability
-minCond = 10**-15
+minCond = 10**-13
 minidi = 0.01
 denseEVinterval = [-2, 2]
 
 # genetic parameters
-anzNewBV = 4
-muta_initial = 0.03
+anzNewBV = 6
+muta_initial = 0.2
 anzGen = 42
 civ_size = 30
 target_pop_size = 30
@@ -40,19 +41,28 @@ os.chdir(sysdir)
 
 nnpot = 'nn_pot'
 
-la = 4.00
-# B2 = 1 MeV and B3 = 8.48 MeV
-cloW = -484.92093
-cloB = -0.0
-d0 = 2495.36419052 * (0.34)
+lam = 2.00
+la = ('%-4.2f' % lam)[:4]
+if la in lec_list_def.keys():
+    pass
+else:
+    print('LECs unavailable for chosen cutoff! Available cutoffs:\n',
+          lec_list_def.keys())
+    exit()
 
-prep_pot_file_2N(lam=la, wiC=cloW, baC=cloB, ps2=nnpot)
+# B2 = 1 MeV and B3 = 8.48 MeV
+cloW = lec_list_def[la][0]
+cloB = 0.0
+d0 = lec_list_def[la][1]
+
+prep_pot_file_2N(lam=lam, wiC=cloW, baC=0.0, ps2=nnpot)
 
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
-channel = 'np3s'
+channel = 'nn1s'  # no DSI
+#channel = 'np1s'  # DSI
 
-J0 = 1
-deutDim = 6
+J0 = 0
+deutDim = 2
 
 costr = ''
 zop = 14
@@ -65,12 +75,13 @@ civs = []
 while len(civs) < civ_size:
     basCond = -1
     gsREF = 42.0
-    while ((basCond < minCond) | (gsREF > 0)):
+    seedIter = 0
+    while ((basCond < minCond) | (gsREF > 1)):
         seedMat = span_initial_basis2(channel=channel,
                                       coefstr=costr,
                                       Jstreu=float(J0),
                                       funcPath=sysdir,
-                                      ini_grid_bounds=[0.00001, 2.5],
+                                      ini_grid_bounds=[0.00001, 2.1],
                                       ini_dims=deutDim,
                                       binPath=BINBDGpath,
                                       mindist=minidi)
@@ -89,16 +100,20 @@ while len(civs) < civ_size:
             ewN, evN = eigh(normat)
             ewH, evH = eigh(hammat, normat)
         except:
+            print('unfit seed.')
             basCond = -0.0
             continue
 
         qualREF, gsREF, basCond = basQ(ewN, ewH, minCond)
 
+        print(qualREF, gsREF, basCond)
         gsvREF = evH[:, 0]
         condREF = basCond
-
+        seedIter += 1
         #print(gsvREF)
         #exit()
+        if seedIter > 1000:
+            exit()
 
     print('%d ' % (civ_size - len(civs)), end='')
 
@@ -116,13 +131,13 @@ civs = sortprint(civs, pr=True)
 
 for nGen in range(anzGen):
 
-    qualCUT, gsCUT, basCondCUT, coeffCUT = civs[-int(len(civs) / 2)][2:]
+    qualCUT, gsCUT, basCondCUT, coeffCUT = civs[-int(len(civs) / 4)][2:]
     qualREF, gsREF, basCondREF, coeffREF = civs[0][2:]
 
     # 3) select a subset of basis vectors which are to be replaced -----------------------------------------------
 
     civ_size = len(civs)
-    weights = polynomial_sum_weight(civ_size, order=1)[1::]
+    weights = polynomial_sum_weight(civ_size, order=2)[1::]
     # 4) select a subset of basis vectors from which replacements are generated ----------------------------------
     children = 0
 
@@ -185,7 +200,8 @@ for nGen in range(anzGen):
             qualTWIN, gsTWIN, basCondTWIN = basQ(ewN, ewH, minCond)
             twin[2:] = qualTWIN, gsTWIN, basCondTWIN, evH[:, 0]
 
-            if ((qualTWIN > qualCUT) & (basCondTWIN > minCond)):
+            if ((qualTWIN > qualCUT) & (basCondTWIN > minCond) &
+                (gsTWIN < gsCUT)):
                 civs.append(twin)
                 children += 1
                 if children == anzNewBV:
@@ -195,7 +211,7 @@ for nGen in range(anzGen):
 
     if len(civs) > target_pop_size:
         currentdim = len(civs)
-        weights = polynomial_sum_weight(currentdim, order=1)[1::]
+        weights = polynomial_sum_weight(currentdim, order=2)[1::]
         individual2remove = np.random.choice(range(currentdim),
                                              size=currentdim - target_pop_size,
                                              replace=False,
@@ -240,3 +256,20 @@ hammat = np.reshape(np.array(ma[dim**2:]).astype(float), (dim, dim))
 # diagonalize normalized norm (using "eigh(ermitian)" to speed-up the computation)
 ewN, evN = eigh(normat)
 ewH, evH = eigh(hammat, normat)
+
+os.system('cp OUTPUT bndg_out')
+os.system('cp INEN_STR INEN')
+subprocess.run([BINBDGpath + 'DR2END_AK.exe'])
+
+spole_2(nzen=200,
+        e0=0.01,
+        d0=0.01,
+        eps=0.03,
+        bet=1.4,
+        nzrw=100,
+        frr=0.06,
+        rhg=8.0,
+        rhf=1.0,
+        pw=0)
+
+subprocess.run([BINBDGpath + 'S-POLE_PdP.exe'])
