@@ -26,7 +26,7 @@ subprocess.call('rm -rf %s/civ_*' % sysdir, shell=True)
 BINBDGpath = pathbase + '/src_nucl/'
 
 # numerical stability
-minCond = 10**-13
+minCond = 10**-11
 minidi = 0.01
 denseEVinterval = [-2, 2]
 
@@ -41,7 +41,7 @@ os.chdir(sysdir)
 
 nnpot = 'nn_pot'
 
-lam = 2.00
+lam = 10.00
 la = ('%-4.2f' % lam)[:4]
 if la in lec_list_def.keys():
     pass
@@ -62,7 +62,7 @@ channel = 'nn1s'  # no DSI
 #channel = 'np1s'  # DSI
 
 J0 = 0
-deutDim = 2
+deutDim = 8
 
 costr = ''
 zop = 14
@@ -81,7 +81,7 @@ while len(civs) < civ_size:
                                       coefstr=costr,
                                       Jstreu=float(J0),
                                       funcPath=sysdir,
-                                      ini_grid_bounds=[0.00001, 2.1],
+                                      ini_grid_bounds=[0.001, 12.1],
                                       ini_dims=deutDim,
                                       binPath=BINBDGpath,
                                       mindist=minidi)
@@ -261,6 +261,7 @@ os.system('cp OUTPUT bndg_out')
 os.system('cp INEN_STR INEN')
 subprocess.run([BINBDGpath + 'DR2END_AK.exe'])
 
+print(">>> calculating 2-body phases.")
 spole_2(nzen=200,
         e0=0.01,
         d0=0.01,

@@ -714,7 +714,7 @@ def span_initial_basis3(fragments,
     os.system(binPath + 'KOBER.exe')
     inob_3(sfrags2, 15, fn='INOB', indep=parall)
     os.system(binPath + 'DROBER.exe')
-    inqua_N(intwi=widi, relwi=widr, potf='nn_pot', inquaout='INQUA_N')
+    inqua_3(intwi=widi, relwi=widr, potf='nn_pot', inquaout='INQUA_N')
     parallel_mod_of_3inqua(lfrags2,
                            sfrags2,
                            infile='INQUA_N',
@@ -747,7 +747,7 @@ def span_initial_basis3(fragments,
     subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
 
     if tnni == 11:
-        inqua_N(intwi=widi, relwi=widr, potf='nnn_pot', inquaout='INQUA_N')
+        inqua_3(intwi=widi, relwi=widr, potf='nnn_pot', inquaout='INQUA_N')
         parallel_mod_of_3inqua(lfrags2,
                                sfrags2,
                                infile='INQUA_N',
@@ -1224,7 +1224,7 @@ def blunt_ev3(cfgs,
     inob_3(sfrag, 8, fn='INOB', indep=parall)
     os.system(bin_path + 'KOBER.exe')
 
-    inqua_N(intwi=intws, relwi=relws, potf=potNN, inquaout='INQUA_N')
+    inqua_3(intwi=intws, relwi=relws, potf=potNN, inquaout='INQUA_N')
     parallel_mod_of_3inqua(lfrag,
                            sfrag,
                            infile='INQUA_N',
@@ -1257,7 +1257,7 @@ def blunt_ev3(cfgs,
         inob_3(sfrag, 15, fn='INOB', indep=parall)
         os.system(bin_path + 'DROBER.exe')
 
-        inqua_N(intwi=intws, relwi=relws, potf=potNNN, inquaout='INQUA_N')
+        inqua_3(intwi=intws, relwi=relws, potf=potNNN, inquaout='INQUA_N')
         parallel_mod_of_3inqua(lfrag,
                                sfrag,
                                infile='INQUA_N',

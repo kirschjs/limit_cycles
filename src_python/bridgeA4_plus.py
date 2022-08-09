@@ -51,7 +51,7 @@ nnnpot = 'nnn_pot'
 
 J0 = 0
 
-lam = 2.00
+lam = 10.00
 la = ('%-4.2f' % lam)[:4]
 if la in lec_list_def.keys():
     pass
@@ -113,7 +113,7 @@ ddCoff = np.array(ddCoff).astype(float)
 
 ma = blunt_ev4(cfgs=len(strus) * channels,
                bas=sbas,
-               dmaa=[0, 1, 0, 1, 0, 1, 0, 1],
+               dmaa=[0, 0, 0, 1, 0, 0, 0, 0],
                j1j2sc=[0, 0, 0],
                funcPath=sysdir,
                nzopt=zop,
@@ -138,6 +138,7 @@ spole_2(nzen=200,
         rhg=8.0,
         rhf=1.0,
         pw=0)
+
 subprocess.run([BINBDGpath + 'S-POLE_PdP.exe'])
 
 chans = [[1, 1]]

@@ -24,14 +24,14 @@ sysdir = pathbase + '/systems/' + suffix
 
 BINBDGpath = pathbase + '/src_nucl/'
 
-parall = -0
+parall = -1
 anzproc = 6  #int(len(os.sched_getaffinity(0)) / 1)
 
 # numerical stability
 nBV = 6
-nREL = 8
+nREL = 4
 mindisti = [0.02, 0.02]
-width_bnds = [0.001, 1.15, 0.001, 1.25]
+width_bnds = [0.001, 3.15, 0.001, 1.25]
 minCond = 10**-12
 
 # NN: tnni=10   NN+NNN: tnni=11
@@ -72,7 +72,7 @@ prep_pot_file_3N(lam=la, d10=d0, ps3=nnnpot)
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
 channels = [
     #['000', ['he_no1', 'he_no6']],
-    ['000', ['t_no1', 't_no6']],
+    ['000', ['t_no1', 't_no6', 't_no1', 't_no6']],
     #['000', ['he_no0']],
 ]
 
@@ -81,7 +81,7 @@ zop = 31 if tnni == 11 else 14
 for nn in range(1, zop):
     cf = 1.0 if ((nn == 1) | (nn == 2) | (nn == 14)) else 0.0
     costr += '%12.7f' % cf if (nn % 7 != 0) else '%12.7f\n' % cf
-prepare_einzel(sysdir, BINBDGpath)
+prepare_einzel3(sysdir, BINBDGpath)
 
 # 1) prepare an initial set of bases ----------------------------------------------------------------------------------
 civs = []
@@ -105,7 +105,7 @@ while len(civs) < civ_size:
 
         dim = int(np.sqrt(len(seedMat) * 0.5))
 
-        # read Norm and Hamilton matrices
+        # read Norm and Hamilton matricesch
         normat = np.reshape(
             np.array(seedMat[:dim**2]).astype(float), (dim, dim))
         hammat = np.reshape(
@@ -122,6 +122,7 @@ while len(civs) < civ_size:
             condREF = basCond
             subprocess.call('cp -rf INQUA_M_V18 INQUA_M_V18_REF', shell=True)
             subprocess.call('cp -rf INQUA_M_UIX INQUA_M_UIX_REF', shell=True)
+            print('E0(seed) = %4.4f MeV' % gsREF, condREF)
         except:
             basCond = 0.0
             gsREF = 42.

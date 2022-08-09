@@ -161,12 +161,11 @@ def inqua_3(intwi=[], relwi=[], potf='', inquaout='INQUA_M'):
     s = ''
     # NBAND1,NBAND2,NBAND3,NBAND4,NBAND5,NAUS,MOBAUS,LUPAUS,NBAUS
     s += ' 10  8  9  3 00  0  0  0  0\n%s\n' % potf
-
     zerl_counter = 0
     bv_counter = 1
     for n in range(len(intwi)):
         zerl_counter += 1
-        nrel = min([len(re) for re in relwi[n]])
+        nrel = len(relwi[n])
         s += '%3d%60s%s\n%3d%3d\n' % (len(intwi[n]), '', 'Z%d  BVs %d - %d' %
                                       (zerl_counter, bv_counter, bv_counter -
                                        1 + len(intwi[n])), len(intwi[n]), nrel)
@@ -174,9 +173,12 @@ def inqua_3(intwi=[], relwi=[], potf='', inquaout='INQUA_M'):
         bv_counter += len(intwi[n])
         for bv in range(len(intwi[n])):
             s += '%36s%-12.6f\n' % ('', float(intwi[n][bv]))
-            for rw in range(0, len(relwi[n][bv])):
-                s += '%12.8f' % float(relwi[n][bv][rw])
-            s += '\n'
+
+        for rw in range(0, len(relwi[n])):
+            s += '%12.6f' % float(relwi[n][rw])
+            if ((rw != (len(relwi[n]) - 1)) & ((rw + 1) % 6 == 0)):
+                s += '\n'
+        s += '\n'
 
         tmpln = np.ceil(len(intwi[n]) / 6.)
         for bb in range(0, len(intwi[n])):
