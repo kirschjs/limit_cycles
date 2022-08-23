@@ -427,6 +427,7 @@ def read_phase(phaout='PHAOUT', ch=[1, 1], meth=1, th_shift=''):
             th[lines[ln].split()[2] + '-' + lines[ln].split()[3]] = abs(
                 float(lines[ln].split()[1]) - float(lines[ln].split()[0]))
     ths = th[th_shift]
+
     for ln in range(0, len(lines)):
         if ((int(lines[ln].split()[2]) == ch[0]) &
             (int(lines[ln].split()[3]) == ch[1]) &

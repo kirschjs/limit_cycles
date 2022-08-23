@@ -42,19 +42,24 @@ set ylabel "$\\delta$ [Deg]"
 #	 'scdiagPH_3-3.dat' u ($1+et-edd):3     ls 13 w l t ''
 
 plot 'atom-atom_phases.dat' u ($1):3 ls 1 w l t 'atom-atom $J^{\pi}=0^+$',\
-	 'dimer-dimer_phases.dat' u ($1):3 ls 3 w l t 'dimer-dimer $J^{\pi}=0^+$'
+	'dimer-dimer_phases.dat' u ($2):3 ls 3 w l t 'dimer-dimer $J^{\pi}=0^+$',\
+	'tp-dd-mixing_phases.dat' u ($1):3 ls 11 w l t 'mixing $J^{\pi}=0^+$',\
+	'trimer-atom_phases.dat' u ($1):3 ls 2 w l t 'trimer-atom $J^{\pi}=0^+$'
 
 set xlabel "$E^{\\textrm{\\scriptsize match}}_{\\textrm{\\scriptsize c.m.}}$ [MeV]"
-set ylabel "$a_{2-2}/a_{1-1}$ [fm]"
+set ylabel "scattering length [fm]"
 set key top left
 #set tics font "Times-Roman,20"
-set ytics 0.4,0.1,2    format "$%g$" nomirror
-set yrange[0.5:1]
+set ytics 0.,1.,5    format "$%g$" nomirror
+set yrange[0.:5]
+set autoscale y
 #set bmargin 4
 ##set size 1,0.5
 
-plot 'a_ratio.dat' u ($1):($2) ls 1 w l t '2-component fermions',\
-     0.6 lc rgb 'red' lw 0.5
+plot 'a_ratio_4.0.dat' u ($1):($2) ls 1 w l t 'atom-atom',\
+     'a_ratio_4.0.dat' u ($3):($4) ls 3 w l t 'dimer-dimer',\
+     'a_ratio_4.0.dat' u ($7):($8) ls 11 w l t 'transition',\
+     'a_ratio_4.0.dat' u ($5):($6) ls 2 w l t 'trimer-atom'
 
 #plot 'atom-atom_phases.dat' u ($1):4 ls 1 w l notitle 'atom-atom $J^{\pi}=0^+$',\
 #	 'dimer-dimer_phases.dat' u ($1):4 ls 3 w l notitle 'dimer-dimer $J^{\pi}=0^+$'

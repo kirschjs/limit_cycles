@@ -33,18 +33,20 @@ def polynomial_sum_weight(nbr, order=1):
         nor = int(0.25 * nbr**2 * (nbr + 1)**2)
         p = [n**3 / nor for n in range(nbr + 1)]
     elif order == 4:
-        nor = int(nbr * (nbr + 1) * (2 * nbr + 1) * (3 * nbr**2 + 3 * nbr - 1))
+        nor = int(nbr * (nbr + 1) * (2 * nbr + 1) *
+                  (3 * nbr**2 + 3 * nbr - 1) / 30)
         p = [n**4 / nor for n in range(nbr + 1)]
     else:
         print("(polynomial sum weight) no implementation for this order!")
         exit()
 
+    #print('weights: ', p, sum(p))
     return p
 
 
-def sortprint(civi, pr=False):
+def sortprint(civi, pr=False, ordn=2):
 
-    civi.sort(key=lambda tup: tup[2])
+    civi.sort(key=lambda tup: tup[ordn])
     civi = civi[::-1]
     if pr:
         print(

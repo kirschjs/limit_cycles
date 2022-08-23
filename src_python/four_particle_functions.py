@@ -78,152 +78,40 @@ elem_spin_prods_4 = {
 }
 
 
-def tn_inqua_31(basis4,
-                stru3,
-                dicti,
-                relw=parameters_and_constants.w120,
-                fn_inq='INQUA_N',
-                fn_inen='INEN',
-                fn='pot_dummy',
-                typ='0p-n'):
+def from3to4(stru3,
+             relw=parameters_and_constants.w120,
+             fn_outq='INQUA_TMP',
+             zmax=8):
 
-    if os.path.isfile(os.getcwd() + '/INQUA_N') == True:
-        appendd = True
-    else:
-        appendd = False
+    outs = ''
+    block_stru = []
+    zerl_counter = 1
 
-    width_blocks = {}
+    for z3 in range(len(stru3[0])):
 
-    for partition3 in stru3:
-        part_str = ''
-        for spin_stru in partition3:
-            part_str += spin_stru + '-'
-        part_str = part_str[:-1] + '__0_5P'
+        stru = np.array(
+            np.meshgrid(np.array(stru3[1][0][z3]),
+                        np.array(stru3[1][1][z3]))).T.reshape(-1, 2)
 
-        inen = fn_inen + part_str
-        inqua = fn_inq + part_str
+        anzBV = len(stru)
 
-        bvinstruct_part_3 = rrgm_functions.determine_struct(inqua)
-        for s in partition3:
-            width_blocks[s] = []
+        tmp = [zmax for i in range(int(anzBV / zmax))]
+        if anzBV % zmax != 0:
+            tmp += [anzBV % zmax]
 
-        if dbg:
-            print('3n-fragment structure:\n', partition3)
+        block_stru.append(tmp)
 
-        if len(bvinstruct_part_3) != len(partition3):
-            print(
-                '3-body structure string inconsistent with INQUA_N fragments!')
-            exit()
+        bnds = np.insert(np.cumsum(tmp), 0, 0)
+        stru = [stru[bnds[i]:bnds[i + 1]] for i in range(len(bnds) - 1)]
 
-        bvinstruct_tmp_3 = np.zeros(len(bvinstruct_part_3)).astype(int)
+        label3 = stru3[0][z3][0]
 
-        outs = ''
-        bvs = []
-        head = ' 10  8  9  3 00  0  0  0\n%s\n' % fn
+        for nz in range(len(stru)):
 
-        lines_inen = [line for line in open(inen)]
-
-        offss = 0 if tni == False else 3
-
-        bnr_bv = int(lines_inen[3 + offss][4:8])
-        anzr = int([line for line in open(inqua)][3][3:6])
-
-        # read list of fragment basis vectors bvs = {[BV,rel]}
-        bvs = []
-        for anz in range(bnr_bv):
-            nr = int(lines_inen[4 + offss + 2 * anz].split()[1])
-            for bv in range(0, anzr):
-                try:
-                    if int(lines_inen[5 + offss + 2 * anz].split()[bv]) == 1:
-                        bvs.append([nr, bv])
-                    else:
-                        pass
-                except:
-                    pass
-
-        lines_inqua = [line for line in open(inqua)]
-        lines_inqua = lines_inqua[2:]
-        bbv = []
-
-        #print(bvs, len(bvs))
-
-        # read width set for all v in bvs bbv = {[w1,w2]}
-        # 2 widths specify the 3-body vector
-        for bv in bvs:
-            lie = 0
-            maxbv = 0
-            zerl_not_found = True
-            while zerl_not_found == True:
-                bvinz = int(lines_inqua[lie][:4])
-                maxbv = maxbv + bvinz
-                rel = int(lines_inqua[lie + 1][4:7])
-                nl = int(rel / 6)
-                if rel % 6 != 0:
-                    nl += 1
-                if maxbv >= bv[0]:
-                    if maxbv >= bv[0]:
-                        rell = []
-                        [[
-                            rell.append(float(a))
-                            for a in lines_inqua[lie + 1 + bvinz + 1 +
-                                                 n].rstrip().split()
-                        ] for n in range(0, nl)]
-                        bbv.append([
-                            float(lines_inqua[lie + 1 + bvinz - maxbv +
-                                              bv[0]].strip().split()[0]),
-                            rell[bv[1]]
-                        ])
-
-                        # how do the basis elements sort into the coupling-scheme structure?
-                        nnn = 0
-                        while bvinstruct_part_3[nnn] < bv[0]:
-                            nnn += 1
-
-                        bvinstruct_tmp_3[nnn] += 1
-
-                        # assign the width set to an entry in the label-width dictionary
-                        width_blocks[partition3[nnn]].append([
-                            float(lines_inqua[lie + 1 + bvinz - maxbv +
-                                              bv[0]].strip().split()[0]),
-                            rell[bv[1]]
-                        ])
-                        zerl_not_found = False
-                else:
-                    if bvinz < 7:
-                        lie = lie + 2 + bvinz + nl + 2 * bvinz
-                    else:
-                        lie = lie + 2 + bvinz + nl + 3 * bvinz
-
-        #print(bbv)
-        # CAREFUL: rjust might place widths errorously in file!
-
-    zmax = 8
-
-    tm = []
-    block_stru = {}
-    for block3 in width_blocks:
-        tmp = [zmax for i in range(int(len(width_blocks[block3]) / zmax))]
-        if len(width_blocks[block3]) % zmax != 0:
-            tmp += [len(width_blocks[block3]) % zmax]
-        block_stru[block3] = tmp
-
-    if dbg: print(block_stru)
-
-    zerlegungs_struct_4 = []
-    zerl_counter = 0
-    for s4 in range(len(basis4)):
-
-        label3 = dicti[basis4[s4][0]]
-        zerlegungs_struct_3 = block_stru[label3]
-        zerlegungs_struct_4.append([zerlegungs_struct_3, label3])
-        for n in range(len(zerlegungs_struct_3)):
-            zerl_counter += 1
-            outs += '%3d%60s%s\n%3d%3d\n' % (zerlegungs_struct_3[n], '',
-                                             'Z%d' % zerl_counter,
-                                             zerlegungs_struct_3[n], len(relw))
-            for bv in width_blocks[label3][sum(zerlegungs_struct_3[:n]
-                                               ):sum(zerlegungs_struct_3[:n +
-                                                                         1])]:
+            outs += '%3d%60s%s\n%3d%3d\n' % (len(stru[nz]), '', 'Z%d - %s' %
+                                             (zerl_counter, label3),
+                                             len(stru[nz]), len(relw))
+            for bv in stru[nz]:
                 outs += '%48s%-12.6f%-12.6f\n' % ('', float(bv[0]), float(
                     bv[1]))
             for rw in range(0, len(relw)):
@@ -231,9 +119,9 @@ def tn_inqua_31(basis4,
                 if ((rw != (len(relw) - 1)) & ((rw + 1) % 6 == 0)):
                     outs += '\n'
             outs += '\n'
-            for bb in range(0, zerlegungs_struct_3[n]):
+            for bb in range(0, len(stru[nz])):
                 outs += '  1  1\n'
-                if zerlegungs_struct_3[n] < 7:
+                if len(stru[nz]) < 7:
                     outs += '1.'.rjust(12 * (bb + 1))
                     outs += '\n'
                 else:
@@ -245,13 +133,10 @@ def tn_inqua_31(basis4,
                         outs += '1.'.rjust(12 * (bb % 6 + 1))
                         outs += '\n'
 
-    if appendd:
-        with open('INQUA_N', 'a') as outfile:
-            outfile.write(outs)
-    else:
-        outs = head + outs
-        with open('INQUA_N', 'w') as outfile:
-            outfile.write(outs)
+            zerl_counter += 1
+
+    with open(fn_outq, 'w') as outfile:
+        outfile.write(outs)
 
     return block_stru
 
@@ -359,7 +244,7 @@ def inen_str_4(coeff,
                phys_chan=[2, 2, 0],
                dma=[1, 0, 1, 0, 1, 0, 1],
                jay=0,
-               anzch=-1,
+               anzch=1,
                pari=0,
                nzop=9,
                tni=10,
@@ -371,73 +256,69 @@ def inen_str_4(coeff,
 
     s += coeff + '\n'
 
-    anzch = 1
+    sumuec = sum(uec, [])
+
+    cumc = np.insert(np.cumsum([len(cset) for cset in uec]), 0, 0)
 
     # SPIN #CHANNELS
     s += '%4d%4d   0   0%4d   1\n' % (int(2 * jay), anzch, pari)
 
     # FRAGMENT-EXPANSION COEFFICIENTS
 
-    s += '%4d\n' % len(uec)
+    s += '%4d\n' % len(sumuec)
 
-    for cf in uec:
+    for cf in sumuec:
         s += '%-20.9f\n' % cf
 
     # ------------------------------------ phys chan
+    chanstrs = []
+    for nphy_chan in range(len(phys_chan)):
+        stmp = ''
+        stmp += '%3d%3d%3d\n' % (phys_chan[nphy_chan][0],
+                                 phys_chan[nphy_chan][1],
+                                 phys_chan[nphy_chan][2])
+        stmp += '%4d' % len(uec[nphy_chan])
+        di = 1
+        for i in range(len(uec[nphy_chan])):
+            di += 1
+            stmp += '%4d' % (i + 1 + cumc[nphy_chan])
+            if ((di % 20 == 0) | (int(i + 1) == len(uec[nphy_chan]))):
+                stmp += '\n'
+                di = 0
+        di = 1
+        for i in range(1, 1 + len(uec[nphy_chan])):
+            stmp += '%4d' % (i + cumc[nphy_chan])
+            if ((di % 20 == 0) | (di == len(uec[nphy_chan]))):
+                stmp += '\n'
+            di += 1
 
-    s += '%3d%3d%3d\n' % (phys_chan[0], phys_chan[1], phys_chan[2])
-    s += '%4d' % len(bvs)
-    di = 1
-    for i in range(len(bvs)):
-        di += 1
-        s += '%4d' % (i + 1)
-        if ((di % 20 == 0) | (int(i + 1) == len(bvs))):
+        nbr_relw_phys_chan = len(wr)
+        for i in range(1, nbr_relw_phys_chan + 1):
+            stmp += '%3d' % int(1)
+            if ((int(i) % 50 == 0) | (int(i) == nbr_relw_phys_chan)):
+                stmp += '\n'
+        chanstrs.append(stmp)
+
+    s += chanstrs[1] + chanstrs[0]
+
+    for nphy_chan in range(len(phys_chan)):
+        relwoffset = ''
+        fd = True
+        for i in range(cumc[nphy_chan] + 2, cumc[nphy_chan + 1] - 2):
+            s += '%3d%3d%3d' % (phys_chan[nphy_chan][0],
+                                phys_chan[nphy_chan][1],
+                                phys_chan[nphy_chan][2])
+            if fd:
+                s += ' -1\n'
+                fd = False
+            else:
+                s += '\n'
+            s += '   1%4d\n' % bvs[i][0]
+            s += '%-4d\n' % (np.random.randint(1, len(sumuec) - 2))
+            s += relwoffset
+            for relw in dma:
+                s += '%3d' % relw
             s += '\n'
-            di = 0
-    di = 1
-    for i in range(1, 1 + len(uec)):
-        s += '%4d' % i
-        if ((di % 20 == 0) | (di == len(bvs))):
-            s += '\n'
-        di += 1
-
-    nbr_relw_phys_chan = len(wr)
-    for i in range(1, nbr_relw_phys_chan + 1):
-        s += '%3d' % int(1)
-        if ((int(i) % 50 == 0) | (int(i) == nbr_relw_phys_chan)):
-            s += '\n'
-
-    # ------------------------------------ DIST chan
-    #rand_coef = []
-    #thl = 1e-2
-    #uclist = [float(c) for c in uec]
-
-    #while rand_coef == []:
-    #    rand_ind = np.random.randint(1, len(uec) - 3, size=len(jj_chans))
-    #    rand_coef = abs(np.take(uclist, rand_ind))
-
-    #    if ((min(rand_coef) < thl) |
-    #        (np.unique(np.unique(rand_ind) == np.sort(rand_ind))[0] == False)):
-    #        rand_coef = []
-
-    #nch = 0
-    #for n in range(len(jj_chans)):
-    #    bv_in_chan = len(np.unique(jj_chans[n][1]))
-    relwoffset = ''
-    fd = True
-    for i in range(2, len(bvs) - 2):
-        s += '%3d%3d%3d' % (phys_chan[0], phys_chan[1], phys_chan[2])
-        if fd:
-            s += ' -1\n'
-            fd = False
-        else:
-            s += '\n'
-        s += '   1%4d\n' % bvs[i][0]
-        s += '%-4d\n' % (np.random.randint(1, len(uec) - 2))
-        s += relwoffset
-        for relw in dma:
-            s += '%3d' % relw
-        s += '\n'
 
     with open(fn, 'w') as outfile:
         outfile.write(s)
@@ -478,9 +359,9 @@ def spole_4(nzen=20,
     return
 
 
-def fromNNto4(relw, zwei_dir, vier_dir, fn):
+def from2to4(relw, zwei_inq, vier_dir, fn):
 
-    # input 1: a two-body basis is read from "zwei_dir" as a set if width parameters
+    # input 1: a two-body basis is read from "zwei_inq" as a set if width parameters
     # for one(!) particular LST configuration
     # input 2: a set of radial widths which expands the relative motion between the two dimers
 
@@ -490,7 +371,7 @@ def fromNNto4(relw, zwei_dir, vier_dir, fn):
     outs += ' 10  8  9  3 00  0  0  0\n%s\n' % fn
     dstru = []
     # -----------------------------------------------------
-    inquas = zwei_dir + '/INQUA_N'
+    inquas = zwei_inq
 
     lines_inquas = [line for line in open(inquas)]
 

@@ -11,58 +11,36 @@ from PSI_parallel_M import *
 from rrgm_functions import *
 from genetic_width_growth import *
 from plot_dist import *
-from parameters_and_constants import lec_list_c
+from parameters_and_constants import *
 
 import multiprocessing
 from multiprocessing.pool import ThreadPool
 
-home = os.getenv("HOME")
-
-pathbase = home + '/kette_repo/limit_cycles'
-suffix = '2'
-sysdir = pathbase + '/systems/' + suffix
-subprocess.call('rm -rf %s/civ_*' % sysdir, shell=True)
-
-BINBDGpath = pathbase + '/src_nucl/'
+subprocess.call('rm -rf %s/civ_*' % sysdir2, shell=True)
 
 # numerical stability
 minCond = 10**-11
-minidi = 0.01
+minidi = 0.1
 denseEVinterval = [-2, 2]
 
 # genetic parameters
 anzNewBV = 6
-muta_initial = 0.2
-anzGen = 42
-civ_size = 30
-target_pop_size = 30
+muta_initial = 0.04
+anzGen = 142
+civ_size = 80
+target_pop_size = civ_size
 
-os.chdir(sysdir)
-
-nnpot = 'nn_pot'
-
-lam = 10.00
-la = ('%-4.2f' % lam)[:4]
-if la in lec_list_def.keys():
-    pass
-else:
-    print('LECs unavailable for chosen cutoff! Available cutoffs:\n',
-          lec_list_def.keys())
-    exit()
-
-# B2 = 1 MeV and B3 = 8.48 MeV
-cloW = lec_list_def[la][0]
-cloB = 0.0
-d0 = lec_list_def[la][1]
+os.chdir(sysdir2)
 
 prep_pot_file_2N(lam=lam, wiC=cloW, baC=0.0, ps2=nnpot)
+prep_pot_file_3N(lam=la, d10=d0, ps3=nnnpot)
 
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
 channel = 'nn1s'  # no DSI
 #channel = 'np1s'  # DSI
 
 J0 = 0
-deutDim = 8
+deutDim = 6
 
 costr = ''
 zop = 14
@@ -80,8 +58,8 @@ while len(civs) < civ_size:
         seedMat = span_initial_basis2(channel=channel,
                                       coefstr=costr,
                                       Jstreu=float(J0),
-                                      funcPath=sysdir,
-                                      ini_grid_bounds=[0.001, 12.1],
+                                      funcPath=sysdir2,
+                                      ini_grid_bounds=[0.001, 2.1],
                                       ini_dims=deutDim,
                                       binPath=BINBDGpath,
                                       mindist=minidi)
@@ -106,7 +84,6 @@ while len(civs) < civ_size:
 
         qualREF, gsREF, basCond = basQ(ewN, ewH, minCond)
 
-        print(qualREF, gsREF, basCond)
         gsvREF = evH[:, 0]
         condREF = basCond
         seedIter += 1
@@ -116,6 +93,7 @@ while len(civs) < civ_size:
             exit()
 
     print('%d ' % (civ_size - len(civs)), end='')
+    print('E0(seed) = %4.4f MeV' % gsREF, condREF)
 
     # 2) rate each basis-vector block according to its contribution to the ground-state energy -------------------
 
@@ -126,6 +104,11 @@ while len(civs) < civ_size:
     initialCiv = [channel, relw, qualREF, gsREF, basCond, gsvREF]
 
     civs.append(initialCiv)
+
+outfile = 'civ_0.dat'
+write_indiv(civs[0], outfile)
+print('   opt E = %4.4f   opt cond. = %4.4e' % (civs[0][3], civs[0][4]),
+      end='\n')
 
 civs = sortprint(civs, pr=True)
 
@@ -181,7 +164,7 @@ for nGen in range(anzGen):
                            binpath=BINBDGpath,
                            potNN=nnpot,
                            jay=J0,
-                           funcPath=sysdir)
+                           funcPath=sysdir2)
 
             try:
                 dim = int(np.sqrt(len(ma) * 0.5))
@@ -237,7 +220,7 @@ for nGen in range(anzGen):
 print('\n\n')
 
 civs = sortprint(civs, pr=True)
-plotwidths(sysdir)
+plotwidths(sysdir2)
 
 ma = blunt_ev2(cfgs=[channel],
                widi=[civs[0][1]],
@@ -247,7 +230,7 @@ ma = blunt_ev2(cfgs=[channel],
                binpath=BINBDGpath,
                potNN=nnpot,
                jay=J0,
-               funcPath=sysdir)
+               funcPath=sysdir2)
 
 dim = int(np.sqrt(len(ma) * 0.5))
 # read Norm and Hamilton matrices
@@ -257,16 +240,17 @@ hammat = np.reshape(np.array(ma[dim**2:]).astype(float), (dim, dim))
 ewN, evN = eigh(normat)
 ewH, evH = eigh(hammat, normat)
 
-os.system('cp OUTPUT bndg_out')
+os.system('cp INQUA_N INQUA_N_%s' % lam)
+os.system('cp OUTPUT bndg_out_%s' % lam)
 os.system('cp INEN_STR INEN')
 subprocess.run([BINBDGpath + 'DR2END_AK.exe'])
 
 print(">>> calculating 2-body phases.")
-spole_2(nzen=200,
-        e0=0.01,
-        d0=0.01,
-        eps=0.03,
-        bet=1.4,
+spole_2(nzen=nzEN,
+        e0=E0,
+        d0=D0,
+        eps=Eps,
+        bet=Bet,
         nzrw=100,
         frr=0.06,
         rhg=8.0,
@@ -274,3 +258,4 @@ spole_2(nzen=200,
         pw=0)
 
 subprocess.run([BINBDGpath + 'S-POLE_PdP.exe'])
+os.system('cp PHAOUT phaout_%s' % lam)

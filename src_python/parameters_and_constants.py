@@ -1,4 +1,13 @@
-MeVfm = 197.3161329
+import os
+
+dict_3to4 = {
+    't_no1': ['000-0', 'tp_1s0'],
+    't_no6': ['000-0', 'tp_6s0'],
+    'he_no1': ['000-0', 'hen_1s0'],
+    'he_no6': ['000-0', 'hen_6s0'],
+}
+
+# -- LEC lists
 
 lec_list_oneMEV = {}
 lec_list_c = {}
@@ -129,3 +138,42 @@ mn = {
     '510': 1320.0,
     '805': 1634.0
 }
+
+home = os.getenv("HOME")
+
+pathbase = home + '/kette_repo/limit_cycles'  # NN: tnni=10   NN+NNN: tnni=11
+BINBDGpath = pathbase + '/src_nucl/'
+
+sysdir2 = pathbase + '/systems/2'
+sysdir3 = pathbase + '/systems/3'
+sysdir4 = pathbase + '/systems/4'
+
+tnni = 11
+parall = -1
+
+nnpot = sysdir2 + '/nn_pot'
+nnnpot = sysdir2 + '/nnn_pot'
+
+lam = 4.00
+la = ('%-4.2f' % lam)[:4]
+if la in lec_list_def.keys():
+    pass
+else:
+    print('LECs unavailable for chosen cutoff! Available cutoffs:\n',
+          lec_list_def.keys())
+    exit()
+
+# B2 = 1 MeV and B3 = 8.48 MeV
+cloW = lec_list_def[la][0]
+cloB = 0.0
+d0 = lec_list_def[la][1]
+
+nzEN = 200
+E0 = 0.01
+D0 = 0.025
+Eps = 0.01
+Bet = 1.1
+
+MeVfm = 197.3161329
+
+widthSet_relative = w120

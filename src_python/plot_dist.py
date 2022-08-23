@@ -27,6 +27,8 @@ def plotwidths(sysdir):
                 ])
 
     co_wi.sort(key=lambda tup: tup[2])
+    if co_wi == []:
+        print()
     dime = len(co_wi[0][0][0])
 
     rSpace = np.linspace(0, 2.1, 100)
