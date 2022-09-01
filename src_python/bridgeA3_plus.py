@@ -18,17 +18,17 @@ from multiprocessing.pool import ThreadPool
 from four_particle_functions import from3to4
 
 # numerical stability
-nBV = 12
+nBV = 8
 nREL = 8
-mindisti = [0.01, 0.01]
-width_bnds = [0.0001, 26.15, 0.0001, 27.25]
+mindisti = [0.0001, 0.0001]
+width_bnds = [0.0001, 4.15, 0.0001, 2.25]
 minCond = 10**-14
 
 # genetic parameters
 anzNewBV = 5
-muta_initial = 0.02
+muta_initial = 0.15
 anzGen = 30
-seed_civ_size = 10
+seed_civ_size = 20
 target_pop_size = 30
 
 os.chdir(sysdir3)

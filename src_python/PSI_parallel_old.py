@@ -330,26 +330,15 @@ def span_initial_basis3(fragments,
 
         #  -- internal widths --------------------------------------------------
         itera = 1
-
-        lit_w_tmp = np.abs(
-            np.geomspace(start=ini_grid_bounds[0],
-                         stop=ini_grid_bounds[1],
-                         num=nwint,
-                         endpoint=True,
-                         dtype=None))
-
-        lit_w_t = []
+        lit_w_t = [
+            ini_grid_bounds[0] + np.random.random() *
+            (ini_grid_bounds[1] - ini_grid_bounds[0])
+        ]
         while len(lit_w_t) != nwint:
 
-            lit_w_t = [
-                test_width * (1 + 0.1 * (np.random.random() - 1))
-                for test_width in lit_w_tmp
-            ]
-            dists = [
-                np.linalg.norm(wp1 - wp2) for wp1 in lit_w_t for wp2 in lit_w_t
-            ]
-            print('asdf')
-            exit()
+            lit_w_tmp = ini_grid_bounds[0] + np.random.random() * (
+                ini_grid_bounds[1] - ini_grid_bounds[0])
+            dists = [np.linalg.norm(wp - lit_w_tmp) for wp in lit_w_t]
             if ((np.min(dists) > mindist_int) & (lit_w_tmp < iLcutoff[0])):
                 lit_w_t.append(lit_w_tmp)
 
@@ -719,28 +708,17 @@ def span_population3(anz_civ,
             #  -- internal widths --------------------------------------------------
             itera = 1
 
-            lit_w_tmp = np.abs(
-                np.geomspace(start=ini_grid_bounds[0],
-                             stop=ini_grid_bounds[1],
-                             num=nwint,
-                             endpoint=True,
-                             dtype=None))
-
-            lit_w_t = []
+            lit_w_t = [
+                ini_grid_bounds[0] + np.random.random() *
+                (ini_grid_bounds[1] - ini_grid_bounds[0])
+            ]
             while len(lit_w_t) != nwint:
 
-                lit_w_t = [
-                    test_width * (1 + 0.1 * (np.random.random() - 1))
-                    for test_width in lit_w_tmp
-                ]
-                dists = [
-                    np.linalg.norm(wp1 - wp2) for wp1 in lit_w_t
-                    for wp2 in lit_w_t if wp1 != wp2
-                ]
-
-                if ((np.min(dists) < mindist_int) &
-                    (np.max(lit_w_t) > iLcutoff[0])):
-                    lit_w_t = []
+                lit_w_tmp = ini_grid_bounds[0] + np.random.random() * (
+                    ini_grid_bounds[1] - ini_grid_bounds[0])
+                dists = [np.linalg.norm(wp - lit_w_tmp) for wp in lit_w_t]
+                if ((np.min(dists) > mindist_int) & (lit_w_tmp < iLcutoff[0])):
+                    lit_w_t.append(lit_w_tmp)
 
                 itera += 1
                 assert itera <= 180000
@@ -748,29 +726,18 @@ def span_population3(anz_civ,
             lit_w[frg] = np.sort(lit_w_t)[::-1]
 
             #  -- relative widths --------------------------------------------------
-            lit_w_tmp = np.abs(
-                np.geomspace(start=ini_grid_bounds[2],
-                             stop=ini_grid_bounds[3],
-                             num=nwrel,
-                             endpoint=True,
-                             dtype=None))
-
-            lit_w_t = []
-
+            itera = 1
+            lit_w_t = [
+                ini_grid_bounds[2] + np.random.random() *
+                (ini_grid_bounds[3] - ini_grid_bounds[2])
+            ]
             while len(lit_w_t) != nwrel:
 
-                lit_w_t = [
-                    test_width * (1 + 0.1 * (np.random.random() - 1))
-                    for test_width in lit_w_tmp
-                ]
-                dists = [
-                    np.linalg.norm(wp1 - wp2) for wp1 in lit_w_t
-                    for wp2 in lit_w_t if wp1 != wp2
-                ]
-
-                if ((np.min(dists) < mindist_rel) &
-                    (np.max(lit_w_t) > rLcutoff[0])):
-                    lit_w_t = []
+                lit_w_tmp = ini_grid_bounds[2] + np.random.random() * (
+                    ini_grid_bounds[3] - ini_grid_bounds[2])
+                dists = [np.linalg.norm(wp - lit_w_tmp) for wp in lit_w_t]
+                if ((np.min(dists) > mindist_rel) & (lit_w_tmp < rLcutoff[0])):
+                    lit_w_t.append(lit_w_tmp)
 
                 itera += 1
                 assert itera <= 180000
