@@ -17,4 +17,10 @@
 !*.pdf
 !*.tar
 !IN*
+!*.f
+!Make*
+!*QUA*
+!*DR*
+!*LU*
+!*OBER*
 !*/
