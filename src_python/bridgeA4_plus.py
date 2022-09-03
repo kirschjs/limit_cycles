@@ -42,13 +42,13 @@ J0 = 0
 
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
 channels = [
-    #['000-0', 'nnnnS0t'],  # no DSI
-    #['000-0', 'dqdqS0'],  # DSI
-    ['000-0', 'ddS0'],  # DSI
-    ['000-0', 'tp_1s0'],
-    ['000-0', 'tp_6s0'],
-    ['000-0', 'hen_1s0'],
-    ['000-0', 'hen_6s0']
+    ['000-0', 'nnnnS0t'],  # no DSI
+    ['000-0', 'dqdqS0'],  # DSI
+    #['000-0', 'ddS0'],  # DSI
+    #['000-0', 'tp_1s0'],
+    #['000-0', 'tp_6s0'],
+    #['000-0', 'hen_1s0'],
+    #['000-0', 'hen_6s0']
 ]
 
 costr = ''
