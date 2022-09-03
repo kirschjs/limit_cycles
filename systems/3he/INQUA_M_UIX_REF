@@ -1,0 +1,58 @@
+ 10  8  9  3 00  0  0  0  0
+./nn_pot
+  2                                                            Z1 BVs 1 - 2
+  2  4
+                                    1.483632    
+                                    1.268762    
+    1.361440    1.281145    1.079017    0.650065
+  1  1
+          1.
+  1  1
+                      1.
+  2                                                            Z2 BVs 3 - 4
+  2  4
+                                    0.733994    
+                                    0.681147    
+    1.066644    0.551065    0.404897    0.280282
+  1  1
+          1.
+  1  1
+                      1.
+  2                                                            Z3 BVs 5 - 6
+  2  4
+                                    2.489435    
+                                    0.683954    
+    1.236440    1.101335    0.772920    0.663340
+  1  1
+          1.
+  1  1
+                      1.
+  2                                                            Z4 BVs 7 - 8
+  2  4
+                                    0.813441    
+                                    0.616512    
+    2.811469    0.551034    0.406041    0.278711
+  1  1
+          1.
+  1  1
+                      1.
+/home/kirscher/kette_repo/limit_cycles/systems/3/eob-tni/he_no1_he_no1
+/home/kirscher/kette_repo/limit_cycles/systems/3/elu-tni/000_000
+/home/kirscher/kette_repo/limit_cycles/systems/3/eob-tni/he_no1_he_no1
+/home/kirscher/kette_repo/limit_cycles/systems/3/elu-tni/000_000
+/home/kirscher/kette_repo/limit_cycles/systems/3/eob-tni/he_no1_he_no1
+/home/kirscher/kette_repo/limit_cycles/systems/3/elu-tni/000_000
+/home/kirscher/kette_repo/limit_cycles/systems/3/eob-tni/he_no6_he_no1
+/home/kirscher/kette_repo/limit_cycles/systems/3/elu-tni/000_000
+/home/kirscher/kette_repo/limit_cycles/systems/3/eob-tni/he_no6_he_no1
+/home/kirscher/kette_repo/limit_cycles/systems/3/elu-tni/000_000
+/home/kirscher/kette_repo/limit_cycles/systems/3/eob-tni/he_no6_he_no6
+/home/kirscher/kette_repo/limit_cycles/systems/3/elu-tni/000_000
+/home/kirscher/kette_repo/limit_cycles/systems/3/eob-tni/he_no6_he_no1
+/home/kirscher/kette_repo/limit_cycles/systems/3/elu-tni/000_000
+/home/kirscher/kette_repo/limit_cycles/systems/3/eob-tni/he_no6_he_no1
+/home/kirscher/kette_repo/limit_cycles/systems/3/elu-tni/000_000
+/home/kirscher/kette_repo/limit_cycles/systems/3/eob-tni/he_no6_he_no6
+/home/kirscher/kette_repo/limit_cycles/systems/3/elu-tni/000_000
+/home/kirscher/kette_repo/limit_cycles/systems/3/eob-tni/he_no6_he_no6
+/home/kirscher/kette_repo/limit_cycles/systems/3/elu-tni/000_000
