@@ -107,7 +107,7 @@ def rectify_basis(basis):
     return rectbas
 
 
-def condense_basis(inputBasis, MaxBVsPERcfg=12):
+def condense_basis_3to4(inputBasis, rws4, fn, MaxBVsPERcfg=12):
 
     unisA = []
     for ncfg in range(len(inputBasis[0])):
@@ -118,95 +118,79 @@ def condense_basis(inputBasis, MaxBVsPERcfg=12):
 
     bounds = np.add.accumulate([len(iws) for iws in inputBasis[1]])
 
-    D0s = [[], [], [], []]
+    lu_strus = []
+    ob_strus = []
+    drei_strus = []
+
+    D0s = [[], [], []]
 
     for spinCFG in unisA:
 
-        D0s[0].append(spinCFG)
+        D0s[0].append([])
         D0s[1].append([])
         D0s[2].append([])
 
         for bv in range(len(inputBasis[3])):
-
             cfgOFbv = sum([bound < inputBasis[3][bv][0] for bound in bounds])
 
             if inputBasis[0][cfgOFbv] == spinCFG:
-                try:
-                    D0s[1][-1].append(
-                        sum(inputBasis[1], [])[inputBasis[3][bv][0] - 1])
-                    D0s[2][-1].append(
-                        np.array(
-                            sum(inputBasis[2],
-                                [])[inputBasis[3][bv][0] -
-                                    1])[np.array(inputBasis[3][bv][1]) -
-                                        1].tolist())
-                except:
-                    print('\n\n', unisA, bounds, bv, spinCFG, cfgOFbv)
-                    print(D0s)
-                    print(inputBasis)
-                    exit()
 
-        #Dtmp = copy.deepcopy(D0s[2][-1])
-        #D0s[2][-1].sort(key=lambda rws: len(rws))
-        #rearrangeIDX = [D0s[2][-1].index(rws) for rws in Dtmp]
-        #print('condense: ', rearrangeIDX)
-        #D0s[1][-1] = [D0s[1][-1][i] for i in rearrangeIDX]
+                if D0s[1][-1] == []:
+                    D0s[0][-1].append(spinCFG)
+                    D0s[2][-1].append(rws4)
+                for rw in range(len(inputBasis[3][bv][1])):
+                    D0s[1][-1].append([
+                        sum(inputBasis[1], [])[inputBasis[3][bv][0] - 1],
+                        inputBasis[2][cfgOFbv][inputBasis[3][bv][1][rw] - 1]
+                    ])
 
-    #print(D0s[2])
-    #print(D0s[1])
-    #exit()
+    outs = ''
+    # -----------------------------------------------------
+    bvPerZ = 8
 
-    #print(inputBasis)
-    D0st = [[], [], [], []]
+    bvnr = 0
+    for nz in range(len(D0s[0])):
 
-    for cfg in range(len(D0s[0])):
+        anzBV = len(D0s[1][nz])
+        zstruct = [bvPerZ for n in range(0, int(anzBV / bvPerZ))]
+        drei_strus += zstruct
+        if anzBV % bvPerZ != 0:
 
-        for anzrelw in range(1,
-                             1 + np.max([len(relws)
-                                         for relws in D0s[2][cfg]])):
-            newZerl = True
-            for bvn in range(len(D0s[1][cfg])):
+            zstruct.append(anzBV % bvPerZ)
 
-                if len(D0s[2][cfg][bvn]) == anzrelw:
-                    if newZerl:
-                        D0st[0].append(D0s[0][cfg])
-                        D0st[1].append([])
-                        D0st[2].append([])
-                        newZerl = False
+        for z in range(0, len(zstruct)):
+            outs += '%3d\n%3d%3d\n' % (zstruct[z], zstruct[z], len(rws4))
+            for bv in range(zstruct[z]):
+                outs += '%48s%-12.6f%-12.6f\n' % (
+                    '', float(sum(
+                        D0s[1], [])[bvnr][0]), float(sum(D0s[1], [])[bvnr][1]))
+                bvnr += 1
+            for rw in range(0, len(rws4)):
+                outs += '%12.6f' % float(rws4[rw])
+                if ((rw + 1) % 6 == 0):
+                    outs += '\n'
+            outs += '\n'
+            for bb in range(0, zstruct[z]):
+                outs += '  1  1\n'
+                if zstruct[z] < 7:
+                    outs += '1.'.rjust(12 * (bb + 1))
+                    outs += '\n'
+                else:
+                    if bb < 6:
+                        outs += '1.'.rjust(12 * (bb + 1))
+                        outs += '\n\n'
+                    else:
+                        outs += '\n'
+                        outs += '1.'.rjust(12 * (bb % 6 + 1))
+                        outs += '\n'
 
-                    D0st[1][-1].append(D0s[1][cfg][bvn])
-                    D0st[2][-1].append(D0s[2][cfg][bvn])
+        ob_strus += len(zstruct) * [D0s[0][nz][0][0]]
+        lu_strus += len(zstruct) * [D0s[0][nz][0][1]]
 
-    D0ss = [[], [], [], []]
+    with open(fn, 'w') as outfile:
+        outfile.write(outs)
 
-    for nCFG in range(len(D0st[0])):
-        anzfrg = int(np.ceil(len(D0st[1][nCFG]) / MaxBVsPERcfg))
-        D0ss[0] += anzfrg * [D0st[0][nCFG]]
-        D0ss[1] += [
-            D0st[1][nCFG][n *
-                          MaxBVsPERcfg:min((n + 1) *
-                                           MaxBVsPERcfg, len(D0st[1][nCFG]))]
-            for n in range(anzfrg)
-        ]
-        D0ss[2] += [
-            D0st[2][nCFG][n *
-                          MaxBVsPERcfg:min((n + 1) *
-                                           MaxBVsPERcfg, len(D0st[2][nCFG]))]
-            for n in range(anzfrg)
-        ]
-
-    nbv = 0
-    for cfg in range(len(D0ss[0])):
-        nbvc = 0
-        for bv in D0ss[1][cfg]:
-            nbv += 1
-            nbvc += 1
-            D0ss[3] += [[
-                nbv,
-                np.array(range(1, 1 + len(D0ss[2][cfg][nbvc - 1]))).tolist()
-            ]]
-
-    return D0ss
+    return ob_strus, lu_strus, drei_strus
 
 
 def write_basis_on_tape(basis, jay, btype, baspath=''):

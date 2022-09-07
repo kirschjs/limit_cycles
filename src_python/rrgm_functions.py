@@ -161,14 +161,16 @@ def get_quaf_width_set(inqua='INQUA_N'):
     return s.split()
 
 
-def get_bsv_rw_idx(inen='INEN'):
+def get_bsv_rw_idx(inen='INEN', offset=7, int4=0):
     ws = []
-    inf = [line for line in open(inen)][7:]
-    for nbv in range(int(inf[0][3:6])):
+    inf = [line for line in open(inen)][offset:]
+    for nbv in range(int(inf[0][3 + int(int4):6 + int(2 * int4)])):
         tmp = np.array(
             np.nonzero(np.array(
                 inf[int(2 * nbv + 2)].split()).astype(int))) + 1
-        ws.append([int(inf[int(2 * nbv + 1)][3:6]), tmp[0]])
+        ws.append([
+            int(inf[int(2 * nbv + 1)][3 + int(int4):6 + int(2 * int4)]), tmp[0]
+        ])
     return ws
 
 
@@ -524,7 +526,11 @@ def determine_struct(inqua='INQUA_N'):
 
     while block_head < len(lines_inqua):
 
-        bvinz = int(lines_inqua[block_head][:4])
+        try:
+            bvinz = int(lines_inqua[block_head][:4])
+        except:
+            break
+
         rel = int(lines_inqua[block_head + 1][4:7])
         nl = int(rel / 6)
         if rel % 6 != 0:

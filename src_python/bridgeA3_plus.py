@@ -18,7 +18,7 @@ from multiprocessing.pool import ThreadPool
 from four_particle_functions import from3to4
 
 # numerical stability
-nBV = 8
+nBV = 6
 nREL = 8
 mindisti = [0.0001, 0.0001]
 width_bnds = [0.0001, 4.15, 0.0001, 2.25]
@@ -27,21 +27,24 @@ minCond = 10**-14
 # genetic parameters
 anzNewBV = 5
 muta_initial = 0.15
-anzGen = 30
-seed_civ_size = 20
-target_pop_size = 30
-
-os.chdir(sysdir3)
-subprocess.call('rm -rf *.dat', shell=True)
+anzGen = 2
+seed_civ_size = 2
+target_pop_size = 5
 
 J0 = 1 / 2
 
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
 channels = [
-    #['000', ['he_no1', 'he_no6']],
-    ['000', ['t_no1', 't_no6']],
+    ['000', ['he_no1', 'he_no6']],
+    #['000', ['t_no1', 't_no6']],
     #['000', ['he_no0']],
 ]
+
+sysdir3 = sysdir3t if channels[0][1][0].split('_')[0] == 't' else sysdir3he
+print('>>> working directory: ', sysdir3)
+
+os.chdir(sysdir3)
+subprocess.call('rm -rf *.dat', shell=True)
 
 costr = ''
 zop = 31 if tnni == 11 else 14
@@ -404,18 +407,11 @@ hammat = np.reshape(np.array(ma[dim**2:]).astype(float), (dim, dim))
 ewN, evN = eigh(normat)
 ewH, evH = eigh(hammat, normat)
 
-# cast the optimal basis in a form which can be used for the 4-body calculation (bridgeA4_plus.py)
-strus = from3to4(civs[0][:2],
-                 relw=parameters_and_constants.w120,
-                 fn_outq='inq_3to4_%s' % lam,
-                 zmax=8)
-
-lu_strus = sum([[civs[0][0][n][1]] * len(strus[n])
-                for n in range(len(civs[0][0]))], [])
-ob_strus = sum([[civs[0][0][n][0]] * len(strus[n])
-                for n in range(len(civs[0][0]))], [])
-strus = sum(strus, [])
-
+# reformat the basis as input for the 4-body calculation
+finCiv = [civs[0][0], civs[0][1][0], civs[0][1][1], sbas]
+ob_strus, lu_strus, strus = condense_basis_3to4(finCiv,
+                                                widthSet_relative,
+                                                fn='inq_3to4_%s' % lam)
 assert len(lu_strus) == len(ob_strus)
 
 outl = ''

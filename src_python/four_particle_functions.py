@@ -78,6 +78,185 @@ elem_spin_prods_4 = {
 }
 
 
+def tn_inqua_31(basis4,
+                stru3,
+                relw=parameters_and_constants.w120,
+                fn_inq='INQUA_N',
+                fn_inen='INEN',
+                fn='pot_dummy',
+                typ='0p-n'):
+
+    if os.path.isfile(os.getcwd() + '/INQUA_N') == True:
+        appendd = True
+    else:
+        appendd = False
+
+    bvinstruct_full_3 = rrgm_functions.determine_struct(fn_inq)
+    print(bvinstruct_full_3)
+    stru3_label = stru3[0][:-6].split('-')
+    width_blocks = {}
+
+    for s in stru3_label:
+        width_blocks[s] = []
+
+    print('3n-fragment structure:\n', stru3_label)
+    exit()
+
+    if len(bvinstruct_full_3) != len(stru3_label):
+        print('3-body structure string inconsistent with INQUA_N fragments!')
+        exit()
+
+    bvinstruct_3 = np.zeros(len(bvinstruct_full_3)).astype(int)
+
+    outs = ''
+    bvs = []
+    head = ' 10  8  9  3 00  0  0  0\n%s\n' % fn
+
+    inen = fn_inen
+    inqua = fn_inq
+
+    lines_inen = [line for line in open(inen)]
+
+    bnr_bv = int(lines_inen[3][4:8])
+    anzr = int([line for line in open(inqua)][3][3:6])
+
+    # read list of fragment basis vectors bvs = {[BV,rel]}
+    bvs = []
+    for anz in range(bnr_bv):
+        nr = int(lines_inen[4 + 2 * anz].split()[1])
+        for bv in range(0, anzr):
+            try:
+                if int(lines_inen[5 + 2 * anz].split()[bv]) == 1:
+                    bvs.append([nr, bv])
+                else:
+                    pass
+            except:
+                pass
+
+    lines_inqua = [line for line in open(inqua)]
+    lines_inqua = lines_inqua[2:]
+    bbv = []
+
+    #print(bvs, len(bvs))
+
+    # read width set for all v in bvs bbv = {[w1,w2]}
+    # 2 widths specify the 3-body vector
+    for bv in bvs:
+        lie = 0
+        maxbv = 0
+        zerl_not_found = True
+        while zerl_not_found == True:
+            bvinz = int(lines_inqua[lie][:4])
+            maxbv = maxbv + bvinz
+            rel = int(lines_inqua[lie + 1][4:7])
+            nl = int(rel / 6)
+            if rel % 6 != 0:
+                nl += 1
+            if maxbv >= bv[0]:
+                if maxbv >= bv[0]:
+                    rell = []
+                    [[
+                        rell.append(float(a))
+                        for a in lines_inqua[lie + 1 + bvinz + 1 +
+                                             n].rstrip().split()
+                    ] for n in range(0, nl)]
+                    bbv.append([
+                        float(lines_inqua[lie + 1 + bvinz - maxbv +
+                                          bv[0]].strip().split()[0]),
+                        rell[bv[1]]
+                    ])
+
+                    # how do the basis elements sort into the coupling-scheme structure?
+                    nnn = 0
+                    while bvinstruct_full_3[nnn] < bv[0]:
+                        nnn += 1
+
+                    bvinstruct_3[nnn] += 1
+
+                    # assign the width set to an entry in the label-width dictionary
+                    width_blocks[stru3_label[nnn]].append([
+                        float(lines_inqua[lie + 1 + bvinz - maxbv +
+                                          bv[0]].strip().split()[0]),
+                        rell[bv[1]]
+                    ])
+                    zerl_not_found = False
+            else:
+                if bvinz < 7:
+                    lie = lie + 2 + bvinz + nl + 2 * bvinz
+                else:
+                    lie = lie + 2 + bvinz + nl + 3 * bvinz
+
+    #print(bbv)
+    #print(width_blocks)
+    # CAREFUL: rjust might place widths errorously in file!
+
+    zmax = 8
+
+    tm = []
+    zerlegungs_struct_3 = [[zmax for i in range(int(bvinstruct_3[j] / zmax))]
+                           for j in range(len(bvinstruct_3))]
+
+    for j in range(len(bvinstruct_3)):
+        if bvinstruct_3[j] % zmax != 0:
+            zerlegungs_struct_3[j] += [bvinstruct_3[j] % zmax]
+
+    if dbg: print(bvinstruct_3, ' --> ', zerlegungs_struct_3)
+
+    zerlegungs_struct_4 = []
+    zerl_counter = 0
+    for s4 in range(len(basis4)):
+
+        # retrieve width block and its structure for 4-body vector
+        for zs in range(len(zerlegungs_struct_3)):
+
+            label3 = basis4[s4][0][4:]
+
+            if label3[0] == stru3_label[zs]:
+                zerlegungs_struct_4.append([zerlegungs_struct_3[zs], label3])
+                for n in range(len(zerlegungs_struct_3[zs])):
+                    zerl_counter += 1
+                    outs += '%3d%60s%s\n%3d%3d\n' % (
+                        zerlegungs_struct_3[zs][n], '', 'Z%d' % zerl_counter,
+                        zerlegungs_struct_3[zs][n], len(relw))
+
+                    for bv in width_blocks[
+                            label3[0]][sum(zerlegungs_struct_3[zs][:n]
+                                           ):sum(zerlegungs_struct_3[zs][:n +
+                                                                         1])]:
+
+                        outs += '%48s%-12.6f%-12.6f\n' % ('', float(
+                            bv[0]), float(bv[1]))
+
+                    for rw in range(0, len(relw)):
+                        outs += '%12.6f' % float(relw[rw])
+                        if ((rw != (len(relw) - 1)) & ((rw + 1) % 6 == 0)):
+                            outs += '\n'
+                    outs += '\n'
+                    for bb in range(0, zerlegungs_struct_3[zs][n]):
+                        outs += '  1  1\n'
+                        if zerlegungs_struct_3[zs][n] < 7:
+                            outs += '1.'.rjust(12 * (bb + 1))
+                            outs += '\n'
+                        else:
+                            if bb < 6:
+                                outs += '1.'.rjust(12 * (bb + 1))
+                                outs += '\n\n'
+                            else:
+                                outs += '\n'
+                                outs += '1.'.rjust(12 * (bb % 6 + 1))
+                                outs += '\n'
+
+    if appendd:
+        with open('INQUA_N', 'a') as outfile:
+            outfile.write(outs)
+    else:
+        outs = head + outs
+        with open('INQUA_N', 'w') as outfile:
+            outfile.write(outs)
+
+    return [fr for fr in zerlegungs_struct_4 if fr[0] != []]
+
+
 def from3to4(stru3,
              relw=parameters_and_constants.w120,
              fn_outq='INQUA_TMP',
@@ -252,7 +431,7 @@ def inen_str_4(coeff,
 
     s = '%3d  2 12%3d  1  1 +2  0  0 -1\n' % (tni, nzop)
 
-    s += '  1  1  0  1  0  0  0  0  0  0  0  0  0  0  1  1\n'
+    s += '  1  1  1  1  0  0  0  0  0  0  0  0  0  0  1  1\n'
 
     s += coeff + '\n'
 
@@ -299,7 +478,9 @@ def inen_str_4(coeff,
                 stmp += '\n'
         chanstrs.append(stmp)
 
-    s += chanstrs[1] + chanstrs[0]
+    s += ''.join(chanstrs)
+
+    distuec = [nc + 1 for nc in range(len(sumuec)) if np.abs(sumuec[nc]) > 0.1]
 
     for nphy_chan in range(len(phys_chan)):
         relwoffset = ''
@@ -313,8 +494,8 @@ def inen_str_4(coeff,
                 fd = False
             else:
                 s += '\n'
-            s += '   1%4d\n' % bvs[i][0]
-            s += '%-4d\n' % (np.random.randint(1, len(sumuec) - 2))
+            s += '   1%4d\n' % i
+            s += '%-4d\n' % (np.random.choice(distuec))
             s += relwoffset
             for relw in dma:
                 s += '%3d' % relw

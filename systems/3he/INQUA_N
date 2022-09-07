@@ -1,15 +1,15 @@
  10  8  9  3 00  0  0  0  0
-./nnn_pot
-  6                                                            Z1 BVs 1 - 6
+/home/johannesk/kette_repo/limit_cycles/systems/2/nnn_pot
+  6                                                            Z1  BVs 1 - 6
   6  8
-                                    11.078209   
-                                    5.820033    
-                                    1.839713    
-                                    0.730525    
-                                    0.499889    
-                                    0.091601    
-    7.903087    1.811493    1.713544    0.468733    0.459877    0.313549
-    0.109450    0.058470
+                                    8.765742    
+                                    5.010922    
+                                    0.497704    
+                                    0.287268    
+                                    0.062123    
+                                    0.006485    
+    8.324985    4.833586    4.454947    0.512794    0.136578    0.117185
+    0.007283    0.001764
   1  1
           1.
   1  1
@@ -22,16 +22,16 @@
                                                           1.
   1  1
                                                                       1.
-  6                                                            Z2 BVs 7 - 12
+  6                                                            Z2  BVs 7 - 12
   6  8
-                                    7.643364    
-                                    4.217203    
-                                    1.296051    
-                                    1.185686    
-                                    1.081917    
-                                    0.405760    
-    8.335040    5.786665    1.958717    1.062804    0.363153    0.163682
-    0.077204    0.076965
+                                    7.929266    
+                                    7.442962    
+                                    3.170940    
+                                    1.151269    
+                                    0.478712    
+                                    0.057168    
+    8.575298    1.588466    0.537222    0.132112    0.120841    0.030228
+    0.007229    0.001948
   1  1
           1.
   1  1
@@ -44,9 +44,9 @@
                                                           1.
   1  1
                                                                       1.
-/home/kirscher/kette_repo/limit_cycles/systems/3/eob-tni/he_no1_he_no1
-/home/kirscher/kette_repo/limit_cycles/systems/3/elu-tni/000_000
-/home/kirscher/kette_repo/limit_cycles/systems/3/eob-tni/he_no6_he_no1
-/home/kirscher/kette_repo/limit_cycles/systems/3/elu-tni/000_000
-/home/kirscher/kette_repo/limit_cycles/systems/3/eob-tni/he_no6_he_no6
-/home/kirscher/kette_repo/limit_cycles/systems/3/elu-tni/000_000
+/home/johannesk/kette_repo/limit_cycles/systems/3he/eob-tni/he_no1_he_no1
+/home/johannesk/kette_repo/limit_cycles/systems/3he/elu-tni/000_000
+/home/johannesk/kette_repo/limit_cycles/systems/3he/eob-tni/he_no6_he_no1
+/home/johannesk/kette_repo/limit_cycles/systems/3he/elu-tni/000_000
+/home/johannesk/kette_repo/limit_cycles/systems/3he/eob-tni/he_no6_he_no6
+/home/johannesk/kette_repo/limit_cycles/systems/3he/elu-tni/000_000

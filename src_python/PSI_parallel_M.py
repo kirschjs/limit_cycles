@@ -849,8 +849,8 @@ def span_population3(anz_civ,
 
     cand_list.sort(key=lambda tup: np.abs(tup[2]))
 
-    #    for cc in cand_list:
-    #        print(cc)
+    #for cc in cand_list:
+    #    print(cc)
 
     return cand_list, sbas
 
@@ -1299,6 +1299,7 @@ def blunt_ev4(cfgs,
     os.system(bin_path + 'KOBER.exe')
 
     repl_line('INQUA_N', 1, potNN + '\n')
+
     parallel_mod_of_3inqua(lfrag,
                            sfrag,
                            infile='INQUA_N',
@@ -1325,7 +1326,6 @@ def blunt_ev4(cfgs,
                nzop=nzopt,
                tni=tnnii,
                fn='INEN')
-
     if parall == -1:
 
         subprocess.run([
@@ -1352,6 +1352,8 @@ def blunt_ev4(cfgs,
                                outfile='INQUA_N',
                                tni=1,
                                einzel_path=funcPath + '/')
+
+        subprocess.call('cp -rf INQUA_N INQUA_N_UIX', shell=True)
 
         if parall == -1:
             subprocess.run([
@@ -1385,7 +1387,6 @@ def blunt_ev4(cfgs,
         else:
             subprocess.run([bin_path + 'DR2END_AK.exe'])
 
-    subprocess.call('cp -rf INQUA_N INQUA_N_UIX', shell=True)
     NormHam = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
 
     return NormHam

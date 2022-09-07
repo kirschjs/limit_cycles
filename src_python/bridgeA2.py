@@ -242,6 +242,7 @@ ewH, evH = eigh(hammat, normat)
 
 os.system('cp INQUA_N INQUA_N_%s' % lam)
 os.system('cp OUTPUT bndg_out_%s' % lam)
+os.system('cp INEN INEN_BDG')
 os.system('cp INEN_STR INEN')
 subprocess.run([BINBDGpath + 'DR2END_AK.exe'])
 

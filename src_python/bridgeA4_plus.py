@@ -40,15 +40,17 @@ target_pop_size = 20
 
 J0 = 0
 
+sbas = []
+
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
 channels = [
-    ['000-0', 'nnnnS0t'],  # no DSI
+    #['000-0', 'nnnnS0t'],  # no DSI
     ['000-0', 'dqdqS0'],  # DSI
     #['000-0', 'ddS0'],  # DSI
-    #['000-0', 'tp_1s0'],
-    #['000-0', 'tp_6s0'],
-    #['000-0', 'hen_1s0'],
-    #['000-0', 'hen_6s0']
+    ['000-0', 'tp_1s0'],
+    ['000-0', 'tp_6s0'],
+    ['000-0', 'hen_1s0'],
+    ['000-0', 'hen_6s0']
 ]
 
 costr = ''
@@ -65,19 +67,10 @@ strus_22 = from2to4(
     fn=nnpot,
     relw=widthSet_relative,
 )
+
 zstrus_22 = strus_22
 strus_22 = len(strus_22) * channels[0]
-
-strus_31 = sum(
-    [dict_3to4[line.strip()] for line in open(sysdir3 + '/obstru_%s' % lam)],
-    [])
-
-zstrus_31 = [
-    int(line.strip()) for line in open(sysdir3 + '/drei_stru_%s' % lam)
-]
-
-zstrus = zstrus_22 + zstrus_31
-strus = strus_22 + strus_31
+sbas += get_bsv_rw_idx(inen=sysdir2 + '/INEN_BDG', offset=4, int4=0)
 
 if os.path.isfile(sysdir2 + '/bndg_out_%s' % lam) == False:
     print("2-body bound state unavailable for L = %s" % lam)
@@ -88,39 +81,58 @@ ddCoff = parse_ev_coeffs(mult=1,
                          outf='COEFF',
                          bvnr=1)
 
+cofli = []
 ddCoff = np.array(ddCoff).astype(float)
 
-subprocess.call('cat %s/inq_3to4_%s >> INQUA_N' % (sysdir3, lam), shell=True)
+cofli.append(ddCoff.tolist())
 
-tCoff = parse_ev_coeffs(mult=0,
-                        infil=sysdir3 + '/bndg_out_%s' % lam,
-                        outf='COEFF',
-                        bvnr=1)
+threedirs = []
+if 'tp' in [ch[1].split('_')[0] for ch in channels]:
+    threedirs.append(sysdir3t)
+if 'hen' in [ch[1].split('_')[0] for ch in channels]:
+    threedirs.append(sysdir3he)
 
-tCoff = np.array(tCoff).astype(float)
+strus_31 = []
+zstrus_31 = []
+for sysdir3 in threedirs:
 
-cofli = [ddCoff.tolist(), tCoff.tolist()]
+    sbas += get_bsv_rw_idx(inen=sysdir3 + '/INEN', offset=7, int4=1)
 
-sbas = []
+    strus_31 += sum([
+        dict_3to4[line.strip()] for line in open(sysdir3 + '/obstru_%s' % lam)
+    ], [])
+
+    zstrus_31 += [
+        int(line.strip()) for line in open(sysdir3 + '/drei_stru_%s' % lam)
+    ]
+
+    threeCoff = parse_ev_coeffs(mult=0,
+                                infil=sysdir3 + '/bndg_out_%s' % lam,
+                                outf='COEFF',
+                                bvnr=1)
+
+    threeCoff = np.array(threeCoff).astype(float)
+    cofli.append(threeCoff.tolist())
+
+    subprocess.call('cat %s/inq_3to4_%s >> INQUA_N' % (sysdir3, lam),
+                    shell=True)
+
+sb = []
 bv = 1
+for nbv in range(len(sbas)):
+    sb.append([bv, np.arange(1, 1 + len(sbas[nbv][1])).tolist()])
+    bv += 1
 
-for n in range(len(zstrus)):
-    for m in range(zstrus[n]):
-        sbas += [[bv, [x for x in range(1, 1 + len(widthSet_relative))]]]
-        bv += 1
+varspacedim = sum([len(rset[1]) for rset in sbas])
 
-#ddC = ''
-#for n in range(len(ddCoff)):
-#    for m in range(len(ddCoff) - n):
-#        ddC += '%12.4e\n' % (ddCoff[n] * ddCoff[m])
-#for n in range(len(ddCoff)):
-#    ddC += '%12.4e\n' % (ddCoff[n])
+zstrus = zstrus_22 + zstrus_31
+strus = strus_22 + strus_31
 
 if newCal:
     ma = blunt_ev4(cfgs=strus,
-                   bas=sbas,
+                   bas=sb,
                    dmaa=[0, 1, 0, 1, 0, 0, 0, 0],
-                   j1j2sc=[[2, 2, 0], [1, 1, 0]],
+                   j1j2sc=[[0, 0, 0], [1, 1, 0], [1, 1, 0]],
                    funcPath=sysdir4,
                    nzopt=zop,
                    frgCoff=cofli,
@@ -133,7 +145,7 @@ if newCal:
                    anzcores=max(2, min(len(strus), MaxProc)),
                    tnnii=tnni,
                    jay=J0,
-                   nchtot=int(len(sbas) - (2 + 1) * len(cofli)))
+                   nchtot=int(varspacedim - (2 + 1) * len(cofli)))
 
     dim = int(np.sqrt(len(ma) * 0.5))
     # read Norm and Hamilton matrices
@@ -144,7 +156,7 @@ if newCal:
     ewH, evH = eigh(hammat, normat)
     qual, gs, basCond = basQ(ewN, ewH, minCond)
     print(
-        '(t-p)+(d-d) structured hamiltonian yields:\n E_0 = %f MeV\ncondition number = %E'
+        '(d-d)+(t-p)+(he3-n) structured hamiltonian yields:\n E_0 = %f MeV\ncondition number = %E'
         % (gs, basCond))
 
     spole_2(nzen=nzEN,

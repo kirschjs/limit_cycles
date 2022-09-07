@@ -1,5 +1,5 @@
 CC          = mpicc
-F77         = mpif77
+F77         = mpifort
 #MAKRO       = -DSUN_FORTRAN
 #MAKRO       = -DPC_FORTRAN
 #LIBS        = -parallel -static -L/opt/intel/mkl52sp1/lib/32 -lmkl_lapack -lmkl_p4
@@ -7,7 +7,7 @@ FOPTS       = -Ofast -ffpe-summary=none -mcmodel=medium -fallow-argument-mismatc
 # -mcmodel=large
 #LIBS        = -L/home/kirscher/lib/intel/mkl/10.0.1.014/lib/em64t -lmkl_em64t -lguide
 
-LIBS    = -L -lgfortran
+LIBS    = -L -lgfortran #-static-libgfortran
 CFLAGS      = -o $@ $? $(PRECFLAGS)
 
 .c.o:
@@ -27,6 +27,8 @@ mpi_quaf_v6.o:  mpi_quaf_v6.F  par.h Makefile
 
 mpi_drqua_i.o:  mpi_drqua_i.F  par.h Makefile
 
+mpi_drqua_uix.o:  mpi_drqua_uix.F  par.h Makefile
+
 mpi_quaf_v6: mpi_quaf_v6.o
 	$(F77) $(FFLAGS) $(MAKRO) -o mpi_quaf_v6_l mpi_quaf_v6.o $(LIBS) $(MPI)
 
@@ -45,4 +47,4 @@ sammel: sammel.o
 SAMMEL-uix: SAMMEL-uix.o  par.h
 	$(F77) $(FOPTS) $(MAKRO) -o $@ SAMMEL-uix.o $(LIBS)
 
-all: mpi_drqua_v7 SAMMEL-uix clean
+all: mpi_drqua_uix mpi_drqua_v7 SAMMEL-uix clean
