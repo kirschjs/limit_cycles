@@ -86,11 +86,13 @@ ddCoff = np.array(ddCoff).astype(float)
 
 cofli.append(ddCoff.tolist())
 
+# the order matters as we conventionally include physical channels
+# in ascending threshold energy. E.g. dd then he3n then tp;
 threedirs = []
-if 'tp' in [ch[1].split('_')[0] for ch in channels]:
-    threedirs.append(sysdir3t)
 if 'hen' in [ch[1].split('_')[0] for ch in channels]:
     threedirs.append(sysdir3he)
+if 'tp' in [ch[1].split('_')[0] for ch in channels]:
+    threedirs.append(sysdir3t)
 
 strus_31 = []
 zstrus_31 = []
@@ -172,7 +174,7 @@ if newCal:
 
     subprocess.run([BINBDGpath + 'S-POLE_PdP.exe'])
 
-chans = [[1, 1], [2, 2], [2, 1]]
+chans = [[1, 1], [2, 2], [3, 3]]
 
 if os.path.isfile(sysdir2 + '/phaout_%s' % lam) == False:
     print("2-body phase shifts unavailable for L = %s" % lam)
@@ -184,26 +186,27 @@ ph2 = read_phase(phaout=sysdir2 + '/phaout_%s' % lam,
                  th_shift='')
 
 phtp = read_phase(phaout='PHAOUT', ch=chans[0], meth=1, th_shift='')
-phdd = read_phase(phaout='PHAOUT', ch=chans[1], meth=1, th_shift='1-2')
-phmix = read_phase(phaout='PHAOUT', ch=chans[2], meth=1, th_shift='1-2')
+henp = read_phase(phaout='PHAOUT', ch=chans[1], meth=1, th_shift='1-2')
+phdd = read_phase(phaout='PHAOUT', ch=chans[2], meth=1, th_shift='1-3')
+#phmix = read_phase(phaout='PHAOUT', ch=chans[3], meth=1, th_shift='1-2')
 
 write_phases(ph2,
-             filename='atom-atom_phases.dat',
+             filename='np_phases.dat',
              append=0,
              comment='',
              mu=0.5 * mn['137'])
 write_phases(phdd,
-             filename='dimer-dimer_phases.dat',
+             filename='d-d_phases.dat',
              append=0,
              comment='',
              mu=mn['137'])
 write_phases(phtp,
-             filename='trimer-atom_phases.dat',
+             filename='t-p_phases.dat',
              append=0,
              comment='',
              mu=mn['137'])
-write_phases(phmix,
-             filename='tp-dd-mixing_phases.dat',
+write_phases(henp,
+             filename='he3-n_phases.dat',
              append=0,
              comment='',
              mu=mn['137'])
@@ -223,17 +226,18 @@ a_tp = [
     np.sqrt(1.5 * mn['137'] * phtp[n][0]) for n in range(len(phtp))
 ]
 
-a_mix = [
-    -MeVfm * np.tan(phmix[n][2] * np.pi / 180.) /
-    np.sqrt(2 * mn['137'] * phmix[n][0]) for n in range(len(phmix))
+a_hen = [
+    -MeVfm * np.tan(henp[n][2] * np.pi / 180.) /
+    np.sqrt(2 * mn['137'] * henp[n][0]) for n in range(len(henp))
 ]
 
-outs = '#    E_cm-11         a_11      E_ch-22         a_22      E_ch-31         a_31      E_ch-22         a_mix\n'
+outs = '#    E_cm-np         a_np      E_ch-33         a_dd      E_ch-11         a_tp      E_ch-22         a_hen\n'
 for n in range(len(a_dd)):
     outs += '%12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f\n' % (
         ph2[n][0], a_aa[n], phdd[n][0], a_dd[n], phtp[n][0], a_tp[n],
-        phmix[n][0], a_mix[n])
+        henp[n][0], a_hen[n])
+
 with open('a_ratio_%s.dat' % lam, 'w') as outfile:
     outfile.write(outs)
 
-os.system('gnuplot ' + pathbase + '/src_python/phases.gnu')
+os.system('gnuplot ' + pathbase + '/src_python/phases_np.gnu')

@@ -476,7 +476,7 @@ def inen_str_4(coeff,
             stmp += '%3d' % int(1)
             if ((int(i) % 50 == 0) | (int(i) == nbr_relw_phys_chan)):
                 stmp += '\n'
-        chanstrs.append(stmp)
+        chanstrs.insert(0, stmp)
 
     s += ''.join(chanstrs)
 

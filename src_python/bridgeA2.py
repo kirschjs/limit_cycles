@@ -40,9 +40,10 @@ channel = 'nn1s'  # no DSI
 #channel = 'np1s'  # DSI
 
 J0 = 0
-deutDim = 6
+deutDim = 5
 
 costr = ''
+
 zop = 14
 for nn in range(1, zop):
     cf = 1.0 if (1 <= nn <= 28) else 0.0
