@@ -1,4 +1,5 @@
 import os
+import numpy as np
 
 dict_3to4 = {
     't_no1': ['000-0', 'tp_1s0'],
@@ -178,3 +179,5 @@ Bet = 1.1
 MeVfm = 197.3161329
 
 widthSet_relative = w120
+
+eps = np.finfo(float).eps

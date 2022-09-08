@@ -57,6 +57,7 @@ costr = ''
 zop = 31 if tnni == 11 else 14
 for nn in range(1, zop):
     cf = 1.0 if ((nn == 1) | (nn == 2) | (nn == 14)) else 0.0
+    #cf = 1.0 if ((nn == 2) | (nn == 14)) else 0.0
     costr += '%12.7f' % cf if (nn % 7 != 0) else '%12.7f\n' % cf
 prepare_einzel4(sysdir4, BINBDGpath, channels)
 os.chdir(sysdir4)
@@ -204,38 +205,52 @@ write_phases(phtp,
              filename='t-p_phases.dat',
              append=0,
              comment='',
-             mu=mn['137'])
+             mu=(2. / 3.) * mn['137'])
 write_phases(henp,
              filename='he3-n_phases.dat',
              append=0,
              comment='',
-             mu=mn['137'])
+             mu=(2. / 3.) * mn['137'])
 
 a_aa = [
-    -MeVfm * np.tan(ph2[n][2] * np.pi / 180.) / np.sqrt(mn['137'] * ph2[n][1])
+    #appC(ph2[n][2] * np.pi / 180.,
+    #     np.sqrt(mn['137'] * ph2[n][0]),
+    #     mn['137'] / 2.,
+    #     q1=1,
+    #     q2=1)
+    anp(ph2[n][2] * np.pi / 180., np.sqrt(mn['137'] * ph2[n][0]))
     for n in range(len(ph2))
 ]
 
 a_dd = [
-    -MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /
-    np.sqrt(2 * mn['137'] * phdd[n][0]) for n in range(len(phdd))
+    appC(phdd[n][2] * np.pi / 180.,
+         np.sqrt(2 * mn['137'] * phdd[n][0]),
+         mn['137'],
+         q1=1,
+         q2=1)
+    #-MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /    np.sqrt(2 * mn['137'] * phdd[n][0])
+    for n in range(len(phdd))
 ]
 
 a_tp = [
-    -MeVfm * np.tan(phtp[n][2] * np.pi / 180.) /
-    np.sqrt(1.5 * mn['137'] * phtp[n][0]) for n in range(len(phtp))
+    appC(phtp[n][2] * np.pi / 180.,
+         np.sqrt((3. / 2.) * mn['137'] * phtp[n][0]), (3. / 4.) * mn['137'],
+         q1=1,
+         q2=1)
+    #-MeVfm * np.tan(phtp[n][2] * np.pi / 180.) / np.sqrt( (2. / 3.) * mn['137'] * phtp[n][0])
+    for n in range(len(phtp))
 ]
 
 a_hen = [
-    -MeVfm * np.tan(henp[n][2] * np.pi / 180.) /
-    np.sqrt(2 * mn['137'] * henp[n][0]) for n in range(len(henp))
+    -MeVfm * np.tan(henp[n][2] * np.pi / 180.) / np.sqrt(
+        (3. / 2.) * mn['137'] * henp[n][0]) for n in range(len(henp))
 ]
 
 outs = '#    E_cm-np         a_np      E_ch-33         a_dd      E_ch-11         a_tp      E_ch-22         a_hen\n'
 for n in range(len(a_dd)):
     outs += '%12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f\n' % (
-        ph2[n][0], a_aa[n], phdd[n][0], a_dd[n], phtp[n][0], a_tp[n],
-        henp[n][0], a_hen[n])
+        ph2[n][0], a_aa[n].real, phdd[n][0], a_dd[n].real, phtp[n][0],
+        a_tp[n].real, henp[n][0], a_hen[n])
 
 with open('a_ratio_%s.dat' % lam, 'w') as outfile:
     outfile.write(outs)

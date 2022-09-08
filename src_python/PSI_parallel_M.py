@@ -730,7 +730,7 @@ def span_population3(anz_civ,
             while len(lit_w_t) != nwint:
 
                 lit_w_t = [
-                    test_width * (1 + 0.1 * (np.random.random() - 1))
+                    test_width * (1 + 0.51 * (np.random.random() - 1))
                     for test_width in lit_w_tmp
                 ]
                 dists = [
@@ -760,7 +760,7 @@ def span_population3(anz_civ,
             while len(lit_w_t) != nwrel:
 
                 lit_w_t = [
-                    test_width * (1 + 0.1 * (np.random.random() - 1))
+                    test_width * (1 + 0.51 * (np.random.random() - 1))
                     for test_width in lit_w_tmp
                 ]
                 dists = [
@@ -849,8 +849,8 @@ def span_population3(anz_civ,
 
     cand_list.sort(key=lambda tup: np.abs(tup[2]))
 
-    #for cc in cand_list:
-    #    print(cc)
+    #for cc in samp_ladder:
+    #    print(cc[2:])
 
     return cand_list, sbas
 

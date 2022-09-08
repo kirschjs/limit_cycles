@@ -4,6 +4,37 @@ import random
 from parameters_and_constants import *
 from sympy.physics.quantum.cg import CG
 
+import mpmath
+
+
+def c_eta(x):
+    return np.sqrt(2 * np.pi * x / (np.exp(2 * np.pi * x) - 1))
+
+
+def eta(k, mu, q1=1, q2=1):
+    # fine-structure constant in natural units
+    alpha = 0.0072973525376
+    return q1 * q2 * alpha * mu / k
+
+
+def hn(k, mu, q1=1, q2=1):
+    return mpmath.psi(
+        0,
+        eta(k, mu, q1, q2) * 1j) + 1 / (2 * 1j * eta(k, mu, q1, q2)) - np.log(
+            1j * eta(k, mu, q1, q2))
+
+
+def appC(d, k, mu, q1=1, q2=1):
+    # fine-structure constant in natural units
+    alpha = 0.0072973525376
+    return -MeVfm / (c_eta(eta(k, mu, q1, q2) + eps)**2 * k *
+                     (1 / (np.tan(d) + eps) - 1j) +
+                     q1 * q2 * alpha * mu * hn(k, mu, q1, q2))
+
+
+def anp(d, k):
+    return -MeVfm / k * np.tan(d)
+
 
 def polyWidths(wmin=10**-2, wmax=10, nbrw=10, npoly=4):
 

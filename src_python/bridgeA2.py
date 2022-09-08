@@ -24,10 +24,10 @@ minidi = 0.1
 denseEVinterval = [-2, 2]
 
 # genetic parameters
-anzNewBV = 6
-muta_initial = 0.04
+anzNewBV = 5
+muta_initial = 0.08
 anzGen = 142
-civ_size = 80
+civ_size = 20
 target_pop_size = civ_size
 
 os.chdir(sysdir2)
@@ -36,15 +36,15 @@ prep_pot_file_2N(lam=lam, wiC=cloW, baC=0.0, ps2=nnpot)
 prep_pot_file_3N(lam=la, d10=d0, ps3=nnnpot)
 
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
-channel = 'nn1s'  # no DSI
+channel = 'np1s'  # no DSI
 #channel = 'np1s'  # DSI
 
 J0 = 0
-deutDim = 5
-
-costr = ''
+deutDim = 8
 
 zop = 14
+
+costr = ''
 for nn in range(1, zop):
     cf = 1.0 if (1 <= nn <= 28) else 0.0
     costr += '%12.7f' % cf if (nn % 7 != 0) else '%12.7f\n' % cf
@@ -60,7 +60,7 @@ while len(civs) < civ_size:
                                       coefstr=costr,
                                       Jstreu=float(J0),
                                       funcPath=sysdir2,
-                                      ini_grid_bounds=[0.001, 2.1],
+                                      ini_grid_bounds=[0.001, 6.1],
                                       ini_dims=deutDim,
                                       binPath=BINBDGpath,
                                       mindist=minidi)
@@ -111,7 +111,7 @@ write_indiv(civs[0], outfile)
 print('   opt E = %4.4f   opt cond. = %4.4e' % (civs[0][3], civs[0][4]),
       end='\n')
 
-civs = sortprint(civs, pr=True)
+civs = sortprint(civs, pr=True, ordn=2)
 
 for nGen in range(anzGen):
 
@@ -191,7 +191,7 @@ for nGen in range(anzGen):
                 if children == anzNewBV:
                     break
 
-    civs = sortprint(civs, pr=False)
+    civs = sortprint(civs, pr=False, ordn=2)
 
     if len(civs) > target_pop_size:
         currentdim = len(civs)
@@ -206,7 +206,7 @@ for nGen in range(anzGen):
             if (n in individual2remove) == False
         ]
 
-    civs = sortprint(civs, pr=False)
+    civs = sortprint(civs, pr=False, ordn=2)
 
     nGen += 1
 
@@ -220,7 +220,7 @@ for nGen in range(anzGen):
 
 print('\n\n')
 
-civs = sortprint(civs, pr=True)
+civs = sortprint(civs, pr=True, ordn=2)
 plotwidths(sysdir2)
 
 ma = blunt_ev2(cfgs=[channel],

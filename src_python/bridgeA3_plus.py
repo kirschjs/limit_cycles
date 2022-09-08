@@ -18,24 +18,24 @@ from multiprocessing.pool import ThreadPool
 from four_particle_functions import from3to4
 
 # numerical stability
-nBV = 6
-nREL = 8
-mindisti = [0.0001, 0.0001]
-width_bnds = [0.0001, 4.15, 0.0001, 2.25]
-minCond = 10**-14
+nBV = 8
+nREL = 18
+mindisti = [0.001, 0.001]
+width_bnds = [0.01, 4.15, 0.1, 26.25]
+minCond = 10**-17
 
 # genetic parameters
 anzNewBV = 5
-muta_initial = 0.15
-anzGen = 2
-seed_civ_size = 2
-target_pop_size = 5
+muta_initial = .1
+anzGen = 32
+seed_civ_size = 12
+target_pop_size = 25
 
 J0 = 1 / 2
 
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
 channels = [
-    ['000', ['he_no1', 'he_no6']],
+    ['000', ['he_no1', 'he_no1', 'he_no6', 'he_no6']],
     #['000', ['t_no1', 't_no6']],
     #['000', ['he_no0']],
 ]
@@ -50,6 +50,7 @@ costr = ''
 zop = 31 if tnni == 11 else 14
 for nn in range(1, zop):
     cf = 1.0 if ((nn == 1) | (nn == 2) | (nn == 14)) else 0.0
+    #cf = 1.0 if ((nn == 2) | (nn == 14)) else 0.0
     costr += '%12.7f' % cf if (nn % 7 != 0) else '%12.7f\n' % cf
 
 prepare_einzel3(sysdir3, BINBDGpath)
