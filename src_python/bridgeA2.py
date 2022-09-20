@@ -40,7 +40,7 @@ channel = 'np1s'  # no DSI
 #channel = 'np1s'  # DSI
 
 J0 = 0
-deutDim = 8
+deutDim = 5
 
 zop = 14
 

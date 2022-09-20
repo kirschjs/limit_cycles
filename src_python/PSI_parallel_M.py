@@ -125,7 +125,6 @@ def span_initial_basis2(channel,
     Jstreustring = '%s' % str(Jstreu)[:3]
 
     lit_w = {}
-    lit_rw = {}
 
     he_iw = he_rw = he_frgs = ob_stru = lu_stru = sbas = []
 
@@ -153,6 +152,7 @@ def span_initial_basis2(channel,
     itera = 1
 
     lit_w = [wii + np.random.random() * (wff - wii)]
+
     while len(lit_w) != ini_dims:
 
         lit_w_tmp = wii + np.random.random() * (wff - wii)
@@ -174,6 +174,7 @@ def span_initial_basis2(channel,
         assert itera <= 180000
 
     lit_w = np.sort(lit_w)[::-1]
+
     widi = []
 
     zer_per_ws = int(np.ceil(len(lit_w) / bvma))
