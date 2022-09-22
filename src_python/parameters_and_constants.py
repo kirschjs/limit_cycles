@@ -145,7 +145,8 @@ home = os.getenv("HOME")
 pathbase = home + '/kette_repo/limit_cycles'  # NN: tnni=10   NN+NNN: tnni=11
 BINBDGpath = pathbase + '/src_nucl/'
 
-sysdir2 = pathbase + '/systems/2'
+sysdir2np3s = pathbase + '/systems/2np3s'
+sysdir2np1s = pathbase + '/systems/2np1s'
 sysdir3t = pathbase + '/systems/3h'
 sysdir3he = pathbase + '/systems/3he'
 sysdir4 = pathbase + '/systems/4'
@@ -153,8 +154,8 @@ sysdir4 = pathbase + '/systems/4'
 tnni = 11
 parall = -1
 
-nnpot = sysdir2 + '/nn_pot'
-nnnpot = sysdir2 + '/nnn_pot'
+nnpot = sysdir2np1s + '/nn_pot'
+nnnpot = sysdir2np1s + '/nnn_pot'
 
 lam = 4.00
 la = ('%-4.2f' % lam)[:4]

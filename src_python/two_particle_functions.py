@@ -56,21 +56,23 @@ def spole_2(nzen=20,
     s += ' 11  3  0  0  0  0\n'
     s += '%3d  0  1\n' % int(nzen)
     s += '%12.4f%12.4f\n' % (float(e0), float(d0))
-    s += '%12.4f%12.4f%12.4f\n' % (float(eps), float(eps), float(eps))
-    s += '%12.4f%12.4f%12.4f\n' % (float(bet), float(bet), float(bet))
+    s += '%12.4f%12.4f%12.4f%12.4f%12.4f%12.4f\n' % (
+        float(eps), float(eps), float(eps), float(eps), float(eps), float(eps))
+    s += '%12.4f%12.4f%12.4f%12.4f%12.4f%12.4f\n' % (
+        float(bet), float(bet), float(bet), float(bet), float(bet), float(bet))
     #    OUT
     s += '  0  0  1  0  1  0  2  0\n'
     s += '%3d\n' % int(nzrw)
     s += '%12.4f%12.4f%12.4f\n' % (float(frr), float(rhg), float(rhf))
     s += '  1  2  3  4\n'
-    s += '0.0         0.0         0.0\n'
-    s += '.001        .001        .001\n'
+    s += '0.0         0.0         0.0         0.0         0.0         0.0         0.0\n'
+    s += '.001        .001        .001        .001        .001        .001        .001\n'
     if pw == 0:
-        s += '.5          .5          .5          .5\n'
+        s += '.5          .5          .5          .5          .5          .5          .5\n'
     elif pw == 1:
-        s += '.3          .3          .3          .3\n'
+        s += '.3          .3          .3          .3          .3          .3          .3\n'
     elif pw == 2:
-        s += '.15         .15         .15         .15\n'
+        s += '.15         .15         .15         .15         .15         .15         .15\n'
     s += '1.          1.          0.\n'
     with open('INPUTSPOLE', 'w') as outfile:
         outfile.write(s)

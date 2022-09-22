@@ -35,10 +35,12 @@ set xlabel "$E_{\\textrm{\\scriptsize c.m.}}$ [MeV]"
 set ylabel "$\\delta$ [Deg]"
 #==========================================================
 
-plot 'np_phases.dat' u ($1):3 ls 1 w l t 'n-p $J^{\pi}=0^+$',\
-	'd-d_phases.dat' u ($2):3 ls 3 w l t 'd-d $J^{\pi}=0^+$',\
-	't-p_phases.dat' u ($2):3 ls 11 w l t 't-p $J^{\pi}=0^+$',\
-	'he3-n_phases.dat' u ($2):3 ls 2 w l t 'he3-n $J^{\pi}=0^+$'
+plot 'np3s_phases.dat' u ($1):3 ls 1 w l t 'n-p ${}^3S_1$',\
+	'np1s_phases.dat' u ($1):3 ls 1 w l t 'n-p ${}^1S_0$',\
+	'd-d_phases.dat' u ($2):3 ls 3 w l t 'd-d',\
+	'dq-dq_phases.dat' u ($2):3 ls 3 w l t 'dq-dq',\
+	't-p_phases.dat' u ($2):3 ls 11 w l t 't-p',\
+	'he3-n_phases.dat' u ($2):3 ls 2 w l t 'he3-n'
 
 set xlabel "$E^{\\textrm{\\scriptsize match}}_{\\textrm{\\scriptsize c.m.}}$ [MeV]"
 set ylabel "scattering length [fm]"

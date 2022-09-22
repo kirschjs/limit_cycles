@@ -16,8 +16,6 @@ from parameters_and_constants import *
 import multiprocessing
 from multiprocessing.pool import ThreadPool
 
-subprocess.call('rm -rf %s/civ_*' % sysdir2, shell=True)
-
 # numerical stability
 minCond = 10**-11
 minidi = 0.1
@@ -26,20 +24,22 @@ denseEVinterval = [-2, 2]
 # genetic parameters
 anzNewBV = 5
 muta_initial = 0.08
-anzGen = 142
+anzGen = 42
 civ_size = 20
 target_pop_size = civ_size
+
+# convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
+J0 = 1
+channel = 'np%ds' % int(2 * J0 + 1)  #'np1s'  # DSI
+
+sysdir2 = sysdir2np3s if J0 == 1 else sysdir2np1s
+subprocess.call('rm -rf %s/civ_*' % sysdir2, shell=True)
 
 os.chdir(sysdir2)
 
 prep_pot_file_2N(lam=lam, wiC=cloW, baC=0.0, ps2=nnpot)
 prep_pot_file_3N(lam=la, d10=d0, ps3=nnnpot)
 
-# convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
-channel = 'np1s'  # no DSI
-#channel = 'np1s'  # DSI
-
-J0 = 0
 deutDim = 5
 
 zop = 14
@@ -241,8 +241,8 @@ hammat = np.reshape(np.array(ma[dim**2:]).astype(float), (dim, dim))
 ewN, evN = eigh(normat)
 ewH, evH = eigh(hammat, normat)
 
-os.system('cp INQUA_N INQUA_N_%s' % lam)
-os.system('cp OUTPUT bndg_out_%s' % lam)
+os.system('cp INQUA_N INQUA_N_%s' % (lam))
+os.system('cp OUTPUT bndg_out_%s' % (lam))
 os.system('cp INEN INEN_BDG')
 os.system('cp INEN_STR INEN')
 subprocess.run([BINBDGpath + 'DR2END_AK.exe'])
@@ -260,4 +260,4 @@ spole_2(nzen=nzEN,
         pw=0)
 
 subprocess.run([BINBDGpath + 'S-POLE_PdP.exe'])
-os.system('cp PHAOUT phaout_%s' % lam)
+os.system('cp PHAOUT phaout_%s' % (lam))

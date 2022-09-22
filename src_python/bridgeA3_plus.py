@@ -18,8 +18,8 @@ from multiprocessing.pool import ThreadPool
 from four_particle_functions import from3to4
 
 # numerical stability
-nBV = 8
-nREL = 18
+nBV = 4
+nREL = 6
 mindisti = [0.001, 0.001]
 width_bnds = [0.01, 4.15, 0.1, 26.25]
 minCond = 10**-17
@@ -27,16 +27,16 @@ minCond = 10**-17
 # genetic parameters
 anzNewBV = 5
 muta_initial = .1
-anzGen = 32
-seed_civ_size = 12
-target_pop_size = 25
+anzGen = 1
+seed_civ_size = 4
+target_pop_size = 6
 
 J0 = 1 / 2
 
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
 channels = [
-    ['000', ['he_no1', 'he_no1', 'he_no6', 'he_no6']],
-    #['000', ['t_no1', 't_no6']],
+    #['000', ['he_no1', 'he_no6']],
+    ['000', ['t_no1', 't_no6']],
     #['000', ['he_no0']],
 ]
 
@@ -408,6 +408,7 @@ hammat = np.reshape(np.array(ma[dim**2:]).astype(float), (dim, dim))
 ewN, evN = eigh(normat)
 ewH, evH = eigh(hammat, normat)
 
+print(civs)
 # reformat the basis as input for the 4-body calculation
 finCiv = [civs[0][0], civs[0][1][0], civs[0][1][1], sbas]
 ob_strus, lu_strus, strus = condense_basis_3to4(finCiv,
@@ -415,6 +416,9 @@ ob_strus, lu_strus, strus = condense_basis_3to4(finCiv,
                                                 fn='inq_3to4_%s' % lam)
 assert len(lu_strus) == len(ob_strus)
 
+print(ob_strus, lu_strus, strus, sbas)
+
+exit()
 outl = ''
 outs = ''
 outst = ''

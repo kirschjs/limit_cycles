@@ -1,15 +1,15 @@
  10  8  9  3 00  0  0  0  0
-/home/johannesk/kette_repo/limit_cycles/systems/2/nnn_pot
+/home/johannesk/kette_repo/limit_cycles/systems/2np1s/nn_pot
   8
   8 20
-                                                6.676747    6.676747    
-                                                6.676747    1.928315    
-                                                6.676747    1.051066    
-                                                6.676747    0.864655    
-                                                6.676747    0.173741    
-                                                6.676747    0.040630    
-                                                1.928315    1.928315    
-                                                1.928315    1.051066    
+                                                8.883718    8.883718    
+                                                8.883718    3.468316    
+                                                8.883718    1.655972    
+                                                8.883718    0.576157    
+                                                8.883718    0.090698    
+                                                3.468316    3.468316    
+                                                3.468316    1.655972    
+                                                3.468316    0.576157    
   129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
     2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
     0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
@@ -38,16 +38,15 @@
   1  1
 
                       1.
-  8
-  8 20
-                                                1.928315    0.864655    
-                                                1.928315    0.173741    
-                                                1.928315    0.040630    
-                                                1.051066    1.051066    
-                                                1.051066    0.864655    
-                                                1.051066    0.173741    
-                                                1.051066    0.040630    
-                                                0.864655    0.864655    
+  7
+  7 20
+                                                3.468316    0.090698    
+                                                1.655972    1.655972    
+                                                1.655972    0.576157    
+                                                1.655972    0.090698    
+                                                0.576157    0.576157    
+                                                0.576157    0.090698    
+                                                0.090698    0.090698    
   129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
     2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
     0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
@@ -73,258 +72,6 @@
   1  1
 
           1.
-  1  1
-
-                      1.
-  5
-  5 20
-                                                0.864655    0.173741    
-                                                0.864655    0.040630    
-                                                0.173741    0.173741    
-                                                0.173741    0.040630    
-                                                0.040630    0.040630    
-  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
-    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
-    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
-    0.002765    0.001010
-  1  1
-          1.
-  1  1
-                      1.
-  1  1
-                                  1.
-  1  1
-                                              1.
-  1  1
-                                                          1.
-  8
-  8 20
-                                                13.468736   9.074557    
-                                                13.468736   0.929674    
-                                                13.468736   0.718671    
-                                                13.468736   0.101498    
-                                                8.539933    9.074557    
-                                                8.539933    0.929674    
-                                                8.539933    0.718671    
-                                                8.539933    0.101498    
-  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
-    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
-    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
-    0.002765    0.001010
-  1  1
-          1.
-
-  1  1
-                      1.
-
-  1  1
-                                  1.
-
-  1  1
-                                              1.
-
-  1  1
-                                                          1.
-
-  1  1
-                                                                      1.
-
-  1  1
-
-          1.
-  1  1
-
-                      1.
-  8
-  8 20
-                                                3.498779    9.074557    
-                                                3.498779    0.929674    
-                                                3.498779    0.718671    
-                                                3.498779    0.101498    
-                                                1.949155    9.074557    
-                                                1.949155    0.929674    
-                                                1.949155    0.718671    
-                                                1.949155    0.101498    
-  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
-    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
-    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
-    0.002765    0.001010
-  1  1
-          1.
-
-  1  1
-                      1.
-
-  1  1
-                                  1.
-
-  1  1
-                                              1.
-
-  1  1
-                                                          1.
-
-  1  1
-                                                                      1.
-
-  1  1
-
-          1.
-  1  1
-
-                      1.
-  8
-  8 20
-                                                1.843597    9.074557    
-                                                1.843597    0.929674    
-                                                1.843597    0.718671    
-                                                1.843597    0.101498    
-                                                0.426807    9.074557    
-                                                0.426807    0.929674    
-                                                0.426807    0.718671    
-                                                0.426807    0.101498    
-  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
-    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
-    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
-    0.002765    0.001010
-  1  1
-          1.
-
-  1  1
-                      1.
-
-  1  1
-                                  1.
-
-  1  1
-                                              1.
-
-  1  1
-                                                          1.
-
-  1  1
-                                                                      1.
-
-  1  1
-
-          1.
-  1  1
-
-                      1.
-  8
-  8 20
-                                                8.073646    2.191295    
-                                                8.073646    0.490082    
-                                                8.073646    0.269505    
-                                                8.073646    0.049121    
-                                                4.193589    2.191295    
-                                                4.193589    0.490082    
-                                                4.193589    0.269505    
-                                                4.193589    0.049121    
-  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
-    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
-    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
-    0.002765    0.001010
-  1  1
-          1.
-
-  1  1
-                      1.
-
-  1  1
-                                  1.
-
-  1  1
-                                              1.
-
-  1  1
-                                                          1.
-
-  1  1
-                                                                      1.
-
-  1  1
-
-          1.
-  1  1
-
-                      1.
-  8
-  8 20
-                                                2.183689    2.191295    
-                                                2.183689    0.490082    
-                                                2.183689    0.269505    
-                                                2.183689    0.049121    
-                                                0.478741    2.191295    
-                                                0.478741    0.490082    
-                                                0.478741    0.269505    
-                                                0.478741    0.049121    
-  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
-    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
-    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
-    0.002765    0.001010
-  1  1
-          1.
-
-  1  1
-                      1.
-
-  1  1
-                                  1.
-
-  1  1
-                                              1.
-
-  1  1
-                                                          1.
-
-  1  1
-                                                                      1.
-
-  1  1
-
-          1.
-  1  1
-
-                      1.
-  8
-  8 20
-                                                0.087889    2.191295    
-                                                0.087889    0.490082    
-                                                0.087889    0.269505    
-                                                0.087889    0.049121    
-                                                0.007774    2.191295    
-                                                0.007774    0.490082    
-                                                0.007774    0.269505    
-                                                0.007774    0.049121    
-  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
-    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
-    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
-    0.002765    0.001010
-  1  1
-          1.
-
-  1  1
-                      1.
-
-  1  1
-                                  1.
-
-  1  1
-                                              1.
-
-  1  1
-                                                          1.
-
-  1  1
-                                                                      1.
-
-  1  1
-
-          1.
-  1  1
-
-                      1.
   8
   8 20
                                                 17.777067   8.717343    
@@ -553,243 +300,387 @@
   1  1
 
                       1.
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/dqdqS0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/dqdqS0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/dqdqS0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/dqdqS0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/dqdqS0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/dqdqS0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_dqdqS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
+  8
+  8 20
+                                                9.565275    17.415413   
+                                                9.565275    0.921398    
+                                                9.565275    0.151363    
+                                                4.240513    17.415413   
+                                                4.240513    0.921398    
+                                                4.240513    0.151363    
+                                                1.474472    17.415413   
+                                                1.474472    0.921398    
+  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
+    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
+    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
+    0.002765    0.001010
+  1  1
+          1.
+
+  1  1
+                      1.
+
+  1  1
+                                  1.
+
+  1  1
+                                              1.
+
+  1  1
+                                                          1.
+
+  1  1
+                                                                      1.
+
+  1  1
+
+          1.
+  1  1
+
+                      1.
+  4
+  4 20
+                                                1.474472    0.151363    
+                                                0.343745    17.415413   
+                                                0.343745    0.921398    
+                                                0.343745    0.151363    
+  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
+    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
+    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
+    0.002765    0.001010
+  1  1
+          1.
+  1  1
+                      1.
+  1  1
+                                  1.
+  1  1
+                                              1.
+  8
+  8 20
+                                                7.974838    6.639614    
+                                                7.974838    0.339599    
+                                                7.974838    0.091178    
+                                                4.641593    6.639614    
+                                                4.641593    0.339599    
+                                                4.641593    0.091178    
+                                                0.937286    6.639614    
+                                                0.937286    0.339599    
+  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
+    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
+    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
+    0.002765    0.001010
+  1  1
+          1.
+
+  1  1
+                      1.
+
+  1  1
+                                  1.
+
+  1  1
+                                              1.
+
+  1  1
+                                                          1.
+
+  1  1
+                                                                      1.
+
+  1  1
+
+          1.
+  1  1
+
+                      1.
+  4
+  4 20
+                                                0.937286    0.091178    
+                                                0.103146    6.639614    
+                                                0.103146    0.339599    
+                                                0.103146    0.091178    
+  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
+    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
+    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
+    0.002765    0.001010
+  1  1
+          1.
+  1  1
+                      1.
+  1  1
+                                  1.
+  1  1
+                                              1.
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/np1s_np1s_S0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/np1s_np1s_S0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/np1s_np1s_S0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/np3s_np3s_S0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/np3s_np3s_S0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/np3s_np3s_S0_np3s_np3s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/np3s_np3s_S0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/np3s_np3s_S0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/np3s_np3s_S0_np3s_np3s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/np3s_np3s_S0_np3s_np3s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_1s0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_1s0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_1s0_np3s_np3s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_1s0_np3s_np3s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_1s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_1s0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_1s0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_1s0_np3s_np3s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_1s0_np3s_np3s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_1s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_1s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_1s0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_1s0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_1s0_np3s_np3s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_1s0_np3s_np3s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_1s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_1s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_1s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_6s0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_6s0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_6s0_np3s_np3s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_6s0_np3s_np3s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_6s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_6s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_6s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_6s0_hen_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_6s0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_6s0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_6s0_np3s_np3s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_6s0_np3s_np3s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_6s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_6s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_6s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_6s0_hen_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_6s0_hen_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_6s0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_6s0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_6s0_np3s_np3s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_6s0_np3s_np3s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_6s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_6s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_6s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_6s0_hen_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_6s0_hen_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/hen_6s0_hen_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_np3s_np3s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_np3s_np3s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_hen_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_hen_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_hen_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_tp_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_np3s_np3s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_np3s_np3s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_hen_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_hen_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_hen_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_tp_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_tp_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_np3s_np3s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_np3s_np3s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_hen_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_hen_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_hen_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_tp_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_tp_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_1s0_tp_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_np3s_np3s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_np3s_np3s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_hen_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_hen_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_hen_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_tp_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_tp_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_tp_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_tp_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_np3s_np3s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_np3s_np3s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_hen_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_hen_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_hen_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_tp_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_tp_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_tp_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_tp_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_tp_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_np1s_np1s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_np3s_np3s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_np3s_np3s_S0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_hen_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_hen_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_hen_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_hen_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_tp_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_tp_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_tp_1s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_tp_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_tp_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
+/home/johannesk/kette_repo/limit_cycles/systems/4/eob/tp_6s0_tp_6s0
+/home/johannesk/kette_repo/limit_cycles/systems/4/elu/000-0_000-0
