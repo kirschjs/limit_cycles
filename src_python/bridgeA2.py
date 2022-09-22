@@ -26,7 +26,7 @@ denseEVinterval = [-2, 2]
 # genetic parameters
 anzNewBV = 5
 muta_initial = 0.08
-anzGen = 142
+anzGen = 42
 civ_size = 20
 target_pop_size = civ_size
 
@@ -36,11 +36,10 @@ prep_pot_file_2N(lam=lam, wiC=cloW, baC=0.0, ps2=nnpot)
 prep_pot_file_3N(lam=la, d10=d0, ps3=nnnpot)
 
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
-channel = 'np1s'  # no DSI
-#channel = 'np1s'  # DSI
+channel = 'np3s'
 
-J0 = 0
-deutDim = 8
+J0 = 1
+deutDim = 7      # no of width parameter 
 
 zop = 14
 
@@ -60,7 +59,7 @@ while len(civs) < civ_size:
                                       coefstr=costr,
                                       Jstreu=float(J0),
                                       funcPath=sysdir2,
-                                      ini_grid_bounds=[0.001, 6.1],
+                                      ini_grid_bounds=[0.001, 3.1],
                                       ini_dims=deutDim,
                                       binPath=BINBDGpath,
                                       mindist=minidi)

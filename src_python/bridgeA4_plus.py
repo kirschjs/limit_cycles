@@ -25,7 +25,7 @@ newCal = 1
 os.chdir(sysdir4)
 
 # numerical stability
-nBV = 6
+nBV = 7
 nREL = 8
 mindisti = [0.02, 0.02]
 width_bnds = [0.001, 1.5, 0.001, 1.5]
@@ -47,10 +47,10 @@ channels = [
     #['000-0', 'nnnnS0t'],  # no DSI
     ['000-0', 'dqdqS0'],  # DSI
     #['000-0', 'ddS0'],  # DSI
-    ['000-0', 'tp_1s0'],
-    ['000-0', 'tp_6s0'],
-    ['000-0', 'hen_1s0'],
-    ['000-0', 'hen_6s0']
+   # ['000-0', 'tp_1s0'],
+   # ['000-0', 'tp_6s0'],
+   # ['000-0', 'hen_1s0'],
+   # ['000-0', 'hen_6s0']
 ]
 
 costr = ''

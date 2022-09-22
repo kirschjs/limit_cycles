@@ -141,11 +141,10 @@ mn = {
 }
 
 home = os.getenv("HOME")
-
-pathbase = home + '/kette_repo/limit_cycles'  # NN: tnni=10   NN+NNN: tnni=11
+pathbase = home + '/Variational_calculations/limit_cycles'  # NN: tnni=10   NN+NNN: tnni=11
 BINBDGpath = pathbase + '/src_nucl/'
 
-sysdir2 = pathbase + '/systems/2'
+sysdir2 = pathbase + '/systems/dd_scattering'
 sysdir3t = pathbase + '/systems/3h'
 sysdir3he = pathbase + '/systems/3he'
 sysdir4 = pathbase + '/systems/4'

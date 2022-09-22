@@ -18,18 +18,18 @@ from multiprocessing.pool import ThreadPool
 from four_particle_functions import from3to4
 
 # numerical stability
-nBV = 8
-nREL = 18
+nBV = 2             # no of internal width parameter
+nREL = 3            # no of relative width parameter
 mindisti = [0.001, 0.001]
-width_bnds = [0.01, 4.15, 0.1, 26.25]
+width_bnds = [0.01, 4.15, 0.1, 26.25]    #  interval  of width parameter internal, relative
 minCond = 10**-17
 
 # genetic parameters
-anzNewBV = 5
+anzNewBV = 4                # gives the no of width parameter
 muta_initial = .1
-anzGen = 32
+anzGen = 10
 seed_civ_size = 12
-target_pop_size = 25
+target_pop_size = 10
 
 J0 = 1 / 2
 
