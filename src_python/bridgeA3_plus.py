@@ -18,7 +18,7 @@ from multiprocessing.pool import ThreadPool
 from four_particle_functions import from3to4
 
 # numerical stability
-nBV = 4
+nBV = 7
 nREL = 6
 mindisti = [0.001, 0.001]
 width_bnds = [0.01, 4.15, 0.1, 26.25]
@@ -408,7 +408,6 @@ hammat = np.reshape(np.array(ma[dim**2:]).astype(float), (dim, dim))
 ewN, evN = eigh(normat)
 ewH, evH = eigh(hammat, normat)
 
-print(civs)
 # reformat the basis as input for the 4-body calculation
 finCiv = [civs[0][0], civs[0][1][0], civs[0][1][1], sbas]
 ob_strus, lu_strus, strus = condense_basis_3to4(finCiv,
@@ -418,7 +417,6 @@ assert len(lu_strus) == len(ob_strus)
 
 print(ob_strus, lu_strus, strus, sbas)
 
-exit()
 outl = ''
 outs = ''
 outst = ''
