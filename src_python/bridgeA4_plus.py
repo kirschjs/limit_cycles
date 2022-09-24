@@ -49,10 +49,10 @@ channels = [
     #['000-0', 'nnnnS0t'],  # no DSI
     ['000-0', 'np3s_np3s_S0'],  # DSI
     ['000-0', 'np1s_np1s_S0'],  # DSI
-    ['000-0', 'tp_1s0'],
-    ['000-0', 'tp_6s0'],
-    ['000-0', 'hen_1s0'],
-    ['000-0', 'hen_6s0']
+    #['000-0', 'tp_1s0'],
+    #['000-0', 'tp_6s0'],
+    #['000-0', 'hen_1s0'],
+    #['000-0', 'hen_6s0']
 ]
 
 costr = ''
@@ -80,6 +80,7 @@ strus = []
 zstrus = []
 sbas = []
 n2 = 0
+appen = False
 for sysdir2 in twodirs:
 
     if os.path.isfile(sysdir2 + '/bndg_out_%s' % lam) == False:
@@ -93,7 +94,7 @@ for sysdir2 in twodirs:
                  vier_dir=sysdir4,
                  fn=nnpot,
                  relw=widthSet_relative,
-                 app=False))
+                 app=appen))
     strus.append(len(zstrus[-1]) * channels[n2])
     n2 += 1
 
@@ -105,6 +106,7 @@ for sysdir2 in twodirs:
                              bvnr=1)
     ddCoff = np.array(ddCoff).astype(float)
     cofli.append(ddCoff.tolist())
+    appen = True
 
 # the order matters as we conventionally include physical channels
 # in ascending threshold energy. E.g. dd then he3n then tp;
@@ -184,6 +186,7 @@ if newCal:
     print(
         '(d-d)+(dq-dq)+(t-p)+(he3-n) structured hamiltonian yields:\n E_0 = %f MeV\ncondition number = %E'
         % (gs, basCond))
+    exit()
 
     spole_2(nzen=nzEN,
             e0=E0,

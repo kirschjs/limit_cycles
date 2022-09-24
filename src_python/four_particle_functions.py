@@ -607,4 +607,5 @@ def from2to4(relw, zwei_inq, vier_dir, fn, app=False):
     writemode = 'a' if app else 'w'
     with open(vier_dir + '/INQUA_N', writemode) as outfile:
         outfile.write(outs)
+
     return zstruct
