@@ -1293,7 +1293,6 @@ def blunt_ev4(cfgs,
     lfrag = np.array(tt)[:, 0].tolist()
     sfrag = np.array(tt)[:, 1].tolist()
     insam(len(lfrag))
-
     inlu_4(8, fn='INLUCN', fr=lfrag, indep=parall)
     os.system(bin_path + 'LUDW_CN.exe')
     inob_4(sfrag, 8, fn='INOB', indep=parall)

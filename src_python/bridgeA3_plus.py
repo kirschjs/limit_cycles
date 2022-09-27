@@ -18,8 +18,8 @@ from multiprocessing.pool import ThreadPool
 from four_particle_functions import from3to4
 
 # numerical stability
-nBV = 8
-nREL = 18
+nBV = 7
+nREL = 6
 mindisti = [0.001, 0.001]
 width_bnds = [0.01, 4.15, 0.1, 26.25]
 minCond = 10**-17
@@ -27,16 +27,16 @@ minCond = 10**-17
 # genetic parameters
 anzNewBV = 5
 muta_initial = .1
-anzGen = 32
-seed_civ_size = 12
-target_pop_size = 25
+anzGen = 1
+seed_civ_size = 4
+target_pop_size = 6
 
 J0 = 1 / 2
 
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
 channels = [
-    ['000', ['he_no1', 'he_no1', 'he_no6', 'he_no6']],
-    #['000', ['t_no1', 't_no6']],
+    #['000', ['he_no1', 'he_no6']],
+    ['000', ['t_no1', 't_no6']],
     #['000', ['he_no0']],
 ]
 
@@ -414,6 +414,8 @@ ob_strus, lu_strus, strus = condense_basis_3to4(finCiv,
                                                 widthSet_relative,
                                                 fn='inq_3to4_%s' % lam)
 assert len(lu_strus) == len(ob_strus)
+
+print(ob_strus, lu_strus, strus, sbas)
 
 outl = ''
 outs = ''

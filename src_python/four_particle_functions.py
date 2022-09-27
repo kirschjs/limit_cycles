@@ -7,9 +7,9 @@ import rrgm_functions, parameters_and_constants
 
 elem_spin_prods_4 = {
     # (2-2)
-    'ddS0':
+    'np3s_np3s_S0':
     '  4 24  1  2        dd S=0          z5   \n  1  1  1  1\n  4  2  3  1\n  4  2  1  3\n  4  1  4  1\n  4  1  2  3\n  4  1  3  2\n  4  1  1  4\n  2  4  3  1\n  2  4  1  3\n  2  3  4  1\n  2  3  2  3\n  2  3  3  2\n  2  3  1  4\n  3  2  4  1\n  3  2  2  3\n  3  2  3  2\n  3  2  1  4\n  3  1  4  2\n  3  1  2  4\n  1  4  4  1\n  1  4  2  3\n  1  4  3  2\n  1  4  1  4\n  1  3  4  2\n  1  3  2  4\n  1 12\n -1 12\n -1 48\n  1 48\n -1 48\n  1 48\n -1 12\n  1 12\n  1 48\n -1 48\n  1 48\n -1 48\n -1 48\n  1 48\n -1 48\n  1 48\n  1 12\n -1 12\n  1 48\n -1 48\n  1 48\n -1 48\n -1 12\n  1 12\n',
-    'dqdqS0':
+    'np1s_np1s_S0':
     '  4 16  1  2        dq-dq S=0       z    \n  1  1  1  1\n  1  4  1  4  0  0\n  1  4  2  3  0  0\n  1  4  3  2  0  0\n  1  4  4  1  0  0\n  2  3  1  4  0  0\n  2  3  2  3  0  0\n  2  3  3  2  0  0\n  2  3  4  1  0  0\n  3  2  1  4  0  0\n  3  2  2  3  0  0\n  3  2  3  2  0  0\n  3  2  4  1  0  0\n  4  1  1  4  0  0\n  4  1  2  3  0  0\n  4  1  3  2  0  0\n  4  1  4  1  0  0\n -1 48\n  1 48\n -1 48\n  1 48\n  1 48\n -1 48\n  1 48\n -1 48\n -1 48\n  1 48\n -1 48\n  1 48\n  1 48\n -1 48\n  1 48\n -1 48\n',
     'dndnS0':
     '  4  4  1  2     nn0-nn0 S=0  z\n  1  1  1  1\n  3  4  3  4\n  4  3  4  3\n  4  3  3  4\n  3  4  4  3\n  1  4\n  1  4\n -1  4\n -1  4\n',
@@ -420,7 +420,7 @@ def inen_str_4(coeff,
                wr,
                bvs,
                uec,
-               phys_chan=[2, 2, 0],
+               phys_chan,
                dma=[1, 0, 1, 0, 1, 0, 1],
                jay=0,
                anzch=1,
@@ -540,7 +540,7 @@ def spole_4(nzen=20,
     return
 
 
-def from2to4(relw, zwei_inq, vier_dir, fn):
+def from2to4(relw, zwei_inq, vier_dir, fn, app=False):
 
     # input 1: a two-body basis is read from "zwei_inq" as a set if width parameters
     # for one(!) particular LST configuration
@@ -549,7 +549,8 @@ def from2to4(relw, zwei_inq, vier_dir, fn):
     # output: input file for the 4-body channel corresponding to a dimer-dimer partition
 
     outs = ''
-    outs += ' 10  8  9  3 00  0  0  0\n%s\n' % fn
+    if app == False:
+        outs += ' 10  8  9  3 00  0  0  0\n%s\n' % fn
     dstru = []
     # -----------------------------------------------------
     inquas = zwei_inq
@@ -603,6 +604,8 @@ def from2to4(relw, zwei_inq, vier_dir, fn):
                     outs += '1.'.rjust(12 * (bb % 6 + 1))
                     outs += '\n'
 
-    with open(vier_dir + '/INQUA_N', 'w') as outfile:
+    writemode = 'a' if app else 'w'
+    with open(vier_dir + '/INQUA_N', writemode) as outfile:
         outfile.write(outs)
+
     return zstruct

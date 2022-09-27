@@ -145,7 +145,12 @@ home = os.getenv("HOME")
 pathbase = home + '/Variational_calculations/limit_cycles'  # NN: tnni=10   NN+NNN: tnni=11
 BINBDGpath = pathbase + '/src_nucl/'
 
+<<<<<<< HEAD
 sysdir2 = pathbase + '/systems/dq'
+=======
+sysdir2np3s = pathbase + '/systems/2np3s'
+sysdir2np1s = pathbase + '/systems/2np1s'
+>>>>>>> 03f9a6772c12c71595a3172aa397edd62d539037
 sysdir3t = pathbase + '/systems/3h'
 sysdir3he = pathbase + '/systems/3he'
 sysdir4 = pathbase + '/systems/4'
@@ -153,8 +158,8 @@ sysdir4 = pathbase + '/systems/4'
 tnni = 11
 parall = -1
 
-nnpot = sysdir2 + '/nn_pot'
-nnnpot = sysdir2 + '/nnn_pot'
+nnpot = sysdir2np1s + '/nn_pot'
+nnnpot = sysdir2np1s + '/nnn_pot'
 
 lam = 4.00
 la = ('%-4.2f' % lam)[:4]

@@ -2,28 +2,40 @@
   1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
   4
  15  4
-  4 16  1  2        dq-dq S=0       z    
+  4 24  1  2        dd S=0          z5   
   1  1  1  1
-  1  4  1  4  0  0
-  1  4  2  3  0  0
-  1  4  3  2  0  0
-  1  4  4  1  0  0
-  2  3  1  4  0  0
-  2  3  2  3  0  0
-  2  3  3  2  0  0
-  2  3  4  1  0  0
-  3  2  1  4  0  0
-  3  2  2  3  0  0
-  3  2  3  2  0  0
-  3  2  4  1  0  0
-  4  1  1  4  0  0
-  4  1  2  3  0  0
-  4  1  3  2  0  0
-  4  1  4  1  0  0
+  4  2  3  1
+  4  2  1  3
+  4  1  4  1
+  4  1  2  3
+  4  1  3  2
+  4  1  1  4
+  2  4  3  1
+  2  4  1  3
+  2  3  4  1
+  2  3  2  3
+  2  3  3  2
+  2  3  1  4
+  3  2  4  1
+  3  2  2  3
+  3  2  3  2
+  3  2  1  4
+  3  1  4  2
+  3  1  2  4
+  1  4  4  1
+  1  4  2  3
+  1  4  3  2
+  1  4  1  4
+  1  3  4  2
+  1  3  2  4
+  1 12
+ -1 12
  -1 48
   1 48
  -1 48
   1 48
+ -1 12
+  1 12
   1 48
  -1 48
   1 48
@@ -32,10 +44,14 @@
   1 48
  -1 48
   1 48
+  1 12
+ -1 12
   1 48
  -1 48
   1 48
  -1 48
+ -1 12
+  1 12
   4 16  1  2        dq-dq S=0       z    
   1  1  1  1
   1  4  1  4  0  0
@@ -416,54 +432,54 @@
  -1 48
   1 48
  -1 48
-dqdqS0_dqdqS0
-dqdqS0_dqdqS0
-dqdqS0_dqdqS0
-dqdqS0_hen_1s0
-dqdqS0_hen_1s0
-dqdqS0_hen_1s0
-dqdqS0_hen_6s0
-dqdqS0_hen_6s0
-dqdqS0_hen_6s0
-dqdqS0_tp_1s0
-dqdqS0_tp_1s0
-dqdqS0_tp_1s0
-dqdqS0_tp_6s0
-dqdqS0_tp_6s0
-dqdqS0_tp_6s0
-dqdqS0_dqdqS0
-dqdqS0_dqdqS0
-dqdqS0_dqdqS0
-dqdqS0_hen_1s0
-dqdqS0_hen_1s0
-dqdqS0_hen_1s0
-dqdqS0_hen_6s0
-dqdqS0_hen_6s0
-dqdqS0_hen_6s0
-dqdqS0_tp_1s0
-dqdqS0_tp_1s0
-dqdqS0_tp_1s0
-dqdqS0_tp_6s0
-dqdqS0_tp_6s0
-dqdqS0_tp_6s0
-dqdqS0_dqdqS0
-dqdqS0_dqdqS0
-dqdqS0_dqdqS0
-dqdqS0_hen_1s0
-dqdqS0_hen_1s0
-dqdqS0_hen_1s0
-dqdqS0_hen_6s0
-dqdqS0_hen_6s0
-dqdqS0_hen_6s0
-dqdqS0_tp_1s0
-dqdqS0_tp_1s0
-dqdqS0_tp_1s0
-dqdqS0_tp_6s0
-dqdqS0_tp_6s0
-dqdqS0_tp_6s0
-hen_1s0_dqdqS0
-hen_1s0_dqdqS0
-hen_1s0_dqdqS0
+np3s_np3s_S0_np3s_np3s_S0
+np3s_np3s_S0_np1s_np1s_S0
+np3s_np3s_S0_np1s_np1s_S0
+np3s_np3s_S0_hen_1s0
+np3s_np3s_S0_hen_1s0
+np3s_np3s_S0_hen_1s0
+np3s_np3s_S0_hen_6s0
+np3s_np3s_S0_hen_6s0
+np3s_np3s_S0_hen_6s0
+np3s_np3s_S0_tp_1s0
+np3s_np3s_S0_tp_1s0
+np3s_np3s_S0_tp_1s0
+np3s_np3s_S0_tp_6s0
+np3s_np3s_S0_tp_6s0
+np3s_np3s_S0_tp_6s0
+np1s_np1s_S0_np3s_np3s_S0
+np1s_np1s_S0_np1s_np1s_S0
+np1s_np1s_S0_np1s_np1s_S0
+np1s_np1s_S0_hen_1s0
+np1s_np1s_S0_hen_1s0
+np1s_np1s_S0_hen_1s0
+np1s_np1s_S0_hen_6s0
+np1s_np1s_S0_hen_6s0
+np1s_np1s_S0_hen_6s0
+np1s_np1s_S0_tp_1s0
+np1s_np1s_S0_tp_1s0
+np1s_np1s_S0_tp_1s0
+np1s_np1s_S0_tp_6s0
+np1s_np1s_S0_tp_6s0
+np1s_np1s_S0_tp_6s0
+np1s_np1s_S0_np3s_np3s_S0
+np1s_np1s_S0_np1s_np1s_S0
+np1s_np1s_S0_np1s_np1s_S0
+np1s_np1s_S0_hen_1s0
+np1s_np1s_S0_hen_1s0
+np1s_np1s_S0_hen_1s0
+np1s_np1s_S0_hen_6s0
+np1s_np1s_S0_hen_6s0
+np1s_np1s_S0_hen_6s0
+np1s_np1s_S0_tp_1s0
+np1s_np1s_S0_tp_1s0
+np1s_np1s_S0_tp_1s0
+np1s_np1s_S0_tp_6s0
+np1s_np1s_S0_tp_6s0
+np1s_np1s_S0_tp_6s0
+hen_1s0_np3s_np3s_S0
+hen_1s0_np1s_np1s_S0
+hen_1s0_np1s_np1s_S0
 hen_1s0_hen_1s0
 hen_1s0_hen_1s0
 hen_1s0_hen_1s0
@@ -476,9 +492,9 @@ hen_1s0_tp_1s0
 hen_1s0_tp_6s0
 hen_1s0_tp_6s0
 hen_1s0_tp_6s0
-hen_1s0_dqdqS0
-hen_1s0_dqdqS0
-hen_1s0_dqdqS0
+hen_1s0_np3s_np3s_S0
+hen_1s0_np1s_np1s_S0
+hen_1s0_np1s_np1s_S0
 hen_1s0_hen_1s0
 hen_1s0_hen_1s0
 hen_1s0_hen_1s0
@@ -491,9 +507,9 @@ hen_1s0_tp_1s0
 hen_1s0_tp_6s0
 hen_1s0_tp_6s0
 hen_1s0_tp_6s0
-hen_1s0_dqdqS0
-hen_1s0_dqdqS0
-hen_1s0_dqdqS0
+hen_1s0_np3s_np3s_S0
+hen_1s0_np1s_np1s_S0
+hen_1s0_np1s_np1s_S0
 hen_1s0_hen_1s0
 hen_1s0_hen_1s0
 hen_1s0_hen_1s0
@@ -506,9 +522,9 @@ hen_1s0_tp_1s0
 hen_1s0_tp_6s0
 hen_1s0_tp_6s0
 hen_1s0_tp_6s0
-hen_6s0_dqdqS0
-hen_6s0_dqdqS0
-hen_6s0_dqdqS0
+hen_6s0_np3s_np3s_S0
+hen_6s0_np1s_np1s_S0
+hen_6s0_np1s_np1s_S0
 hen_6s0_hen_1s0
 hen_6s0_hen_1s0
 hen_6s0_hen_1s0
@@ -521,9 +537,9 @@ hen_6s0_tp_1s0
 hen_6s0_tp_6s0
 hen_6s0_tp_6s0
 hen_6s0_tp_6s0
-hen_6s0_dqdqS0
-hen_6s0_dqdqS0
-hen_6s0_dqdqS0
+hen_6s0_np3s_np3s_S0
+hen_6s0_np1s_np1s_S0
+hen_6s0_np1s_np1s_S0
 hen_6s0_hen_1s0
 hen_6s0_hen_1s0
 hen_6s0_hen_1s0
@@ -536,9 +552,9 @@ hen_6s0_tp_1s0
 hen_6s0_tp_6s0
 hen_6s0_tp_6s0
 hen_6s0_tp_6s0
-hen_6s0_dqdqS0
-hen_6s0_dqdqS0
-hen_6s0_dqdqS0
+hen_6s0_np3s_np3s_S0
+hen_6s0_np1s_np1s_S0
+hen_6s0_np1s_np1s_S0
 hen_6s0_hen_1s0
 hen_6s0_hen_1s0
 hen_6s0_hen_1s0
@@ -551,9 +567,9 @@ hen_6s0_tp_1s0
 hen_6s0_tp_6s0
 hen_6s0_tp_6s0
 hen_6s0_tp_6s0
-tp_1s0_dqdqS0
-tp_1s0_dqdqS0
-tp_1s0_dqdqS0
+tp_1s0_np3s_np3s_S0
+tp_1s0_np1s_np1s_S0
+tp_1s0_np1s_np1s_S0
 tp_1s0_hen_1s0
 tp_1s0_hen_1s0
 tp_1s0_hen_1s0
@@ -566,9 +582,9 @@ tp_1s0_tp_1s0
 tp_1s0_tp_6s0
 tp_1s0_tp_6s0
 tp_1s0_tp_6s0
-tp_1s0_dqdqS0
-tp_1s0_dqdqS0
-tp_1s0_dqdqS0
+tp_1s0_np3s_np3s_S0
+tp_1s0_np1s_np1s_S0
+tp_1s0_np1s_np1s_S0
 tp_1s0_hen_1s0
 tp_1s0_hen_1s0
 tp_1s0_hen_1s0
@@ -581,9 +597,9 @@ tp_1s0_tp_1s0
 tp_1s0_tp_6s0
 tp_1s0_tp_6s0
 tp_1s0_tp_6s0
-tp_1s0_dqdqS0
-tp_1s0_dqdqS0
-tp_1s0_dqdqS0
+tp_1s0_np3s_np3s_S0
+tp_1s0_np1s_np1s_S0
+tp_1s0_np1s_np1s_S0
 tp_1s0_hen_1s0
 tp_1s0_hen_1s0
 tp_1s0_hen_1s0
@@ -596,9 +612,9 @@ tp_1s0_tp_1s0
 tp_1s0_tp_6s0
 tp_1s0_tp_6s0
 tp_1s0_tp_6s0
-tp_6s0_dqdqS0
-tp_6s0_dqdqS0
-tp_6s0_dqdqS0
+tp_6s0_np3s_np3s_S0
+tp_6s0_np1s_np1s_S0
+tp_6s0_np1s_np1s_S0
 tp_6s0_hen_1s0
 tp_6s0_hen_1s0
 tp_6s0_hen_1s0
@@ -611,9 +627,9 @@ tp_6s0_tp_1s0
 tp_6s0_tp_6s0
 tp_6s0_tp_6s0
 tp_6s0_tp_6s0
-tp_6s0_dqdqS0
-tp_6s0_dqdqS0
-tp_6s0_dqdqS0
+tp_6s0_np3s_np3s_S0
+tp_6s0_np1s_np1s_S0
+tp_6s0_np1s_np1s_S0
 tp_6s0_hen_1s0
 tp_6s0_hen_1s0
 tp_6s0_hen_1s0
@@ -626,9 +642,9 @@ tp_6s0_tp_1s0
 tp_6s0_tp_6s0
 tp_6s0_tp_6s0
 tp_6s0_tp_6s0
-tp_6s0_dqdqS0
-tp_6s0_dqdqS0
-tp_6s0_dqdqS0
+tp_6s0_np3s_np3s_S0
+tp_6s0_np1s_np1s_S0
+tp_6s0_np1s_np1s_S0
 tp_6s0_hen_1s0
 tp_6s0_hen_1s0
 tp_6s0_hen_1s0
