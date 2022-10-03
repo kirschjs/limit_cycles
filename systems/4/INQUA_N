@@ -1,111 +1,15 @@
- 10  8  9  3 00  0  0  0  0
-/home/johannesk/kette_repo/limit_cycles/systems/2np1s/nnn_pot
-  6
-  6 20
-                                                5.439770    5.439770    
-                                                5.439770    1.117385    
-                                                5.439770    0.166498    
-                                                1.117385    1.117385    
-                                                1.117385    0.166498    
-                                                0.166498    0.166498    
-  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
-    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
-    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
-    0.002765    0.001010
-  1  1
-          1.
-  1  1
-                      1.
-  1  1
-                                  1.
-  1  1
-                                              1.
-  1  1
-                                                          1.
-  1  1
-                                                                      1.
+ 10  8  9  3 00  0  0  0
+/home/johannesk/kette_repo/limit_cycles/systems/2np1s/nn_pot
   8
   8 20
-                                                8.883718    8.883718    
-                                                8.883718    3.468316    
-                                                8.883718    1.655972    
-                                                8.883718    0.576157    
-                                                8.883718    0.090698    
-                                                3.468316    3.468316    
-                                                3.468316    1.655972    
-                                                3.468316    0.576157    
-  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
-    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
-    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
-    0.002765    0.001010
-  1  1
-          1.
-
-  1  1
-                      1.
-
-  1  1
-                                  1.
-
-  1  1
-                                              1.
-
-  1  1
-                                                          1.
-
-  1  1
-                                                                      1.
-
-  1  1
-
-          1.
-  1  1
-
-                      1.
-  7
-  7 20
-                                                3.468316    0.090698    
-                                                1.655972    1.655972    
-                                                1.655972    0.576157    
-                                                1.655972    0.090698    
-                                                0.576157    0.576157    
-                                                0.576157    0.090698    
-                                                0.090698    0.090698    
-  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
-    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
-    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
-    0.002765    0.001010
-  1  1
-          1.
-
-  1  1
-                      1.
-
-  1  1
-                                  1.
-
-  1  1
-                                              1.
-
-  1  1
-                                                          1.
-
-  1  1
-                                                                      1.
-
-  1  1
-
-          1.
-  8
-  8 20
-                                                7.791439    11.809077   
-                                                7.791439    3.492001    
-                                                7.791439    0.437255    
-                                                7.791439    0.090790    
-                                                1.933586    11.809077   
-                                                1.933586    3.492001    
-                                                1.933586    0.437255    
-                                                1.933586    0.090790    
+                                                8.484309    8.484309    
+                                                8.484309    2.689540    
+                                                8.484309    1.890078    
+                                                8.484309    1.577110    
+                                                8.484309    0.237305    
+                                                8.484309    0.045852    
+                                                2.689540    2.689540    
+                                                2.689540    1.890078    
   129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
     2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
     0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
@@ -136,14 +40,73 @@
                       1.
   8
   8 20
-                                                1.875000    11.809077   
-                                                1.875000    3.492001    
-                                                1.875000    0.437255    
-                                                1.875000    0.090790    
-                                                1.655700    11.809077   
-                                                1.655700    3.492001    
-                                                1.655700    0.437255    
-                                                1.655700    0.090790    
+                                                2.689540    1.577110    
+                                                2.689540    0.237305    
+                                                2.689540    0.045852    
+                                                1.890078    1.890078    
+                                                1.890078    1.577110    
+                                                1.890078    0.237305    
+                                                1.890078    0.045852    
+                                                1.577110    1.577110    
+  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
+    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
+    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
+    0.002765    0.001010
+  1  1
+          1.
+
+  1  1
+                      1.
+
+  1  1
+                                  1.
+
+  1  1
+                                              1.
+
+  1  1
+                                                          1.
+
+  1  1
+                                                                      1.
+
+  1  1
+
+          1.
+  1  1
+
+                      1.
+  5
+  5 20
+                                                1.577110    0.237305    
+                                                1.577110    0.045852    
+                                                0.237305    0.237305    
+                                                0.237305    0.045852    
+                                                0.045852    0.045852    
+  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
+    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
+    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
+    0.002765    0.001010
+  1  1
+          1.
+  1  1
+                      1.
+  1  1
+                                  1.
+  1  1
+                                              1.
+  1  1
+                                                          1.
+  8
+  8 20
+                                                7.790060    7.790060    
+                                                7.790060    2.571720    
+                                                7.790060    0.802731    
+                                                7.790060    0.290398    
+                                                7.790060    0.210065    
+                                                7.790060    0.051583    
+                                                2.571720    2.571720    
+                                                2.571720    0.802731    
   129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
     2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
     0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
@@ -174,14 +137,73 @@
                       1.
   8
   8 20
-                                                0.886277    11.809077   
-                                                0.886277    3.492001    
-                                                0.886277    0.437255    
-                                                0.886277    0.090790    
-                                                0.123968    11.809077   
-                                                0.123968    3.492001    
-                                                0.123968    0.437255    
-                                                0.123968    0.090790    
+                                                2.571720    0.290398    
+                                                2.571720    0.210065    
+                                                2.571720    0.051583    
+                                                0.802731    0.802731    
+                                                0.802731    0.290398    
+                                                0.802731    0.210065    
+                                                0.802731    0.051583    
+                                                0.290398    0.290398    
+  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
+    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
+    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
+    0.002765    0.001010
+  1  1
+          1.
+
+  1  1
+                      1.
+
+  1  1
+                                  1.
+
+  1  1
+                                              1.
+
+  1  1
+                                                          1.
+
+  1  1
+                                                                      1.
+
+  1  1
+
+          1.
+  1  1
+
+                      1.
+  5
+  5 20
+                                                0.290398    0.210065    
+                                                0.290398    0.051583    
+                                                0.210065    0.210065    
+                                                0.210065    0.051583    
+                                                0.051583    0.051583    
+  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
+    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
+    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
+    0.002765    0.001010
+  1  1
+          1.
+  1  1
+                      1.
+  1  1
+                                  1.
+  1  1
+                                              1.
+  1  1
+                                                          1.
+  8
+  8 20
+                                                8.454646    10.494811   
+                                                8.454646    3.850754    
+                                                8.454646    1.954708    
+                                                8.454646    0.908172    
+                                                8.454646    0.234357    
+                                                8.454646    0.060943    
+                                                3.172836    10.494811   
+                                                3.172836    3.850754    
   129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
     2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
     0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
@@ -212,14 +234,14 @@
                       1.
   8
   8 20
-                                                11.099286   8.585316    
-                                                11.099286   0.499204    
-                                                11.099286   0.098518    
-                                                9.695541    8.585316    
-                                                9.695541    0.499204    
-                                                9.695541    0.098518    
-                                                5.343763    8.585316    
-                                                5.343763    0.499204    
+                                                3.172836    1.954708    
+                                                3.172836    0.908172    
+                                                3.172836    0.234357    
+                                                3.172836    0.060943    
+                                                1.777299    10.494811   
+                                                1.777299    3.850754    
+                                                1.777299    1.954708    
+                                                1.777299    0.908172    
   129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
     2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
     0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
@@ -250,64 +272,14 @@
                       1.
   8
   8 20
-                                                5.343763    0.098518    
-                                                0.996094    8.585316    
-                                                0.996094    0.499204    
-                                                0.996094    0.098518    
-                                                0.968445    8.585316    
-                                                0.968445    0.499204    
-                                                0.968445    0.098518    
-                                                0.859371    8.585316    
-  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
-    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
-    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
-    0.002765    0.001010
-  1  1
-          1.
-
-  1  1
-                      1.
-
-  1  1
-                                  1.
-
-  1  1
-                                              1.
-
-  1  1
-                                                          1.
-
-  1  1
-                                                                      1.
-
-  1  1
-
-          1.
-  1  1
-
-                      1.
-  2
-  2 20
-                                                0.859371    0.499204    
-                                                0.859371    0.098518    
-  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
-    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
-    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
-    0.002765    0.001010
-  1  1
-          1.
-  1  1
-                      1.
-  8
-  8 20
-                                                10.431561   8.568591    
-                                                10.431561   6.899557    
-                                                10.431561   0.405143    
-                                                10.431561   0.093307    
-                                                6.874436    8.568591    
-                                                6.874436    6.899557    
-                                                6.874436    0.405143    
-                                                6.874436    0.093307    
+                                                1.777299    0.234357    
+                                                1.777299    0.060943    
+                                                0.931503    10.494811   
+                                                0.931503    3.850754    
+                                                0.931503    1.954708    
+                                                0.931503    0.908172    
+                                                0.931503    0.234357    
+                                                0.931503    0.060943    
   129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
     2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
     0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
@@ -338,14 +310,14 @@
                       1.
   8
   8 20
-                                                3.804331    8.568591    
-                                                3.804331    6.899557    
-                                                3.804331    0.405143    
-                                                3.804331    0.093307    
-                                                1.214897    8.568591    
-                                                1.214897    6.899557    
-                                                1.214897    0.405143    
-                                                1.214897    0.093307    
+                                                0.493163    10.494811   
+                                                0.493163    3.850754    
+                                                0.493163    1.954708    
+                                                0.493163    0.908172    
+                                                0.493163    0.234357    
+                                                0.493163    0.060943    
+                                                0.184767    10.494811   
+                                                0.184767    3.850754    
   129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
     2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
     0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
@@ -376,14 +348,14 @@
                       1.
   8
   8 20
-                                                0.999861    8.568591    
-                                                0.999861    6.899557    
-                                                0.999861    0.405143    
-                                                0.999861    0.093307    
-                                                0.750000    8.568591    
-                                                0.750000    6.899557    
-                                                0.750000    0.405143    
-                                                0.750000    0.093307    
+                                                0.184767    1.954708    
+                                                0.184767    0.908172    
+                                                0.184767    0.234357    
+                                                0.184767    0.060943    
+                                                0.078831    10.494811   
+                                                0.078831    3.850754    
+                                                0.078831    1.954708    
+                                                0.078831    0.908172    
   129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
     2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
     0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
@@ -414,14 +386,14 @@
                       1.
   8
   8 20
-                                                7.156387    6.369178    
-                                                7.156387    0.508779    
-                                                7.156387    0.104369    
-                                                6.554970    6.369178    
-                                                6.554970    0.508779    
-                                                6.554970    0.104369    
-                                                5.574868    6.369178    
-                                                5.574868    0.508779    
+                                                0.078831    0.234357    
+                                                0.078831    0.060943    
+                                                0.030611    10.494811   
+                                                0.030611    3.850754    
+                                                0.030611    1.954708    
+                                                0.030611    0.908172    
+                                                0.030611    0.234357    
+                                                0.030611    0.060943    
   129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
     2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
     0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
@@ -452,14 +424,14 @@
                       1.
   8
   8 20
-                                                5.574868    0.104369    
-                                                3.255225    6.369178    
-                                                3.255225    0.508779    
-                                                3.255225    0.104369    
-                                                0.874942    6.369178    
-                                                0.874942    0.508779    
-                                                0.874942    0.104369    
-                                                0.109333    6.369178    
+                                                12.239802   11.331189   
+                                                12.239802   3.288227    
+                                                12.239802   1.999810    
+                                                12.239802   0.748034    
+                                                12.239802   0.351557    
+                                                12.239802   0.085807    
+                                                8.081506    11.331189   
+                                                8.081506    3.288227    
   129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
     2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
     0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
@@ -488,255 +460,649 @@
   1  1
 
                       1.
-  2
-  2 20
-                                                0.109333    0.508779    
-                                                0.109333    0.104369    
+  8
+  8 20
+                                                8.081506    1.999810    
+                                                8.081506    0.748034    
+                                                8.081506    0.351557    
+                                                8.081506    0.085807    
+                                                4.479463    11.331189   
+                                                4.479463    3.288227    
+                                                4.479463    1.999810    
+                                                4.479463    0.748034    
   129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
     2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
     0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
     0.002765    0.001010
   1  1
           1.
+
   1  1
                       1.
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/np3s_np3s_S0_np3s_np3s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/np1s_np1s_S0_np3s_np3s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/np1s_np1s_S0_np1s_np1s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/np1s_np1s_S0_np3s_np3s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/np1s_np1s_S0_np1s_np1s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/np1s_np1s_S0_np1s_np1s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_np3s_np3s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_np1s_np1s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_np1s_np1s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_np3s_np3s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_np1s_np1s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_np1s_np1s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_np3s_np3s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_np1s_np1s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_np1s_np1s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_np3s_np3s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_np1s_np1s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_np1s_np1s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_np3s_np3s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_np1s_np1s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_np1s_np1s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_np3s_np3s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_np1s_np1s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_np1s_np1s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/hen_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_np3s_np3s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_np1s_np1s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_np1s_np1s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_np3s_np3s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_np1s_np1s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_np1s_np1s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_np3s_np3s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_np1s_np1s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_np1s_np1s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_1s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_np3s_np3s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_np1s_np1s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_np1s_np1s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_np3s_np3s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_np1s_np1s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_np1s_np1s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_np3s_np3s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_np1s_np1s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_np1s_np1s_S0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_hen_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_1s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/eob-tni/tp_6s0_tp_6s0
-/home/johannesk/kette_repo/limit_cycles/systems/4/elu-tni/000-0_000-0
+
+  1  1
+                                  1.
+
+  1  1
+                                              1.
+
+  1  1
+                                                          1.
+
+  1  1
+                                                                      1.
+
+  1  1
+
+          1.
+  1  1
+
+                      1.
+  8
+  8 20
+                                                4.479463    0.351557    
+                                                4.479463    0.085807    
+                                                2.981779    11.331189   
+                                                2.981779    3.288227    
+                                                2.981779    1.999810    
+                                                2.981779    0.748034    
+                                                2.981779    0.351557    
+                                                2.981779    0.085807    
+  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
+    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
+    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
+    0.002765    0.001010
+  1  1
+          1.
+
+  1  1
+                      1.
+
+  1  1
+                                  1.
+
+  1  1
+                                              1.
+
+  1  1
+                                                          1.
+
+  1  1
+                                                                      1.
+
+  1  1
+
+          1.
+  1  1
+
+                      1.
+  8
+  8 20
+                                                1.998569    11.331189   
+                                                1.998569    3.288227    
+                                                1.998569    1.999810    
+                                                1.998569    0.748034    
+                                                1.998569    0.351557    
+                                                1.998569    0.085807    
+                                                1.468729    11.331189   
+                                                1.468729    3.288227    
+  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
+    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
+    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
+    0.002765    0.001010
+  1  1
+          1.
+
+  1  1
+                      1.
+
+  1  1
+                                  1.
+
+  1  1
+                                              1.
+
+  1  1
+                                                          1.
+
+  1  1
+                                                                      1.
+
+  1  1
+
+          1.
+  1  1
+
+                      1.
+  8
+  8 20
+                                                1.468729    1.999810    
+                                                1.468729    0.748034    
+                                                1.468729    0.351557    
+                                                1.468729    0.085807    
+                                                0.362793    11.331189   
+                                                0.362793    3.288227    
+                                                0.362793    1.999810    
+                                                0.362793    0.748034    
+  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
+    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
+    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
+    0.002765    0.001010
+  1  1
+          1.
+
+  1  1
+                      1.
+
+  1  1
+                                  1.
+
+  1  1
+                                              1.
+
+  1  1
+                                                          1.
+
+  1  1
+                                                                      1.
+
+  1  1
+
+          1.
+  1  1
+
+                      1.
+  8
+  8 20
+                                                0.362793    0.351557    
+                                                0.362793    0.085807    
+                                                0.125000    11.331189   
+                                                0.125000    3.288227    
+                                                0.125000    1.999810    
+                                                0.125000    0.748034    
+                                                0.125000    0.351557    
+                                                0.125000    0.085807    
+  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
+    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
+    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
+    0.002765    0.001010
+  1  1
+          1.
+
+  1  1
+                      1.
+
+  1  1
+                                  1.
+
+  1  1
+                                              1.
+
+  1  1
+                                                          1.
+
+  1  1
+                                                                      1.
+
+  1  1
+
+          1.
+  1  1
+
+                      1.
+  8
+  8 20
+                                                8.104971    5.774737    
+                                                8.104971    3.673685    
+                                                8.104971    1.970236    
+                                                8.104971    0.995982    
+                                                8.104971    0.239485    
+                                                8.104971    0.064435    
+                                                5.432254    5.774737    
+                                                5.432254    3.673685    
+  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
+    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
+    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
+    0.002765    0.001010
+  1  1
+          1.
+
+  1  1
+                      1.
+
+  1  1
+                                  1.
+
+  1  1
+                                              1.
+
+  1  1
+                                                          1.
+
+  1  1
+                                                                      1.
+
+  1  1
+
+          1.
+  1  1
+
+                      1.
+  8
+  8 20
+                                                5.432254    1.970236    
+                                                5.432254    0.995982    
+                                                5.432254    0.239485    
+                                                5.432254    0.064435    
+                                                2.838576    5.774737    
+                                                2.838576    3.673685    
+                                                2.838576    1.970236    
+                                                2.838576    0.995982    
+  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
+    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
+    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
+    0.002765    0.001010
+  1  1
+          1.
+
+  1  1
+                      1.
+
+  1  1
+                                  1.
+
+  1  1
+                                              1.
+
+  1  1
+                                                          1.
+
+  1  1
+                                                                      1.
+
+  1  1
+
+          1.
+  1  1
+
+                      1.
+  8
+  8 20
+                                                2.838576    0.239485    
+                                                2.838576    0.064435    
+                                                1.494137    5.774737    
+                                                1.494137    3.673685    
+                                                1.494137    1.970236    
+                                                1.494137    0.995982    
+                                                1.494137    0.239485    
+                                                1.494137    0.064435    
+  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
+    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
+    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
+    0.002765    0.001010
+  1  1
+          1.
+
+  1  1
+                      1.
+
+  1  1
+                                  1.
+
+  1  1
+                                              1.
+
+  1  1
+                                                          1.
+
+  1  1
+                                                                      1.
+
+  1  1
+
+          1.
+  1  1
+
+                      1.
+  8
+  8 20
+                                                0.871914    5.774737    
+                                                0.871914    3.673685    
+                                                0.871914    1.970236    
+                                                0.871914    0.995982    
+                                                0.871914    0.239485    
+                                                0.871914    0.064435    
+                                                0.793937    5.774737    
+                                                0.793937    3.673685    
+  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
+    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
+    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
+    0.002765    0.001010
+  1  1
+          1.
+
+  1  1
+                      1.
+
+  1  1
+                                  1.
+
+  1  1
+                                              1.
+
+  1  1
+                                                          1.
+
+  1  1
+                                                                      1.
+
+  1  1
+
+          1.
+  1  1
+
+                      1.
+  8
+  8 20
+                                                0.793937    1.970236    
+                                                0.793937    0.995982    
+                                                0.793937    0.239485    
+                                                0.793937    0.064435    
+                                                0.311830    5.774737    
+                                                0.311830    3.673685    
+                                                0.311830    1.970236    
+                                                0.311830    0.995982    
+  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
+    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
+    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
+    0.002765    0.001010
+  1  1
+          1.
+
+  1  1
+                      1.
+
+  1  1
+                                  1.
+
+  1  1
+                                              1.
+
+  1  1
+                                                          1.
+
+  1  1
+                                                                      1.
+
+  1  1
+
+          1.
+  1  1
+
+                      1.
+  8
+  8 20
+                                                0.311830    0.239485    
+                                                0.311830    0.064435    
+                                                0.085079    5.774737    
+                                                0.085079    3.673685    
+                                                0.085079    1.970236    
+                                                0.085079    0.995982    
+                                                0.085079    0.239485    
+                                                0.085079    0.064435    
+  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
+    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
+    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
+    0.002765    0.001010
+  1  1
+          1.
+
+  1  1
+                      1.
+
+  1  1
+                                  1.
+
+  1  1
+                                              1.
+
+  1  1
+                                                          1.
+
+  1  1
+                                                                      1.
+
+  1  1
+
+          1.
+  1  1
+
+                      1.
+  8
+  8 20
+                                                19.921110   8.353677    
+                                                19.921110   2.696722    
+                                                19.921110   0.757191    
+                                                19.921110   0.436996    
+                                                19.921110   0.187424    
+                                                19.921110   0.054535    
+                                                11.078123   8.353677    
+                                                11.078123   2.696722    
+  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
+    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
+    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
+    0.002765    0.001010
+  1  1
+          1.
+
+  1  1
+                      1.
+
+  1  1
+                                  1.
+
+  1  1
+                                              1.
+
+  1  1
+                                                          1.
+
+  1  1
+                                                                      1.
+
+  1  1
+
+          1.
+  1  1
+
+                      1.
+  8
+  8 20
+                                                11.078123   0.757191    
+                                                11.078123   0.436996    
+                                                11.078123   0.187424    
+                                                11.078123   0.054535    
+                                                6.968091    8.353677    
+                                                6.968091    2.696722    
+                                                6.968091    0.757191    
+                                                6.968091    0.436996    
+  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
+    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
+    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
+    0.002765    0.001010
+  1  1
+          1.
+
+  1  1
+                      1.
+
+  1  1
+                                  1.
+
+  1  1
+                                              1.
+
+  1  1
+                                                          1.
+
+  1  1
+                                                                      1.
+
+  1  1
+
+          1.
+  1  1
+
+                      1.
+  8
+  8 20
+                                                6.968091    0.187424    
+                                                6.968091    0.054535    
+                                                1.904629    8.353677    
+                                                1.904629    2.696722    
+                                                1.904629    0.757191    
+                                                1.904629    0.436996    
+                                                1.904629    0.187424    
+                                                1.904629    0.054535    
+  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
+    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
+    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
+    0.002765    0.001010
+  1  1
+          1.
+
+  1  1
+                      1.
+
+  1  1
+                                  1.
+
+  1  1
+                                              1.
+
+  1  1
+                                                          1.
+
+  1  1
+                                                                      1.
+
+  1  1
+
+          1.
+  1  1
+
+                      1.
+  8
+  8 20
+                                                1.567655    8.353677    
+                                                1.567655    2.696722    
+                                                1.567655    0.757191    
+                                                1.567655    0.436996    
+                                                1.567655    0.187424    
+                                                1.567655    0.054535    
+                                                0.686686    8.353677    
+                                                0.686686    2.696722    
+  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
+    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
+    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
+    0.002765    0.001010
+  1  1
+          1.
+
+  1  1
+                      1.
+
+  1  1
+                                  1.
+
+  1  1
+                                              1.
+
+  1  1
+                                                          1.
+
+  1  1
+                                                                      1.
+
+  1  1
+
+          1.
+  1  1
+
+                      1.
+  8
+  8 20
+                                                0.686686    0.757191    
+                                                0.686686    0.436996    
+                                                0.686686    0.187424    
+                                                0.686686    0.054535    
+                                                0.210380    8.353677    
+                                                0.210380    2.696722    
+                                                0.210380    0.757191    
+                                                0.210380    0.436996    
+  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
+    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
+    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
+    0.002765    0.001010
+  1  1
+          1.
+
+  1  1
+                      1.
+
+  1  1
+                                  1.
+
+  1  1
+                                              1.
+
+  1  1
+                                                          1.
+
+  1  1
+                                                                      1.
+
+  1  1
+
+          1.
+  1  1
+
+                      1.
+  8
+  8 20
+                                                0.210380    0.187424    
+                                                0.210380    0.054535    
+                                                0.093655    8.353677    
+                                                0.093655    2.696722    
+                                                0.093655    0.757191    
+                                                0.093655    0.436996    
+                                                0.093655    0.187424    
+                                                0.093655    0.054535    
+  129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
+    2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
+    0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
+    0.002765    0.001010
+  1  1
+          1.
+
+  1  1
+                      1.
+
+  1  1
+                                  1.
+
+  1  1
+                                              1.
+
+  1  1
+                                                          1.
+
+  1  1
+                                                                      1.
+
+  1  1
+
+          1.
+  1  1
+
+                      1.

@@ -18,18 +18,18 @@ from multiprocessing.pool import ThreadPool
 from four_particle_functions import from3to4
 
 # numerical stability
-nBV = 7
-nREL = 6
+nBV = 8
+nREL = 12
 mindisti = [0.001, 0.001]
 width_bnds = [0.01, 4.15, 0.1, 26.25]
-minCond = 10**-17
+minCond = 10**-15
 
 # genetic parameters
-anzNewBV = 5
+anzNewBV = 2
 muta_initial = .1
-anzGen = 1
-seed_civ_size = 4
-target_pop_size = 6
+anzGen = 22
+seed_civ_size = 8
+target_pop_size = 12
 
 J0 = 1 / 2
 
@@ -413,6 +413,7 @@ finCiv = [civs[0][0], civs[0][1][0], civs[0][1][1], sbas]
 ob_strus, lu_strus, strus = condense_basis_3to4(finCiv,
                                                 widthSet_relative,
                                                 fn='inq_3to4_%s' % lam)
+
 assert len(lu_strus) == len(ob_strus)
 
 print(ob_strus, lu_strus, strus, sbas)
@@ -432,3 +433,9 @@ with open('obstru_%s' % lam, 'w') as outfile:
     outfile.write(outs)
 with open('drei_stru_%s' % lam, 'w') as outfile:
     outfile.write(outst)
+
+subprocess.call('rm -rf TQUAOUT.*', shell=True)
+subprocess.call('rm -rf TDQUAOUT.*', shell=True)
+subprocess.call('rm -rf DMOUT.*', shell=True)
+subprocess.call('rm -rf DRDMOUT.*', shell=True)
+subprocess.call('rm -rf matout_*.*', shell=True)

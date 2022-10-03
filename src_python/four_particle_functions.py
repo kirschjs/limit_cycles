@@ -604,8 +604,8 @@ def from2to4(relw, zwei_inq, vier_dir, fn, app=False):
                     outs += '1.'.rjust(12 * (bb % 6 + 1))
                     outs += '\n'
 
-    writemode = 'a' if app else 'w'
-    with open(vier_dir + '/INQUA_N', writemode) as outfile:
-        outfile.write(outs)
+    #writemode = 'a' if app else 'w'
+    #with open(vier_dir + '/INQUA_N', writemode) as outfile:
+    #    outfile.write(outs)
 
-    return zstruct
+    return zstruct, outs

@@ -29,7 +29,7 @@ civ_size = 20
 target_pop_size = civ_size
 
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
-J0 = 1
+J0 = 0
 channel = 'np%ds' % int(2 * J0 + 1)  #'np1s'  # DSI
 
 sysdir2 = sysdir2np3s if J0 == 1 else sysdir2np1s
@@ -40,7 +40,7 @@ os.chdir(sysdir2)
 prep_pot_file_2N(lam=lam, wiC=cloW, baC=0.0, ps2=nnpot)
 prep_pot_file_3N(lam=la, d10=d0, ps3=nnnpot)
 
-deutDim = 5
+deutDim = 6
 
 zop = 14
 
