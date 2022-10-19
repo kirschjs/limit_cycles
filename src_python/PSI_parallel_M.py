@@ -14,7 +14,7 @@ from rrgm_functions import *
 from scipy.linalg import eigh
 from genetic_width_growth import *
 
-MaxProc = int(len(os.sched_getaffinity(0)) / 1.5)
+MaxProc = int(len(os.sched_getaffinity(0)))
 print('requesting N = %d computing cores.' % MaxProc)
 MPIRUN = subprocess.getoutput("which mpirun")
 tnni = 11
@@ -314,8 +314,8 @@ def span_initial_basis3(fragments,
     rWmin = 0.0001
 
     # orbital-angular-momentum dependent upper bound '=' UV cutoff (narrowest state)
-    iLcutoff = [22., 4., 3.]
-    rLcutoff = [22., 4., 3.]
+    iLcutoff = [42., 17., 15.]
+    rLcutoff = [42., 17., 15.]
     nwint = ini_dims[0]
     nwrel = ini_dims[1]
     rel_scale = 1.
@@ -343,7 +343,7 @@ def span_initial_basis3(fragments,
         while len(lit_w_t) != nwint:
 
             lit_w_t = [
-                test_width * (1 + 0.1 * (np.random.random() - 1))
+                test_width * (1 + 0.5 * (np.random.random() - 1))
                 for test_width in lit_w_tmp
             ]
             dists = [
@@ -437,9 +437,10 @@ def span_initial_basis3(fragments,
                   (str(diskfil) + '%'))
             exit()
 
-        subprocess.run(
-            [MPIRUN, '-np',
-             '%d' % anzproc, binPath + 'V18_PAR/mpi_quaf_v6'])
+        subprocess.run([
+            MPIRUN, '--oversubscribe', '-np',
+            '%d' % anzproc, binPath + 'V18_PAR/mpi_quaf_v6'
+        ])
         subprocess.run([binPath + 'V18_PAR/sammel'])
         subprocess.call('rm -rf DMOUT.*', shell=True)
 
@@ -465,7 +466,7 @@ def span_initial_basis3(fragments,
                 exit()
 
             subprocess.run([
-                MPIRUN, '-np',
+                MPIRUN, '--oversubscribe', '-np',
                 '%d' % anzproc, binPath + 'UIX_PAR/mpi_drqua_uix'
             ])
 
@@ -702,7 +703,7 @@ def span_population3(anz_civ,
     nwrel = ini_dims[1]
     rel_scale = 1.
 
-    if nwrel >= rwma:
+    if nwrel > rwma:
         print(
             'The set number for relative width parameters per basis vector > max!'
         )
@@ -850,8 +851,8 @@ def span_population3(anz_civ,
 
     cand_list.sort(key=lambda tup: np.abs(tup[2]))
 
-    #for cc in samp_ladder:
-    #    print(cc[2:])
+    for cc in samp_ladder:
+        print(cc[2:])
 
     return cand_list, sbas
 
@@ -1166,7 +1167,7 @@ def blunt_ev3(cfgs,
             exit()
 
         subprocess.run([
-            mpipath, '-np',
+            mpipath, '--oversubscribe', '-np',
             '%d' % anzcores, bin_path + 'V18_PAR/mpi_quaf_v6'
         ])
         subprocess.run([bin_path + 'V18_PAR/sammel'])
@@ -1198,7 +1199,7 @@ def blunt_ev3(cfgs,
                 exit()
 
             subprocess.run([
-                mpipath, '-np',
+                mpipath, '--oversubscribe', '-np',
                 '%d' % anzcores, bin_path + 'UIX_PAR/mpi_drqua_uix'
             ])
             subprocess.run([bin_path + 'UIX_PAR/SAMMEL-uix'])
@@ -1329,7 +1330,7 @@ def blunt_ev4(cfgs,
     if parall == -1:
 
         subprocess.run([
-            mpipath, '-np',
+            mpipath, '--oversubscribe', '-np',
             '%d' % anzcores, bin_path + 'V18_PAR/mpi_quaf_v6'
         ])
         subprocess.run([bin_path + 'V18_PAR/sammel'])
@@ -1357,7 +1358,7 @@ def blunt_ev4(cfgs,
 
         if parall == -1:
             subprocess.run([
-                mpipath, '-np',
+                mpipath, '--oversubscribe', '-np',
                 '%d' % anzcores, bin_path + 'UIX_PAR/mpi_drqua_uix'
             ])
             subprocess.run([bin_path + 'UIX_PAR/SAMMEL-uix'])

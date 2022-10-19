@@ -25,8 +25,6 @@ from multiprocessing.pool import ThreadPool
 
 newCal = 1
 
-os.chdir(sysdir4)
-
 # numerical stability
 nBV = 6
 nREL = 8
@@ -49,20 +47,30 @@ channels = [
     #['000-0', 'nnnnS0t'],  # no DSI
     ['000-0', 'np3s_np3s_S0'],  # DSI
     ['000-0', 'np1s_np1s_S0'],  # DSI
-    #['000-0', 'tp_1s0'],
-    #['000-0', 'tp_6s0'],
-    #['000-0', 'hen_1s0'],
-    #['000-0', 'hen_6s0']
+    ['000-0', 'tp_1s0'],
+    ['000-0', 'tp_6s0'],
+    ['000-0', 'hen_1s0'],
+    ['000-0', 'hen_6s0']
 ]
+
+einzel4 = False
+if os.path.isdir(sysdir4) == False:
+    subprocess.check_call(['mkdir', '-p', sysdir4])
+    einzel4 = True
+
+os.chdir(sysdir4)
 
 costr = ''
 zop = 31 if tnni == 11 else 14
 for nn in range(1, zop):
-    cf = 1.0 if ((nn == 1) | (nn == 2) | (nn == 14)) else 0.0
-    #cf = 1.0 if ((nn == 2) | (nn == 14)) else 0.0
+    if withCoul == True:
+        cf = 1.0 if ((nn == 1) | (nn == 2)) else 0.0
+    else:
+        cf = 1.0 if ((nn == 2)) else 0.0
+    if (nn == 14):
+        cf = 1.0
     costr += '%12.7f' % cf if (nn % 7 != 0) else '%12.7f\n' % cf
 
-einzel4 = False
 if einzel4:
     prepare_einzel4(sysdir4, BINBDGpath, channels)
 
@@ -78,9 +86,13 @@ fragment_energies = []
 cofli = []
 strus = []
 zstrus = []
+qua_str = []
 sbas = []
+ph2d = []
 n2 = 0
-appen = False
+
+subprocess.call('rm -rf INQUA_N', shell=True)
+
 for sysdir2 in twodirs:
 
     if os.path.isfile(sysdir2 + '/bndg_out_%s' % lam) == False:
@@ -89,12 +101,14 @@ for sysdir2 in twodirs:
     ths = get_h_ev(n=1, ifi=sysdir2 + '/bndg_out_%s' % lam)
     fragment_energies.append(ths[0])
 
-    zstrus.append(
-        from2to4(zwei_inq=sysdir2 + '/INQUA_N_%s' % lam,
-                 vier_dir=sysdir4,
-                 fn=nnpot,
-                 relw=widthSet_relative,
-                 app=appen))
+    zstrus_tmp, outs = from2to4(zwei_inq=sysdir2 + '/INQUA_N_%s' % lam,
+                                vier_dir=sysdir4,
+                                fn=nnpot,
+                                relw=widthSet_relative,
+                                app='True')
+    zstrus.append(zstrus_tmp)
+    qua_str.append(outs)
+
     strus.append(len(zstrus[-1]) * channels[n2])
     n2 += 1
 
@@ -106,7 +120,12 @@ for sysdir2 in twodirs:
                              bvnr=1)
     ddCoff = np.array(ddCoff).astype(float)
     cofli.append(ddCoff.tolist())
-    appen = True
+
+    ph2d.append(
+        read_phase(phaout=sysdir2 + '/phaout_%s' % (lam),
+                   ch=[1, 1],
+                   meth=1,
+                   th_shift=''))
 
 # the order matters as we conventionally include physical channels
 # in ascending threshold energy. E.g. dd then he3n then tp;
@@ -138,8 +157,10 @@ for sysdir3 in threedirs:
     threeCoff = np.array(threeCoff).astype(float)
     cofli.append(threeCoff.tolist())
 
-    subprocess.call('cat %s/inq_3to4_%s >> INQUA_N' % (sysdir3, lam),
-                    shell=True)
+    qua_str.append(''.join(
+        [line for line in open('%s/inq_3to4_%s' % (sysdir3, lam))]))
+    #subprocess.call('cat %s/inq_3to4_%s >> INQUA_N' % (sysdir3, lam),
+    #                shell=True)
 
 idx = np.array(fragment_energies).argsort()[::-1]
 strus = sum([strus[id] for id in idx], [])
@@ -148,18 +169,28 @@ sbas = sum([sbas[id] for id in idx], [])
 cofli = [cofli[id] for id in idx]
 J1J2SC = [J1J2SC[id] for id in idx]
 
+qua_str = [qua_str[id] for id in idx]
+outs = ' 10  8  9  3 00  0  0  0\n%s\n' % nnpot
+for qua_part in qua_str:
+    outs += qua_part
+with open('INQUA_N', 'w') as outfile:
+    outfile.write(outs)
+
 sb = []
 bv = 1
-for nbv in range(len(sbas)):
-    sb.append([bv, np.arange(1, 1 + len(sbas[nbv][1])).tolist()])
-    bv += 1
-
 varspacedim = sum([len(rset[1]) for rset in sbas])
+
+for nbv in range(1, varspacedim):
+    relws = [
+        [1, 0] for n in range(int(0.5 * len(widthSet_relative)))
+    ] if nbv % 2 == 0 else [[0, 1]
+                            for n in range(int(0.5 * len(widthSet_relative)))]
+    sb.append([nbv, sum(relws, [])])
 
 if newCal:
     ma = blunt_ev4(cfgs=strus,
                    bas=sb,
-                   dmaa=[0, 1, 0, 1, 0, 0, 0, 0],
+                   dmaa=[1, 1, 0, 1, 0, 1, 0, 0],
                    j1j2sc=J1J2SC,
                    funcPath=sysdir4,
                    nzopt=zop,
@@ -175,17 +206,12 @@ if newCal:
                    jay=J0,
                    nchtot=int(varspacedim - (2 + 1) * len(cofli)))
 
-    dim = int(np.sqrt(len(ma) * 0.5))
-    # read Norm and Hamilton matrices
-    normat = np.reshape(np.array(ma[:dim**2]).astype(float), (dim, dim))
-    hammat = np.reshape(np.array(ma[dim**2:]).astype(float), (dim, dim))
-    # diagonalize normalized norm (using "eigh(ermitian)" to speed-up the computation)
-    ewN, evN = eigh(normat)
-    ewH, evH = eigh(hammat, normat)
-    qual, gs, basCond = basQ(ewN, ewH, minCond)
+    smartEV, basCond = smart_ev(ma, threshold=10**-7)
+    gs = smartEV[-1]
     print(
         '(d-d)+(dq-dq)+(t-p)+(he3-n) structured hamiltonian yields:\n E_0 = %f MeV\ncondition number = %E'
         % (gs, basCond))
+    print(smartEV[-20:])
     exit()
 
     spole_2(nzen=nzEN,
@@ -206,22 +232,15 @@ if newCal:
     # results obtained in the employed subspaces
     # => the order in the <phys_chan> argument of ``inen_str_4'' (called in PSI_parallel_M)
 
-    subprocess.run([BINBDGpath + 'S-POLE_PdP.exe'])
+    subprocess.run([BINBDGpath + 'S-POLE_zget.exe'])
+
+plotphas()
 
 chans = [[1, 1], [2, 2], [3, 3], [4, 4]]
 
 if os.path.isfile(sysdir2 + '/phaout_%s' % lam) == False:
     print("2-body phase shifts unavailable for L = %s" % lam)
     exit()
-
-ph2d = read_phase(phaout=sysdir2 + '/phaout_np3s_%s' % lam,
-                  ch=[1, 1],
-                  meth=1,
-                  th_shift='')
-ph2dq = read_phase(phaout=sysdir2 + '/phaout_np1s_%s' % lam,
-                   ch=[1, 1],
-                   meth=1,
-                   th_shift='')
 
 # this ordering must match the threshold order, e.g., if B(t)>B(3He)>B(d)>B(dq),
 # phtp -> chans[0]
@@ -234,81 +253,77 @@ phdd = read_phase(phaout='PHAOUT', ch=chans[2], meth=1, th_shift='1-3')
 phdqdq = read_phase(phaout='PHAOUT', ch=chans[3], meth=1, th_shift='1-4')
 #phmix = read_phase(phaout='PHAOUT', ch=chans[3], meth=1, th_shift='1-2')
 
-write_phases(ph2d,
-             filename='np3s_phases.dat',
+write_phases(ph2d[0],
+             filename='np3s_phases_%s.dat' % lam,
              append=0,
              comment='',
              mu=0.5 * mn['137'])
-write_phases(ph2dq,
-             filename='np1s_phases.dat',
+write_phases(ph2d[1],
+             filename='np1s_phases_%s.dat' % lam,
              append=0,
              comment='',
              mu=0.5 * mn['137'])
 write_phases(phdd,
-             filename='d-d_phases.dat',
+             filename='d-d_phases_%s.dat' % lam,
              append=0,
              comment='',
              mu=mn['137'])
 write_phases(phdqdq,
-             filename='dq-dq_phases.dat',
+             filename='dq-dq_phases_%s.dat' % lam,
              append=0,
              comment='',
              mu=mn['137'])
 write_phases(phtp,
-             filename='t-p_phases.dat',
+             filename='t-p_phases_%s.dat' % lam,
              append=0,
              comment='',
              mu=(2. / 3.) * mn['137'])
 write_phases(phhen,
-             filename='he3-n_phases.dat',
+             filename='he3-n_phases_%s.dat' % lam,
              append=0,
              comment='',
              mu=(2. / 3.) * mn['137'])
 
 a_np3s = [
-    #appC(ph2[n][2] * np.pi / 180.,
-    #     np.sqrt(mn['137'] * ph2[n][0]),
-    #     mn['137'] / 2.,
-    #     q1=1,
-    #     q2=1)
-    anp(ph2d[n][2] * np.pi / 180., np.sqrt(mn['137'] * ph2d[n][0]))
-    for n in range(len(ph2d))
+    anp(ph2d[0][n][2] * np.pi / 180., np.sqrt(mn['137'] * ph2d[0][n][0]))
+    for n in range(len(ph2d[0]))
 ]
+
 a_np1s = [
-    #appC(ph2[n][2] * np.pi / 180.,
-    #     np.sqrt(mn['137'] * ph2[n][0]),
-    #     mn['137'] / 2.,
-    #     q1=1,
-    #     q2=1)
-    anp(ph2dq[n][2] * np.pi / 180., np.sqrt(mn['137'] * ph2dq[n][0]))
-    for n in range(len(ph2dq))
+    anp(ph2d[1][n][2] * np.pi / 180., np.sqrt(mn['137'] * ph2d[1][n][0]))
+    for n in range(len(ph2d[1]))
 ]
+
 a_dd = [
     appC(phdd[n][2] * np.pi / 180.,
          np.sqrt(2 * mn['137'] * phdd[n][0]),
          mn['137'],
          q1=1,
-         q2=1)
-    #-MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /    np.sqrt(2 * mn['137'] * phdd[n][0])
-    for n in range(len(phdd))
+         q2=1) for n in range(len(phdd))
+] if withCoul == True else [
+    -MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /
+    np.sqrt(2 * mn['137'] * phdd[n][0]) for n in range(len(phdd))
 ]
+
 a_dqdq = [
     appC(phdqdq[n][2] * np.pi / 180.,
          np.sqrt(2 * mn['137'] * phdqdq[n][0]),
          mn['137'],
          q1=1,
-         q2=1)
-    #-MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /    np.sqrt(2 * mn['137'] * phdd[n][0])
-    for n in range(len(phdqdq))
+         q2=1) for n in range(len(phdqdq))
+] if withCoul == True else [
+    -MeVfm * np.tan(phdqdq[n][2] * np.pi / 180.) /
+    np.sqrt(2 * mn['137'] * phdqdq[n][0]) for n in range(len(phdqdq))
 ]
 
 a_tp = [
     appC(phtp[n][2] * np.pi / 180.,
          np.sqrt((3. / 2.) * mn['137'] * phtp[n][0]), (3. / 4.) * mn['137'],
          q1=1,
-         q2=1)
-    #-MeVfm * np.tan(phtp[n][2] * np.pi / 180.) / np.sqrt( (2. / 3.) * mn['137'] * phtp[n][0])
-    for n in range(len(phtp))
+         q2=1) for n in range(len(phtp))
+] if withCoul == True else [
+    -MeVfm * np.tan(phtp[n][2] * np.pi / 180.) / np.sqrt(
+        (2. / 3.) * mn['137'] * phtp[n][0]) for n in range(len(phtp))
 ]
 
 a_hen = [
@@ -319,11 +334,20 @@ a_hen = [
 outs = '#    E_match       a_np3s       a_np1s         a_dd       a_dqdq         a_tp        a_hen\n'
 for n in range(len(a_dqdq)):
     outs += '%12.4f %12.4f %12.4f %12.4f %12.4f %12.4f %12.4f\n' % (
-        ph2d[n][0], a_np3s[n].real, a_np1s[n].real, a_dd[n].real,
+        ph2d[0][n][0], a_np3s[n].real, a_np1s[n].real, a_dd[n].real,
         a_dqdq[n].real, a_tp[n].real, a_hen[n])
 
-with open('a_ratio_%s.dat' % lam, 'w') as outfile:
+rafile = 'a_ratio_%s.dat' % lam
+with open(rafile, 'w') as outfile:
     outfile.write(outs)
 
-os.system('gnuplot ' + pathbase + '/src_python/phases_np.gnu')
-exit()
+tmp = '\"ratfile=\'%s\' ; lambda=\'%s\'\"' % (rafile, lam)
+
+os.system('gnuplot -e %s ' % tmp + pathbase + '/src_python/phases_np.gnu')
+os.system('mv 0p_phases.pdf 0p_phases_%s.pdf' % lam)
+
+#subprocess.call('rm -rf TQUAOUT.*', shell=True)
+#subprocess.call('rm -rf TDQUAOUT.*', shell=True)
+subprocess.call('rm -rf DMOUT.*', shell=True)
+subprocess.call('rm -rf DRDMOUT.*', shell=True)
+subprocess.call('rm -rf matout_*.*', shell=True)

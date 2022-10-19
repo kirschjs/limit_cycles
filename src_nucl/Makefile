@@ -1,6 +1,6 @@
 # hexpresso
 F77     =       gfortran
-FFLAGS  =       -Ofast -ffpe-summary='none' -mcmodel=medium -fallow-argument-mismatch 
+FFLAGS  =       -Ofast -ffpe-summary='none' -fallow-argument-mismatch # -mcmodel=medium 
 LIBS    = -L -lgfortran -L/usr/lib/x86_64-linux-gnu/lapack -llapack -lblas
 #LIBS    = -L${MKLROOT} -llapack -lblas  -lm -ldl
 
@@ -148,23 +148,14 @@ streimat: streimat.o par.endm
 S-POLE_PdP: S-POLE_PdP.o par/verma coul.o
 	$(F77) $(FFLAGS) -o S-POLE_PdP.exe S-POLE_PdP.o coul.o $(LIBS)
 
-S-POLE_RC: S-POLE_RC.o par/verma 
-	$(F77) $(FFLAGS) -o S-POLE_RC.exe S-POLE_RC.o $(LIBS)
+S-POLE_RC: S-POLE_RC.o par/verma coulfg5.o
+	$(F77) $(FFLAGS) -o S-POLE_RC.exe S-POLE_RC.o coulfg5.o $(LIBS)
 
 S-POLE_INV: S-POLE_INV.o par/verma coul.o
 	$(F77) $(FFLAGS) -o S-POLE_INV.exe S-POLE_INV.o coul.o $(LIBS)
 
-S-POLE_INV-old: S-POLE_INV-old.o par/verma coul.o
-	$(F77) $(FFLAGS) -o S-POLE_INV-old.exe S-POLE_INV-old.o coul.o $(LIBS)
-
-S-POLE_Rmat: S-POLE_Rmat.o par/verma coul.o
-	$(F77) $(FFLAGS) -o S-POLE_Rmat.exe S-POLE_Rmat.o coul.o $(LIBS)
-
 S-POLE_cmplx: S-POLE_cmplx.o par/verma coul.o
 	$(F77) $(FFLAGS) -o S-POLE_cmplx.exe S-POLE_cmplx.o coul.o $(LIBS)
-
-S-POLE_kohn: S-POLE_kohn.o par/verma coul.o
-	$(F77) $(FFLAGS) -o S-POLE_kohn.exe S-POLE_kohn.o coul.o $(LIBS)
 
 S-POLE_zget: S-POLE_zget.o par/verma coul.o
 	$(F77) $(FFLAGS) -o S-POLE_zget.exe S-POLE_zget.o coul.o $(LIBS)

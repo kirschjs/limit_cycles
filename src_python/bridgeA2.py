@@ -29,10 +29,14 @@ civ_size = 20
 target_pop_size = civ_size
 
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
-J0 = 1
+J0 = 0
 channel = 'np%ds' % int(2 * J0 + 1)  #'np1s'  # DSI
 
 sysdir2 = sysdir2np3s if J0 == 1 else sysdir2np1s
+
+if os.path.isdir(sysdir2) == False:
+    subprocess.check_call(['mkdir', '-p', sysdir2])
+
 subprocess.call('rm -rf %s/civ_*' % sysdir2, shell=True)
 
 os.chdir(sysdir2)
@@ -60,7 +64,7 @@ while len(civs) < civ_size:
                                       coefstr=costr,
                                       Jstreu=float(J0),
                                       funcPath=sysdir2,
-                                      ini_grid_bounds=[0.001, 6.1],
+                                      ini_grid_bounds=[0.001, 8.1],
                                       ini_dims=deutDim,
                                       binPath=BINBDGpath,
                                       mindist=minidi)

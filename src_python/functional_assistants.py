@@ -2,7 +2,53 @@ import subprocess
 import multiprocessing
 import os, fnmatch, copy, struct, time, sys
 import numpy as np
+import shlex
+from scipy.linalg import eigh
 import shutil
+
+
+def smart_ev(matout, threshold=10**-7):
+
+    dim = int(np.sqrt(len(matout) * 0.5))
+
+    # read Norm and Hamilton matrices
+    normat = np.reshape(np.array(matout[:dim**2]).astype(float), (dim, dim))
+    hammat = np.reshape(np.array(matout[dim**2:]).astype(float), (dim, dim))
+
+    # normalize the matrices with the Norm's diagonal
+    normdiag = [normat[n, n] for n in range(dim)]
+    umnorm = np.diag(1. / np.sqrt(normdiag))
+    nm = np.dot(np.dot(np.transpose(umnorm), normat), umnorm)
+    hm = np.dot(np.dot(np.transpose(umnorm), hammat), umnorm)
+
+    # diagonalize normalized norm (using "eigh(ermitian)" to speed-up the computation)
+    ew, ev = eigh(nm)
+    #ew, ev = LA.eigh(nm)
+    idx = ew.argsort()[::-1]
+    ew = [eww for eww in ew[idx]]
+
+    normCond = np.abs(ew[-1] / ew[0])
+
+    # project onto subspace with ev > threshold
+    ew = [eww for eww in ew if np.real(eww) > threshold]
+    dimRed = len(ew)
+    ev = ev[:, idx][:, :dimRed]
+
+    # transormation matric for (H-E*N)PSI=0 such that N->id
+    Omat = np.dot(ev, np.diag(1. / np.sqrt(ew)))
+
+    # diagonalize the projected Hamiltonian (using "eigh(ermitian)" to speed-up the computation)
+    Hgood = np.dot(np.dot(np.transpose(Omat), hm), Omat)
+    #ewGood, evGood = LA.eigh(Hgood)
+    ewGood, evGood = eigh(Hgood)
+
+    idx = ewGood.argsort()[::-1]
+    ewGood = [eww for eww in ewGood[idx]]
+    evGood = evGood[:, idx]
+
+    #print('(stable) Eigenbasisdim = %d(%d)' % (dimRed, dim))
+    #return the ordered eigenvalues
+    return ewGood, normCond
 
 
 def du(path):

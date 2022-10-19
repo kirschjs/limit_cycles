@@ -146,6 +146,7 @@ pathbase = home + '/Variational_calculations/limit_cycles'  # NN: tnni=10   NN+N
 BINBDGpath = pathbase + '/src_nucl/'
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 sysdir2 = pathbase + '/systems/dq'
 =======
 sysdir2np3s = pathbase + '/systems/2np3s'
@@ -161,6 +162,8 @@ parall = -1
 nnpot = sysdir2np1s + '/nn_pot'
 nnnpot = sysdir2np1s + '/nnn_pot'
 
+=======
+>>>>>>> 70612540183c8749efd1a28367f8a9b6e51a2b14
 lam = 4.00
 la = ('%-4.2f' % lam)[:4]
 if la in lec_list_def.keys():
@@ -170,10 +173,24 @@ else:
           lec_list_def.keys())
     exit()
 
+sysdir2np3s = pathbase + '/systems/2np3s/%s' % la
+sysdir2np1s = pathbase + '/systems/2np1s/%s' % la
+sysdir3t = pathbase + '/systems/3h/%s' % la
+sysdir3he = pathbase + '/systems/3he/%s' % la
+sysdir4 = pathbase + '/systems/4/%s' % la
+
+tnni = 11
+parall = -1
+
+nnpot = sysdir2np1s + '/nn_pot'
+nnnpot = sysdir2np1s + '/nnn_pot'
+
 # B2 = 1 MeV and B3 = 8.48 MeV
 cloW = lec_list_def[la][0]
 cloB = 0.0
 d0 = lec_list_def[la][1]
+
+withCoul = True
 
 nzEN = 200
 E0 = 0.01

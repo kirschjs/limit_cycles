@@ -403,11 +403,8 @@ def inen_bdg_4(bas, jay, co, fn='INEN', pari=0, nzop=31, tni=11, idum=2):
 
         tmp = ''
 
-        for n in range(1, int(max(1, 1 + max(bv[1])))):
-            if n in bv[1]:
-                tmp += '%3d' % int(1)
-            else:
-                tmp += '%3d' % int(0)
+        for n in bv[1]:
+            tmp += '%3d' % int(n)
 
         tmp += '\n'
         out += tmp
@@ -604,8 +601,8 @@ def from2to4(relw, zwei_inq, vier_dir, fn, app=False):
                     outs += '1.'.rjust(12 * (bb % 6 + 1))
                     outs += '\n'
 
-    writemode = 'a' if app else 'w'
-    with open(vier_dir + '/INQUA_N', writemode) as outfile:
-        outfile.write(outs)
+    #writemode = 'a' if app else 'w'
+    #with open(vier_dir + '/INQUA_N', writemode) as outfile:
+    #    outfile.write(outs)
 
-    return zstruct
+    return zstruct, outs
