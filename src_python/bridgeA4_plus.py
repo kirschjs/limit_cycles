@@ -23,9 +23,7 @@ from multiprocessing.pool import ThreadPool
 #import bridgeA2
 #import bridgeA3_plus
 
-newCal = 0
-
-os.chdir(sysdir4)
+newCal = 1
 
 # numerical stability
 nBV = 6
@@ -55,14 +53,24 @@ channels = [
     ['000-0', 'hen_6s0']
 ]
 
+einzel4 = False
+if os.path.isdir(sysdir4) == False:
+    subprocess.check_call(['mkdir', '-p', sysdir4])
+    einzel4 = True
+
+os.chdir(sysdir4)
+
 costr = ''
 zop = 31 if tnni == 11 else 14
 for nn in range(1, zop):
-    cf = 1.0 if ((nn == 1) | (nn == 2) | (nn == 14)) else 0.0
-    #cf = 1.0 if ((nn == 2) | (nn == 14)) else 0.0
+    if withCoul == True:
+        cf = 1.0 if ((nn == 1) | (nn == 2)) else 0.0
+    else:
+        cf = 1.0 if ((nn == 2)) else 0.0
+    if (nn == 14):
+        cf = 1.0
     costr += '%12.7f' % cf if (nn % 7 != 0) else '%12.7f\n' % cf
 
-einzel4 = False
 if einzel4:
     prepare_einzel4(sysdir4, BINBDGpath, channels)
 
@@ -170,16 +178,19 @@ with open('INQUA_N', 'w') as outfile:
 
 sb = []
 bv = 1
-for nbv in range(len(sbas)):
-    sb.append([bv, np.arange(1, 1 + len(sbas[nbv][1])).tolist()])
-    bv += 1
-
 varspacedim = sum([len(rset[1]) for rset in sbas])
+
+for nbv in range(1, varspacedim):
+    relws = [
+        [1, 0] for n in range(int(0.5 * len(widthSet_relative)))
+    ] if nbv % 2 == 0 else [[0, 1]
+                            for n in range(int(0.5 * len(widthSet_relative)))]
+    sb.append([nbv, sum(relws, [])])
 
 if newCal:
     ma = blunt_ev4(cfgs=strus,
                    bas=sb,
-                   dmaa=[0, 1, 0, 1, 0, 0, 0, 0],
+                   dmaa=[1, 1, 0, 1, 0, 1, 0, 0],
                    j1j2sc=J1J2SC,
                    funcPath=sysdir4,
                    nzopt=zop,
@@ -195,17 +206,13 @@ if newCal:
                    jay=J0,
                    nchtot=int(varspacedim - (2 + 1) * len(cofli)))
 
-    dim = int(np.sqrt(len(ma) * 0.5))
-    # read Norm and Hamilton matrices
-    normat = np.reshape(np.array(ma[:dim**2]).astype(float), (dim, dim))
-    hammat = np.reshape(np.array(ma[dim**2:]).astype(float), (dim, dim))
-    # diagonalize normalized norm (using "eigh(ermitian)" to speed-up the computation)
-    ewN, evN = eigh(normat)
-    ewH, evH = eigh(hammat, normat)
-    qual, gs, basCond = basQ(ewN, ewH, minCond)
+    smartEV, basCond = smart_ev(ma, threshold=10**-7)
+    gs = smartEV[-1]
     print(
         '(d-d)+(dq-dq)+(t-p)+(he3-n) structured hamiltonian yields:\n E_0 = %f MeV\ncondition number = %E'
         % (gs, basCond))
+    print(smartEV[-20:])
+    exit()
 
     spole_2(nzen=nzEN,
             e0=E0,
@@ -225,7 +232,9 @@ if newCal:
     # results obtained in the employed subspaces
     # => the order in the <phys_chan> argument of ``inen_str_4'' (called in PSI_parallel_M)
 
-    subprocess.run([BINBDGpath + 'S-POLE_PdP.exe'])
+    subprocess.run([BINBDGpath + 'S-POLE_zget.exe'])
+
+plotphas()
 
 chans = [[1, 1], [2, 2], [3, 3], [4, 4]]
 
@@ -245,80 +254,78 @@ phdqdq = read_phase(phaout='PHAOUT', ch=chans[3], meth=1, th_shift='1-4')
 #phmix = read_phase(phaout='PHAOUT', ch=chans[3], meth=1, th_shift='1-2')
 
 write_phases(ph2d[0],
-             filename='np3s_phases.dat',
+             filename='np3s_phases_%s.dat' % lam,
              append=0,
              comment='',
              mu=0.5 * mn['137'])
 write_phases(ph2d[1],
-             filename='np1s_phases.dat',
+             filename='np1s_phases_%s.dat' % lam,
              append=0,
              comment='',
              mu=0.5 * mn['137'])
 write_phases(phdd,
-             filename='d-d_phases.dat',
+             filename='d-d_phases_%s.dat' % lam,
              append=0,
              comment='',
              mu=mn['137'])
 write_phases(phdqdq,
-             filename='dq-dq_phases.dat',
+             filename='dq-dq_phases_%s.dat' % lam,
              append=0,
              comment='',
              mu=mn['137'])
 write_phases(phtp,
-             filename='t-p_phases.dat',
+             filename='t-p_phases_%s.dat' % lam,
              append=0,
              comment='',
              mu=(2. / 3.) * mn['137'])
 write_phases(phhen,
-             filename='he3-n_phases.dat',
+             filename='he3-n_phases_%s.dat' % lam,
              append=0,
              comment='',
              mu=(2. / 3.) * mn['137'])
 
 a_np3s = [
-    #appC(ph2[n][2] * np.pi / 180.,
-    #     np.sqrt(mn['137'] * ph2[n][0]),
-    #     mn['137'] / 2.,
-    #     q1=1,
-    #     q2=1)
     anp(ph2d[0][n][2] * np.pi / 180., np.sqrt(mn['137'] * ph2d[0][n][0]))
     for n in range(len(ph2d[0]))
 ]
+
 a_np1s = [
-    #appC(ph2[n][2] * np.pi / 180.,
-    #     np.sqrt(mn['137'] * ph2[n][0]),
-    #     mn['137'] / 2.,
-    #     q1=1,
-    #     q2=1)
     anp(ph2d[1][n][2] * np.pi / 180., np.sqrt(mn['137'] * ph2d[1][n][0]))
     for n in range(len(ph2d[1]))
 ]
+
 a_dd = [
     appC(phdd[n][2] * np.pi / 180.,
          np.sqrt(2 * mn['137'] * phdd[n][0]),
          mn['137'],
          q1=1,
-         q2=1)
-    #-MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /    np.sqrt(2 * mn['137'] * phdd[n][0])
-    for n in range(len(phdd))
+         q2=1) for n in range(len(phdd))
+] if withCoul == True else [
+    -MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /
+    np.sqrt(2 * mn['137'] * phdd[n][0]) for n in range(len(phdd))
 ]
+
 a_dqdq = [
     appC(phdqdq[n][2] * np.pi / 180.,
          np.sqrt(2 * mn['137'] * phdqdq[n][0]),
          mn['137'],
          q1=1,
-         q2=1)
-    #-MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /    np.sqrt(2 * mn['137'] * phdd[n][0])
-    for n in range(len(phdqdq))
+         q2=1) for n in range(len(phdqdq))
+] if withCoul == True else [
+    -MeVfm * np.tan(phdqdq[n][2] * np.pi / 180.) /
+    np.sqrt(2 * mn['137'] * phdqdq[n][0]) for n in range(len(phdqdq))
 ]
+
 a_tp = [
     appC(phtp[n][2] * np.pi / 180.,
          np.sqrt((3. / 2.) * mn['137'] * phtp[n][0]), (3. / 4.) * mn['137'],
          q1=1,
-         q2=1)
-    #-MeVfm * np.tan(phtp[n][2] * np.pi / 180.) / np.sqrt( (2. / 3.) * mn['137'] * phtp[n][0])
-    for n in range(len(phtp))
+         q2=1) for n in range(len(phtp))
+] if withCoul == True else [
+    -MeVfm * np.tan(phtp[n][2] * np.pi / 180.) / np.sqrt(
+        (2. / 3.) * mn['137'] * phtp[n][0]) for n in range(len(phtp))
 ]
+
 a_hen = [
     -MeVfm * np.tan(phhen[n][2] * np.pi / 180.) / np.sqrt(
         (3. / 2.) * mn['137'] * phhen[n][0]) for n in range(len(phhen))
@@ -330,10 +337,14 @@ for n in range(len(a_dqdq)):
         ph2d[0][n][0], a_np3s[n].real, a_np1s[n].real, a_dd[n].real,
         a_dqdq[n].real, a_tp[n].real, a_hen[n])
 
-with open('a_ratio_%s.dat' % lam, 'w') as outfile:
+rafile = 'a_ratio_%s.dat' % lam
+with open(rafile, 'w') as outfile:
     outfile.write(outs)
 
-os.system('gnuplot ' + pathbase + '/src_python/phases_np.gnu')
+tmp = '\"ratfile=\'%s\' ; lambda=\'%s\'\"' % (rafile, lam)
+
+os.system('gnuplot -e %s ' % tmp + pathbase + '/src_python/phases_np.gnu')
+os.system('mv 0p_phases.pdf 0p_phases_%s.pdf' % lam)
 
 #subprocess.call('rm -rf TQUAOUT.*', shell=True)
 #subprocess.call('rm -rf TDQUAOUT.*', shell=True)

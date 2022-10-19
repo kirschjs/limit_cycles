@@ -33,6 +33,10 @@ J0 = 0
 channel = 'np%ds' % int(2 * J0 + 1)  #'np1s'  # DSI
 
 sysdir2 = sysdir2np3s if J0 == 1 else sysdir2np1s
+
+if os.path.isdir(sysdir2) == False:
+    subprocess.check_call(['mkdir', '-p', sysdir2])
+
 subprocess.call('rm -rf %s/civ_*' % sysdir2, shell=True)
 
 os.chdir(sysdir2)
@@ -40,7 +44,7 @@ os.chdir(sysdir2)
 prep_pot_file_2N(lam=lam, wiC=cloW, baC=0.0, ps2=nnpot)
 prep_pot_file_3N(lam=la, d10=d0, ps3=nnnpot)
 
-deutDim = 6
+deutDim = 5
 
 zop = 14
 
@@ -60,7 +64,7 @@ while len(civs) < civ_size:
                                       coefstr=costr,
                                       Jstreu=float(J0),
                                       funcPath=sysdir2,
-                                      ini_grid_bounds=[0.001, 6.1],
+                                      ini_grid_bounds=[0.001, 8.1],
                                       ini_dims=deutDim,
                                       binPath=BINBDGpath,
                                       mindist=minidi)

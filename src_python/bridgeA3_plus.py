@@ -19,17 +19,17 @@ from four_particle_functions import from3to4
 
 # numerical stability
 nBV = 8
-nREL = 12
-mindisti = [0.001, 0.001]
-width_bnds = [0.01, 4.15, 0.1, 26.25]
-minCond = 10**-15
+nREL = 8
+mindisti = [0.2, 0.1]
+width_bnds = [0.1, 14.15, 0.2, 2.25]
+minCond = 10**-14
 
 # genetic parameters
 anzNewBV = 2
-muta_initial = .1
+muta_initial = .05
 anzGen = 22
-seed_civ_size = 8
-target_pop_size = 12
+seed_civ_size = 38
+target_pop_size = 42
 
 J0 = 1 / 2
 
@@ -37,11 +37,13 @@ J0 = 1 / 2
 channels = [
     #['000', ['he_no1', 'he_no6']],
     ['000', ['t_no1', 't_no6']],
-    #['000', ['he_no0']],
 ]
 
 sysdir3 = sysdir3t if channels[0][1][0].split('_')[0] == 't' else sysdir3he
 print('>>> working directory: ', sysdir3)
+
+if os.path.isdir(sysdir3) == False:
+    subprocess.check_call(['mkdir', '-p', sysdir3])
 
 os.chdir(sysdir3)
 subprocess.call('rm -rf *.dat', shell=True)
@@ -49,7 +51,9 @@ subprocess.call('rm -rf *.dat', shell=True)
 costr = ''
 zop = 31 if tnni == 11 else 14
 for nn in range(1, zop):
-    cf = 1.0 if ((nn == 1) | (nn == 2) | (nn == 14)) else 0.0
+    cf = 1.0 if ((nn == 1) | (nn == 2)) else 0.0
+    if (nn == 14):
+        cf = 1.
     #cf = 1.0 if ((nn == 2) | (nn == 14)) else 0.0
     costr += '%12.7f' % cf if (nn % 7 != 0) else '%12.7f\n' % cf
 
@@ -69,7 +73,6 @@ while len(civs) < seed_civ_size:
                                       ini_grid_bounds=width_bnds,
                                       ini_dims=[nBV, nREL],
                                       minC=minCond)
-
     for cciv in new_civs:
         civs.append(cciv)
     print('>>> seed civilizations: %d/%d' % (len(civs), seed_civ_size))
