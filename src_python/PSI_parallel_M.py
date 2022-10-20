@@ -1327,6 +1327,7 @@ def blunt_ev4(cfgs,
                nzop=nzopt,
                tni=tnnii,
                fn='INEN')
+    exit()
     if parall == -1:
 
         subprocess.run([
