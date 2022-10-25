@@ -36,10 +36,10 @@ prep_pot_file_2N(lam=lam, wiC=cloW, baC=0.0, ps2=nnpot)
 prep_pot_file_3N(lam=la, d10=d0, ps3=nnnpot)
 
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
-channel = 'np1s'
+channel = 'np3s'
 
 J0 = 1
-deutDim = 3      # no of width parameter 
+deutDim = 6     # no of width parameter 
 
 zop = 14
 

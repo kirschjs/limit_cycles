@@ -157,17 +157,17 @@ nnnpot = sysdir2 + '/nnn_pot'
 
 lam = 4.00
 la = ('%-4.2f' % lam)[:4]
-if la in lec_list_def.keys():
+if la in lec_list_oneMEV['137'].keys():
     pass
 else:
     print('LECs unavailable for chosen cutoff! Available cutoffs:\n',
-          lec_list_def.keys())
+          lec_list_oneMEV['137'].keys())
     exit()
 
 # B2 = 1 MeV and B3 = 8.48 MeV
-cloW = lec_list_def[la][0]
+cloW = lec_list_oneMEV['137'][la][0]
 cloB = 0.0
-d0 = lec_list_def[la][1]
+d0 = lec_list_oneMEV['137'][la][1]
 
 nzEN = 200
 E0 = 0.01
