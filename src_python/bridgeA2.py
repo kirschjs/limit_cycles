@@ -39,7 +39,7 @@ prep_pot_file_3N(lam=la, d10=d0, ps3=nnnpot)
 channel = 'np3s'
 
 J0 = 1
-deutDim = 6     # no of width parameter 
+deutDim = 5     # no of width parameter 
 
 zop = 14
 
