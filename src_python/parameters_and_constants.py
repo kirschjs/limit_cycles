@@ -155,7 +155,7 @@ parall = -1
 nnpot = sysdir2 + '/nn_pot'
 nnnpot = sysdir2 + '/nnn_pot'
 
-lam = 4.00
+lam = 3.00
 la = ('%-4.2f' % lam)[:4]
 if la in lec_list_def.keys():
     pass
