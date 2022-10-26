@@ -365,8 +365,7 @@ def prep_pot_file_3N(lam, ps3='', d10=0.0):
 
     return
 
-
-def parse_ev_coeffs(mult=0, infil='OUTPUT', outf='COEFF', bvnr=1):
+def parse_ev_coeffs(mult=0, infil='OUTPUT', outf='dimmer_COEFF_list', bvnr=1):
     os.system('cp ' + infil + ' tmp')
     out = [line2 for line2 in open(infil)]
     #for n in range(1,len(out)):
