@@ -8,8 +8,14 @@ import rrgm_functions, parameters_and_constants
 NEWLINE_SIZE_IN_BYTES = -1
 
 elem_spin_prods_3 = {
+    'no6':
+    '  3  2  1  2            3n: s12=0 S=1/2 z\n  1  1  1\n  3  4  3\n  4  3  3\n  1  2\n -1  2\n',
+    'no1':
+    '  3  3  1  2            3n: s12=1 S=1/2 z\n  1  1  1\n  3  3  4\n  4  3  3\n  3  4  3\n  2  3\n -1  6\n -1  6\n',
+    'no2':
+    '  3  1  1  2            3n: s12=1 S=3/2 z\n  1  1  1\n  3  3  3\n  1  1\n',
     'he_no0':
-    '  3  1  1  2            No1: t=0,T=1/2;s=1,S=1/2, l=even\n  1  1  1\n  1  3  2\n  1  1\n',
+    '  3  1  1  2            No1: t=0,T=1/2;s=1,S=1/2, l=even\n  1  1  1\n  3  4  2\n  1  1\n',
     'he_no1':
     '  3  6  1  2            No1: t=0,T=1/2;s=1,S=1/2, l=even\n  1  1  1\n  1  3  2\n  1  4  1\n  2  3  1\n  3  1  2\n  3  2  1\n  4  1  1\n  1  3\n -1 12\n -1 12\n -1  3\n +1 12\n +1 12\n',
     'he_no1y':

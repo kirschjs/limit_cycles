@@ -21,23 +21,9 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 
 #import bridgeA2
-#import bridgeA3_plus
+import bridgeA3_plus
 
 newCal = 1
-
-# numerical stability
-nBV = 6
-nREL = 8
-mindisti = [0.02, 0.02]
-width_bnds = [0.001, 1.5, 0.001, 1.5]
-minCond = 10**-11
-
-# genetic parameters
-anzNewBV = 4
-muta_initial = 0.05
-anzGen = 50
-civ_size = 30
-target_pop_size = 20
 
 J0 = 0
 
@@ -48,9 +34,9 @@ channels = [
     ['000-0', 'np3s_np3s_S0'],  # DSI
     ['000-0', 'np1s_np1s_S0'],  # DSI
     ['000-0', 'tp_1s0'],
-    ['000-0', 'tp_6s0'],
-    ['000-0', 'hen_1s0'],
-    ['000-0', 'hen_6s0']
+    #['000-0', 'tp_6s0'],
+    #['000-0', 'hen_1s0'],
+    #['000-0', 'hen_6s0']
 ]
 
 einzel4 = False
@@ -63,12 +49,15 @@ os.chdir(sysdir4)
 costr = ''
 zop = 31 if tnni == 11 else 14
 for nn in range(1, zop):
-    if withCoul == True:
-        cf = 1.0 if ((nn == 1) | (nn == 2)) else 0.0
-    else:
-        cf = 1.0 if ((nn == 2)) else 0.0
-    if (nn == 14):
+    if (nn == 1):
         cf = 1.0
+    elif (nn == 2):
+        cf = tnf
+    elif (nn == 14):
+        cf = tnnifac
+    else:
+        cf = 0.0
+
     costr += '%12.7f' % cf if (nn % 7 != 0) else '%12.7f\n' % cf
 
 if einzel4:
@@ -186,11 +175,10 @@ for nbv in range(1, varspacedim):
     ] if nbv % 2 == 0 else [[0, 1]
                             for n in range(int(0.5 * len(widthSet_relative)))]
     sb.append([nbv, sum(relws, [])])
-
 if newCal:
     ma = blunt_ev4(cfgs=strus,
                    bas=sb,
-                   dmaa=[1, 1, 0, 1, 0, 1, 0, 0],
+                   dmaa=[1, 1, 1, 1, 0, 1, 0, 0],
                    j1j2sc=J1J2SC,
                    funcPath=sysdir4,
                    nzopt=zop,
@@ -212,29 +200,29 @@ if newCal:
         '(d-d)+(dq-dq)+(t-p)+(he3-n) structured hamiltonian yields:\n E_0 = %f MeV\ncondition number = %E'
         % (gs, basCond))
     print(smartEV[-20:])
-    exit()
 
-    spole_2(nzen=nzEN,
-            e0=E0,
-            d0=D0,
-            eps=Eps,
-            bet=Bet,
-            nzrw=100,
-            frr=0.06,
-            rhg=8.0,
-            rhf=1.0,
-            pw=0)
+spole_2(nzen=nzEN,
+        e0=E0,
+        d0=D0,
+        eps=Eps,
+        bet=Bet,
+        nzrw=100,
+        frr=0.06,
+        rhg=8.0,
+        rhf=1.0,
+        pw=0)
 
-    # if S-POLE terminates with a ``STOP 7'' message,
-    # the channel ordering might not be in the correct, i.e.,
-    # ascending-in-energy order; at present, this order needs
-    # to be entered manually, according to the B(d) and B(dq)
-    # results obtained in the employed subspaces
-    # => the order in the <phys_chan> argument of ``inen_str_4'' (called in PSI_parallel_M)
-
-    subprocess.run([BINBDGpath + 'S-POLE_zget.exe'])
+# if S-POLE terminates with a ``STOP 7'' message,
+# the channel ordering might not be in the correct, i.e.,
+# ascending-in-energy order; at present, this order needs
+# to be entered manually, according to the B(d) and B(dq)
+# results obtained in the employed subspaces
+# => the order in the <phys_chan> argument of ``inen_str_4'' (called in PSI_parallel_M)
+subprocess.run([BINBDGpath + 'TDR2END_AK.exe'])
+subprocess.run([BINBDGpath + 'S-POLE_zget.exe'])
 
 plotphas()
+exit()
 
 chans = [[1, 1], [2, 2], [3, 3], [4, 4]]
 

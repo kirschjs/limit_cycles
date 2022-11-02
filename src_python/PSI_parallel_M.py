@@ -421,7 +421,7 @@ def span_initial_basis3(fragments,
                            sfrags2,
                            infile='INQUA_N',
                            outfile='INQUA_N',
-                           einzel_path=funcPath + '/')
+                           einzel_path='')
 
     insam(len(lfrags2))
 
@@ -456,7 +456,7 @@ def span_initial_basis3(fragments,
                                infile='INQUA_N',
                                outfile='INQUA_N',
                                tni=1,
-                               einzel_path=funcPath + '/')
+                               einzel_path='')
         if parall == -1:
             diskfil = disk_avail(funcPath)
 
@@ -589,44 +589,14 @@ def end3(para, send_end):
     # <communicate> is needed in order to ensure the process ended before parsing its output!
     try:
         NormHam = np.core.records.fromfile(maoutf, formats='f8', offset=4)
-        dim = int(np.sqrt(len(NormHam) * 0.5))
+        minCond = para[9]
+        smartEV, basCond = smart_ev(NormHam, threshold=minCond)
 
-        # read Norm and Hamilton matrices
-        normat = np.reshape(
-            np.array(NormHam[:dim**2]).astype(float), (dim, dim))
-        hammat = np.reshape(
-            np.array(NormHam[dim**2:]).astype(float), (dim, dim))
+        anzSigEV = len(
+            [bvv for bvv in smartEV if para[10][0] < bvv < para[10][1]])
 
-        # diagonalize normalized norm (using "eigh(ermitian)" to speed-up the computation)
-        ewN, evN = eigh(normat)
-        idx = ewN.argsort()[::-1]
-        ewN = [eww for eww in ewN[idx]]
-        evN = evN[:, idx]
-
-        try:
-            ewH, evH = eigh(hammat, normat)
-            idx = ewH.argsort()[::-1]
-            ewH = [eww for eww in ewH[idx]]
-            evH = evH[:, idx]
-
-        except:
-            #print(
-            #    'failed to solve generalized eigenvalue problem (norm ev\'s < 0 ?)'
-            #)
-            attractiveness = 0.
-            basCond = 0.
-            gsEnergy = 0.
-            ewH = []
-
-        if ewH != []:
-
-            gsEnergy = ewH[-1]
-
-            basCond = np.min(np.abs(ewN)) / np.max(np.abs(ewN))
-
-            minCond = para[7]
-
-            attractiveness = basQ(ewN, ewH[::-1], minCond)[0]
+        gsEnergy = smartEV[-1]
+        attractiveness = loveliness(gsEnergy, basCond, anzSigEV, minCond)
 
         os.system('rm -rf ./%s' % inqf)
         os.system('rm -rf ./%s' % indqf)
@@ -673,7 +643,8 @@ def span_population3(anz_civ,
                      mindists=[0.01, 0.01],
                      ini_grid_bounds=[0.01, 9.5, 0.001, 11.5],
                      ini_dims=[4, 4],
-                     minC=10**(-8)):
+                     minC=10**(-8),
+                     evWin=[-100, 100]):
 
     os.chdir(funcPath)
 
@@ -811,8 +782,10 @@ def span_population3(anz_civ,
                     bv, [x for x in range(1 + off, 1 + len(widr[n]), 2)]
                 ]]
                 bv += 1
-        ParaSets.append(
-            [widi, widr, sbas, nnpot, nnnpot, Jstreu, civ, binPath, coefstr])
+        ParaSets.append([
+            widi, widr, sbas, nnpot, nnnpot, Jstreu, civ, binPath, coefstr,
+            minC, evWin
+        ])
 
     os.chdir(funcPath)
 
@@ -1154,7 +1127,7 @@ def blunt_ev3(cfgs,
                            sfrag,
                            infile='INQUA_N',
                            outfile='INQUA_N',
-                           einzel_path=funcPath + '/')
+                           einzel_path='')
 
     inen_bdg_3(basis, jay, costring, fn='INEN', pari=0, nzop=nzopt, tni=tnnii)
 
@@ -1188,7 +1161,7 @@ def blunt_ev3(cfgs,
                                infile='INQUA_N',
                                outfile='INQUA_N',
                                tni=1,
-                               einzel_path=funcPath + '/')
+                               einzel_path='')
 
         if parall == -1:
             diskfil = disk_avail(funcPath)
@@ -1305,7 +1278,7 @@ def blunt_ev4(cfgs,
                            sfrag,
                            infile='INQUA_N',
                            outfile='INQUA_N',
-                           einzel_path=funcPath + '/')
+                           einzel_path='')
 
     inen_bdg_4(bas,
                jay,
@@ -1327,7 +1300,7 @@ def blunt_ev4(cfgs,
                nzop=nzopt,
                tni=tnnii,
                fn='INEN')
-    exit()
+
     if parall == -1:
 
         subprocess.run([
@@ -1353,7 +1326,7 @@ def blunt_ev4(cfgs,
                                infile='INQUA_N',
                                outfile='INQUA_N',
                                tni=1,
-                               einzel_path=funcPath + '/')
+                               einzel_path='')
 
         subprocess.call('cp -rf INQUA_N INQUA_N_UIX', shell=True)
 
@@ -1362,6 +1335,7 @@ def blunt_ev4(cfgs,
                 mpipath, '--oversubscribe', '-np',
                 '%d' % anzcores, bin_path + 'UIX_PAR/mpi_drqua_uix'
             ])
+
             subprocess.run([bin_path + 'UIX_PAR/SAMMEL-uix'])
             subprocess.call('rm -rf DRDMOUT.*', shell=True)
             #subprocess.run([
