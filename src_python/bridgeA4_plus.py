@@ -17,7 +17,7 @@ from parameters_and_constants import *
 import multiprocessing
 from multiprocessing.pool import ThreadPool
 
-#import bridgeA2
+import bridgeA2
 #import bridgeA3_plus
 
 newCal = 1
@@ -25,14 +25,14 @@ newCal = 1
 os.chdir(sysdir4)
 
 # numerical stability
-nBV = 7
+nBV = 6
 nREL = 8
 mindisti = [0.02, 0.02]
 width_bnds = [0.001, 1.5, 0.001, 1.5]
 minCond = 10**-11
 
 # genetic parameters
-anzNewBV = 4
+anzNewBV = 7
 muta_initial = 0.05
 anzGen = 50
 civ_size = 30
@@ -45,9 +45,9 @@ sbas = []
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
 channels = [
     #['000-0', 'nnnnS0t'],  # no DSI
-    ['000-0', 'dqdqS0'],  # DSI
-    #['000-0', 'ddS0'],  # DSI
-   # ['000-0', 'tp_1s0'],
+   # ['000-0', 'np3s_np3s_s0'],  # DSI
+    ['000-0', 'ddS0'],  # DSI
+    #['000-0', 'tp_1s0'],
    # ['000-0', 'tp_6s0'],
    # ['000-0', 'hen_1s0'],
    # ['000-0', 'hen_6s0']

@@ -145,9 +145,11 @@ pathbase = home + '/Variational_calculations/limit_cycles'  # NN: tnni=10   NN+N
 BINBDGpath = pathbase + '/src_nucl/'
 
 sysdir2 = pathbase + '/systems/dd_scattering'
+sysdir2np3s = pathbase + '/systems/dd_scattering/2np3s'
+sysdir2np1s = pathbase + '/systems/dd_scattering/2np1s'
 sysdir3t = pathbase + '/systems/3h'
 sysdir3he = pathbase + '/systems/3he'
-sysdir4 = pathbase + '/systems/4'
+sysdir4 = pathbase + '/systems/4/dd_scattering1'
 
 tnni = 11
 parall = -1
@@ -155,7 +157,7 @@ parall = -1
 nnpot = sysdir2 + '/nn_pot'
 nnnpot = sysdir2 + '/nnn_pot'
 
-lam = 3.00
+lam = 4.00
 la = ('%-4.2f' % lam)[:4]
 if la in lec_list_def.keys():
     pass
