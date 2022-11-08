@@ -1,82 +1,98 @@
  10  8  9  3 00  0  0  0  0
-/home/johannesk/kette_repo/limit_cycles/systems/2np1s/8.00/nnn_pot
-  8                                                            Z1  BVs 1 - 8
-  8 14
-                                    15.746093   
-                                    11.995843   
-                                    6.967021    
-                                    5.430696    
-                                    1.963290    
-                                    0.815369    
-                                    0.499438    
-                                    0.060294    
-   15.958586    5.214407    4.633026    1.739257    1.548574    1.239848
-    1.211833    0.951826    0.846354    0.322750    0.124753    0.117096
-    0.101379    0.057536
+/home/johannesk/kette_repo/limit_cycles/src_python/../systems/2np1s/8.00/nnn_pot
+  5                                                            Z1  BVs 1 - 5
+  5 10
+                                    19.713505   
+                                    13.935469   
+                                    11.982291   
+                                    10.461411   
+                                    2.279671    
+   10.684007    7.948694    7.448639    3.693777    0.620828    0.562048
+    0.370753    0.218423    0.039703    0.030151
   1  1
           1.
-
   1  1
                       1.
-
   1  1
                                   1.
-
   1  1
                                               1.
-
   1  1
                                                           1.
-
-  1  1
-                                                                      1.
-
-  1  1
-
-          1.
-  1  1
-
-                      1.
-  8                                                            Z2  BVs 9 - 16
-  8 14
-                                    15.990232   
-                                    12.411367   
-                                    4.989069    
-                                    1.835935    
-                                    0.490898    
-                                    0.463802    
-                                    0.368627    
-                                    0.113153    
-   14.861796   12.050540   10.034174    5.903474    3.511352    2.954421
-    1.836799    1.835608    1.404293    0.985275    0.537018    0.327473
-    0.320038    0.081051
+  5                                                            Z2  BVs 6 - 10
+  5 10
+                                    11.996284   
+                                    1.966556    
+                                    1.798818    
+                                    1.495148    
+                                    0.157748    
+    9.996959    9.947513    8.240841    0.848801    0.848529    0.460784
+    0.426662    0.123997    0.117148    0.041015
   1  1
           1.
-
   1  1
                       1.
-
   1  1
                                   1.
-
   1  1
                                               1.
-
   1  1
                                                           1.
-
+  5                                                            Z3  BVs 11 - 15
+  5 10
+                                    18.064905   
+                                    14.705052   
+                                    4.467512    
+                                    4.148050    
+                                    0.374401    
+    7.839825    3.254592    1.854943    1.832944    0.962788    0.464282
+    0.359066    0.105423    0.061339    0.018887
   1  1
-                                                                      1.
-
-  1  1
-
           1.
   1  1
-
                       1.
-/home/johannesk/kette_repo/limit_cycles/systems/3he/8.00/eob-tni/he_no1_he_no1
-/home/johannesk/kette_repo/limit_cycles/systems/3he/8.00/elu-tni/000_000
-/home/johannesk/kette_repo/limit_cycles/systems/3he/8.00/eob-tni/he_no6_he_no1
-/home/johannesk/kette_repo/limit_cycles/systems/3he/8.00/elu-tni/000_000
-/home/johannesk/kette_repo/limit_cycles/systems/3he/8.00/eob-tni/he_no6_he_no6
-/home/johannesk/kette_repo/limit_cycles/systems/3he/8.00/elu-tni/000_000
+  1  1
+                                  1.
+  1  1
+                                              1.
+  1  1
+                                                          1.
+  5                                                            Z4  BVs 16 - 20
+  5 10
+                                    19.857386   
+                                    8.628299    
+                                    0.980372    
+                                    0.232178    
+                                    0.093487    
+   11.144470    6.396918    5.275508    4.219292    4.187124    1.998884
+    1.280014    0.499979    0.499004    0.242164
+  1  1
+          1.
+  1  1
+                      1.
+  1  1
+                                  1.
+  1  1
+                                              1.
+  1  1
+                                                          1.
+eob-tni/he_no1_he_no1
+elu-tni/000_000
+eob-tni/he_no1_he_no1
+elu-tni/000_000
+eob-tni/he_no1_he_no1
+elu-tni/000_000
+eob-tni/he_no6_he_no1
+elu-tni/000_000
+eob-tni/he_no6_he_no1
+elu-tni/000_000
+eob-tni/he_no6_he_no6
+elu-tni/000_000
+eob-tni/he_no6_he_no1
+elu-tni/000_000
+eob-tni/he_no6_he_no1
+elu-tni/000_000
+eob-tni/he_no6_he_no6
+elu-tni/000_000
+eob-tni/he_no6_he_no6
+elu-tni/000_000

@@ -18,25 +18,25 @@ from multiprocessing.pool import ThreadPool
 from four_particle_functions import from3to4
 
 # numerical stability
-nBV = 16
-nREL = 8
+nBV = 10
+nREL = 10
 mindisti = [0.2, 0.1]
-width_bnds = [0.1, 11.15, 0.2, 15.25]
+width_bnds = [0.01, 21.15, 0.02, 25.25]
 minCond = 10**-14
 
 # genetic parameters
 anzNewBV = 2
 muta_initial = .05
-anzGen = 22
-seed_civ_size = 38
-target_pop_size = 42
+anzGen = 10
+seed_civ_size = 8
+target_pop_size = 12
 
 J0 = 1 / 2
 
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
 channels = [
-    #['000', ['he_no1', 'he_no6']],
-    ['000', ['no2']],
+    ['000', ['he_no1', 'he_no6']],
+    ['000', ['t_no1', 't_no6']],
 ]
 
 for channel in channels:
@@ -52,7 +52,7 @@ for channel in channels:
     costr = ''
     zop = 31 if tnni == 11 else 14
     for nn in range(1, zop):
-        if (nn == 1):
+        if ((nn == 1) & (withCoul == True)):
             cf = 1.0
         elif (nn == 2):
             cf = tnf

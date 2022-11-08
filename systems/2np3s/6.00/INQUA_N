@@ -1,9 +1,9 @@
  10  8  9  3 00  0  0  0  0
-/home/johannesk/kette_repo/limit_cycles/systems/2np1s/6.00/nn_pot
+/home/johannesk/kette_repo/limit_cycles/src_python/../systems/2np1s/6.00/nn_pot
  13
-  1  6
+  1  5
 .0          .0
-    9.726080    9.566835    6.249383    1.401353    0.287001    0.044799
+   15.569609    4.280053    1.091085    0.279591    0.047874
   2  1
 1.
   1  1

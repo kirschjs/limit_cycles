@@ -20,16 +20,17 @@ from multiprocessing.pool import ThreadPool
 minCond = 10**-11
 minidi = 0.1
 denseEVinterval = [-2, 2]
+width_bnds = [0.0001, 24.25]
 
 # genetic parameters
-anzNewBV = 5
+anzNewBV = 12
 muta_initial = 0.08
 anzGen = 42
 civ_size = 20
 target_pop_size = civ_size
 
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
-jays = [0, 1]
+jays = [1]
 
 for J0 in jays:
     channel = 'np%ds' % int(2 * J0 + 1)  #'np1s'  # DSI
@@ -43,7 +44,7 @@ for J0 in jays:
 
     os.chdir(sysdir2)
 
-    prep_pot_file_2N(lam=lam, wiC=cloW, baC=0.0, ps2=nnpot)
+    prep_pot_file_2N(lam=lam, wiC=cloW, baC=cloB, ps2=nnpot)
     prep_pot_file_3N(lam=la, d10=d0, ps3=nnnpot)
 
     deutDim = 5
@@ -61,12 +62,12 @@ for J0 in jays:
         basCond = -1
         gsREF = 42.0
         seedIter = 0
-        while ((basCond < minCond) | (gsREF > 1)):
+        while ((basCond < minCond) | (gsREF > 2)):
             seedMat = span_initial_basis2(channel=channel,
                                           coefstr=costr,
                                           Jstreu=float(J0),
                                           funcPath=sysdir2,
-                                          ini_grid_bounds=[0.001, 8.1],
+                                          ini_grid_bounds=width_bnds,
                                           ini_dims=deutDim,
                                           binPath=BINBDGpath,
                                           mindist=minidi)
@@ -98,7 +99,7 @@ for J0 in jays:
             seedIter += 1
             #print(gsvREF)
             #exit()
-            if seedIter > 1000:
+            if seedIter > 10000:
                 exit()
 
         print('%d ' % (civ_size - len(civs)), end='')

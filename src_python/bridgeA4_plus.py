@@ -20,8 +20,8 @@ from parameters_and_constants import *
 import multiprocessing
 from multiprocessing.pool import ThreadPool
 
-#import bridgeA2
-import bridgeA3_plus
+import bridgeA2
+#import bridgeA3_plus
 
 newCal = 1
 
@@ -32,8 +32,8 @@ J1J2SC = [[2, 2, 0], [0, 0, 0], [1, 1, 0], [1, 1, 0]]
 channels = [
     #['000-0', 'nnnnS0t'],  # no DSI
     ['000-0', 'np3s_np3s_S0'],  # DSI
-    ['000-0', 'np1s_np1s_S0'],  # DSI
-    ['000-0', 'tp_1s0'],
+    #['000-0', 'np1s_np1s_S0'],  # DSI
+    #['000-0', 'tp_1s0'],
     #['000-0', 'tp_6s0'],
     #['000-0', 'hen_1s0'],
     #['000-0', 'hen_6s0']
@@ -49,7 +49,7 @@ os.chdir(sysdir4)
 costr = ''
 zop = 31 if tnni == 11 else 14
 for nn in range(1, zop):
-    if (nn == 1):
+    if ((nn == 1) & (withCoul == True)):
         cf = 1.0
     elif (nn == 2):
         cf = tnf
@@ -221,7 +221,7 @@ spole_2(nzen=nzEN,
 subprocess.run([BINBDGpath + 'TDR2END_AK.exe'])
 subprocess.run([BINBDGpath + 'S-POLE_zget.exe'])
 
-plotphas()
+plotphas(oufi='4_body_phases.pdf')
 exit()
 
 chans = [[1, 1], [2, 2], [3, 3], [4, 4]]

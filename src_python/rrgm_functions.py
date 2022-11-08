@@ -31,14 +31,26 @@ def plotphas(infi='PHAOUT', oufi='tmp.pdf'):
     plt.xlabel(r'$E_{cm}$ [MeV]')
     plt.ylabel(r'$\delta$ [deg]')
 
+    endiag = []
     for cha in chu:
-
         tmp = np.array([
             line.split() for line in file
             if ((line.split()[2:4] == cha) & (line.split()[-1] == method))
         ]).astype(float)
+        if cha == ['1', '1']:
+            endiag = tmp[:, 0]
+
+        if cha[0] == cha[1]:
+            en = endiag
+            pha = np.pad(tmp[:, 10], (len(en) - len(tmp[:, 10]), 0),
+                         'constant',
+                         constant_values=(0, 0))
+        else:
+            en = tmp[:, 0]
+            pha = tmp[:, 10]
+
         stylel = 'solid' if cha[0] == cha[1] else 'dashdot'
-        plt.plot(tmp[:, 0], tmp[:, 10], label=''.join(cha), linestyle=stylel)
+        plt.plot(en, pha, label=''.join(cha), linestyle=stylel)
 
     plt.legend(loc='best', numpoints=1)
     plt.savefig(oufi)
