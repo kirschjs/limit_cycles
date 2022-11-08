@@ -248,7 +248,7 @@ parall = -1
 
 lec_set = lec_set_0__2__8
 
-lam = 8.00
+lam = 4.00
 la = ('%-4.2f' % lam)[:4]
 if la in lec_set.keys():
     pass

@@ -20,10 +20,10 @@ from parameters_and_constants import *
 import multiprocessing
 from multiprocessing.pool import ThreadPool
 
-import bridgeA2
+#import bridgeA2
 #import bridgeA3_plus
 
-newCal = 1
+newCal = 0
 
 J0 = 0
 
@@ -32,11 +32,11 @@ J1J2SC = [[2, 2, 0], [0, 0, 0], [1, 1, 0], [1, 1, 0]]
 channels = [
     #['000-0', 'nnnnS0t'],  # no DSI
     ['000-0', 'np3s_np3s_S0'],  # DSI
-    #['000-0', 'np1s_np1s_S0'],  # DSI
-    #['000-0', 'tp_1s0'],
-    #['000-0', 'tp_6s0'],
-    #['000-0', 'hen_1s0'],
-    #['000-0', 'hen_6s0']
+    ['000-0', 'np1s_np1s_S0'],  # DSI
+    ['000-0', 'tp_1s0'],
+    ['000-0', 'tp_6s0'],
+    ['000-0', 'hen_1s0'],
+    ['000-0', 'hen_6s0']
 ]
 
 einzel4 = False

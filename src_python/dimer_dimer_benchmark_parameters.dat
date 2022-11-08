@@ -1,0 +1,17 @@
+dimer dimer single-channel:
+
+parameters:
+
+dimer spin (triplet or singlet)
+interaction spin/iso-spin dependent or independent?
+cutoff lambda
+dimension of dimer and trimer test-function space
+relative width for the expansion of the fragment-relative function
+
+result:
+
+lambda    dimer-dimer-scattering-length
+2
+4
+6
+8

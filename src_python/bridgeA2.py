@@ -20,17 +20,17 @@ from multiprocessing.pool import ThreadPool
 minCond = 10**-11
 minidi = 0.1
 denseEVinterval = [-2, 2]
-width_bnds = [0.0001, 24.25]
+width_bnds = [0.0001, 4.25]
 
 # genetic parameters
-anzNewBV = 12
+anzNewBV = 6
 muta_initial = 0.08
 anzGen = 42
 civ_size = 20
 target_pop_size = civ_size
 
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
-jays = [1]
+jays = [0, 1]
 
 for J0 in jays:
     channel = 'np%ds' % int(2 * J0 + 1)  #'np1s'  # DSI
