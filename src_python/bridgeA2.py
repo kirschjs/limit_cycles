@@ -20,34 +20,33 @@ from multiprocessing.pool import ThreadPool
 minCond = 10**-11
 minidi = 0.1
 denseEVinterval = [-2, 2]
-width_bnds = [0.0001, 4.25]
+width_bnds = [0.01, 6.25]
 
 # genetic parameters
-anzNewBV = 6
+anzNewBV = 8
 muta_initial = 0.08
-anzGen = 42
-civ_size = 20
+anzGen = 32
+civ_size = 10
 target_pop_size = civ_size
 
-# convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
-jays = [0, 1]
+for channel in channels_2:
+    J0 = two_body_channels[channel][1]
 
-for J0 in jays:
-    channel = 'np%ds' % int(2 * J0 + 1)  #'np1s'  # DSI
-
-    sysdir2 = sysdir2np3s if J0 == 1 else sysdir2np1s
+    sysdir2 = sysdir2base + '/' + channel
 
     if os.path.isdir(sysdir2) == False:
         subprocess.check_call(['mkdir', '-p', sysdir2])
 
     subprocess.call('rm -rf %s/civ_*' % sysdir2, shell=True)
 
-    os.chdir(sysdir2)
+    os.chdir(sysdir2base)
 
     prep_pot_file_2N(lam=lam, wiC=cloW, baC=cloB, ps2=nnpot)
     prep_pot_file_3N(lam=la, d10=d0, ps3=nnnpot)
 
-    deutDim = 5
+    os.chdir(sysdir2)
+
+    deutDim = 8
 
     zop = 14
 
@@ -158,7 +157,7 @@ for J0 in jays:
             rw2.sort()
 
             sbas = []
-            bv = two_body_channels[channel]
+            bv = two_body_channels[channel][0]
 
             sbas += [[bv, [x for x in range(1, 1 + len(rw1))]]]
 

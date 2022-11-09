@@ -246,10 +246,12 @@ tnnifac = 1.
 tnf = 1.
 parall = -1
 
-lec_set = lec_set_0__2__8
+lec_set = lec_list_def  #lec_set_0__2__8
 
-lam = 4.00
+lam = 2.00
+
 la = ('%-4.2f' % lam)[:4]
+
 if la in lec_set.keys():
     pass
 else:
@@ -257,32 +259,41 @@ else:
           lec_set.keys())
     exit()
 
-sysdir2np3s = pathbase + '/systems/2np3s/%s' % la
-sysdir2np1s = pathbase + '/systems/2np1s/%s' % la
-sysdir3t = pathbase + '/systems/3h/%s' % la
-sysdir3he = pathbase + '/systems/3he/%s' % la
+channels_2 = ['nn1s']
+channels_3 = {
+    #'3he': ['000', ['he_no1', 'he_no6']],
+    #'3h': ['000', ['t_no1', 't_no6']],
+}
+
+sysdir2base = pathbase + '/systems/2/%s' % la
+sysdir3base = pathbase + '/systems/3/%s' % la
 sysdir4 = pathbase + '/systems/4/%s' % la
 
-nnpot = sysdir2np1s + '/nn_pot'
-nnnpot = sysdir2np1s + '/nnn_pot'
+nnpot = sysdir2base + '/nn_pot'
+nnnpot = sysdir2base + '/nnn_pot'
 
 # B2 = 1 MeV and B3 = 8.48 MeV
-cloW = 0.5 * (lec_set[la][0] + lec_set[la][1])
-cloB = 0.5 * (lec_set[la][0] - lec_set[la][1])
-d0 = lec_set[la][3]
+try:
+    cloW = 0.5 * (lec_set[la][0] + lec_set[la][1])
+    cloB = 0.5 * (lec_set[la][0] - lec_set[la][1])
+    d0 = lec_set[la][3]
+except:
+    cloW = lec_set[la][0]
+    cloB = 0.0
+    d0 = lec_set[la][1]
 
 evWindow = [-30, 150]
 
 withCoul = False
 
-nzEN = 200
-E0 = 0.01
-D0 = 0.025
+nzEN = 20
+E0 = 0.001
+D0 = 0.002
 Eps = 0.01
-Bet = 1.1
+Bet = 4.1
 
 MeVfm = 197.3161329
 
-widthSet_relative = w12
+widthSet_relative = w120
 
 eps = np.finfo(float).eps

@@ -18,8 +18,8 @@ from multiprocessing.pool import ThreadPool
 from four_particle_functions import from3to4
 
 # numerical stability
-nBV = 10
-nREL = 10
+nBV = 4
+nREL = 4
 mindisti = [0.2, 0.1]
 width_bnds = [0.01, 21.15, 0.02, 25.25]
 minCond = 10**-14
@@ -33,19 +33,12 @@ target_pop_size = 12
 
 J0 = 1 / 2
 
-# convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
-channels = [
-    ['000', ['he_no1', 'he_no6']],
-    ['000', ['t_no1', 't_no6']],
-]
-
-for channel in channels:
-    sysdir3 = sysdir3t if channel[1][0].split('_')[0] == 't' else sysdir3he
+for channel in channels_3:
+    sysdir3 = sysdir3base + '/' + channel
     print('>>> working directory: ', sysdir3)
 
     if os.path.isdir(sysdir3) == False:
         subprocess.check_call(['mkdir', '-p', sysdir3])
-
     os.chdir(sysdir3)
     subprocess.call('rm -rf *.dat', shell=True)
 
@@ -70,7 +63,7 @@ for channel in channels:
     while len(civs) < seed_civ_size:
 
         new_civs, basi = span_population3(anz_civ=int(3 * seed_civ_size),
-                                          fragments=[channel],
+                                          fragments=[channels_3[channel]],
                                           Jstreu=float(J0),
                                           coefstr=costr,
                                           funcPath=sysdir3,
@@ -415,7 +408,7 @@ for channel in channels:
     gsEnergy = smartEV[-1]
 
     print('\n> basType %s : C-nbr = %4.4e E0 = %4.4e\n\n' %
-          (channel, parCond, gsEnergy))
+          (channels_3[channel], parCond, gsEnergy))
 
     # reformat the basis as input for the 4-body calculation
     finCiv = [civs[0][0], civs[0][1][0], civs[0][1][1], sbas]
@@ -424,8 +417,6 @@ for channel in channels:
                                                     fn='inq_3to4_%s' % lam)
 
     assert len(lu_strus) == len(ob_strus)
-
-    print(ob_strus, lu_strus, strus, sbas)
 
     outl = ''
     outs = ''

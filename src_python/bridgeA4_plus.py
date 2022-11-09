@@ -20,26 +20,24 @@ from parameters_and_constants import *
 import multiprocessing
 from multiprocessing.pool import ThreadPool
 
-#import bridgeA2
+import bridgeA2
 #import bridgeA3_plus
 
-newCal = 0
+newCal = 1
 
 J0 = 0
 
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
-J1J2SC = [[2, 2, 0], [0, 0, 0], [1, 1, 0], [1, 1, 0]]
+J1J2SC = []
 channels = [
-    #['000-0', 'nnnnS0t'],  # no DSI
-    ['000-0', 'np3s_np3s_S0'],  # DSI
-    ['000-0', 'np1s_np1s_S0'],  # DSI
-    ['000-0', 'tp_1s0'],
-    ['000-0', 'tp_6s0'],
-    ['000-0', 'hen_1s0'],
-    ['000-0', 'hen_6s0']
+    [['000-0'], ['nn1s_nn1s_S0'], [0, 0, 0]],  # no DSI
+    #[['000-0'], ['np3s_np3s_S0'], [2, 2, 0]],  # DSI
+    #[['000-0'], ['np1s_np1s_S0'], [0, 0, 0]],  # DSI
+    #[['000-0'], ['tp_1s0', 'tp_6s0'], [1, 1, 0]],
+    #[['000-0'], ['hen_1s0', 'hen_6s0'], [1, 1, 0]],
 ]
 
-einzel4 = False
+einzel4 = True
 if os.path.isdir(sysdir4) == False:
     subprocess.check_call(['mkdir', '-p', sysdir4])
     einzel4 = True
@@ -66,10 +64,8 @@ if einzel4:
 os.chdir(sysdir4)
 
 twodirs = []
-if 'np3s' in [ch[1].split('_')[0] for ch in channels]:
-    twodirs.append(sysdir2np3s)
-if 'np1s' in [ch[1].split('_')[0] for ch in channels]:
-    twodirs.append(sysdir2np1s)
+for ch in channels_2:
+    twodirs.append(sysdir2base + '/' + ch)
 
 fragment_energies = []
 cofli = []
@@ -78,7 +74,6 @@ zstrus = []
 qua_str = []
 sbas = []
 ph2d = []
-n2 = 0
 
 subprocess.call('rm -rf INQUA_N', shell=True)
 
@@ -98,8 +93,16 @@ for sysdir2 in twodirs:
     zstrus.append(zstrus_tmp)
     qua_str.append(outs)
 
-    strus.append(len(zstrus[-1]) * channels[n2])
-    n2 += 1
+    for ch in channels:
+        gogo = True
+        for cfg in ch[1]:
+            if sysdir2.split('/')[-1] in cfg:
+                strus.append(len(zstrus[-1]) * [ch[:2]])
+                J1J2SC.append(ch[2])
+                gogo = False
+                break
+        if gogo == False:
+            break
 
     sbas.append(get_bsv_rw_idx(inen=sysdir2 + '/INEN_BDG', offset=4, int4=0))
 
@@ -119,12 +122,23 @@ for sysdir2 in twodirs:
 # the order matters as we conventionally include physical channels
 # in ascending threshold energy. E.g. dd then he3n then tp;
 threedirs = []
-if 'tp' in [ch[1].split('_')[0] for ch in channels]:
-    threedirs.append(sysdir3t)
-if 'hen' in [ch[1].split('_')[0] for ch in channels]:
-    threedirs.append(sysdir3he)
+for ch in channels_3:
+    threedirs.append(sysdir3base + '/' + ch)
 
 for sysdir3 in threedirs:
+
+    for line in open(sysdir3 + '/obstru_%s' % lam):
+        gogo = True
+        for ch in channels:
+            for cfg in ch[1]:
+                if dict_3to4[line.strip()][1] in cfg:
+                    J1J2SC.append(ch[2])
+                    gogo = False
+                    break
+            if gogo == False:
+                break
+        if gogo == False:
+            break
 
     sbas.append(get_bsv_rw_idx(inen=sysdir3 + '/INEN', offset=7, int4=1))
 
@@ -169,6 +183,8 @@ sb = []
 bv = 1
 varspacedim = sum([len(rset[1]) for rset in sbas])
 
+anzch = int(0.5 * (len(sum(cofli, [])) - 3 * len(cofli)))
+
 for nbv in range(1, varspacedim):
     relws = [
         [1, 0] for n in range(int(0.5 * len(widthSet_relative)))
@@ -178,7 +194,7 @@ for nbv in range(1, varspacedim):
 if newCal:
     ma = blunt_ev4(cfgs=strus,
                    bas=sb,
-                   dmaa=[1, 1, 1, 1, 0, 1, 0, 0],
+                   dmaa=[0, 1, 0, 1, 0, 1, 0],
                    j1j2sc=J1J2SC,
                    funcPath=sysdir4,
                    nzopt=zop,
@@ -192,14 +208,14 @@ if newCal:
                    anzcores=max(2, min(len(strus), MaxProc)),
                    tnnii=tnni,
                    jay=J0,
-                   nchtot=int(varspacedim - (2 + 1) * len(cofli)))
+                   nchtot=anzch)
 
     smartEV, basCond = smart_ev(ma, threshold=10**-7)
     gs = smartEV[-1]
     print(
-        '(d-d)+(dq-dq)+(t-p)+(he3-n) structured hamiltonian yields:\n E_0 = %f MeV\ncondition number = %E'
+        'jj-coupled hamiltonian yields:\n E_0 = %f MeV\ncondition number = %E'
         % (gs, basCond))
-    print(smartEV[-20:])
+    #print(smartEV[-20:])
 
 spole_2(nzen=nzEN,
         e0=E0,
@@ -222,6 +238,13 @@ subprocess.run([BINBDGpath + 'TDR2END_AK.exe'])
 subprocess.run([BINBDGpath + 'S-POLE_zget.exe'])
 
 plotphas(oufi='4_body_phases.pdf')
+phdd = read_phase(phaout='PHAOUT', ch=[1, 1], meth=1, th_shift='')
+a_dd = [
+    -MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /
+    np.sqrt(2 * mn['137'] * phdd[n][0]) for n in range(len(phdd))
+]
+print('scattering lengths (lower/upper end of energy matching interval):\n',
+      a_dd[:4], '\n', a_dd[-4:])
 exit()
 
 chans = [[1, 1], [2, 2], [3, 3], [4, 4]]
@@ -237,7 +260,6 @@ if os.path.isfile(sysdir2 + '/phaout_%s' % lam) == False:
 # phdqdq -> chans[3]
 phtp = read_phase(phaout='PHAOUT', ch=chans[0], meth=1, th_shift='')
 phhen = read_phase(phaout='PHAOUT', ch=chans[1], meth=1, th_shift='1-2')
-phdd = read_phase(phaout='PHAOUT', ch=chans[2], meth=1, th_shift='1-3')
 phdqdq = read_phase(phaout='PHAOUT', ch=chans[3], meth=1, th_shift='1-4')
 #phmix = read_phase(phaout='PHAOUT', ch=chans[3], meth=1, th_shift='1-2')
 

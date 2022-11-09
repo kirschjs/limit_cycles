@@ -192,7 +192,7 @@ def span_initial_basis2(channel,
     anzBV = sum([len(zer) for zer in widi])
 
     sbas = []
-    bv = two_body_channels[channel]
+    bv = two_body_channels[channel][0]
     for n in range(len(frags)):
         sbas += [[bv, [x for x in range(1, 1 + len(widi[n]))]]]
         bv += 13
@@ -935,8 +935,8 @@ def prepare_einzel3(funcPath, binPath):
 
 def prepare_einzel4(funcPath, binPath, channels):
 
-    frgsS = [ch[1] for ch in channels]
-    frgsL = [ch[0] for ch in channels]
+    frgsS = [ss for ch in channels for ss in ch[1]]
+    frgsL = [ss for ch in channels for ss in ch[0]]
 
     if os.path.isdir(funcPath + '/eob') == False:
         subprocess.check_call(['mkdir', '-p', funcPath + '/eob'])

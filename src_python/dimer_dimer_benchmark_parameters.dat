@@ -3,15 +3,37 @@ dimer dimer single-channel:
 parameters:
 
 dimer spin (triplet or singlet)
-interaction spin/iso-spin dependent or independent?
-cutoff lambda
-dimension of dimer and trimer test-function space
+triplet, 3S1
+dimension of dimer test-function space
+8
 relative width for the expansion of the fragment-relative function
+w12
 
 result:
 
+interaction spin/iso-spin dependent or independent?
+B(3S1)=2.2MeV -> C(3S1), a(1S0)=-22.4fm -> C(1S0)
 lambda    dimer-dimer-scattering-length
-2
-4
-6
-8
+2 		  1.6
+3         2.3
+4         2.8
+6		  3.6
+8         5.0
+
+interaction spin/iso-spin dependent or independent?
+B(3S1 and 1S0)=2.2MeV
+lambda    dimer-dimer-scattering-length
+2 		  3.2
+3         3.5
+4         4.7
+6		  8.9
+8         99.1
+
+interaction spin/iso-spin dependent or independent?
+B(3S1 and 1S0)=2.2MeV
+lambda    dimer-dimer-scattering-length (2-component fermion dimers)
+2 		  
+3         3.11
+4         3.03
+6		  3.01
+8         2.85
