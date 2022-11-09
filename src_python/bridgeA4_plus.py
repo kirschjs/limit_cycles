@@ -17,7 +17,7 @@ from parameters_and_constants import *
 import multiprocessing
 from multiprocessing.pool import ThreadPool
 
-import bridgeA2
+#import bridgeA2
 #import bridgeA3_plus
 
 newCal = 1
@@ -45,12 +45,12 @@ sbas = []
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
 channels = [
     #['000-0', 'nnnnS0t'],  # no DSI
-   # ['000-0', 'np3s_np3s_s0'],  # DSI
+    # ['000-0', 'np3s_np3s_s0'],  # DSI
     ['000-0', 'ddS0'],  # DSI
     #['000-0', 'tp_1s0'],
-   # ['000-0', 'tp_6s0'],
-   # ['000-0', 'hen_1s0'],
-   # ['000-0', 'hen_6s0']
+    # ['000-0', 'tp_6s0'],
+    # ['000-0', 'hen_1s0'],
+    # ['000-0', 'hen_6s0']
 ]
 
 costr = ''
@@ -135,7 +135,7 @@ if newCal:
     ma = blunt_ev4(cfgs=strus,
                    bas=sb,
                    dmaa=[0, 1, 0, 1, 0, 0, 0, 0],
-                   j1j2sc=[[0, 0, 0], [1, 1, 0], [1, 1, 0]],
+                   j1j2sc=[[2, 2, 0]],
                    funcPath=sysdir4,
                    nzopt=zop,
                    frgCoff=cofli,
@@ -175,7 +175,7 @@ if newCal:
 
     subprocess.run([BINBDGpath + 'S-POLE_PdP.exe'])
 
-chans = [[1, 1], [2, 2], [3, 3]]
+chans = [[1, 1]]
 
 if os.path.isfile(sysdir2 + '/phaout_%s' % lam) == False:
     print("2-body phase shifts unavailable for L = %s" % lam)
@@ -186,9 +186,21 @@ ph2 = read_phase(phaout=sysdir2 + '/phaout_%s' % lam,
                  meth=1,
                  th_shift='')
 
+phdd = read_phase(phaout='PHAOUT', ch=chans[0], meth=1, th_shift='')
+
+print('phase shifts:\n\n', phdd[:5])
+
+a_dd = [
+    -MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /
+    np.sqrt(2 * mn['137'] * phdd[n][0]) for n in range(len(phdd))
+]
+
+print('dimer-dimer scattering lengths:\n\n', a_dd[:5])
+
+exit()
+
 phtp = read_phase(phaout='PHAOUT', ch=chans[0], meth=1, th_shift='')
 henp = read_phase(phaout='PHAOUT', ch=chans[1], meth=1, th_shift='1-2')
-phdd = read_phase(phaout='PHAOUT', ch=chans[2], meth=1, th_shift='1-3')
 #phmix = read_phase(phaout='PHAOUT', ch=chans[3], meth=1, th_shift='1-2')
 
 write_phases(ph2,
@@ -220,16 +232,6 @@ a_aa = [
     #     q2=1)
     anp(ph2[n][2] * np.pi / 180., np.sqrt(mn['137'] * ph2[n][0]))
     for n in range(len(ph2))
-]
-
-a_dd = [
-    appC(phdd[n][2] * np.pi / 180.,
-         np.sqrt(2 * mn['137'] * phdd[n][0]),
-         mn['137'],
-         q1=1,
-         q2=1)
-    #-MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /    np.sqrt(2 * mn['137'] * phdd[n][0])
-    for n in range(len(phdd))
 ]
 
 a_tp = [
