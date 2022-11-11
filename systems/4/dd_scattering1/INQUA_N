@@ -1,15 +1,15 @@
  10  8  9  3 00  0  0  0  0
-/home/johannesk/kette_repo/limit_cycles/systems/dd_scattering/nnn_pot
+/home/sourav/Variational_calculations/limit_cycles/systems/dd_scattering/nn_pot
   8
   8 20
-                                                7.663236    7.663236    
-                                                7.663236    2.622973    
-                                                7.663236    0.874847    
-                                                7.663236    0.187354    
-                                                7.663236    0.061702    
-                                                2.622973    2.622973    
-                                                2.622973    0.874847    
-                                                2.622973    0.187354    
+                                                7.118239    7.118239    
+                                                7.118239    1.998995    
+                                                7.118239    0.397536    
+                                                7.118239    0.085598    
+                                                7.118239    0.069580    
+                                                1.998995    1.998995    
+                                                1.998995    0.397536    
+                                                1.998995    0.085598    
   129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
     2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
     0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
@@ -40,13 +40,13 @@
                       1.
   7
   7 20
-                                                2.622973    0.061702    
-                                                0.874847    0.874847    
-                                                0.874847    0.187354    
-                                                0.874847    0.061702    
-                                                0.187354    0.187354    
-                                                0.187354    0.061702    
-                                                0.061702    0.061702    
+                                                1.998995    0.069580    
+                                                0.397536    0.397536    
+                                                0.397536    0.085598    
+                                                0.397536    0.069580    
+                                                0.085598    0.085598    
+                                                0.085598    0.069580    
+                                                0.069580    0.069580    
   129.566500   51.346700   29.472870   13.423390    8.214456    4.447413
     2.939000    1.690174    1.185236    0.843000    0.500110    0.257369
     0.138520    0.071429    0.038519    0.018573    0.009726    0.005619
@@ -72,9 +72,9 @@
   1  1
 
           1.
-/home/johannesk/kette_repo/limit_cycles/systems/4/dd_scattering1/eob-tni/ddS0_ddS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/dd_scattering1/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/dd_scattering1/eob-tni/ddS0_ddS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/dd_scattering1/elu-tni/000-0_000-0
-/home/johannesk/kette_repo/limit_cycles/systems/4/dd_scattering1/eob-tni/ddS0_ddS0
-/home/johannesk/kette_repo/limit_cycles/systems/4/dd_scattering1/elu-tni/000-0_000-0
+/home/sourav/Variational_calculations/limit_cycles/systems/4/dd_scattering1/eob/ddS0_ddS0
+/home/sourav/Variational_calculations/limit_cycles/systems/4/dd_scattering1/elu/000-0_000-0
+/home/sourav/Variational_calculations/limit_cycles/systems/4/dd_scattering1/eob/ddS0_ddS0
+/home/sourav/Variational_calculations/limit_cycles/systems/4/dd_scattering1/elu/000-0_000-0
+/home/sourav/Variational_calculations/limit_cycles/systems/4/dd_scattering1/eob/ddS0_ddS0
+/home/sourav/Variational_calculations/limit_cycles/systems/4/dd_scattering1/elu/000-0_000-0
