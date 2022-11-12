@@ -248,7 +248,7 @@ parall = -1
 
 lec_set = lec_list_def  #lec_set_0__2__8
 
-lam = 2.00
+lam = 8.00
 
 la = ('%-4.2f' % lam)[:4]
 

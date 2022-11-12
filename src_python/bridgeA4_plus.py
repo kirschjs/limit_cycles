@@ -22,7 +22,6 @@ from multiprocessing.pool import ThreadPool
 
 import bridgeA2
 #import bridgeA3_plus
-
 newCal = 1
 
 J0 = 0

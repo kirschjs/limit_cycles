@@ -17,15 +17,15 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 
 # numerical stability
-minCond = 10**-11
+minCond = 10**-18
 minidi = 0.1
 denseEVinterval = [-2, 2]
-width_bnds = [0.01, 6.25]
+width_bnds = [0.005, 12.25]
 
 # genetic parameters
-anzNewBV = 8
-muta_initial = 0.08
-anzGen = 32
+anzNewBV = 6
+muta_initial = 0.015
+anzGen = 2
 civ_size = 10
 target_pop_size = civ_size
 
@@ -46,7 +46,7 @@ for channel in channels_2:
 
     os.chdir(sysdir2)
 
-    deutDim = 8
+    deutDim = 18
 
     zop = 14
 
@@ -74,22 +74,10 @@ for channel in channels_2:
             seedMat = np.core.records.fromfile('MATOUTB',
                                                formats='f8',
                                                offset=4)
-            dim = int(np.sqrt(len(seedMat) * 0.5))
 
-            # read Norm and Hamilton matrices
-            normat = np.reshape(
-                np.array(seedMat[:dim**2]).astype(float), (dim, dim))
-            hammat = np.reshape(
-                np.array(seedMat[dim**2:]).astype(float), (dim, dim))
-            # diagonalize normalized norm (using "eigh(ermitian)" to speed-up the computation)
-            # returns e-values in ascending order
-            try:
-                ewN, evN = eigh(normat)
-                ewH, evH = eigh(hammat, normat)
-            except:
-                print('unfit seed.')
-                basCond = -0.0
-                continue
+            smartEV, parCond = smart_ev(seedMat, threshold=minCond)
+            gsEnergy = smartEV[-1]
+            attractiveness = loveliness(gsEnergy, parCond, anzSigEV, minCond)
 
             qualREF, gsREF, basCond = basQ(ewN, ewH, minCond)
 

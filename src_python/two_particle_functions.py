@@ -127,7 +127,7 @@ def inob_2(anzo=5, anzf=1):
     return
 
 
-def inqua_2(relw, ps2):
+def inqua_2(relw, ps2, inquaout='INQUA_N'):
     s = ''
     s += ' 10  8  9  3 00  0  0  0  0\n'
     #s += pot_dir + ps2 + '\n'
@@ -158,7 +158,7 @@ def inqua_2(relw, ps2):
         s += '  6  2\n1.\n'  # 11:  p-p 3P0,1,2
         s += '  3  3\n1.\n'  # 12:  p-p 1D2
         s += '  6  4\n1.'  # 13:  p-p 3F2,3,4
-    with open('INQUA_N', 'w') as outfile:
+    with open(inquaout, 'w') as outfile:
         outfile.write(s)
     return
     # r7 c2:   S  L           S_c

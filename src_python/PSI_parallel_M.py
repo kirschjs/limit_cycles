@@ -134,7 +134,6 @@ def span_initial_basis2(channel,
 
     # lower bound for width parameters '=' IR cutoff (broadest state)
     rWmin = 0.0001
-
     # orbital-angular-momentum dependent upper bound '=' UV cutoff (narrowest state)
     iLcutoff = [120., 4., 3.]
 
@@ -204,7 +203,9 @@ def span_initial_basis2(channel,
     inob_2(anzo=8, anzf=len(frags))
     os.system(binPath + 'KOBER.exe')
 
+    #print(widi)
     inqua_2(relw=widi, ps2=nnpot)
+    #exit()
     subprocess.run([binPath + 'QUAFL_N.exe'])
 
     inen_bdg_2(sbas, j=Jstreu, costr=coefstr)
