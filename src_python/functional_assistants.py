@@ -7,6 +7,23 @@ from scipy.linalg import eigh
 import shutil
 
 
+def check_dist(width_array=[], minDist=0.01):
+    tooClose = False
+    #print(width_array)
+    for m in range(1, len(width_array)):
+        for n in range(m):
+            nm = np.linalg.norm(width_array[m] - width_array[n]) / np.sqrt(
+                np.linalg.norm(width_array[m]) *
+                np.linalg.norm(width_array[n]))
+            #print(np.linalg.norm(width_array[m] - width_array[n]))
+            if (nm < minDist):
+                #print(tooClose)
+                tooClose = True
+                return tooClose
+    #print(tooClose)
+    return tooClose
+
+
 def smart_ev(matout, threshold=10**-7):
 
     dim = int(np.sqrt(len(matout) * 0.5))

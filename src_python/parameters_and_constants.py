@@ -1,6 +1,23 @@
 import os
 import numpy as np
 
+two_body_channels = {
+    # r7 c2:    J              S  L              S_c
+    'np1s': 1,  #  1   :   0  0  1S0         0
+    'np3s': 2,  #  2   :   1  0  3S1         2
+    'nn1s': 3,  #  4   :   0  0  1S0         0
+    'nn3p': 4,  #  5   :   1  1  3P0,3P1,3P2 2
+    'nn1d': 5,  #  6   :   0  2  1D2         2
+    'nn3f': 6,  #  7   :   0  1  3F2,3F3,3F4 0
+    'np1p': 7,  #  8   :   1  1  1P1         2
+    'np3p': 8,  #  9   :   1  2  3P0,3P1,3P2 2
+    'np3d': 9,  #  9   :   1  2  3D1,3D2,3D3 2
+    'pp1s': 10,  #  9   :   1  2  1S0         2
+    'pp3p': 11,  #  9   :   1  2  3P0,3P1,3P2 2
+    'pp1d': 12,  #  9   :   1  2  1D0         2
+    'pp3f': 13,  #  9   :   1  2  3F2,3F3,3F4 2
+}
+
 dict_3to4 = {
     't_no1': ['000-0', 'tp_1s0'],
     't_no6': ['000-0', 'tp_6s0'],
@@ -259,7 +276,11 @@ else:
           lec_set.keys())
     exit()
 
-channels_2 = ['nn1s']
+channels_2 = {
+    # L    J
+    'nn1s': ['0', '0'],
+}
+
 channels_3 = {
     #'3he': ['000', ['he_no1', 'he_no6']],
     #'3h': ['000', ['t_no1', 't_no6']],

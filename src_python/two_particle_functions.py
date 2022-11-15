@@ -5,23 +5,6 @@ import numpy as np
 import random
 import rrgm_functions, parameters_and_constants
 
-two_body_channels = {
-    # r7 c2:    J              S  L              S_c
-    'np1s': [1, 0],  #  1   :   0  0  1S0         0
-    'np3s': [2, 1],  #  2   :   1  0  3S1         2
-    'nn1s': [3, 0],  #  4   :   0  0  1S0         0
-    'nn3p': [4, 0],  #  5   :   1  1  3P0,3P1,3P2 2
-    'nn1d': [5, 2],  #  6   :   0  2  1D2         2
-    'nn3f': [6, 2],  #  7   :   0  1  3F2,3F3,3F4 0
-    'np1p': [7, 0],  #  8   :   1  1  1P1         2
-    'np3p': [8, 0],  #  9   :   1  2  3P0,3P1,3P2 2
-    'np3d': [9, 0],  #  9   :   1  2  3D1,3D2,3D3 2
-    'pp1s': [10, 0],  #  9   :   1  2  1S0         2
-    'pp3p': [11, 0],  #  9   :   1  2  3P0,3P1,3P2 2
-    'pp1d': [12, 0],  #  9   :   1  2  1D0         2
-    'pp3f': [13, 0],  #  9   :   1  2  3F2,3F3,3F4 2
-}
-
 
 def h2_inen_str_pdp(relw, costr, j=0, sc=0, ch=[1]):
     s = ''
@@ -189,11 +172,8 @@ def inen_bdg_2(bas, costr, j, ch=1, anzo=14, fn='INEN', pari=0, tni=10):
 
         tmp = ''
 
-        for n in range(1, int(max(1, 1 + max(bv[1])))):
-            if n in bv[1]:
-                tmp += '%3d' % int(1)
-            else:
-                tmp += '%3d' % int(0)
+        for n in range(1, 1 + len(bv[1])):
+            tmp += '%3d' % int(1)
 
         tmp += '\n'
         s += tmp

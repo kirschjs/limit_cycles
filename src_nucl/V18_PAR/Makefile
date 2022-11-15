@@ -1,5 +1,5 @@
 CC          = mpicc
-F77         = mpif77
+F77         = /usr/bin/mpif77
 
 FOPTS  =       -Ofast -ffpe-summary=none -fallow-argument-mismatch #-mcmodel=medium 
 

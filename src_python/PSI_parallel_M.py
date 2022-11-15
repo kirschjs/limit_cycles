@@ -22,6 +22,215 @@ NEWLINE_SIZE_IN_BYTES = -1
 dt = 'float64'
 
 
+def end2(para, send_end):
+
+    # [widths, sbas, nnpot, Jstreu, binPath, coefstr, civID, minCond, energInt]
+    child_id = ''.join(str(x) for x in np.array([para[6]]))
+
+    inqf = 'inq_%s' % child_id
+    inenf = 'inen_%s' % child_id
+
+    quaf_to_end = 'quaout_%s' % child_id
+    maoutf = 'MATOUTB_%s' % child_id
+
+    outputqf = 'output_qua_%s' % child_id
+    outputef = 'endout_%s' % child_id
+
+    # paras: widi,widr,sbas,potNN,potNNN,Jstreu,civ,binPath,coefstr
+    #inqua_2(relw=widr, ps2=nnpot)
+    inqua_2(relw=para[0], ps2=para[2], inquaout=inqf)
+    cmdqua = para[4] + 'QUAFL_N_pop.exe %s %s %s' % (inqf, outputqf,
+                                                     quaf_to_end)
+    #subprocess.run([binPath + 'QUAFL_N.exe'])
+    #inen_bdg_2(sbas, j=Jstreu, costr=coefstr)
+    inen_bdg_2(para[1], j=para[3], costr=para[5], fn=inenf, pari=0)
+    #subprocess.run([binPath + 'DR2END_AK.exe'])
+
+    #print(para)
+
+    cmdend = para[4] + 'DR2END_AK_pop.exe %s %s %s %s %s' % (
+        quaf_to_end, 'no3bodyfile', inenf, outputef, maoutf)
+
+    pqua = subprocess.Popen(shlex.split(cmdqua),
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+
+    out1, err1 = pqua.communicate()
+
+    pend = subprocess.Popen(shlex.split(cmdend),
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+    out3, err3 = pend.communicate()
+    #cwd=workdir)
+    # <communicate> is needed in order to ensure the process ended before parsing its output!
+    try:
+        NormHam = np.core.records.fromfile(maoutf, formats='f8', offset=4)
+        minCond = para[7]
+        smartEV, basCond = smart_ev(NormHam, threshold=minCond)
+
+        anzSigEV = len(
+            [bvv for bvv in smartEV if para[8][0] < bvv < para[8][1]])
+
+        gsEnergy = smartEV[-1]
+        attractiveness = loveliness(gsEnergy, basCond, anzSigEV, minCond)
+
+        os.system('rm -rf ./%s' % inqf)
+        os.system('rm -rf ./%s' % inenf)
+        os.system('rm -rf ./%s' % outputef)
+        os.system('rm -rf ./%s' % outputqf)
+        os.system('rm -rf ./%s' % quaf_to_end)
+        os.system('rm -rf ./%s' % maoutf)
+
+        #  [ intw,  qualREF, gsREF, basCond ]
+        send_end.send([
+            para[0],
+            attractiveness,
+            gsEnergy,
+            basCond,
+        ])
+
+    except:
+
+        os.system('rm -rf ./%s' % inqf)
+        os.system('rm -rf ./%s' % inenf)
+        os.system('rm -rf ./%s' % outputef)
+        os.system('rm -rf ./%s' % quaf_to_end)
+        os.system('rm -rf ./%s' % maoutf)
+
+        print(para[6], child_id)
+        print(maoutf)
+        #  [ intw,  qual, gsE, basCond ]
+        send_end.send([[], 0.0, 0.0, -42.7331])
+
+
+def span_population2(anz_civ,
+                     fragments,
+                     Jstreu,
+                     coefstr,
+                     funcPath,
+                     binPath,
+                     mindist=0.1,
+                     ini_grid_bounds=[0.01, 9.5],
+                     ini_dims=8,
+                     minC=10**(-8),
+                     evWin=[-100, 100]):
+
+    os.chdir(funcPath)
+
+    Jstreustring = '%s' % str(Jstreu)[:3]
+
+    lfrags = channels_2[fragments][0]
+    sfrags = fragments
+
+    # minimal distance allowed for between width parameters
+    rwma = 20
+
+    # lower bound for width parameters '=' IR cutoff (broadest state)
+    rWmin = 0.0001
+
+    # orbital-angular-momentum dependent upper bound '=' UV cutoff (narrowest state)
+    rLcutoff = [22., 4., 3.]
+    nwrel = ini_dims
+    rel_scale = 1.
+
+    ParaSets = []
+
+    for civ in range(anz_civ):
+        lit_rw = {}
+        he_rw = he_frgs = ob_stru = lu_stru = sbas = []
+
+        #  -- relative widths --------------------------------------------------
+        lit_w_tmp = np.abs(
+            np.geomspace(start=ini_grid_bounds[0],
+                         stop=ini_grid_bounds[1],
+                         num=nwrel,
+                         endpoint=True,
+                         dtype=None))
+        lit_w_t = []
+        itera = 1
+        while len(lit_w_t) != nwrel:
+            lit_w_t = [
+                test_width * (1 + 0.51 * (np.random.random() - 1))
+                for test_width in lit_w_tmp
+            ]
+            dists = [
+                np.linalg.norm(wp1 - wp2) for wp1 in lit_w_t for wp2 in lit_w_t
+                if wp1 != wp2
+            ]
+            if ((np.min(dists) < mindist) & (np.max(lit_w_t) > rLcutoff[0])):
+                lit_w_t = []
+            itera += 1
+            assert itera <= 180000
+        lit_w = np.sort(lit_w_t)[::-1]
+
+        lfrags2 = []
+        sfrags2 = []
+        widr = []
+
+        tmp = np.sort(lit_w)[::-1]
+        zer_per_ws = int(np.ceil(len(tmp) / rwma))
+        bins = [0 for nmmm in range(zer_per_ws + 1)]
+        bins[0] = 0
+        for mn in range(len(tmp)):
+            bins[1 + mn % zer_per_ws] += 1
+        bnds = np.cumsum(bins)
+        tmp2 = [list(tmp[bnds[nn]:bnds[nn + 1]]) for nn in range(zer_per_ws)]
+        sfrags2 = len(tmp2) * [sfrags]
+        lfrags2 = len(tmp2) * [lfrags]
+        widr = tmp2
+
+        sbas = []
+        bv = 0
+        for n in range(len(widr)):
+            sbas += [[
+                two_body_channels[fragments] + bv,
+                [1 for x in range(1, 1 + len(widr[n]))]
+            ]]
+            bv += len(two_body_channels)
+
+        # [widths, sbas, nnpot, Jstreu, binPath, coefstr, civID, minCond, energInt]
+        ParaSets.append(
+            [widr, sbas, nnpot, Jstreu, binPath, coefstr, civ, minC, evWin])
+
+    os.chdir(funcPath)
+
+    inlu_2(anzo=8, anzf=len(widr))
+    os.system(binPath + 'LUDW_CN.exe')
+    inob_2(anzo=8, anzf=len(widr))
+    os.system(binPath + 'KOBER.exe')
+
+    samp_list = []
+    cand_list = []
+    pool = ThreadPool(max(min(MaxProc, len(ParaSets)), 2))
+    jobs = []
+    for procnbr in range(len(ParaSets)):
+        recv_end, send_end = multiprocessing.Pipe(False)
+        pars = ParaSets[procnbr]
+        p = multiprocessing.Process(target=end2, args=(pars, send_end))
+        jobs.append(p)
+
+        # sen_end returns [ intw,  qualREF, gsREF, basCond ]
+        samp_list.append(recv_end)
+        p.start()
+        for proc in jobs:
+            proc.join()
+
+    samp_ladder = [x.recv() for x in samp_list]
+
+    for cand in samp_ladder:
+        if ((cand[2] < 0) & (cand[3] > minC)):
+            cfgg = np.transpose(np.array([sfrags2, lfrags2])).tolist()
+
+            cand_list.append([cfgg] + cand)
+
+    cand_list.sort(key=lambda tup: np.abs(tup[2]))
+
+    #for cc in cand_list:
+    #    print(cc[2:])
+
+    return cand_list, sbas
+
+
 def endmat2(para, send_end):
 
     child_id = ''.join(str(x) for x in np.array(para[5]))
@@ -1062,7 +1271,6 @@ def blunt_ev2(cfgs, widi, basis, nzopt, costring, binpath, potNN, jay,
 
     #assert basisDim(basis) == len(sum(sum(relws, []), []))
     anzcfg = len(cfgs)
-
     os.chdir(funcPath)
 
     inlu_2(anzo=8, anzf=anzcfg)

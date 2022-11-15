@@ -20,7 +20,7 @@ from parameters_and_constants import *
 import multiprocessing
 from multiprocessing.pool import ThreadPool
 
-import bridgeA2
+import bridgeA2_plus
 #import bridgeA3_plus
 newCal = 1
 
