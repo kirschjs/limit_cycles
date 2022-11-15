@@ -40,7 +40,7 @@ C  DAS PROGRAMM S-POLE BERECHNET DIE POLSTELLEN  DER S-MATRIX IN DER   C
 C  UNTEREN KOMPLEXEN ENERGIEHALBEBENE (UNPHYSIKALISCHES BLATT) MIT     C
 C  EINER GRADIENTENSUCHE (NOPT = 1 ODER 2)                             C
 C  UND EBENSO DIE RESIDUEN DER S-MATRIX AN DER POLSTELLE(NOPT=2 ODER 3)C
-C  ENERGIEN K√ñNNEN WIE ZUVOR F√úR NOPT = 0 BERECHNET WERDEN ODER AUCH   C
+C  ENERGIEN K÷NNEN WIE ZUVOR F‹R NOPT = 0 BERECHNET WERDEN ODER AUCH   C
 C  IM KOMPLEXEN MIT NOPT = -1                                          C
 C                                                                      C
 C     NOPT =-1 NZAEN*NZAENI ENERGIEN WERDEN GERECHNET                  C
@@ -111,7 +111,7 @@ C                            DIE SCHRITTWEITE (RE:E2,IM:FAKT)          C
 C                            ZFAKT WIRD NICHT EINGELESEN               C
 C                    ZEILE  4 WIRD NICHT EINGELESEN                    C
 C                                                                      C
-C    - FUER NOPT= 0: BLEIBT DER INPUT UNVER√ÑNDERT                      C
+C    - FUER NOPT= 0: BLEIBT DER INPUT UNVERƒNDERT                      C
 C                    AUSSER: ZEILE 2 => NZAEN NZPWY                    C
 C                            (ZU RECHNENDE ENERGIEN UND KANAELE)       C
 C                            ZEILE 4 ENTFAELLT                         C
@@ -142,7 +142,7 @@ C                            KLEINER ALS DIESER WERT SEIN MUSS         C
 C                    ZEILE 4 SIND DIE UMGEBUNG +-DELTA, DIE            C
 C                            SCHRITTWEITE DELTADIFF UND DIE            C
 C                            ABBRUCHBEDINGUNG ABBR                     C
-C                            => DELTA WIRD SOLANGE VERGROE√üERT,        C
+C                            => DELTA WIRD SOLANGE VERGROEﬂERT,        C
 C                               BIS DER INTERPOLIERTE WERT             C 
 C                               FUER DAS RESIDUUM KONVERGIERT          C
 C                            MIT NZAENI AUS ZEILE 2 KANN ENTSCHIEDEN   C
@@ -310,8 +310,6 @@ C
       IF(IELMA.GT.0.AND.IPLO.NE.0) STOP 'EINGABE 1'
       IF(J_RMAT.GT.0 .AND. IWEFU.EQ.0) STOP 'IWEFU INCORRECT'
 C
-C     default=11
-C     ENDMAT OUTPUT ENOUT
       REWIND NBAND2
       IF(IELMA.GT.0) THEN
       OPEN(UNIT=8,FILE='ELMA_SOUT',STATUS='UNKNOWN',FORM='UNFORMATTED')
@@ -362,14 +360,13 @@ C     NR = 0 NICHTRELATIVISTISCHE KINEMATIK, NR .NE. 0 RELATIVISTISCH
       READ(NBAND2) LWERT(I),REDM(I),E2K(I),JWERT(I),MASSE(1,I),
      1  MASSE(2,I),MLAD(1,I),MLAD(2,I),EBIN(I),WNORM(I)
      2 ,RHUM(1,I),RHUM(2,I),BNORM
-      write(nout,*) 'NZKA = ',I,NZKA
       RMA(I)=1./(1./DBLE(MASSE(1,I))+1./ DBLE(MASSE(2,I)))
        IF(IELMA.GT.0) WRITE(NELMA) I,LWERT(I),MASSE(1,I),
      1 MASSE(2,I),MLAD(1,I),MLAD(2,I),JWERT(I),JWS, WNORM(I)
 10     WRITE(NOUT,3001) LWERT(I),REDM(I),E2K(I),JWERT(I),MASSE(1,I),
      1  MASSE(2,I),MLAD(1,I),MLAD(2,I),EBIN(I),WNORM(I)
-     2 ,RHUM(1,I),RHUM(2,I),BNORM
-3001  FORMAT(1X,I3,2G15.5,5I3,5G15.5)
+     2 ,RHUM(1,I),RHUM(2,I)
+3001  FORMAT(1X,I3,2G15.5,5I3,4G15.5)
       READ (NBAND2) NZQ(NZKA+1),NZPWM,(NZP(I),NZQ(I),I=1,NZKA)
       WRITE(NOUT,1009) NZQ(NZKA+1),NZPWM,(NZP(I),NZQ(I),I=1,NZKA)
 1009  FORMAT(I5,I3,(I3,I5,I3,I5,I3,I5,I3,I5,I3,I5,I3,I5,I3,I5,I3,I5))
@@ -382,12 +379,9 @@ C     INDIVIDUELLE WAHL DER RIEMANN BLAETTER
 C
       DO 12 I=1,NZKA
       READ(NBAND2) (NAR(M,I),M=1,NZPWM)
-c      write(NOUT,*) (NAR(M,I),M=1,NZPWM)
       DO 11 M=1,NZPWM
 11    NAR(M,I)=2*NAR(M,I)
-      READ(NBAND2) (PAR(M,I),M=1,NZPWM)
-C      write(NOUT,*) 'PAR: ',(PAR(K,I),K=1,NZPWM)
-12    CONTINUE
+12    READ(NBAND2) (PAR(M,I),M=1,NZPWM)
       IF (NZKA.GT.NZKMAX.OR.NZKB.GT.NZKBMA) STOP 7
       IF (NZPWM.GT.NZPARM) STOP 8
        WRITE (NOUT,1002) (WNORM(K),K=1,NZKB)
@@ -416,11 +410,7 @@ C     IBAC GT 0 EINLESEN DER KANALRADIEN + BERECHNUNG DER BACKGROUNDPHASEN
  5711 FORMAT(' STREICHEN VON EIGENVEKTOREN IST BESEITIGT')
       IF(NOPT.NE. 0 .OR. NAD3.EQ.0) GOTO 71
    71 READ (INPUT,1000)  NZRW
-      IF(NZRW.GT.NZRWMA) then
-1800   WRITE(NOUT, 1801) NZRW,NZRWMA
-1801   FORMAT(' TOO MANY POINTS FOR INTEGRATION',2I5)
-      stop
-      endif        
+      IF(NZRW.GT.NZRWMA) GOTO 1800
       READ (INPUT,1001) FRR,RHG,RHF
       WRITE (NOUT,1100) NZRW,FRR,RHF
       IF(NAD3.EQ.0) GOTO 60
@@ -898,7 +888,6 @@ C                                                                        C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
  1112 CONTINUE
-      IX=0
       DO 2 K = 1,NZKB
       EMOM(K) = ENERGI - EBIN(K)
 c     ENERGIE=EMOM(1)
@@ -925,10 +914,8 @@ c
  503  EK(K)=NSIGMA(K)*EK(K)
  987  CONTINUE
 c      WEFNOR(K)=(4.*(EMOM(K))/REDM(K))**(-.25)
-c  [WEFN]=MeV*fm
       WEFNOR(K)=SQRT(REDM(K)/(2.*EK(K)))
-      write(NOUT, *) 'EK , REDM , WEFNOR ',EK(K),REDM(K),WEFNOR(K)
-c von ENDM: REDM=1/(1/#N(F1)+1/#N_F2)/(hqc^2/(m_n+m_p))
+c
       GOTO 22
 C     
 C     EK,ETA, ETC.KOMPLEX!!!
@@ -956,7 +943,7 @@ c     NENTK AUF 1 (VORHER 0)
    90 CONTINUE
       NZAOK = I
 c     NZAOK IST DIE ANZAHL DER GERECHNETEN KANAELE
-      IF(NOPT.NE.0)  NZAOK=NZKB
+      IF(NOPT.NE.0)  NZAOK=NZKB  
       NZOFFK=I
       IF(NOPT2.NE.1) GOTO 10971
       NZOFFK=NZKB
@@ -1020,7 +1007,7 @@ C     WRITE(NOUT, *) 'F1,FF1,F12,FF12 ',FZ1,FFZ1,FZ12,FFZ12
       HILF=FZ1+FZ2-2*EK(KL)/BETA0*(IMAG(ZBM1)+IMAG(ZBM2))
       WEFNOR(KL)=(4*EK(KL)**2 + BETA0**2)/(HILF*2*EK(KL))
       WEFNOR(KL)=SQRT(WEFNOR(KL))
-c      write(NOUT, *) ' WEFNOR NEU ',WEFNOR(KL),HILF
+C     WRITE(NOUT, *) ' WEFNOR NEU ',WEFNOR(KL),HILF
 24    CALL ENTWIN (VW,VW1,PQ0,PQ1,PQ2,PQ3,LWL,NAD1)
       IF(NZAOK)   1,1,20
 29    CONTINUE
@@ -1072,7 +1059,7 @@ C     SQ=GL*(H-ENERGIE*NORM)*GL
       CALL WRIMATC(SP,NZKBMA,NZAOK,NTEX(1))
       CALL WRIMATC(SQ,NZKBMA,NZAOK,NTEX(3))
  2180 CONTINUE
-c     Asymptotische Beitr√§ge
+c     Asymptotische Beitr‰ge
 2179   FORMAT('KANAL ',I4,' PQ0(L),PQ3(L),PQ2(L),PQ1(L) ',8F10.4)
        if(nad4.gt.0)write(nout,2179) L,PQ0(L),PQ3(L),PQ2(L),PQ1(L)
        SP(L,L) = SP(L,L)+PQ2(L) 
@@ -1199,9 +1186,7 @@ C     DER S-MATRIX BETRACHTET
 C
       GOTO 278
  279  CONTINUE
-      NO = NZAOK
-      CALL ZGETRF(NO,NO,SMATFAKT,NZKBMA,IPIV,IFA)
-      NO = NZAOK
+      CALL ZGETRF(NZAOK,NZAOK,SMATFAKT,NZKBMA,IPIV,IFA)
       DETSMAT=1.
       DO 128 M=1,NZOFFK
       DSM=SMATFAKT(M,M)
@@ -1213,7 +1198,6 @@ c     write(13,*)'detsmat',detsmat,NZOFFK
 C
       DETSBET=1./DETSBET
 C
-      write(nout,*) 'IX = ',IX
       F(IX)=DETSBET
       WRITE(NOUT,129)DETSMAT
       WRITE(NOUT,130)DETSBET
@@ -1264,6 +1248,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       CLOSE(UNIT=NBAND3)
       WRITE(NOUT,*) ' ENDE DER RECHNUNG VON S_POLE '
             CLOSE(UNIT=NOUT,STATUS='KEEP')
+      STOP
+1800   WRITE(NOUT, 1801) NZRW,NZRWMA
+1801   FORMAT(' TOO MANY POINTS FOR INTEGRATION',2I5)
        END
        FUNCTION XXP(A)
        IMPLICIT REAL*8(A-H,O-Z)
@@ -1358,7 +1345,6 @@ C
 200   FAK(M+1)=FAK(M)/ DBLE(M)
 C      FAK(N)=1/(N-1)!
       G(1)=1.772453850905516027298D0
-C      Sqrt(Pi)
       G(2)=1.D0
       DO 20 I=2,30
       IF(MOD(I,2).EQ.0) GOTO 19
@@ -1481,7 +1467,7 @@ C       R POTENZ KORREKT
       IF(NAD2.NE.0) WRITE(NOUT,1002) (SW(K,1),K=1,NZPW21)
 1002   FORMAT(' R-WERTE FUER PARAMETER ',6G12.5,/,10G12.5)
 C      VORBEREITUNG FUER ANPASSUNGSVERGLEICH
-7     NZRW1=NZRW
+7     NZRW1=100
       DO 8   K = 1,NZRW1
     8 Q(K,1) = ( DBLE(K)-.5)*FRR
       DO 740  M= 1,NZPW2
@@ -1739,7 +1725,7 @@ C
        DO 10 I=1,NORD
 10     WRITE(NOUT,11) (A(I,L),L=1,NORD)
 1      FORMAT(' MATRIX(KOMPLEX)-',A3)
-11     FORMAT(2X,10G14.8)
+11     FORMAT(2X,10G13.7)
        RETURN
        END
       SUBROUTINE YINT(A,B,KZ,Z,K1,K2,LWL,RAR,NZPW2,FW)
@@ -1880,9 +1866,9 @@ C
       IMPLICIT REAL*8(A-H,O-Z)
       COMPLEX*16 FUK,FWERT,CI
 C
-C     Vorbereitung f√ºr asomptot. Beitr√§ge:
+C     Vorbereitung f¸r asomptot. Beitr‰ge:
 C     es werden Hankelfunktionen verwendet 
-C     es ergeben sich nun weitere Beitr√§ge,
+C     es ergeben sich nun weitere Beitr‰ge,
 C     vorher:
 C     FW(K)=A**(L+1)*EXP(-A*A*PAR(K))*(2GL'*TS'+GL*TS'')
 C     FW(K2)=GL**2*TS'**2
@@ -2020,7 +2006,6 @@ c     D1=H+, D2=H-, D3=HP-, D4=HP+
 c
 c     CALL REG(LWL,NZRW)   
 c         
-c   ts factor regularizes the function
       D1=fuk(k,2)*ts(k,1)
       D2=(fuk(k,2)- 2.*ci*fuk(k,1))*ts(k,1)
       D3=(fuk(k,3)- 2.*ci*fuk(k,4))*ts(k,1)+
@@ -2059,7 +2044,7 @@ C      IRREGULAEREN COULOMBFUKTION, SIEHE DIPLOM-ARBEIT BAUER
       PQ1(KL) = CNULL
       PQ2(KL) = CNULL
       PQ3(KL) = CNULL
-      A=1.E-12
+      A=1.E-8
       HMR=1./REDM(KL)
 C     WRITE(NOUT, *) ' HMR',HMR
       K2=NZPW2+1
@@ -2116,8 +2101,7 @@ C     WRITE(NOUT, 40) (ZZ(K),K=1,2*K2)
 38    FORMAT(' COULINT KYS=',I3,/,(8G15.8))
 C       AUSSCHREIBEN DER FUNKTIONSWERTE UND BERECHNEN DER QUADRATISCHEN
 C       ABWEICHUNG QAF UND QAG
-39    NZRW1=NZRW
-C39    NZRW1=NZRW
+39    NZRW1=100
       READ (NBAND3) ((SW(K,M),K=1,NZRW1),M=1,NZPW2)
       READ (NBAND3) ((SV(K,M),K=1,NZRW1),M=1,NZPW2)
       READ (NBAND3)  (Q(K,1),K=1,NZRW1)
@@ -2171,7 +2155,7 @@ C     REAL- UND IMAGINAERTEILE WERDEN GETRENNT BETRACHTET FUER QAF
       WRITE(NOUT,7058) AB11,AB22
 7058  FORMAT(2X,7H RQAF =,E12.4,2X,7H IQAF =,E12.4, 
      *       2X,7H RQAG =,E12.4,2X,7H IQAG =,E12.4)
-1201  FORMAT(1F7.4,1X,1P17E12.4)
+1201  FORMAT(1F6.4,1X,1P17E12.4)
 9008  RETURN
       END
       SUBROUTINE REG(L,LL)
@@ -2264,8 +2248,8 @@ C
       DIMENSION ZC(NZKBMA,NZKBMA), ZZ(NZKBMA,NZKBMA),
      *          ZZB(NZKBMA,NZKBMA),HTEX(9),BCOS(NZKBMA),
      *          BSIN(NZKBMA),BPHAS(NZKBMA)
-      CHARACTER*1 TRANS
 C
+      CHARACTER*1 TRANS
       SAVE /DEK/
 C
       DATA HTEX/'HPP','HPM','HMP','HMM','AM','AMB','SMA','ZB','Z'/
@@ -2276,11 +2260,11 @@ C
 26      FORMAT(' EIGENPHASEN')
    27 FORMAT(' EIGENVEKTOREN ZEILENWEISE',/)
       W0=.0
-      Naux=NZAOK
+      NO=NZAOK
       NX=NZPWX
 c
-      DO 2  L=1,Naux
-      DO 2  K=1,Naux
+      DO 2  L=1,NO
+      DO 2  K=1,NO
       HSMM(K,L)=SQ(K,L)
       HSPM(K,L)=SC(K,L)
       HSMP(K,L)=SP(K,L)
@@ -2295,178 +2279,171 @@ c
  2    CONTINUE
 c
       IF(NAD7.LT.4) GO TO 339
-      CALL WRIMATC(HSPP,NZKBMA,Naux,HTEX(1))
-      CALL WRIMATC(HSPM,NZKBMA,Naux,HTEX(2))
-      CALL WRIMATC(HSMP,NZKBMA,Naux,HTEX(3))
-      CALL WRIMATC(HSMM,NZKBMA,Naux,HTEX(4))
+      CALL WRIMATC(HSPP,NZKBMA,NO,HTEX(1))
+      CALL WRIMATC(HSPM,NZKBMA,NO,HTEX(2))
+      CALL WRIMATC(HSMP,NZKBMA,NO,HTEX(3))
+      CALL WRIMATC(HSMM,NZKBMA,NO,HTEX(4))
  339  CONTINUE
 C
 C     Bestimmung der S-Matrix
       IF(NAD7.GT.2) WRITE(NOUT,*) ' DIREKTE VARIATION S-MATRIX'
-      DO 4  I=1,Naux
-      DO 4  K=1,Naux
+      DO 4  I=1,NO
+      DO 4  K=1,NO
       W2(K,I)=HSPM(K,I)
  4    CONTINUE
-      DO 7  LL=1,Naux
-      DO 7  KK=1,Naux
+      DO 7  LL=1,NO
+      DO 7  KK=1,NO
       XSGG(KK,LL)=HSPP(KK,LL)
 7     CONTINUE
       IFA=0
-      CALL ZGETRF(Naux,Naux,XSGG,NZKBMA,IPIV,IFA)
-      Naux=NZAOK
+      CALL ZGETRF(NO,NO,XSGG,NZKBMA,IPIV,IFA)
       IF(IFA.NE.0) STOP 7
-      CALL ZGETRS(TRANS,Naux,Naux,XSGG,NZKBMA,IPIV,W2,NZKBMA,IFA)
-      Naux=NZAOK
+      CALL ZGETRS(TRANS,NO,NO,XSGG,NZKBMA,IPIV,W2,NZKBMA,IFA)
       IF(IFA.NE.0) STOP 3
-      DO 3  I=1,Naux
-      DO 3  K=1,Naux
+      DO 3  I=1,NO
+      DO 3  K=1,NO
     3 AM(K,I)=W2(K,I)
-      IF(NAD7.GT.2) CALL WRIMATC(AM,NZKBMA,Naux,HTEX(5))
+      IF(NAD7.GT.2) CALL WRIMATC(AM,NZKBMA,NO,HTEX(5))
 C     AM IST DIE DIREKT BERECHNETE TRANSPONIERTE S-MATRIX
-      DO 6  L=1,Naux
-      DO 6  K=1,Naux
+      DO 6  L=1,NO
+      DO 6  K=1,NO
       Z(K,L)=CI *HSMM(K,L)
-      DO 6  M=1,Naux
+      DO 6  M=1,NO
       Z(K,L)=Z(K,L)-CI *AM(M,K)*HSPM(M,L)
 6     CONTINUE
 C
       IF(NAD7.GT.1) WRITE(NOUT,*) ' VOLLE S-MATRIX'
-      DO 55 L=1,Naux
+      DO 55 L=1,NO
       IF(NAD7.GT.1) WRITE(NOUT,608)(Z(L,LH),LH=1,L)
 608   FORMAT(1X,10F7.4)      
-      DO 55 K=1,Naux
+      DO 55 K=1,NO
  55    SMAT(K,L,1)=Z(K,L)   
 c
       IF(NAD7.GT.2) WRITE(NOUT,*) ' DIREKTE VARIATION SINV-MATRIX'
-      DO 104 I=1,Naux
-      DO 104 K=1,Naux
+      DO 104 I=1,NO
+      DO 104 K=1,NO
       W2(K,I)=HSMP(K,I)
 104    CONTINUE
-      DO 107  LL=1,Naux
-      DO 107  KK=1,Naux
+      DO 107  LL=1,NO
+      DO 107  KK=1,NO
       XSGG(KK,LL)=HSMM(KK,LL)
 107     CONTINUE
       IFA=0
-      CALL ZGETRF(Naux,Naux,XSGG,NZKBMA,IPIV,IFA)
-      Naux=NZAOK
+      CALL ZGETRF(NO,NO,XSGG,NZKBMA,IPIV,IFA)
       IF(IFA.NE.0) STOP 107
-      CALL ZGETRS(TRANS,Naux,Naux,XSGG,NZKBMA,IPIV,W2,NZKBMA,IFA)
-      Naux=NZAOK
+      CALL ZGETRS(TRANS,NO,NO,XSGG,NZKBMA,IPIV,W2,NZKBMA,IFA)
       IF(IFA.NE.0) STOP 103
-      DO 103  I=1,Naux
-      DO 103  K=1,Naux
+      DO 103  I=1,NO
+      DO 103  K=1,NO
   103 AMB(K,I)=W2(K,I)
-      IF(NAD7.GT.2) CALL WRIMATC(AMB,NZKBMA,Naux,HTEX(6))
+      IF(NAD7.GT.2) CALL WRIMATC(AMB,NZKBMA,NO,HTEX(6))
 C     AMB IST DIE DIREKT BERECHNETE TRANSPONIERTE SINV-MATRIX
 C
-      DO 106  L=1,Naux
-      DO 106  K=1,Naux
+      DO 106  L=1,NO
+      DO 106  K=1,NO
       ZB(K,L)=-CI *HSPP(K,L)
-      DO 106  M=1,Naux
+      DO 106  M=1,NO
       ZB(K,L)=ZB(K,L)+CI *AMB(M,K)*HSMP(M,L)
 106     CONTINUE
 C
       IF(NAD7.GT.1) WRITE(NOUT,*) ' VOLLE SINV-MATRIX'
-      DO 204 I=1,Naux
-      DO 204 K=1,Naux
+      DO 204 I=1,NO
+      DO 204 K=1,NO
       W2(K,I)=CNULL
-      IF(I.EQ.K) W2(K,K)=1.
+      IF(I.EQ.K) W2(K,K)=CEINS
 204    CONTINUE
-      DO 207  LL=1,Naux
-      DO 207  KK=1,Naux
+      DO 207  LL=1,NO
+      DO 207  KK=1,NO
       XSGG(KK,LL)=ZB(KK,LL)
 207     CONTINUE
       IFA=0
-      CALL ZGETRF(Naux,Naux,XSGG,NZKBMA,IPIV,IFA)
-      Naux=NZAOK
+      CALL ZGETRF(NO,NO,XSGG,NZKBMA,IPIV,IFA)
       IF(IFA.NE.0) STOP 207
-      CALL ZGETRS(TRANS,Naux,Naux,XSGG,NZKBMA,IPIV,W2,NZKBMA,IFA)
-      Naux=NZAOK
+      CALL ZGETRS(TRANS,NO,NO,XSGG,NZKBMA,IPIV,W2,NZKBMA,IFA)
       IF(IFA.NE.0) STOP 203
-      DO 203  I=1,Naux
-      DO 203  K=1,Naux
+      DO 203  I=1,NO
+      DO 203  K=1,NO
   203 SMAT(K,I,2)=W2(K,I)
-      IF(NAD7.GT.2) CALL WRIMATC(W2,NZKBMA,Naux,HTEX(7))
-      DO 155 L=1,Naux
-      DO 155 K=1,Naux
+      IF(NAD7.GT.2) CALL WRIMATC(W2,NZKBMA,NO,HTEX(7))
+      DO 155 L=1,NO
+      DO 155 K=1,NO
 155    ZB(K,L)=SMAT(K,L,2)
 
-      CALL SMATEST(SMAT,Naux,NAD7,IBESS)
+      CALL SMATEST(SMAT,NO,NAD7,IBESS)
 C
 C     SMAT * SMAT(INVERS)= 1 !!! FUER REELLE ENERGIEN
 C    
-      DO 41  L=1,Naux
-      DO 41  K=1,Naux
+      DO 41  L=1,NO
+      DO 41  K=1,NO
       ZX(K,L)= CNULL
-      DO 41  M=1,Naux
+      DO 41  M=1,NO
 41    ZX(K,L)=ZX(K,L)+AM(K,M)*CONJG(AM(L,M))
       WRITE(NOUT,45)
 45    FORMAT(/,'  KONTROLLMAT S-DIREKT')
-      DO 42  K=1,Naux
+      DO 42  K=1,NO
 42    WRITE(NOUT,122) (ZX(L,K),L=1,K)
 C
 C     SMAT * SMAT(INVERS)= 1 !!! FUER REELLE ENERGIEN VOLLE S-MATRIX
 C    
-      DO 441  L=1,Naux
-      DO 441  K=1,Naux
+      DO 441  L=1,NO
+      DO 441  K=1,NO
       ZX(K,L)= CNULL
-      DO 441  M=1,Naux
+      DO 441  M=1,NO
 441    ZX(K,L)=ZX(K,L)+Z(K,M)*CONJG(Z(L,M))
       WRITE(NOUT,445)
 445    FORMAT(/,'  KONTROLLMAT VOLLE S-MATRIX')
-      DO 442  K=1,Naux
+      DO 442  K=1,NO
 442    WRITE(NOUT,122) (ZX(L,K),L=1,K)
 C
 C
       IF (NAD5.EQ.0) GO TO 4711
-        CALL AMATRI(Z,YY,AMAT,Naux)
-      DO 43 L=1,Naux
-      DO 43 K=1,Naux
+        CALL AMATRI(Z,YY,AMAT,NO)
+      DO 43 L=1,NO
+      DO 43 K=1,NO
  43   ZZ(K,L)=AMAT(K,L)
-      CALL HDIAG( Naux,0,M,ZZ,HSFF,NZKBMA)
-      DO 60   K = 1,Naux
+      CALL HDIAG( NO,0,M,ZZ,HSFF,NZKBMA)
+      DO 60   K = 1,NO
  60   ZZ(K,K) = 57.295779513D0 * ATAN(ZZ(K,K))
       WRITE(NOUT,26)
-      WRITE(NOUT,122) (ZZ(K,K),K=1,Naux)
+      WRITE(NOUT,122) (ZZ(K,K),K=1,NO)
       WRITE(NOUT,27)
-      DO 61   K = 1,Naux
-   61  WRITE(NOUT,122)   (HSFF(L,K),L=1,Naux)
+      DO 61   K = 1,NO
+   61  WRITE(NOUT,122)   (HSFF(L,K),L=1,NO)
       IF(IBAC.LE.0) GOTO 4711
-      DO 66 KL=1,Naux
+      DO 66 KL=1,NO
       Q(1,1)=RRAD(KL)
       LWL=LWERT(KL)
       CALL COULF(LWL,1)
       HX=1./ABS(FUK(1,2))
       BCOS(KL)=DREAL(FUK(1,2))*HX
       BSIN(KL)=DREAL(FUK(1,1))*HX
-c 180/Pi = 57.29...
 66    BPHAS(KL)= 57.295779513D0 * ATAN2(BSIN(KL),BCOS(KL))
-      WRITE(NOUT,123)(BPHAS(K),K=1,Naux)
+      WRITE(NOUT,123)(BPHAS(K),K=1,NO)
 123   FORMAT(' BACKGROUNDPHASEN ',(1X,10F10.4))
-      DO 70 J=1,Naux
-      DO 69 K=1,Naux
+      DO 70 J=1,NO
+      DO 69 K=1,NO
       ZZB(K,J)=-AMAT(K,J)*BSIN(J)
 69    ZZ(K,J)=AMAT(K,J)*BCOS(J)
       ZZB(J,J)=ZZB(J,J)+BCOS(J)
 70    ZZ(J,J)=ZZ(J,J)+BSIN(J)
-72    DO 73 I=1,Naux
-      DO 74  K=1,Naux
+72    DO 73 I=1,NO
+      DO 74  K=1,NO
 74    W111(K)=ZZ(K,I)
-      DO 77  KK=1,Naux
-      DO 77  LL=1,Naux
+      DO 77  KK=1,NO
+      DO 77  LL=1,NO
 77    XSGGR(LL,KK)=ZZB(KK,LL)
-      CALL RLG1(XSGGR,W111,W22,Naux)
-      DO 73  K=1,Naux
+      CALL RLG1(XSGGR,W111,W22,NO)
+      DO 73  K=1,NO
    73 ZC(K,I)=W22(K)
 C     ZC IST DIE TRANSFORMIERTE K-MATRIX
-      CALL HDIAG( Naux,0,M,ZC,HSFF,NZKBMA)
-      DO 80   K = 1,Naux
+      CALL HDIAG( NO,0,M,ZC,HSFF,NZKBMA)
+      DO 80   K = 1,NO
 80    ZC(K,K) = 57.295779513D0 * ATAN(ZC(K,K))
       WRITE(NOUT,26)
-      WRITE(NOUT,122) (ZC(K,K),K=1,Naux)
+      WRITE(NOUT,122) (ZC(K,K),K=1,NO)
       WRITE(NOUT,27)
-      DO 81   K = 1,Naux
-   81  WRITE(NOUT,122)   (HSFF(L,K),L=1,Naux)
+      DO 81   K = 1,NO
+   81  WRITE(NOUT,122)   (HSFF(L,K),L=1,NO)
 4711  CONTINUE
       RETURN
       END
@@ -2507,14 +2484,14 @@ C
       IMPLICIT REAL*8(A-H,O-Z)
 C      SUCH SUCHT DAS MAXIMUM DER FUNKTION F(X)=X**NN*EXP(-B1*X*X-B3*X)
 C       SUCH BESTIMMT XR SO DASS F(XR)=MAX(F(X))*10**-10,FR=XR/NZRW
-      C = .1
+      C = .1D0
       D1 = (C**NN) * EXP(-B1*C*C-B3*C)
       D3 = D1
-    6 C = C + .1
+    6 C = C + .1D0
       D2 = (C**NN) * EXP(-B1*C*C-B3*C)
       D3 = MAX(D2,D3)
       IF(D2-D1)    1,2,2
-    1 IF (D2-(1.E-9)*D3) 3,3,2
+    1 IF (D2-(1.D-9)*D3) 3,3,2
     3 FR = C/ DBLE(NZRW)
       RETURN
     2 D1 = D2
@@ -2527,8 +2504,8 @@ C     Fuer mode1=11 werden F und H+ berechnet und in FUK zurueckgegeben h.m.h
 C
       IMPLICIT REAL*8(A-H,O-Z)
 C
-      COMPLEX*16 XX,ETA1,ZLMIN,FC(50),GC(50),FCP(50),GCP(50),
-     X           SIG(50),FUK,ETA,EK,WK,WEFNOR,FF
+      COMPLEX*16    FUK,ETA,EK,WEFNOR
+      DIMENSION FC(100),GC(100),FCP(100),GCP(100)
 C 
 C
       INCLUDE 'par/verma'
@@ -2549,10 +2526,14 @@ C
 C
       ETA1=ETA(KL)
       RL=L
-      ZLMIN=DCMPLX(RL,.0D0)
+c      ZLMIN=DCMPLX(RL,.0D0)
+      xlmin =0.
+      xlmax =rl
+      lmin=l
+      lmax=l
 C
       DO 100 M=1,NZRW
-      XX=Q(M,1)*EK(KL)
+      XX=Q(M,1)*DREAL(EK(KL))
       FF = WEFNOR(KL)
       WK =EK(KL)
 C
@@ -2562,21 +2543,23 @@ C
       KFN= 0
       IFAIL=1
       N1=1
-      MODE1=11
-       sig(1)=0.
-      CALL COULCC(XX,ETA1,ZLMIN,N1,FC,GC,FCP,GCP,SIG,MODE1,KFN,IFAIL)
-       IF(IFAIL.NE.0) WRITE(NOUT,112) IFAIL,XX,ETA1,ZLMIN,FF
+      MODE1=1
+       CALL COULFG(XX,ETA1,XLMIN,XLMAX, FC,GC,FCP,GCP,MODE1,KFN,IFAIL)
+c      CALL COULFG(XX,ETA1,LMIN,LMAX, FC,GC,FCP,GCP,MODE1,KFN,IFAIL)
+c      CALL COULCC(XX,ETA1,ZLMIN,N1,FC,GC,FCP,GCP,SIG,MODE1,KFN,IFAIL)
+       IF(IFAIL.NE.0) WRITE(NOUT,112) IFAIL,XX,ETA1,XLMAX,FF
   112  FORMAT('PROBLEME:',I3,8F12.8)
 c
 c      FUK(M,1)=FC(1)
 c      FUK(M,2)=H+(1)
-c      FUK(M,3)=H+P(1) P='(Ableitung)
+c      FUK(M,3)=H+P(1)
 c      FUK(M,4)=FCP(1)
 c
-      FUK(M,1)=FC(1)*FF
-      FUK(M,2)=GC(1)*FF
-      FUK(M,3)=GCP(1)*FF*WK
-      FUK(M,4)=FCP(1)*FF*WK
+      FUK(M,1)=FC(L+1)*FF
+      FUK(M,2)=dcmplx(GC(L+1),fc(L+1))*FF
+      FUK(M,3)=dcmplx(GCP(L+1),fcp(L+1))*FF*WK
+      FUK(M,4)=FCP(L+1)*FF*WK
+c     write(6,*) 'fuk',m,ifail,xx,(dreal(fuk(m,i)),i=1,4)
 100   CONTINUE
 C     ABLEITUNG NACH R, NICHT RHO=K*R
       RETURN
@@ -2755,7 +2738,7 @@ C
       IMPLICIT REAL*8(A-H,O-Z)
       COMPLEX*16 A,SP,SC,SR,SQ,SS,ST,ENERGI,AN,D,ZW,
      *            CNULL,  SKO, DKO, SKOF, ZXL, CWORK
-C   BERECHNUNG DER KOEFFIZIENTEN D DURCH INVERSION, SIEHE
+C   BERECHNUNG DER KOEFFIZIENTEN D DURCH INVERSION, SIEHE JOHN Z. H. et al.
 C   J.CHEM.PHYS.88(1988)6233 H.M.H.     
 C
       INCLUDE 'par/verma'
@@ -2819,10 +2802,21 @@ c      end do
 c      write(nout,*)'dko',(dko(j,1),j=1,2)
 c      write(nout,*) 'info',info
 c      write(nout,*) 'zxl', (zxl(1,1))
-       do j=1,nzaok
-       write(nout,*) 'zxl', (zxl(j,i),i=1,nzaok)
-       end do
+c      do j=1,nzaok
+c      write(nout,*) 'zxl', (zxl(j,i),i=1,nzaok)
+c      end do
 c
+      DO 441  L=1,NZAOK
+      DO 441  K=1,NZAOK
+      SC(K,L)= CNULL
+      DO 441  M=1,NZAOK
+441    SC(K,L)=SC(K,L)+ZXL(K,M)*CONJG(ZXL(L,M))
+      WRITE(NOUT,445)
+445    FORMAT(/,'  KONTROLLMAT INVERTIERUNG S-MATRIX')
+      DO 442  K=1,NZAOK
+442    WRITE(NOUT,122) (SC(L,K),L=1,K)
+122    FORMAT(1X,16F10.5)
+C
       DO 7120 I=1,NZPWX
       DO 7131 L=1,NZAOK
       ZW(I,L)=0.
@@ -2849,7 +2843,7 @@ c
       SUBROUTINE WEFU(MZAE)
       IMPLICIT REAL*8(A-H,O-Z)
       COMPLEX*16 A,FUK,DAR,EMOM,EK,ETA,WEFNOR,D,CWF,CWF1,
-     *           WF1,WF2,WF3,WF4,WF5 ,EIHALF, CI,CWFMINUS
+     *           WF1,WF2,WF3,WF4,WF5 ,EIHALF, CI
       COMPLEX*16 DKO,SKO,SKOF,ZXL
 C     AUSGABE DER WELLENFUNKTION
 C
@@ -2883,8 +2877,7 @@ C
      *       ASYHAM(NZPARM,NZPARM,NZKMAX), ASYNOR(NZPARM,NZPARM,NZKMAX),
      *       E2K(NZKMAX), BNORM, J_RMAT
 C
-      DIMENSION CWF(NZKBMA,NZKMAX,NZPARM), METH(2), SW(NZRW,NZPARM),
-     *          CWFMINUS(NZKBMA,NZKMAX,NZPARM)
+      DIMENSION CWF(NZKBMA,NZKMAX,NZPARM), METH(2), SW(100,NZPARM)
 C
       SAVE METH, EIHALF, CI
 C
@@ -2897,10 +2890,9 @@ C
       DO 1 MTD=1,2
       WRITE(NOUT,1001)METH(MTD)
 1001  FORMAT(1X,A10)
-      DO 101 I=1,NO
-      DO 101 J=1,NZKA
       DO 101 M=1,NZPARM
-      CWFMINUS(I,J,M)=0.
+      DO 101 J=1,NZKA
+      DO 101 I=1,NO
       CWF1(I,J,M)=0.
 101   CWF(I,J,M)=0.
       DO 10 KK=1,NO
@@ -2911,11 +2903,8 @@ C
       NZPW=NZP(KL)
       DO 21 M=1,NZPW
       I=I+1
-C   i/2( h(-) - S*h(+) + L2-Fkt )
       CWF(KK,KL,M)=EIHALF*(DAR(M+NZQ(KL),2)*DEL-DAR(M+NZQ(KL),1)
      1  *A(KK,KL,MTD)+D(I,KK))
-      CWFMINUS(KK,KL,M)=EIHALF*(DAR(M+NZQ(KL),2)*DEL-DAR(M+NZQ(KL),1)
-     1  *A(KK,KL,MTD)+D(I,KK))*A(KK,KL,MTD)
 21    CONTINUE
 20    CONTINUE
        IF(NO.EQ.NZKA) GOTO 10
@@ -2923,19 +2912,13 @@ C   i/2( h(-) - S*h(+) + L2-Fkt )
        NZPW=NZP(KL)
        DO 22 M=1,NZPW
        I=I+1
-       CWF(KK,KL,M)=CWF(KK,KL,M)+EIHALF*D(I,KK)
-22     CWFMINUS(KK,KL,M)=CWFMINUS(KK,KL,M)+EIHALF*D(I,KK)
+22     CWF(KK,KL,M)=CWF(KK,KL,M)+EIHALF*D(I,KK)
 10     CONTINUE
        DO 70 K=1,NO
        DO 69 L=1,NZKA
        NZPW=NZP(L)
-      IF(IWEFU.GT.1) THEN
-                     WRITE(NOUT,1000) K,L,NZPW,NO,NZKA,
-     *                                (CWF(K,L,M),M=1,NZPW)
-                     WRITE(NOUT,1002) (CWFMINUS(K,L,M),M=1,NZPW)
-      ENDIF
-1000  FORMAT(1X,5I3,/,'PSI(+)',/,(2E13.6))
-1002  FORMAT('PSI(-)',/,(2E13.6))
+      IF(IWEFU.GT.1) WRITE(NOUT,1000) K,L,(CWF(K,L,M),M=1,NZPW)
+1000  FORMAT(1X,2I3,/,(1X,10E13.6))
       IF(IELMA.GT.0) WRITE(NELMA)(CONJG(CWF(K,L,M)),M=1,NZPW)
 C      EXODUS HAT DIE STREUWELLE IM 'BRA', DAHER WIRD C* UEBERGEBEN      
 69     CONTINUE
@@ -2944,7 +2927,7 @@ C      EXODUS HAT DIE STREUWELLE IM 'BRA', DAHER WIRD C* UEBERGEBEN
        IF(IWEFU.LE.2.AND.IPLO.LE.0) GOTO 1
 C     DER FOLGENDE TEIL IST NOCH NICHT FUER UMGESTELLT FUER EM-UEBERGAENGE
 
-      NZRW1=NZRW
+      NZRW1=100
       DO 80 KK=1,NO
       REWIND NBAND3
       IF(IWEFU.GE.3) WRITE(NOUT,1003) KK
@@ -2993,7 +2976,6 @@ C     DER FOLGENDE TEIL IST NOCH NICHT FUER UMGESTELLT FUER EM-UEBERGAENGE
 53    WF1=WF1+CWF(KK,KL,M)*SW(K,M)
       IF(KL.GT.NO) GOTO 63
       WF4=A(KK,KL,MTD)*FUK(K,2)*TS(K,1)
-c regulaere ebene welle ohne streuung
       IF(KL.EQ.KK) WF4=WF4-(FUK(K,2)-2.*CI*FUK(K,1))*TS(K,1)
 63    WF5=WF4-WF3
       IF(IWEFU.GE.3) WRITE(NOUT,1004) Q(K,1),WF1,WF2,WF3,WF4*EIHALF,
