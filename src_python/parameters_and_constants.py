@@ -255,9 +255,10 @@ mn = {
 
 home = os.getcwd()
 
-pathbase = home + '/..'  # NN: tnni=10   NN+NNN: tnni=11
+pathbase = home + '/..'
 BINBDGpath = pathbase + '/src_nucl/'
 
+# NN: tnni=10   NN+NNN: tnni=11
 tnni = 11
 tnnifac = 1.
 tnf = 1.
@@ -265,7 +266,7 @@ parall = -1
 
 lec_set = lec_list_def  #lec_set_0__2__8
 
-lam = 8.00
+lam = 3.00  #3.00 4.00 6.00 8.00
 
 la = ('%-4.2f' % lam)[:4]
 
@@ -278,7 +279,7 @@ else:
 
 channels_2 = {
     # L    J
-    'nn1s': ['0', '0'],
+    'np1s': ['0', '0'],
 }
 
 channels_3 = {
@@ -311,10 +312,10 @@ nzEN = 20
 E0 = 0.001
 D0 = 0.002
 Eps = 0.01
-Bet = 4.1
+Bet = 2.1
 
 MeVfm = 197.3161329
 
-widthSet_relative = w120
+widthSet_relative = w12
 
 eps = np.finfo(float).eps

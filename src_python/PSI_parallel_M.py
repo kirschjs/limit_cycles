@@ -129,7 +129,7 @@ def span_population2(anz_civ,
     rWmin = 0.0001
 
     # orbital-angular-momentum dependent upper bound '=' UV cutoff (narrowest state)
-    rLcutoff = [22., 4., 3.]
+    rLcutoff = [15., 4., 3.]
     nwrel = ini_dims
     rel_scale = 1.
 

@@ -32,8 +32,8 @@ lambda    dimer-dimer-scattering-length
 interaction spin/iso-spin dependent or independent?
 B(3S1 and 1S0)=2.2MeV
 lambda    dimer-dimer-scattering-length (2-component fermion dimers)
-2         3.16 		  
-3         3.11
-4         3.03
+2         3.26 		  
+3         3.14
+4         3.07
 6		  3.01
-8         3.05
+8         2.99

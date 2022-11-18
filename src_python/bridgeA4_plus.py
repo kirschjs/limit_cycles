@@ -29,9 +29,9 @@ J0 = 0
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
 J1J2SC = []
 channels = [
-    [['000-0'], ['nn1s_nn1s_S0'], [0, 0, 0]],  # no DSI
+    #[['000-0'], ['nn1s_nn1s_S0'], [0, 0, 0]],  # no DSI
+    [['000-0'], ['np1s_np1s_S0'], [0, 0, 0]],  # DSI
     #[['000-0'], ['np3s_np3s_S0'], [2, 2, 0]],  # DSI
-    #[['000-0'], ['np1s_np1s_S0'], [0, 0, 0]],  # DSI
     #[['000-0'], ['tp_1s0', 'tp_6s0'], [1, 1, 0]],
     #[['000-0'], ['hen_1s0', 'hen_6s0'], [1, 1, 0]],
 ]
@@ -242,15 +242,30 @@ a_dd = [
     -MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /
     np.sqrt(2 * mn['137'] * phdd[n][0]) for n in range(len(phdd))
 ]
-print('scattering lengths (lower/upper end of energy matching interval):\n',
-      a_dd[:4], '\n', a_dd[-4:])
+print(
+    'l = %s fm^-1\n scattering lengths (lower/upper end of energy matching interval):\na_dd(E_min) = %4.4f fm   a_dd(E_max) = %4.4f fm'
+    % (lam, a_dd[0], a_dd[-1]))
+
+for channel in channels_2:
+    J0 = channels_2[channel][1]
+
+    sysdir2 = sysdir2base + '/' + channel
+    phafile = sysdir2 + '/phaout_%s' % lam
+    if os.path.isfile(phafile) == False:
+        print("2-body phase shifts unavailable for L = %s" % lam)
+        exit()
+    phaa = read_phase(phaout=phafile, ch=[1, 1], meth=1, th_shift='')
+    a_aa = [
+        -MeVfm * np.tan(phaa[n][2] * np.pi / 180.) /
+        np.sqrt(mn['137'] * phaa[n][0]) for n in range(len(phaa))
+    ]
+    print(
+        'a_aa(E_min) = %4.4f fm   a_aa(E_max) = %4.4f fm\na_dd/a_aa(E_min) = %4.4f   a_dd/a_aa(E_max) = %4.4f'
+        % (a_aa[0], a_aa[-1], a_dd[0] / a_aa[0], a_dd[-1] / a_aa[-1]))
+
 exit()
 
 chans = [[1, 1], [2, 2], [3, 3], [4, 4]]
-
-if os.path.isfile(sysdir2 + '/phaout_%s' % lam) == False:
-    print("2-body phase shifts unavailable for L = %s" % lam)
-    exit()
 
 # this ordering must match the threshold order, e.g., if B(t)>B(3He)>B(d)>B(dq),
 # phtp -> chans[0]

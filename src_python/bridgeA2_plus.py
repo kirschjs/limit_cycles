@@ -17,17 +17,17 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 
 # numerical stability
-minCond = 10**-12
+minCond = 10**-10
 minidi_seed = 0.05
-minidi_breed = 0.2
+minidi_breed = 0.25
 denseEVinterval = [-2, 2]
 width_bnds = [0.005, 12.25]
-deutDim = 8
+deutDim = 12
 
 # genetic parameters
-anzNewBV = 4
-muta_initial = 0.015
-anzGen = 34
+anzNewBV = 6
+muta_initial = 0.013
+anzGen = 54
 civ_size = 10
 target_pop_size = civ_size
 zop = 14
