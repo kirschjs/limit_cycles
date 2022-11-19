@@ -189,8 +189,9 @@ def span_population2(anz_civ,
             bv += len(two_body_channels)
 
         # [widths, sbas, nnpot, Jstreu, binPath, coefstr, civID, minCond, energInt]
-        ParaSets.append(
-            [widr, sbas, nnpot, Jstreu, binPath, coefstr, civ, minC, evWin])
+        ParaSets.append([
+            widr, sbas, nnpotstring, Jstreu, binPath, coefstr, civ, minC, evWin
+        ])
 
     os.chdir(funcPath)
 
@@ -413,7 +414,7 @@ def span_initial_basis2(channel,
     os.system(binPath + 'KOBER.exe')
 
     #print(widi)
-    inqua_2(relw=widi, ps2=nnpot)
+    inqua_2(relw=widi, ps2=nnpotstring)
     #exit()
     subprocess.run([binPath + 'QUAFL_N.exe'])
 
@@ -626,7 +627,7 @@ def span_initial_basis3(fragments,
     inob_3(sfrags2, 15, fn='INOB', indep=parall)
     os.system(binPath + 'DROBER.exe')
 
-    inqua_3(intwi=widi, relwi=widr, potf=nnpot, inquaout='INQUA_N')
+    inqua_3(intwi=widi, relwi=widr, potf=nnpotstring, inquaout='INQUA_N')
     parallel_mod_of_3inqua(lfrags2,
                            sfrags2,
                            infile='INQUA_N',
@@ -660,7 +661,7 @@ def span_initial_basis3(fragments,
     subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
 
     if tnni == 11:
-        inqua_3(intwi=widi, relwi=widr, potf=nnnpot, inquaout='INQUA_N')
+        inqua_3(intwi=widi, relwi=widr, potf=nnnpotstring, inquaout='INQUA_N')
         parallel_mod_of_3inqua(lfrags2,
                                sfrags2,
                                infile='INQUA_N',
@@ -993,8 +994,8 @@ def span_population3(anz_civ,
                 ]]
                 bv += 1
         ParaSets.append([
-            widi, widr, sbas, nnpot, nnnpot, Jstreu, civ, binPath, coefstr,
-            minC, evWin
+            widi, widr, sbas, nnpotstring, nnnpotstring, Jstreu, civ, binPath,
+            coefstr, minC, evWin
         ])
 
     os.chdir(funcPath)

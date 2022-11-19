@@ -279,7 +279,7 @@ else:
 
 channels_2 = {
     # L    J
-    'np1s': ['0', '0'],
+    'nn1s': ['0', '0'],
 }
 
 channels_3 = {
@@ -291,8 +291,11 @@ sysdir2base = pathbase + '/systems/2/%s' % la
 sysdir3base = pathbase + '/systems/3/%s' % la
 sysdir4 = pathbase + '/systems/4/%s' % la
 
-nnpot = sysdir2base + '/nn_pot'
-nnnpot = sysdir2base + '/nnn_pot'
+nnpotstring = 'nn_pot'
+nnnpotstring = 'nnn_pot'
+
+nnpot = sysdir2base + '/' + nnpotstring
+nnnpot = sysdir2base + '/' + nnnpotstring
 
 # B2 = 1 MeV and B3 = 8.48 MeV
 try:

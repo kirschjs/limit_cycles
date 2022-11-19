@@ -29,8 +29,8 @@ J0 = 0
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
 J1J2SC = []
 channels = [
-    #[['000-0'], ['nn1s_nn1s_S0'], [0, 0, 0]],  # no DSI
-    [['000-0'], ['np1s_np1s_S0'], [0, 0, 0]],  # DSI
+    [['000-0'], ['nn1s_nn1s_S0'], [0, 0, 0]],  # no DSI
+    #[['000-0'], ['np1s_np1s_S0'], [0, 0, 0]],  # DSI
     #[['000-0'], ['np3s_np3s_S0'], [2, 2, 0]],  # DSI
     #[['000-0'], ['tp_1s0', 'tp_6s0'], [1, 1, 0]],
     #[['000-0'], ['hen_1s0', 'hen_6s0'], [1, 1, 0]],
@@ -42,6 +42,8 @@ if os.path.isdir(sysdir4) == False:
     einzel4 = True
 
 os.chdir(sysdir4)
+subprocess.call('cp %s .' % nnpot, shell=True)
+subprocess.call('cp %s .' % nnnpot, shell=True)
 
 costr = ''
 zop = 31 if tnni == 11 else 14

@@ -27,7 +27,7 @@ deutDim = 12
 # genetic parameters
 anzNewBV = 6
 muta_initial = 0.013
-anzGen = 54
+anzGen = 4
 civ_size = 10
 target_pop_size = civ_size
 zop = 14
@@ -48,6 +48,7 @@ for channel in channels_2:
     prep_pot_file_3N(lam=la, d10=d0, ps3=nnnpot)
 
     os.chdir(sysdir2)
+    subprocess.call('cp %s .' % nnpot, shell=True)
 
     costr = ''
     for nn in range(1, zop):
@@ -142,7 +143,7 @@ for channel in channels_2:
                 bv += len(two_body_channels)
 
             ParaSets = [[
-                twins[twinID][1], sbas, nnpot,
+                twins[twinID][1], sbas, nnpotstring,
                 float(J0), BINBDGpath, costr, twinID, minCond, evWindow
             ] for twinID in range(len(twins))]
 
@@ -222,7 +223,7 @@ for channel in channels_2:
                    nzopt=zop,
                    costring=costr,
                    binpath=BINBDGpath,
-                   potNN=nnpot,
+                   potNN=nnpotstring,
                    jay=J0,
                    funcPath=sysdir2)
 
