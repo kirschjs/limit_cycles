@@ -88,7 +88,7 @@ for sysdir2 in twodirs:
 
     zstrus_tmp, outs = from2to4(zwei_inq=sysdir2 + '/INQUA_N_%s' % lam,
                                 vier_dir=sysdir4,
-                                fn=nnpot,
+                                fn=nnpotstring,
                                 relw=widthSet_relative,
                                 app='True')
     zstrus.append(zstrus_tmp)
@@ -174,7 +174,7 @@ cofli = [cofli[id] for id in idx]
 J1J2SC = [J1J2SC[id] for id in idx]
 
 qua_str = [qua_str[id] for id in idx]
-outs = ' 10  8  9  3 00  0  0  0\n%s\n' % nnpot
+outs = ' 10  8  9  3 00  0  0  0\n%s\n' % nnpotstring
 for qua_part in qua_str:
     outs += qua_part
 with open('INQUA_N', 'w') as outfile:
@@ -203,8 +203,8 @@ if newCal:
                    costring=costr,
                    bin_path=BINBDGpath,
                    mpipath=MPIRUN,
-                   potNN='%s' % nnpot,
-                   potNNN='%s' % nnnpot,
+                   potNN='%s' % nnpotstring,
+                   potNNN='%s' % nnnpotstring,
                    parall=parall,
                    anzcores=max(2, min(len(strus), MaxProc)),
                    tnnii=tnni,
