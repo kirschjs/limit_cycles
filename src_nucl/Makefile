@@ -1,5 +1,5 @@
 # hexpresso
-F77     =       gfortran
+F77     =      mpifort 
 FFLAGS  =       -Ofast -ffpe-summary='none' -fallow-argument-mismatch # -mcmodel=medium 
 LIBS    = -L -lgfortran -L/usr/lib/x86_64-linux-gnu/lapack -llapack -lblas
 #LIBS    = -L${MKLROOT} -llapack -lblas  -lm -ldl
@@ -163,6 +163,6 @@ S-POLE_zget: S-POLE_zget.o par/verma coul.o
 S-POLE_zget_PWBA: S-POLE_zget_PWBA.o par/verma coul.o
 	$(F77) $(FFLAGS) -o S-POLE_zget_PWBA.exe S-POLE_zget_PWBA.o coul.o $(LIBS)
 
-all: DRQUA_AK_N_pop QUAFL_N_pop DR2END_AK_pop S-POLE_PdP LUDW_CN KOBER DROBER DRLUD QUAFL_M DRQUA_AK_M DR2END_NORMAL TDR2END_NORMAL TDR2END_PYpool TDR2END_PYpoolnoo clean
+all: S-POLE_zget TDR2END_AK DRQUA_AK_N_pop QUAFL_N_pop DR2END_AK_pop DR2END_AK S-POLE_PdP LUDW_CN KOBER DROBER DRLUD TDR2END_PYpool TDR2END_PYpoolnoo clean
 
 allNM: DRQUA_AK_N_pop QUAFL_N_pop DR2END_AK_pop LUDW_CN KOBER DROBER DRLUD QUAFL_N QUAFL_M DRQUA_AK_N DRQUA_AK_M DR2END_NORMAL TDR2END_NORMAL TDR2END_PYpool TDR2END_PYpoolnoo clean	

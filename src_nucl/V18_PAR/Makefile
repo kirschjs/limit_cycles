@@ -1,5 +1,5 @@
 CC          = mpicc
-F77         = /usr/bin/mpif77
+F77         = mpifort
 
 FOPTS  =       -Ofast -ffpe-summary=none -fallow-argument-mismatch #-mcmodel=medium 
 
@@ -41,9 +41,9 @@ mpi_quaf_eft_pi: mpi_quaf_eft_pi.o
 	$(F77) $(FOPTS) $(MAKRO) -o $@ mpi_quaf_eft_pi.o   $(LIBS) $(MPI) 
 
 sammel: sammel.o
-	mpif77 -Ofast -ffpe-summary=none -mcmodel=medium -o $@ sammel.o $(LIBS)
+	$(F77) $(FOPTS) $(MAKRO) -o $@ sammel.o $(LIBS)
 
 clean:
 	$(RM) *.o *.exe pvm_tniq *~
 
-all: mpi_quaf_v6 mpi_quaf_v7 sammel clean
+all: mpi_quaf_v6 sammel clean
