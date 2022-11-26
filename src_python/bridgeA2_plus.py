@@ -22,7 +22,7 @@ minidi_seed = 0.05
 minidi_breed = 0.25
 denseEVinterval = [-2, 2]
 width_bnds = [0.005, 12.25]
-deutDim = 12
+deutDim = 10
 
 # genetic parameters
 anzNewBV = 6
