@@ -19,10 +19,10 @@ two_body_channels = {
 }
 
 dict_3to4 = {
-    't_no1': ['000-0', 'tp_1s0'],
-    't_no6': ['000-0', 'tp_6s0'],
-    'he_no1': ['000-0', 'hen_1s0'],
-    'he_no6': ['000-0', 'hen_6s0'],
+    't_no1': [['000-0'], ['tp_1s0']],
+    't_no6': [['000-0'], ['tp_6s0']],
+    'he_no1': [['000-0'], ['hen_1s0']],
+    'he_no6': [['000-0'], ['hen_6s0']],
 }
 
 # -- LEC lists
@@ -266,7 +266,7 @@ parall = -1
 
 lec_set = lec_list_def  #lec_set_0__2__8
 
-lam = 6.00  #3.00 4.00 6.00 8.00
+lam = 8.00  #3.00 4.00 6.00 8.00
 
 la = ('%-4.2f' % lam)[:4]
 
@@ -279,12 +279,12 @@ else:
 
 channels_2 = {
     # L    J
-    'nn1s': ['0', '0'],
+    'np1s': ['0', '0'],
 }
 
 channels_3 = {
-    #'3he': ['000', ['he_no1', 'he_no6']],
-    #'3h': ['000', ['t_no1', 't_no6']],
+    'he': ['000', ['he_no1', 'he_no6']],
+    't': ['000', ['t_no1', 't_no6']],
 }
 
 sysdir2base = pathbase + '/systems/2/%s' % la

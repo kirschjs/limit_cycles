@@ -560,8 +560,6 @@ def span_initial_basis3(fragments,
             dists = [
                 np.linalg.norm(wp1 - wp2) for wp1 in lit_w_t for wp2 in lit_w_t
             ]
-            print('asdf')
-            exit()
             if ((np.min(dists) > mindist_int) & (lit_w_tmp < iLcutoff[0])):
                 lit_w_t.append(lit_w_tmp)
 
@@ -874,7 +872,6 @@ def span_population3(anz_civ,
     bvma = 8
     mindist_int = mindists[0]
     mindist_rel = mindists[1]
-
     # lower bound for width parameters '=' IR cutoff (broadest state)
     rWmin = 0.0001
 

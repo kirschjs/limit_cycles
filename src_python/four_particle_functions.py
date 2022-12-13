@@ -479,10 +479,10 @@ def inen_str_4(coeff,
 
     distuec = [nc + 1 for nc in range(len(sumuec)) if np.abs(sumuec[nc]) > 0.1]
 
+    fd = True
     for nphy_chan in range(len(phys_chan)):
         relwoffset = ''
-        fd = True
-        for i in range(cumc[nphy_chan] + 2, cumc[nphy_chan + 1] - 2):
+        for i in range(cumc[nphy_chan] + 1, cumc[nphy_chan + 1] - 4):
             s += '%3d%3d%3d' % (phys_chan[nphy_chan][0],
                                 phys_chan[nphy_chan][1],
                                 phys_chan[nphy_chan][2])

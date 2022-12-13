@@ -18,15 +18,15 @@ from multiprocessing.pool import ThreadPool
 from four_particle_functions import from3to4
 
 # numerical stability
-nBV = 4
-nREL = 4
-mindisti = [0.2, 0.1]
-width_bnds = [0.01, 21.15, 0.02, 25.25]
-minCond = 10**-14
+nBV = 12
+nREL = 8
+mindisti = [0.4, 0.4]
+width_bnds = [0.01, 9.15, 0.02, 9.25]
+minCond = 10**-13
 
 # genetic parameters
 anzNewBV = 2
-muta_initial = .05
+muta_initial = .025
 anzGen = 10
 seed_civ_size = 8
 target_pop_size = 12
@@ -40,6 +40,10 @@ for channel in channels_3:
     if os.path.isdir(sysdir3) == False:
         subprocess.check_call(['mkdir', '-p', sysdir3])
     os.chdir(sysdir3)
+
+    subprocess.call('cp %s .' % nnpot, shell=True)
+    subprocess.call('cp %s .' % nnnpot, shell=True)
+
     subprocess.call('rm -rf *.dat', shell=True)
 
     costr = ''
@@ -61,7 +65,6 @@ for channel in channels_3:
     # 1) prepare an initial set of bases ----------------------------------------------------------------------------------
     civs = []
     while len(civs) < seed_civ_size:
-
         new_civs, basi = span_population3(anz_civ=int(3 * seed_civ_size),
                                           fragments=[channels_3[channel]],
                                           Jstreu=float(J0),
@@ -249,7 +252,8 @@ for channel in channels_3:
 
             # ---------------------------------------------------------------------
             ParaSets = [[
-                twins[twinID][1][0], twins[twinID][1][1], sbas, nnpot, nnnpot,
+                twins[twinID][1][0], twins[twinID][1][1], sbas, nnpotstring,
+                nnnpotstring,
                 float(J0), twinID, BINBDGpath, costr, minCond, evWindow
             ] for twinID in range(len(twins))]
 
@@ -394,8 +398,8 @@ for channel in channels_3:
                    costring=costr,
                    bin_path=BINBDGpath,
                    mpipath=MPIRUN,
-                   potNN='%s' % nnpot,
-                   potNNN='%s' % nnnpot,
+                   potNN='%s' % nnpotstring,
+                   potNNN='%s' % nnnpotstring,
                    parall=-0,
                    anzcores=max(2, min(len(civs[0]), MaxProc)),
                    tnnii=tnni,
@@ -439,3 +443,4 @@ for channel in channels_3:
     subprocess.call('rm -rf DMOUT.*', shell=True)
     subprocess.call('rm -rf DRDMOUT.*', shell=True)
     subprocess.call('rm -rf matout_*.*', shell=True)
+    exit()

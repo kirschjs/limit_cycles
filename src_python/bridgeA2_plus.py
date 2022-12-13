@@ -21,13 +21,13 @@ minCond = 10**-10
 minidi_seed = 0.05
 minidi_breed = 0.25
 denseEVinterval = [-2, 2]
-width_bnds = [0.005, 12.25]
+width_bnds = [0.005, 15.25]
 deutDim = 10
 
 # genetic parameters
 anzNewBV = 6
 muta_initial = 0.013
-anzGen = 4
+anzGen = 14
 civ_size = 10
 target_pop_size = civ_size
 zop = 14

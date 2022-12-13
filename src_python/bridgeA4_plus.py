@@ -21,7 +21,9 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 
 import bridgeA2_plus
-#import bridgeA3_plus
+import bridgeA3_plus
+
+findstablebas = 1
 newCal = 1
 
 J0 = 0
@@ -29,14 +31,15 @@ J0 = 0
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
 J1J2SC = []
 channels = [
-    [['000-0'], ['nn1s_nn1s_S0'], [0, 0, 0]],  # no DSI
-    #[['000-0'], ['np1s_np1s_S0'], [0, 0, 0]],  # DSI
+    #[['000-0'], ['nn1s_nn1s_S0'], [0, 0, 0]],  # no DSI
+    [['000-0'], ['np1s_np1s_S0'], [0, 0, 0]],  # DSI
     #[['000-0'], ['np3s_np3s_S0'], [2, 2, 0]],  # DSI
-    #[['000-0'], ['tp_1s0', 'tp_6s0'], [1, 1, 0]],
-    #[['000-0'], ['hen_1s0', 'hen_6s0'], [1, 1, 0]],
+    [['000-0'], ['tp_1s0', 'tp_6s0'], [1, 1, 0]],
+    [['000-0'], ['hen_1s0', 'hen_6s0'], [1, 1, 0]],
 ]
 
 einzel4 = True
+
 if os.path.isdir(sysdir4) == False:
     subprocess.check_call(['mkdir', '-p', sysdir4])
     einzel4 = True
@@ -132,7 +135,7 @@ for sysdir3 in threedirs:
         gogo = True
         for ch in channels:
             for cfg in ch[1]:
-                if dict_3to4[line.strip()][1] in cfg:
+                if sysdir3.split('/')[-1] in cfg:
                     J1J2SC.append(ch[2])
                     gogo = False
                     break
@@ -143,11 +146,9 @@ for sysdir3 in threedirs:
 
     sbas.append(get_bsv_rw_idx(inen=sysdir3 + '/INEN', offset=7, int4=1))
 
-    strus.append(
-        sum([
-            dict_3to4[line.strip()]
-            for line in open(sysdir3 + '/obstru_%s' % lam)
-        ], []))
+    strus.append([
+        dict_3to4[line.strip()] for line in open(sysdir3 + '/obstru_%s' % lam)
+    ])
     zstrus.append(
         [int(line.strip()) for line in open(sysdir3 + '/drei_stru_%s' % lam)])
 
@@ -184,7 +185,7 @@ sb = []
 bv = 1
 varspacedim = sum([len(rset[1]) for rset in sbas])
 
-anzch = int(0.5 * (len(sum(cofli, [])) - 3 * len(cofli)))
+anzch = int(0.95 * (len(sum(cofli, [])) - 3 * len(cofli)))
 
 for nbv in range(1, varspacedim):
     relws = [
@@ -192,10 +193,11 @@ for nbv in range(1, varspacedim):
     ] if nbv % 2 == 0 else [[0, 1]
                             for n in range(int(0.5 * len(widthSet_relative)))]
     sb.append([nbv, sum(relws, [])])
+
 if newCal:
     ma = blunt_ev4(cfgs=strus,
                    bas=sb,
-                   dmaa=[0, 1, 0, 1, 0, 1, 0],
+                   dmaa=[0, 1, 0, 1, 0, 1, 0, 1],
                    j1j2sc=J1J2SC,
                    funcPath=sysdir4,
                    nzopt=zop,
@@ -216,6 +218,7 @@ if newCal:
     print(
         'jj-coupled hamiltonian yields:\n E_0 = %f MeV\ncondition number = %E'
         % (gs, basCond))
+
     #print(smartEV[-20:])
 
 spole_2(nzen=nzEN,
@@ -235,6 +238,48 @@ spole_2(nzen=nzEN,
 # to be entered manually, according to the B(d) and B(dq)
 # results obtained in the employed subspaces
 # => the order in the <phys_chan> argument of ``inen_str_4'' (called in PSI_parallel_M)
+
+if findstablebas:
+    inen = [line for line in open('INEN')]
+    for ll in range(len(inen)):
+        if ((inen[ll][-3:-1] == '-1') & (len(inen[ll]) == 13)):
+            anzDist = int((len(inen) - ll) / 4)
+            break
+
+    anzCh = 0
+    for DistCh in range(anzDist):
+
+        inenLine = inen[7][:4] + '%4d' % (len(channels) + anzCh) + inen[7][8:]
+        #print(inenLine)
+        repl_line('INEN', 7, inenLine)
+        subprocess.run([BINBDGpath + 'TDR2END_AK.exe'])
+        lastline = [ll for ll in open('OUTPUT')][-1]
+
+        if 'NOT CO' in lastline:
+
+            assert anzCh != 0
+
+            inen = [line for line in open('INEN')]
+            for ll in range(len(inen)):
+                if ((inen[ll][-3:-1] == '-1') & (len(inen[ll]) == 13)):
+                    anzDist = int((len(inen) - ll) / 4)
+                    break
+
+            outs = ''
+            for line in range(len(inen)):
+                if ((line < ll + (anzCh - 1) * 4) | (line >=
+                                                     (ll + anzCh * 4))):
+                    outs += inen[line]
+                else:
+                    print(inen[line])
+
+            with open('tmp', 'w') as outfile:
+                outfile.write(outs)
+            subprocess.call('cp tmp INEN', shell=True)
+
+        else:
+            anzCh += 1
+
 subprocess.run([BINBDGpath + 'TDR2END_AK.exe'])
 subprocess.run([BINBDGpath + 'S-POLE_zget.exe'])
 
