@@ -7,19 +7,30 @@ from scipy.linalg import eigh
 import shutil
 
 
-def check_dist(width_array=[], minDist=0.01):
+def check_dist(width_array1=[], width_array2=[], minDist=0.01):
     tooClose = False
-    #print(width_array)
-    for m in range(1, len(width_array)):
-        for n in range(m):
-            nm = np.linalg.norm(width_array[m] - width_array[n]) / np.sqrt(
-                np.linalg.norm(width_array[m]) *
-                np.linalg.norm(width_array[n]))
-            #print(np.linalg.norm(width_array[m] - width_array[n]))
-            if (nm < minDist):
-                #print(tooClose)
-                tooClose = True
-                return tooClose
+    if width_array2 == []:
+        for m in range(1, len(width_array1)):
+            for n in range(m):
+                nm = np.linalg.norm(width_array1[m] - width_array1[n]) / (
+                    np.linalg.norm(width_array1[m]) *
+                    np.linalg.norm(width_array1[n]))
+                #print(np.linalg.norm(width_array[m] - width_array[n]))
+                if (nm < minDist):
+                    #print(tooClose)
+                    tooClose = True
+                    return tooClose
+    else:
+        for m in range(1, len(width_array1)):
+            for n in range(1, len(width_array2)):
+                nm = np.linalg.norm(width_array1[m] - width_array2[n]) / (
+                    np.linalg.norm(width_array1[m]) *
+                    np.linalg.norm(width_array2[n]))
+                #print(np.linalg.norm(width_array[m] - width_array[n]))
+                if (nm < minDist):
+                    #print(tooClose)
+                    tooClose = True
+                    return tooClose
     #print(tooClose)
     return tooClose
 
@@ -31,6 +42,20 @@ def smart_ev(matout, threshold=10**-7):
     # read Norm and Hamilton matrices
     normat = np.reshape(np.array(matout[:dim**2]).astype(float), (dim, dim))
     hammat = np.reshape(np.array(matout[dim**2:]).astype(float), (dim, dim))
+
+    # obtain naively the ratio between the smallest and largest superposition
+    # coefficient in the expansion of the ground state; use this as an additional
+    # quality measure for the basis
+    gsCoeffRatio = 42.1
+    try:
+        ewt, evt = eigh(hammat, normat)
+        idxt = ewt.argsort()[::-1]
+        ewt = [eww for eww in ewt[idxt]]
+        evt = evt[:, idxt]
+        gsC = np.abs(evt[:, -1])
+        gsCoeffRatio = np.max(gsC) / np.min(gsC)
+    except:
+        gsCoeffRatio = 10**8
 
     # normalize the matrices with the Norm's diagonal
     normdiag = [normat[n, n] for n in range(dim)]
@@ -63,9 +88,13 @@ def smart_ev(matout, threshold=10**-7):
     ewGood = [eww for eww in ewGood[idx]]
     evGood = evGood[:, idx]
 
+    #ewt, evt = eigh(hammat, normat)
+    #idxt = ewt.argsort()[::-1]
+    #ewt = [eww for eww in ewt[idxt]]
+    #evt = evt[:, idxt]
     #print('(stable) Eigenbasisdim = %d(%d)' % (dimRed, dim))
     #return the ordered eigenvalues
-    return ewGood, normCond
+    return ewGood, normCond, gsCoeffRatio
 
 
 def du(path):

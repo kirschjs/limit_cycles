@@ -3,9 +3,9 @@ import struct
 
 
 def loveliness(groundstateEnergy, conditionNumber, HeigenvaluesbelowX,
-               minimalConditionnumber):
+               minimalConditionnumber, coefRAT):
 
-    if np.abs(groundstateEnergy) < 500:
+    if ((np.abs(groundstateEnergy) < 500) & (coefRAT < 10**4)):
         pulchritude = np.exp((-1) * groundstateEnergy)
     else:
         pulchritude = 0.0
@@ -16,7 +16,8 @@ def loveliness(groundstateEnergy, conditionNumber, HeigenvaluesbelowX,
 def basQ(normSpectrum,
          hamiltonianSpectrum,
          minCond=10**-10,
-         denseEnergyInterval=[-35, 120]):
+         denseEnergyInterval=[-35, 120],
+         coefRAT=1):
 
     anzSigEV = len(
         [bvv for bvv in hamiltonianSpectrum if bvv < denseEnergyInterval[1]])
@@ -25,7 +26,7 @@ def basQ(normSpectrum,
 
     basCond = np.min(np.abs(normSpectrum)) / np.max(np.abs(normSpectrum))
 
-    attractiveness = loveliness(gsEnergy, basCond, anzSigEV, minCond)
+    attractiveness = loveliness(gsEnergy, basCond, anzSigEV, minCond, coefRAT)
 
     return attractiveness, gsEnergy, basCond
 

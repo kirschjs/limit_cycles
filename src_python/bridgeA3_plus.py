@@ -18,17 +18,18 @@ from multiprocessing.pool import ThreadPool
 from four_particle_functions import from3to4
 
 # numerical stability
-nBV = 12
+nBV = 8
 nREL = 8
-mindisti = [0.4, 0.4]
-width_bnds = [0.01, 9.15, 0.02, 9.25]
+mindisti = [0.14, 0.14]
+mindi = 0.005
+width_bnds = [0.01, 14.15, 0.02, 12.25]
 minCond = 10**-13
 
 # genetic parameters
-anzNewBV = 2
+anzNewBV = 6
 muta_initial = .025
-anzGen = 10
-seed_civ_size = 8
+anzGen = 15
+seed_civ_size = 10
 target_pop_size = 12
 
 J0 = 1 / 2
@@ -199,7 +200,8 @@ for channel in channels_3:
         children = 0
         while children < anzNewBV:
             twins = []
-            for ntwins in range(int(5 * anzNewBV)):
+            while len(twins) < int(5 * anzNewBV):
+                #for ntwins in range(int(5 * anzNewBV)):
                 parent_pair = np.random.choice(range(civ_size),
                                                size=2,
                                                replace=False,
@@ -247,8 +249,21 @@ for channel in channels_3:
 
                 daughter = [mother[0], wdau, 0, 0, 0]
                 son = [mother[0], wson, 0, 0, 0]
-                twins.append(daughter)
-                twins.append(son)
+
+                wa = sum(daughter[1][0] + daughter[1][1], [])
+                wb = sum(son[1][0] + son[1][1], [])
+
+                if ((check_dist(width_array1=wa, minDist=mindi) == False)
+                        & (check_dist(width_array1=wb, minDist=mindi) == False)
+                        & (check_dist(width_array1=wa,
+                                      width_array2=widthSet_relative,
+                                      minDist=mindi) == False) &
+                    (check_dist(width_array1=wb,
+                                width_array2=widthSet_relative,
+                                minDist=mindi) == False)):
+
+                    twins.append(daughter)
+                    twins.append(son)
 
             # ---------------------------------------------------------------------
             ParaSets = [[
@@ -408,7 +423,7 @@ for channel in channels_3:
     os.system('cp INQUA_N INQUA_N_%s' % lam)
     os.system('cp OUTPUT bndg_out_%s' % lam)
 
-    smartEV, parCond = smart_ev(ma, threshold=10**-9)
+    smartEV, parCond, gsRatio = smart_ev(ma, threshold=10**-9)
     gsEnergy = smartEV[-1]
 
     print('\n> basType %s : C-nbr = %4.4e E0 = %4.4e\n\n' %
@@ -443,4 +458,3 @@ for channel in channels_3:
     subprocess.call('rm -rf DMOUT.*', shell=True)
     subprocess.call('rm -rf DRDMOUT.*', shell=True)
     subprocess.call('rm -rf matout_*.*', shell=True)
-    exit()

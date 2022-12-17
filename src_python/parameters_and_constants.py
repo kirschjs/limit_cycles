@@ -311,9 +311,9 @@ evWindow = [-30, 150]
 
 withCoul = False
 
-nzEN = 20
+nzEN = 200
 E0 = 0.001
-D0 = 0.002
+D0 = 0.02
 Eps = 0.01
 Bet = 2.1
 

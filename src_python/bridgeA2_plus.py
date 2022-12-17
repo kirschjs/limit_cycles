@@ -17,17 +17,18 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 
 # numerical stability
-minCond = 10**-10
-minidi_seed = 0.05
-minidi_breed = 0.25
+minCond = 10**-12
+minidi_seed = 0.25
+minidi_breed = 0.05
+minidi_breed_rel = minidi_breed / 2
 denseEVinterval = [-2, 2]
-width_bnds = [0.005, 15.25]
+width_bnds = [0.05, 10.25]
 deutDim = 10
 
 # genetic parameters
 anzNewBV = 6
-muta_initial = 0.013
-anzGen = 14
+muta_initial = 0.023
+anzGen = 40
 civ_size = 10
 target_pop_size = civ_size
 zop = 14
@@ -119,10 +120,16 @@ for channel in channels_2:
                     rw2 = np.array(daughterson)[:, 1]  #.sort()
                     rw2.sort()
 
-                    if ((check_dist(width_array=rw1, minDist=minidi_breed)
+                    if ((check_dist(width_array1=rw1, minDist=minidi_breed)
                          == False)
-                            & (check_dist(width_array=rw2,
-                                          minDist=minidi_breed) == False)):
+                            & (check_dist(width_array1=rw2,
+                                          minDist=minidi_breed) == False) &
+                        (check_dist(width_array1=rw1,
+                                    width_array2=widthSet_relative,
+                                    minDist=minidi_breed_rel) == False) &
+                        (check_dist(width_array1=rw2,
+                                    width_array2=widthSet_relative,
+                                    minDist=minidi_breed_rel) == False)):
 
                         wdau.append(list(rw1)[::-1])
                         wson.append(list(rw2)[::-1])
@@ -227,11 +234,11 @@ for channel in channels_2:
                    jay=J0,
                    funcPath=sysdir2)
 
-    smartEV, parCond = smart_ev(ma, threshold=minCond)
+    smartEV, parCond, smartRAT = smart_ev(ma, threshold=minCond)
     gsEnergy = smartEV[-1]
 
-    print('\n> basType %s : C-nbr = %4.4e E0 = %4.4e\n\n' %
-          (channel, parCond, gsEnergy))
+    print('\n> basType %s : C-nbr = %4.4e E0 = %4.4e   cMax/cMin = %e\n\n' %
+          (channel, parCond, gsEnergy, smartRAT))
 
     os.system('cp INQUA_N INQUA_N_%s' % (lam))
     os.system('cp OUTPUT bndg_out_%s' % (lam))

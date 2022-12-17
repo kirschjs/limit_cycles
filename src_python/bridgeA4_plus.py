@@ -213,11 +213,11 @@ if newCal:
                    jay=J0,
                    nchtot=anzch)
 
-    smartEV, basCond = smart_ev(ma, threshold=10**-7)
+    smartEV, basCond, smartRAT = smart_ev(ma, threshold=10**-7)
     gs = smartEV[-1]
     print(
-        'jj-coupled hamiltonian yields:\n E_0 = %f MeV\ncondition number = %E'
-        % (gs, basCond))
+        'jj-coupled hamiltonian yields:\n E_0 = %f MeV\ncondition number = %E\n|coeff_max/coeff_min| = %E'
+        % (gs, basCond, smartRAT))
 
     #print(smartEV[-20:])
 
@@ -284,7 +284,7 @@ subprocess.run([BINBDGpath + 'TDR2END_AK.exe'])
 subprocess.run([BINBDGpath + 'S-POLE_zget.exe'])
 
 plotphas(oufi='4_body_phases.pdf')
-phdd = read_phase(phaout='PHAOUT', ch=[1, 1], meth=1, th_shift='')
+phdd = read_phase(phaout='PHAOUT', ch=[3, 3], meth=1, th_shift='')
 a_dd = [
     -MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /
     np.sqrt(2 * mn['137'] * phdd[n][0]) for n in range(len(phdd))
