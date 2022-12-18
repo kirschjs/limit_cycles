@@ -18,17 +18,17 @@ from multiprocessing.pool import ThreadPool
 from four_particle_functions import from3to4
 
 # numerical stability
-nBV = 8
-nREL = 8
-mindisti = [0.14, 0.14]
-mindi = 0.005
+nBV = 6
+nREL = 6
+mindisti = [0.05, 0.05]
+mindi = 0.002
 width_bnds = [0.01, 14.15, 0.02, 12.25]
 minCond = 10**-13
 
 # genetic parameters
 anzNewBV = 6
 muta_initial = .025
-anzGen = 15
+anzGen = 50
 seed_civ_size = 10
 target_pop_size = 12
 
@@ -83,107 +83,6 @@ for channel in channels_3:
 
     civs.sort(key=lambda tup: np.abs(tup[3]))
     civs = sortprint(civs, pr=True)
-
-    #ma = blunt_ev3(civs[-1][0],
-    #               civs[-1][1][0],
-    #               civs[-1][1][1],
-    #               basi,
-    #               funcPath=sysdir3,
-    #               nzopt=zop,
-    #               costring=costr,
-    #               bin_path=BINBDGpath,
-    #               mpipath=MPIRUN,
-    #               potNN='%s' % nnpot,
-    #               potNNN='%s' % nnnpot,
-    #               parall=-0,
-    #               anzcores=max(2, min(len(civs[-1][0]), MaxProc)),
-    #               tnnii=tnni,
-    #               jay=J0)
-    #
-    #try:
-    #    dim = int(np.sqrt(len(ma) * 0.5))
-    #    # read Norm and Hamilton matrices
-    #    normat = np.reshape(np.array(ma[:dim**2]).astype(float), (dim, dim))
-    #    hammat = np.reshape(np.array(ma[dim**2:]).astype(float), (dim, dim))
-    #    # diagonalize normalized norm (using "eigh(ermitian)" to speed-up the computation)
-    #    ewN, evN = eigh(normat)
-    #    ewH, evH = eigh(hammat, normat)
-    #    qualTWIN, gsTWIN, basCondTWIN = basQ(ewN, ewH, minCond)
-    #    print(qualTWIN, gsTWIN, basCondTWIN)
-    #
-    #except:
-    #    print('8472')
-    #exit()
-
-    #civs = []
-    #while len(civs) < civ_size:
-    #    basCond = -1
-    #    gsREF = 42.0
-    #
-    #    while ((basCond < minCond) | (gsREF == 0)):
-    #
-    #        seedMat = span_initial_basis3(fragments=channel,
-    #                                      coefstr=costr,
-    #                                      Jstreu=float(J0),
-    #                                      funcPath=sysdir3,
-    #                                      mindists=mindisti,
-    #                                      ini_grid_bounds=width_bnds,
-    #                                      ini_dims=[nBV, nREL],
-    #                                      binPath=BINBDGpath,
-    #                                      parall=parall)
-    #
-    #        seedMat = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
-    #
-    #        dim = int(np.sqrt(len(seedMat) * 0.5))
-    #
-    #        # read Norm and Hamilton matricesch
-    #        normat = np.reshape(
-    #            np.array(seedMat[:dim**2]).astype(float), (dim, dim))
-    #        hammat = np.reshape(
-    #            np.array(seedMat[dim**2:]).astype(float), (dim, dim))
-    #        # diagonalize normalized norm (using "eigh(ermitian)" to speed-up the computation)
-    #        # returns e-values in ascending order
-    #        try:
-    #            ewN, evN = eigh(normat)
-    #            ewH, evH = eigh(hammat, normat)
-    #
-    #            basCond = np.min(np.abs(ewN)) / np.max(np.abs(ewN))
-    #            gsREF = ewH[0]
-    #            gsvREF = evH[:, 0]
-    #            condREF = basCond
-    #            subprocess.call('cp -rf INQUA_N_V18 INQUA_N_V18_REF', shell=True)
-    #            subprocess.call('cp -rf INQUA_N_UIX INQUA_N_UIX_REF', shell=True)
-    #        except:
-    #            basCond = 0.0
-    #            gsREF = 42.
-    #            continue
-    #
-    #        qualREF, gsREF, basCond = basQ(ewN, ewH, minCond)
-    #
-    #        gsvREF = evH[:, 0]
-    #        condREF = basCond
-    #
-    #    print('%d -- ' % (civ_size - len(civs)), end='')
-    #    print('E0(seed) = %4.4f MeV' % gsREF, condREF)
-    #
-    #    # 2) rate each basis-vector block according to its contribution to the ground-state energy -------------------
-    #
-    #    intw = [
-    #        np.array(ln.split()).astype(float).tolist() for ln in open('intw.dat')
-    #    ]
-    #
-    #    relw = [
-    #        np.array(ln.split()).astype(float).tolist() for ln in open('relw.dat')
-    #    ]
-    #
-    #    cfgs = [con.split() for con in open('frags.dat')]
-    #
-    #    initialCiv = [cfgs, [intw, relw], qualREF, gsREF, basCond, gsvREF, normat]
-    #
-    #    civs.append(initialCiv)
-    #
-    #print(civs[-1][:-2])
-    #exit()
 
     for nGen in range(anzGen):
         tic = time.time()
@@ -310,63 +209,6 @@ for channel in channels_3:
             else:
                 print('adding %d new children.' % children)
 
-            #cand_list.sort(key=lambda tup: np.abs(tup[2]))
-            # ---------------------------------------------------------------------
-
-    #        for twin in twins:
-    #
-    #            ma = blunt_ev3_parallel(twin[0],
-    #                                    twin[1][0],
-    #                                    twin[1][1],
-    #                                    sbas,
-    #                                    nzopt=zop,
-    #                                    costring=costr,
-    #                                    bin_path=BINBDGpath,
-    #                                    potNN='%s' % nnpot,
-    #                                    potNNN='%s' % nnnpot,
-    #                                    tnnii=tnni,
-    #                                    jay=J0)
-    #
-    #            ma = blunt_ev3(twin[0],
-    #                           twin[1][0],
-    #                           twin[1][1],
-    #                           sbas,
-    #                           funcPath=sysdir3,
-    #                           nzopt=zop,
-    #                           costring=costr,
-    #                           bin_path=BINBDGpath,
-    #                           mpipath=MPIRUN,
-    #                           potNN='%s' % nnpot,
-    #                           potNNN='%s' % nnnpot,
-    #                           parall=-0,
-    #                           anzcores=max(2, min(len(civs[0][0]), MaxProc)),
-    #                           tnnii=tnni,
-    #                           jay=J0)
-    #            try:
-    #                dim = int(np.sqrt(len(ma) * 0.5))
-    #                # read Norm and Hamilton matrices
-    #                normat = np.reshape(
-    #                    np.array(ma[:dim**2]).astype(float), (dim, dim))
-    #                hammat = np.reshape(
-    #                    np.array(ma[dim**2:]).astype(float), (dim, dim))
-    #                # diagonalize normalized norm (using "eigh(ermitian)" to speed-up the computation)
-    #                ewN, evN = eigh(normat)
-    #                ewH, evH = eigh(hammat, normat)
-    #                qualTWIN, gsTWIN, basCondTWIN = basQ(ewN, ewH, minCond)
-    #                twin[2:] = qualTWIN, gsTWIN, basCondTWIN
-    #                print(qualTWIN, gsTWIN, basCondTWIN)
-    #
-    #            except:
-    #                # ('unstable child!')
-    #                qualTWIN, gsTWIN, basCondTWIN = -42, 42, 0
-    #
-    #            if ((qualTWIN > qualCUT) & (basCondTWIN > minCond)):
-    #                civs.append(twin)
-    #                children += 1
-    #                if children == anzNewBV:
-    #                    break
-    #        exit()
-
         civs = sortprint(civs, pr=False)
 
         if len(civs) > target_pop_size:
@@ -458,3 +300,4 @@ for channel in channels_3:
     subprocess.call('rm -rf DMOUT.*', shell=True)
     subprocess.call('rm -rf DRDMOUT.*', shell=True)
     subprocess.call('rm -rf matout_*.*', shell=True)
+    exit()

@@ -800,7 +800,6 @@ def end3(para, send_end):
         NormHam = np.core.records.fromfile(maoutf, formats='f8', offset=4)
         minCond = para[9]
         smartEV, basCond, smartRAT = smart_ev(NormHam, threshold=minCond)
-
         anzSigEV = len(
             [bvv for bvv in smartEV if para[10][0] < bvv < para[10][1]])
 
@@ -912,16 +911,17 @@ def span_population3(anz_civ,
             while len(lit_w_t) != nwint:
 
                 lit_w_t = [
-                    test_width * (1 + 0.51 * (np.random.random() - 1))
-                    for test_width in lit_w_tmp
+                    test_width * np.random.random() for test_width in lit_w_tmp
                 ]
                 dists = [
-                    np.linalg.norm(wp1 - wp2) for wp1 in lit_w_t
-                    for wp2 in lit_w_t if wp1 != wp2
+                    np.linalg.norm(wp1 - wp2) /
+                    (np.linalg.norm(wp1) * np.linalg.norm(wp2))
+                    for wp1 in lit_w_t for wp2 in lit_w_t if wp1 != wp2
                 ]
                 dists_to_rel = [
-                    np.linalg.norm(wp1 - wp2) for wp1 in lit_w_t
-                    for wp2 in widthSet_relative
+                    np.linalg.norm(wp1 - wp2) /
+                    (np.linalg.norm(wp1) * np.linalg.norm(wp2))
+                    for wp1 in lit_w_t for wp2 in widthSet_relative
                 ]
                 if ((np.min(dists_to_rel) < mindist_int) &
                     (np.min(dists) < mindist_int) &
@@ -946,16 +946,17 @@ def span_population3(anz_civ,
             while len(lit_w_t) != nwrel:
 
                 lit_w_t = [
-                    test_width * (1 + 0.51 * (np.random.random() - 1))
-                    for test_width in lit_w_tmp
+                    test_width * np.random.random() for test_width in lit_w_tmp
                 ]
                 dists = [
-                    np.linalg.norm(wp1 - wp2) for wp1 in lit_w_t
-                    for wp2 in lit_w_t if wp1 != wp2
+                    np.linalg.norm(wp1 - wp2) /
+                    (np.linalg.norm(wp1) * np.linalg.norm(wp2))
+                    for wp1 in lit_w_t for wp2 in lit_w_t if wp1 != wp2
                 ]
                 dists_to_rel = [
-                    np.linalg.norm(wp1 - wp2) for wp1 in lit_w_t
-                    for wp2 in widthSet_relative
+                    np.linalg.norm(wp1 - wp2) /
+                    (np.linalg.norm(wp1) * np.linalg.norm(wp2))
+                    for wp1 in lit_w_t for wp2 in widthSet_relative
                 ]
                 if ((np.min(dists_to_rel) < mindist_rel) &
                     (np.min(dists) < mindist_rel) &
