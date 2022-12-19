@@ -18,18 +18,18 @@ from multiprocessing.pool import ThreadPool
 from four_particle_functions import from3to4
 
 # numerical stability
-nBV = 6
-nREL = 6
+nBV = 8
+nREL = 10
 mindisti = [0.05, 0.05]
-mindi = 0.002
-width_bnds = [0.01, 14.15, 0.02, 12.25]
+mindi = 10.0
+width_bnds = [0.01, 24.15, 0.02, 22.25]
 minCond = 10**-13
 
 # genetic parameters
 anzNewBV = 6
-muta_initial = .025
+muta_initial = .04
 anzGen = 50
-seed_civ_size = 10
+seed_civ_size = 20
 target_pop_size = 12
 
 J0 = 1 / 2
@@ -99,7 +99,7 @@ for channel in channels_3:
         children = 0
         while children < anzNewBV:
             twins = []
-            while len(twins) < int(5 * anzNewBV):
+            while len(twins) < int(50 * anzNewBV):
                 #for ntwins in range(int(5 * anzNewBV)):
                 parent_pair = np.random.choice(range(civ_size),
                                                size=2,
@@ -152,14 +152,16 @@ for channel in channels_3:
                 wa = sum(daughter[1][0] + daughter[1][1], [])
                 wb = sum(son[1][0] + son[1][1], [])
 
-                if ((check_dist(width_array1=wa, minDist=mindi) == False)
-                        & (check_dist(width_array1=wb, minDist=mindi) == False)
-                        & (check_dist(width_array1=wa,
-                                      width_array2=widthSet_relative,
-                                      minDist=mindi) == False) &
-                    (check_dist(width_array1=wb,
-                                width_array2=widthSet_relative,
-                                minDist=mindi) == False)):
+                prox_check1 = check_dist(width_array1=wa, minDist=mindi)
+                prox_check2 = check_dist(width_array1=wb, minDist=mindi)
+                prox_checkr1 = check_dist(width_array1=wa,
+                                          width_array2=widthSet_relative,
+                                          minDist=mindi)
+                prox_checkr2 = check_dist(width_array1=wb,
+                                          width_array2=widthSet_relative,
+                                          minDist=mindi)
+
+                if prox_check1 * prox_check2 * prox_checkr1 * prox_checkr2 == True:
 
                     twins.append(daughter)
                     twins.append(son)

@@ -7,31 +7,32 @@ from scipy.linalg import eigh
 import shutil
 
 
-def check_dist(width_array1=[], width_array2=[], minDist=0.01):
+def check_dist(width_array1=[], width_array2=[], minDist=0.5):
     tooClose = False
     if width_array2 == []:
         for m in range(1, len(width_array1)):
             for n in range(m):
-                nm = np.linalg.norm(width_array1[m] - width_array1[n]) / (
-                    np.linalg.norm(width_array1[m]) *
-                    np.linalg.norm(width_array1[n]))
-                #print(np.linalg.norm(width_array[m] - width_array[n]))
-                if (nm < minDist):
-                    #print(tooClose)
+                delt = np.linalg.norm(width_array1[m] - width_array1[n])
+                nm = np.max([
+                    np.linalg.norm(width_array1[m]) / delt,
+                    +np.linalg.norm(width_array1[n]) / delt
+                ])
+
+                if (nm > minDist):
                     tooClose = True
                     return tooClose
     else:
         for m in range(1, len(width_array1)):
             for n in range(1, len(width_array2)):
-                nm = np.linalg.norm(width_array1[m] - width_array2[n]) / (
-                    np.linalg.norm(width_array1[m]) *
-                    np.linalg.norm(width_array2[n]))
-                #print(np.linalg.norm(width_array[m] - width_array[n]))
-                if (nm < minDist):
-                    #print(tooClose)
+                delt = np.linalg.norm(width_array1[m] - width_array2[n])
+                nm = np.max([
+                    np.linalg.norm(width_array1[m]) / delt,
+                    +np.linalg.norm(width_array2[n]) / delt
+                ])
+                if (nm > minDist):
                     tooClose = True
                     return tooClose
-    #print(tooClose)
+
     return tooClose
 
 

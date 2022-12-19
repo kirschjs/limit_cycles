@@ -19,17 +19,17 @@ from multiprocessing.pool import ThreadPool
 # numerical stability
 minCond = 10**-12
 minidi_seed = 0.25
-minidi_breed = 0.05
-minidi_breed_rel = minidi_breed / 2
+minidi_breed = 10.0
+minidi_breed_rel = minidi_breed
 denseEVinterval = [-2, 2]
-width_bnds = [0.05, 10.25]
+width_bnds = [0.05, 16.25]
 deutDim = 10
 
 # genetic parameters
 anzNewBV = 6
-muta_initial = 0.023
-anzGen = 40
-civ_size = 10
+muta_initial = 0.04
+anzGen = 14
+civ_size = 20
 target_pop_size = civ_size
 zop = 14
 
@@ -96,7 +96,7 @@ for channel in channels_2:
 
         while children < anzNewBV:
             twins = []
-            while len(twins) < int(5 * anzNewBV):
+            while len(twins) < int(55 * anzNewBV):
                 parent_pair = np.random.choice(range(civ_size),
                                                size=2,
                                                replace=False,
@@ -120,16 +120,19 @@ for channel in channels_2:
                     rw2 = np.array(daughterson)[:, 1]  #.sort()
                     rw2.sort()
 
-                    if ((check_dist(width_array1=rw1, minDist=minidi_breed)
-                         == False)
-                            & (check_dist(width_array1=rw2,
-                                          minDist=minidi_breed) == False) &
-                        (check_dist(width_array1=rw1,
-                                    width_array2=widthSet_relative,
-                                    minDist=minidi_breed_rel) == False) &
-                        (check_dist(width_array1=rw2,
-                                    width_array2=widthSet_relative,
-                                    minDist=minidi_breed_rel) == False)):
+                    prox_check1 = check_dist(width_array1=rw1,
+                                             minDist=minidi_breed)
+                    prox_check2 = check_dist(width_array1=rw2,
+                                             minDist=minidi_breed)
+                    prox_checkr1 = check_dist(width_array1=rw1,
+                                              width_array2=widthSet_relative,
+                                              minDist=minidi_breed)
+                    prox_checkr2 = check_dist(width_array1=rw2,
+                                              width_array2=widthSet_relative,
+                                              minDist=minidi_breed)
+
+                    #print(prox_check1, prox_check2, prox_checkr1, prox_checkr2)
+                    if prox_check1 * prox_check2 * prox_checkr1 * prox_checkr2 == True:
 
                         wdau.append(list(rw1)[::-1])
                         wson.append(list(rw2)[::-1])
@@ -138,6 +141,8 @@ for channel in channels_2:
                         son = [mother[0], wson, 0, 0, 0]
                         twins.append(daughter)
                         twins.append(son)
+                        #print('new')
+                        #exit()
 
             sbas = []
             bv = two_body_channels[channel]
