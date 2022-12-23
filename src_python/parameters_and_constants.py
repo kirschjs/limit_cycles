@@ -197,11 +197,11 @@ lec_list_def = {  #d0GS TNI-UIX  ZENTRAL NNN   PROJ           d0ES
     '1.00': [-44.4515, 27.245],
     '1.50': [-86.4495, 79.22],
     '2.00': [-142.3625, 173.925],
-    '3.00': [-295.93, 566.65],
-    '4.00': [-505.15, 1426.75],
-    '6.00': [-1090.548, 6552.5],
-    '8.00': [-1898.553, 25697],
-    '10.0': [-2929.165, 92495]
+    '3.00': [-295.93, 558.49338400],
+    '4.00': [-505.15, 1395.62624049],
+    '6.00': [-1090.548, 6293.03337496],
+    '8.00': [-1898.553, 23937.61505980],
+    '10.0': [-2929.165, 85318.84107084]
 }
 
 lec_list_c[
@@ -264,9 +264,14 @@ tnnifac = 1.
 tnf = 1.
 parall = -1
 
+# limits the number of parallel processes in a single process pool
+# if running on my laptop, I need to set this number in order to avoid
+# too many files too be opened simulataneously
+maxParLen = 120
+
 lec_set = lec_list_def  #lec_set_0__2__8
 
-lam = 8.00  #3.00 4.00 6.00 8.00
+lam = 10.0  #3.00 4.00 6.00 8.00 10.0
 
 la = ('%-4.2f' % lam)[:4]
 
@@ -313,7 +318,7 @@ withCoul = False
 
 nzEN = 200
 E0 = 0.001
-D0 = 0.02
+D0 = 0.04
 Eps = 0.01
 Bet = 2.1
 

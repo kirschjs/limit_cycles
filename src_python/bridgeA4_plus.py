@@ -197,7 +197,7 @@ for nbv in range(1, varspacedim):
 if newCal:
     ma = blunt_ev4(cfgs=strus,
                    bas=sb,
-                   dmaa=[0, 1, 0, 1, 0, 1, 0, 1],
+                   dmaa=[0, 1, 0, 1, 0, 1],
                    j1j2sc=J1J2SC,
                    funcPath=sysdir4,
                    nzopt=zop,

@@ -17,18 +17,18 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 
 # numerical stability
-minCond = 10**-12
-minidi_seed = 0.25
-minidi_breed = 10.0
+minCond = 10**-13
+minidi_breed = 2.0
+minidi_seed = minidi_breed
 minidi_breed_rel = minidi_breed
 denseEVinterval = [-2, 2]
-width_bnds = [0.05, 16.25]
-deutDim = 10
+width_bnds = [0.0005, 28.25]
+deutDim = 6
 
 # genetic parameters
-anzNewBV = 6
-muta_initial = 0.04
-anzGen = 14
+anzNewBV = 5
+muta_initial = 0.01
+anzGen = 9
 civ_size = 20
 target_pop_size = civ_size
 zop = 14
@@ -159,20 +159,33 @@ for channel in channels_2:
                 float(J0), BINBDGpath, costr, twinID, minCond, evWindow
             ] for twinID in range(len(twins))]
 
+            split_points = [
+                n * maxParLen
+                for n in range(1 + int(len(ParaSets) / maxParLen))
+            ] + [len(ParaSets) + 1024]
+
+            Parchunks = [
+                ParaSets[split_points[i]:split_points[i + 1]]
+                for i in range(len(split_points) - 1)
+            ]
+
             samp_list = []
             cand_list = []
 
-            pool = ThreadPool(max(min(MaxProc, len(ParaSets)), 2))
-            jobs = []
-            for procnbr in range(len(ParaSets)):
-                recv_end, send_end = multiprocessing.Pipe(False)
-                pars = ParaSets[procnbr]
-                p = multiprocessing.Process(target=end2, args=(pars, send_end))
-                jobs.append(p)
+            for chunk in Parchunks:
 
-                # sen_end returns [ intw, relw, qualREF, gsREF, basCond ]
-                samp_list.append(recv_end)
-                p.start()
+                pool = ThreadPool(max(min(MaxProc, len(ParaSets)), 2))
+                jobs = []
+                for procnbr in range(len(chunk)):
+                    recv_end, send_end = multiprocessing.Pipe(False)
+                    pars = chunk[procnbr]
+                    p = multiprocessing.Process(target=end2,
+                                                args=(pars, send_end))
+                    jobs.append(p)
+
+                    # sen_end returns [ intw, relw, qualREF, gsREF, basCond ]
+                    samp_list.append(recv_end)
+                    p.start()
                 for proc in jobs:
                     proc.join()
 

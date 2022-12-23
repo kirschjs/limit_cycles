@@ -75,12 +75,12 @@ def end2(para, send_end):
         attractiveness = loveliness(gsEnergy, basCond, anzSigEV, minCond,
                                     smartRAT)
 
-        os.system('rm -rf ./%s' % inqf)
-        os.system('rm -rf ./%s' % inenf)
-        os.system('rm -rf ./%s' % outputef)
-        os.system('rm -rf ./%s' % outputqf)
-        os.system('rm -rf ./%s' % quaf_to_end)
-        os.system('rm -rf ./%s' % maoutf)
+        subprocess.call('rm -rf ./%s' % inqf, shell=True)
+        subprocess.call('rm -rf ./%s' % inenf, shell=True)
+        subprocess.call('rm -rf ./%s' % outputef, shell=True)
+        subprocess.call('rm -rf ./%s' % outputqf, shell=True)
+        subprocess.call('rm -rf ./%s' % quaf_to_end, shell=True)
+        subprocess.call('rm -rf ./%s' % maoutf, shell=True)
 
         #  [ intw,  qualREF, gsREF, basCond ]
         send_end.send([
@@ -92,11 +92,11 @@ def end2(para, send_end):
 
     except:
 
-        os.system('rm -rf ./%s' % inqf)
-        os.system('rm -rf ./%s' % inenf)
-        os.system('rm -rf ./%s' % outputef)
-        os.system('rm -rf ./%s' % quaf_to_end)
-        os.system('rm -rf ./%s' % maoutf)
+        subprocess.call('rm -rf ./%s' % inqf, shell=True)
+        subprocess.call('rm -rf ./%s' % inenf, shell=True)
+        subprocess.call('rm -rf ./%s' % outputef, shell=True)
+        subprocess.call('rm -rf ./%s' % quaf_to_end, shell=True)
+        subprocess.call('rm -rf ./%s' % maoutf, shell=True)
 
         print(para[6], child_id)
         print(maoutf)
@@ -153,14 +153,21 @@ def span_population2(anz_civ,
             lit_w_t = [
                 test_width * np.random.random() for test_width in lit_w_tmp
             ]
-            dists = [
-                np.linalg.norm(wp1 - wp2) for wp1 in lit_w_t for wp2 in lit_w_t
-                if wp1 != wp2
-            ]
-            if ((np.min(dists) < mindist) & (np.max(lit_w_t) > rLcutoff[0])):
+
+            #dists = [
+            #    np.linalg.norm(wp1 - wp2) for wp1 in lit_w_t for wp2 in lit_w_t
+            #    if wp1 != wp2
+            #]
+            prox_check = check_dist(width_array1=lit_w_t, minDist=mindist)
+            prox_checkr = check_dist(width_array1=lit_w_t,
+                                     width_array2=widthSet_relative,
+                                     minDist=mindist)
+
+            if prox_check * prox_checkr == False:
                 lit_w_t = []
             itera += 1
             assert itera <= 180000
+
         lit_w = np.sort(lit_w_t)[::-1]
 
         lfrags2 = []
@@ -304,17 +311,17 @@ def endmat2(para, send_end):
 
             attractiveness = loveliness(gsEnergy, basCond, anzSigEV, minCond)
 
-        os.system('rm -rf ./%s' % inenf)
-        os.system('rm -rf ./%s' % outf)
-        os.system('rm -rf ./%s' % maoutf)
+        subprocess.call('rm -rf ./%s' % inenf, shell=True)
+        subprocess.call('rm -rf ./%s' % outf, shell=True)
+        subprocess.call('rm -rf ./%s' % maoutf, shell=True)
 
         send_end.send([basCond, attractiveness, gsEnergy, para[5], para[0]])
 
     except:
 
-        os.system('rm -rf ./%s' % inenf)
-        os.system('rm -rf ./%s' % outf)
-        os.system('rm -rf ./%s' % maoutf)
+        subprocess.call('rm -rf ./%s' % inenf, shell=True)
+        subprocess.call('rm -rf ./%s' % outf, shell=True)
+        subprocess.call('rm -rf ./%s' % maoutf, shell=True)
 
         print(para[5], child_id)
         print(maoutf)
@@ -365,8 +372,12 @@ def span_initial_basis2(channel,
     while len(lit_w) != ini_dims:
 
         lit_w_tmp = wii + np.random.random() * (wff - wii)
-        dists = [np.linalg.norm(wp - lit_w_tmp) for wp in lit_w]
-        if ((np.min(dists) > mindist) & (lit_w_tmp < iLcutoff[0])):
+        prox_check = check_dist(width_array1=lit_w, minDist=mindist)
+        prox_checkr = check_dist(width_array1=lit_w,
+                                 width_array2=widthSet_relative,
+                                 minDist=mindist)
+
+        if ((prox_check * prox_checkr) & (lit_w_tmp < iLcutoff[0])):
             lit_w.append(lit_w_tmp)
         #lit_w_tmp = np.abs(
         #    np.geomspace(start=wii,
@@ -557,10 +568,13 @@ def span_initial_basis3(fragments,
                 test_width * (1 + 0.5 * (np.random.random() - 1))
                 for test_width in lit_w_tmp
             ]
-            dists = [
-                np.linalg.norm(wp1 - wp2) for wp1 in lit_w_t for wp2 in lit_w_t
-            ]
-            if ((np.min(dists) > mindist_int) & (lit_w_tmp < iLcutoff[0])):
+
+            prox_check = check_dist(width_array1=lit_w_t, minDist=mindist)
+            prox_checkr = check_dist(width_array1=lit_w_t,
+                                     width_array2=widthSet_relative,
+                                     minDist=mindist)
+
+            if ((prox_check * prox_checkr) & (lit_w_tmp < iLcutoff[0])):
                 lit_w_t.append(lit_w_tmp)
 
             itera += 1
@@ -757,18 +771,6 @@ def end3(para, send_end):
 
     inen_bdg_3(para[2], para[5], para[8], fn=inenf, pari=0)
 
-    #    subprocess.run([binPath + 'QUAFL_N.exe'])
-    #
-    #    if tnni == 11:
-    #        inqua_3(intwi=widi, relwi=widr, potf=nnnpot, inquaout='INQUA_N')
-    #        subprocess.run([binPath + 'DRQUA_AK_N.exe'])
-    #        subprocess.run([binPath + 'DR2END_AK.exe'])
-    #
-    #    elif tnni == 10:
-    #        subprocess.run([binPath + 'DR2END_AK.exe'])
-
-    #    matout = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
-
     inqua_3(intwi=para[0], relwi=para[1], potf=para[3], inquaout=inqf)
     inqua_3(intwi=para[0], relwi=para[1], potf=para[4], inquaout=indqf)
 
@@ -913,16 +915,7 @@ def span_population3(anz_civ,
                 lit_w_t = [
                     test_width * np.random.random() for test_width in lit_w_tmp
                 ]
-                dists = [
-                    np.linalg.norm(wp1 - wp2) /
-                    (np.linalg.norm(wp1) * np.linalg.norm(wp2))
-                    for wp1 in lit_w_t for wp2 in lit_w_t if wp1 != wp2
-                ]
-                dists_to_rel = [
-                    np.linalg.norm(wp1 - wp2) /
-                    (np.linalg.norm(wp1) * np.linalg.norm(wp2))
-                    for wp1 in lit_w_t for wp2 in widthSet_relative
-                ]
+
                 if ((np.min(dists_to_rel) < mindist_int) &
                     (np.min(dists) < mindist_int) &
                     (np.max(lit_w_t) > iLcutoff[0])):
@@ -1042,8 +1035,8 @@ def span_population3(anz_civ,
 
     cand_list.sort(key=lambda tup: np.abs(tup[2]))
 
-    for cc in samp_ladder:
-        print(cc[2:])
+    #for cc in samp_ladder:
+    #    print(cc[2:])
 
     return cand_list, sbas
 

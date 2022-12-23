@@ -477,7 +477,9 @@ def inen_str_4(coeff,
 
     s += ''.join(chanstrs)
 
-    distuec = [nc + 1 for nc in range(len(sumuec)) if np.abs(sumuec[nc]) > 0.1]
+    distuec = [
+        nc + 1 for nc in range(len(sumuec)) if 10**2 > np.abs(sumuec[nc]) > 0.1
+    ]
 
     fd = True
     for nphy_chan in range(len(phys_chan)):

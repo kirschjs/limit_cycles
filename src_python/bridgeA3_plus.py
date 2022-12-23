@@ -18,19 +18,22 @@ from multiprocessing.pool import ThreadPool
 from four_particle_functions import from3to4
 
 # numerical stability
-nBV = 8
-nREL = 10
 mindisti = [0.05, 0.05]
-mindi = 10.0
+mindi = 2.0
 width_bnds = [0.01, 24.15, 0.02, 22.25]
-minCond = 10**-13
+minCond = 10**-14
 
 # genetic parameters
 anzNewBV = 6
 muta_initial = .04
-anzGen = 50
+anzGen = 8
 seed_civ_size = 20
-target_pop_size = 12
+target_pop_size = 10
+
+# number of width parameters used for the radial part of each
+# (spin) angular-momentum-coupling block
+nBV = 6
+nREL = 6
 
 J0 = 1 / 2
 
@@ -99,7 +102,7 @@ for channel in channels_3:
         children = 0
         while children < anzNewBV:
             twins = []
-            while len(twins) < int(50 * anzNewBV):
+            while len(twins) < int(40 * anzNewBV):
                 #for ntwins in range(int(5 * anzNewBV)):
                 parent_pair = np.random.choice(range(civ_size),
                                                size=2,
@@ -173,19 +176,36 @@ for channel in channels_3:
                 float(J0), twinID, BINBDGpath, costr, minCond, evWindow
             ] for twinID in range(len(twins))]
 
+            # x) the parallel environment is set up in sets(chunks) of bases
+            #    in order to limit the number of files open simultaneously
+            split_points = [
+                n * maxParLen
+                for n in range(1 + int(len(ParaSets) / maxParLen))
+            ] + [len(ParaSets) + 1024]
+
+            Parchunks = [
+                ParaSets[split_points[i]:split_points[i + 1]]
+                for i in range(len(split_points) - 1)
+            ]
+
             samp_list = []
             cand_list = []
-            pool = ThreadPool(max(min(MaxProc, len(ParaSets)), 2))
-            jobs = []
-            for procnbr in range(len(ParaSets)):
-                recv_end, send_end = multiprocessing.Pipe(False)
-                pars = ParaSets[procnbr]
-                p = multiprocessing.Process(target=end3, args=(pars, send_end))
-                jobs.append(p)
 
-                # sen_end returns [ intw, relw, qualREF, gsREF, basCond ]
-                samp_list.append(recv_end)
-                p.start()
+            for chunk in Parchunks:
+
+                pool = ThreadPool(max(min(MaxProc, len(ParaSets)), 2))
+                jobs = []
+
+                for procnbr in range(len(chunk)):
+                    recv_end, send_end = multiprocessing.Pipe(False)
+                    pars = chunk[procnbr]
+                    p = multiprocessing.Process(target=end3,
+                                                args=(pars, send_end))
+                    jobs.append(p)
+
+                    # sen_end returns [ intw, relw, qualREF, gsREF, basCond ]
+                    samp_list.append(recv_end)
+                    p.start()
                 for proc in jobs:
                     proc.join()
 
@@ -302,4 +322,3 @@ for channel in channels_3:
     subprocess.call('rm -rf DMOUT.*', shell=True)
     subprocess.call('rm -rf DRDMOUT.*', shell=True)
     subprocess.call('rm -rf matout_*.*', shell=True)
-    exit()
