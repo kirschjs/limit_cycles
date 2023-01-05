@@ -130,7 +130,7 @@ def span_population2(anz_civ,
     rWmin = 0.0001
 
     # orbital-angular-momentum dependent upper bound '=' UV cutoff (narrowest state)
-    rLcutoff = [15., 4., 3.]
+    rLcutoff = 55.
     nwrel = ini_dims
     rel_scale = 1.
 
@@ -220,8 +220,8 @@ def span_population2(anz_civ,
         # sen_end returns [ intw,  qualREF, gsREF, basCond ]
         samp_list.append(recv_end)
         p.start()
-        for proc in jobs:
-            proc.join()
+    for proc in jobs:
+        proc.join()
 
     samp_ladder = [x.recv() for x in samp_list]
 
@@ -352,7 +352,7 @@ def span_initial_basis2(channel,
     # lower bound for width parameters '=' IR cutoff (broadest state)
     rWmin = 0.0001
     # orbital-angular-momentum dependent upper bound '=' UV cutoff (narrowest state)
-    iLcutoff = [120., 4., 3.]
+    iLcutoff = 120.
 
     wi, wf, nw = ini_grid_bounds[0], ini_grid_bounds[1], ini_dims
 
@@ -377,7 +377,7 @@ def span_initial_basis2(channel,
                                  width_array2=widthSet_relative,
                                  minDist=mindist)
 
-        if ((prox_check * prox_checkr) & (lit_w_tmp < iLcutoff[0])):
+        if ((prox_check * prox_checkr) & (lit_w_tmp < iLcutoff)):
             lit_w.append(lit_w_tmp)
         #lit_w_tmp = np.abs(
         #    np.geomspace(start=wii,
@@ -536,8 +536,8 @@ def span_initial_basis3(fragments,
     rWmin = 0.0001
 
     # orbital-angular-momentum dependent upper bound '=' UV cutoff (narrowest state)
-    iLcutoff = [42., 17., 15.]
-    rLcutoff = [42., 17., 15.]
+    iLcutoff = 42.
+    rLcutoff = 42.
     nwint = ini_dims[0]
     nwrel = ini_dims[1]
     rel_scale = 1.
@@ -564,18 +564,18 @@ def span_initial_basis3(fragments,
         lit_w_t = []
         while len(lit_w_t) != nwint:
 
-            lit_w_t = [
+            lit_wi = [
                 test_width * (1 + 0.5 * (np.random.random() - 1))
                 for test_width in lit_w_tmp
             ]
 
-            prox_check = check_dist(width_array1=lit_w_t, minDist=mindist)
-            prox_checkr = check_dist(width_array1=lit_w_t,
+            prox_check = check_dist(width_array1=lit_wi, minDist=mindist)
+            prox_checkr = check_dist(width_array1=lit_wi,
                                      width_array2=widthSet_relative,
                                      minDist=mindist)
 
-            if ((prox_check * prox_checkr) & (lit_w_tmp < iLcutoff[0])):
-                lit_w_t.append(lit_w_tmp)
+            if ((prox_check * prox_checkr) & (lit_wi < iLcutoff)):
+                lit_w_t.append(lit_wi)
 
             itera += 1
             assert itera <= 180000
@@ -593,7 +593,7 @@ def span_initial_basis3(fragments,
             lit_w_tmp = ini_grid_bounds[2] + np.random.random() * (
                 ini_grid_bounds[3] - ini_grid_bounds[2])
             dists = [np.linalg.norm(wp - lit_w_tmp) for wp in lit_w_t]
-            if ((np.min(dists) > mindist_rel) & (lit_w_tmp < rLcutoff[0])):
+            if ((np.min(dists) > mindist_rel) & (lit_w_tmp < rLcutoff)):
                 lit_w_t.append(lit_w_tmp)
 
             itera += 1
@@ -878,8 +878,8 @@ def span_population3(anz_civ,
     rWmin = 0.0001
 
     # orbital-angular-momentum dependent upper bound '=' UV cutoff (narrowest state)
-    iLcutoff = [22., 4., 3.]
-    rLcutoff = [22., 4., 3.]
+    iLcutoff = 42.
+    rLcutoff = 42.
     nwint = ini_dims[0]
     nwrel = ini_dims[1]
     rel_scale = 1.
@@ -918,7 +918,7 @@ def span_population3(anz_civ,
 
                 if ((np.min(dists_to_rel) < mindist_int) &
                     (np.min(dists) < mindist_int) &
-                    (np.max(lit_w_t) > iLcutoff[0])):
+                    (np.max(lit_w_t) > iLcutoff)):
                     lit_w_t = []
 
                 itera += 1
@@ -953,7 +953,7 @@ def span_population3(anz_civ,
                 ]
                 if ((np.min(dists_to_rel) < mindist_rel) &
                     (np.min(dists) < mindist_rel) &
-                    (np.max(lit_w_t) > rLcutoff[0])):
+                    (np.max(lit_w_t) > rLcutoff)):
                     lit_w_t = []
 
                 itera += 1
@@ -998,6 +998,7 @@ def span_population3(anz_civ,
             coefstr, minC, evWin
         ])
 
+    assert len(ParaSets) == anz_civ
     os.chdir(funcPath)
 
     inlu_3(8, fn='INLU', fr=lfrags2, indep=0)
@@ -1022,8 +1023,8 @@ def span_population3(anz_civ,
         # sen_end returns [ intw, relw, qualREF, gsREF, basCond ]
         samp_list.append(recv_end)
         p.start()
-        for proc in jobs:
-            proc.join()
+    for proc in jobs:
+        proc.join()
 
     samp_ladder = [x.recv() for x in samp_list]
 
@@ -1152,13 +1153,13 @@ def prepare_einzel4(funcPath, binPath, channels):
     if os.path.isdir(funcPath + '/eob') == False:
         subprocess.check_call(['mkdir', '-p', funcPath + '/eob'])
     os.chdir(funcPath + '/eob')
-    inob_4(frgsS, 8, fn='INOB', indep=+1)
+    inob_4(frgsS, 3, fn='INOB', indep=+1)
     os.system(binPath + 'KOBER.exe')
 
     if os.path.isdir(funcPath + '/eob-tni') == False:
         subprocess.check_call(['mkdir', '-p', funcPath + '/eob-tni'])
     os.chdir(funcPath + '/eob-tni')
-    inob_4(frgsS, 15, fn='INOB', indep=+1)
+    inob_4(frgsS, 3, fn='INOB', indep=+1)
     os.system(binPath + 'DROBER.exe')
 
     if os.path.isdir(funcPath + '/elu') == False:
@@ -1172,6 +1173,308 @@ def prepare_einzel4(funcPath, binPath, channels):
     os.chdir(funcPath + '/elu-tni')
     inlu_4(8, fn='INLU', fr=frgsL, indep=+1)
     os.system(binPath + 'DRLUD.exe')
+
+
+def end4(para, send_end):
+
+    # [widi, widr, sbas, nnpot, nnnpot, Jstreu, civ, binPath, coefstr]
+
+    child_id = ''.join(str(x) for x in np.array([para[6]]))
+
+    inqf = 'inq_%s' % child_id
+    indqf = 'indq_%s' % child_id
+    inenf = 'inen_%s' % child_id
+
+    quaf_to_end = 'quaout_%s' % child_id
+    drquaf_to_end = 'drquaout_%s' % child_id
+    maoutf = 'MATOUTB_%s' % child_id
+
+    outputqf = 'output_qua_%s' % child_id
+    outputdrqf = 'output_drq_%s' % child_id
+    outputef = 'endout_%s' % child_id
+
+    # paras: widi,widr,sbas,potNN,potNNN,Jstreu,civ,binPath,coefstr
+
+    inen_bdg_4(para[2], para[5], para[8], fn=inenf, pari=0)
+
+    inqua_4(intwi=para[0], relwi=para[1], potf=para[3], inquaout=inqf)
+    inqua_4(intwi=para[0], relwi=para[1], potf=para[4], inquaout=indqf)
+
+    cmdqua = para[7] + 'QUAFL_N_pop.exe %s %s %s' % (inqf, outputqf,
+                                                     quaf_to_end)
+    cmddrqua = para[7] + 'DRQUA_AK_N_pop.exe %s %s %s' % (indqf, outputdrqf,
+                                                          drquaf_to_end)
+
+    cmdend = para[7] + 'DR2END_AK_pop.exe %s %s %s %s %s' % (
+        quaf_to_end, drquaf_to_end, inenf, outputef, maoutf)
+
+    pqua = subprocess.Popen(shlex.split(cmdqua),
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+
+    out1, err1 = pqua.communicate()
+    pdrqua = subprocess.Popen(shlex.split(cmddrqua),
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE)
+
+    out2, err2 = pdrqua.communicate()
+    pend = subprocess.Popen(shlex.split(cmdend),
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+    out3, err3 = pend.communicate()
+    #cwd=workdir)
+    # <communicate> is needed in order to ensure the process ended before parsing its output!
+    try:
+        NormHam = np.core.records.fromfile(maoutf, formats='f8', offset=4)
+        minCond = para[9]
+        maxRa = para[11]
+        smartEV, basCond, smartRAT = smart_ev(NormHam, threshold=minCond)
+        anzSigEV = len(
+            [bvv for bvv in smartEV if para[10][0] < bvv < para[10][1]])
+
+        gsEnergy = smartEV[-1]
+        attractiveness = loveliness(gsEnergy, basCond, anzSigEV, minCond,
+                                    smartRAT, maxRa)
+
+        os.system('rm -rf ./%s' % inqf)
+        os.system('rm -rf ./%s' % indqf)
+        os.system('rm -rf ./%s' % inenf)
+        os.system('rm -rf ./%s' % outputef)
+        os.system('rm -rf ./%s' % outputqf)
+        os.system('rm -rf ./%s' % outputdrqf)
+        os.system('rm -rf ./%s' % quaf_to_end)
+        os.system('rm -rf ./%s' % drquaf_to_end)
+        os.system('rm -rf ./%s' % maoutf)
+
+        #  [ intw, relw, qualREF, gsREF, basCond ]
+        #  print('%12.4e%12.4f%12.4e' % (attractiveness, gsEnergy, basCond))
+        send_end.send([
+            [para[0], para[1]],
+            attractiveness,
+            gsEnergy,
+            basCond,
+        ])
+
+    except:
+
+        os.system('rm -rf ./%s' % inqf)
+        os.system('rm -rf ./%s' % indqf)
+        os.system('rm -rf ./%s' % inenf)
+        os.system('rm -rf ./%s' % outputef)
+        os.system('rm -rf ./%s' % outputqf)
+        os.system('rm -rf ./%s' % outputdrqf)
+        os.system('rm -rf ./%s' % quaf_to_end)
+        os.system('rm -rf ./%s' % drquaf_to_end)
+        os.system('rm -rf ./%s' % maoutf)
+
+        print(para[6], child_id)
+        print(maoutf)
+        #  [ intw, relw, qual, gsE, basCond ]
+        send_end.send([[[], []], 0.0, 0.0, -42.7331])
+
+
+def span_population4(anz_civ,
+                     fragments,
+                     Jstreu,
+                     coefstr,
+                     funcPath,
+                     binPath,
+                     mindists=[0.01, 0.01],
+                     ini_grid_bounds=[0.01, 9.5, 0.001, 11.5],
+                     ini_dims=[4, 4],
+                     minC=10**(-8),
+                     maxR=10**5,
+                     evWin=[-100, 100]):
+
+    os.chdir(funcPath)
+
+    Jstreustring = '%s' % str(Jstreu)[:3]
+
+    lfrags = []
+    sfrags = []
+
+    for lcfg in range(len(fragments)):
+        sfrags = sfrags + fragments[lcfg][1]
+        for scfg in fragments[lcfg][1]:
+            lfrags = lfrags + [fragments[lcfg][0]]
+
+    # minimal distance allowed for between width parameters
+    rwma = 20
+    bvma = 8
+    mindist_int = mindists[0]
+    mindist_rel = mindists[1]
+    # lower bound for width parameters '=' IR cutoff (broadest state)
+    rWmin = 0.0001
+
+    # orbital-angular-momentum dependent upper bound '=' UV cutoff (narrowest state)
+    iLcutoff = 52.
+    rLcutoff = 52.
+    nwint = ini_dims[0]
+    nwrel = ini_dims[1]
+    rel_scale = 1.
+
+    if nwrel > rwma:
+        print(
+            'The set number for relative width parameters per basis vector > max!'
+        )
+        exit()
+
+    ParaSets = []
+
+    for civ in range(anz_civ):
+        lit_w = {}
+        lit_rw = {}
+        he_iw = he_rw = he_frgs = ob_stru = lu_stru = sbas = []
+
+        for frg in range(len(lfrags)):
+
+            #  -- internal widths --------------------------------------------------
+            itera = 1
+
+            lit_w_tmp = np.abs(
+                np.geomspace(start=ini_grid_bounds[0],
+                             stop=ini_grid_bounds[1],
+                             num=int(2 * nwint),
+                             endpoint=True,
+                             dtype=None))
+
+            lit_w_t = []
+            while lit_w_t == []:
+
+                lit_wi = [
+                    test_width * np.random.random() for test_width in lit_w_tmp
+                ]
+                if np.max(lit_wi) > iLcutoff:
+                    continue
+
+                prox_check = check_dist(width_array1=lit_wi,
+                                        minDist=mindist_int)
+                prox_checkr = check_dist(width_array1=lit_wi,
+                                         width_array2=widthSet_relative,
+                                         minDist=mindist_rel)
+
+                if (prox_check * prox_checkr):
+                    lit_w_t = lit_wi
+
+                itera += 1
+                assert itera <= 180000
+
+            # do not sort in order to allow for narrow/broad width combinations
+            #lit_w[frg] = np.sort(lit_w_t)[::-1]
+            np.random.shuffle(lit_w_t)
+            lit_w[frg] = lit_w_t
+            #  -- relative widths --------------------------------------------------
+            lit_w_tmp = np.abs(
+                np.geomspace(start=ini_grid_bounds[2],
+                             stop=ini_grid_bounds[3],
+                             num=nwrel,
+                             endpoint=True,
+                             dtype=None))
+
+            lit_w_r = []
+            while lit_w_r == []:
+
+                lit_wi = [
+                    test_width * np.random.random() for test_width in lit_w_tmp
+                ]
+                if np.max(lit_wi) > rLcutoff:
+                    continue
+
+                prox_check = check_dist(width_array1=lit_wi,
+                                        minDist=mindist_int)
+                prox_checkr = check_dist(width_array1=lit_wi,
+                                         width_array2=widthSet_relative,
+                                         minDist=mindist_rel)
+
+                if (prox_check * prox_checkr):
+                    lit_w_r = lit_wi
+
+                itera += 1
+                assert itera <= 180000
+
+            lit_rw[frg] = np.sort(lit_w_r)[::-1]
+
+        lfrags2 = []
+        sfrags2 = []
+        widi = []
+        widr = []
+
+        for n in range(len(lit_w)):
+            tmp = lit_w[n]  #np.sort(lit_w[n])[::-1]
+            zer_per_ws = int(np.ceil(int(0.5 * len(tmp)) / bvma))
+            bins = [0 for nmmm in range(zer_per_ws + 1)]
+            bins[0] = 0
+            for mn in range(len(tmp)):
+                bins[1 + mn % zer_per_ws] += 1
+            bnds = np.cumsum(bins)
+            tmp2 = [
+                list(tmp[bnds[nn]:bnds[nn + 1]]) for nn in range(zer_per_ws)
+            ]
+            tmp3 = [list(lit_rw[n]) for nn in range(zer_per_ws)]
+
+            sfrags2 += len(tmp2) * [sfrags[n]]
+            lfrags2 += len(tmp2) * [lfrags[n]]
+            widi += tmp2
+            widr += tmp3
+
+        anzBV = sum([len(zer) for zer in widi])
+
+        sbas = []
+        bv = 1
+        for n in range(len(lfrags2)):
+            off = np.mod(n, 2)
+            assert len(widi[n]) % 2 == 0
+            for m in range(int(len(widi[n]) / 2)):
+                sbas += [[bv, [1 for x in range(len(widr[n]))]]]
+                bv += 1
+        ParaSets.append([
+            widi, widr, sbas, nnpotstring, nnnpotstring, Jstreu, civ, binPath,
+            coefstr, minC, evWin, maxR
+        ])
+
+    assert len(ParaSets) == anz_civ
+    os.chdir(funcPath)
+
+    inlu_4(8, fn='INLU', fr=sum(lfrags2, []), indep=0)
+    os.system(binPath + 'DRLUD.exe')
+    inlu_4(8, fn='INLUCN', fr=sum(lfrags2, []), indep=0)
+    os.system(binPath + 'LUDW_CN.exe')
+    #
+    inob_4(sfrags2, 3, fn='INOB', indep=0)
+    os.system(binPath + 'KOBER.exe')
+    inob_4(sfrags2, 3, fn='INOB', indep=0)
+    os.system(binPath + 'DROBER.exe')
+
+    samp_list = []
+    cand_list = []
+    pool = ThreadPool(max(min(MaxProc, len(ParaSets)), 2))
+    jobs = []
+    for procnbr in range(len(ParaSets)):
+        recv_end, send_end = multiprocessing.Pipe(False)
+        pars = ParaSets[procnbr]
+        p = multiprocessing.Process(target=end4, args=(pars, send_end))
+        jobs.append(p)
+
+        # sen_end returns [ intw, relw, qualREF, gsREF, basCond ]
+        samp_list.append(recv_end)
+        p.start()
+    for proc in jobs:
+        proc.join()
+
+    samp_ladder = [x.recv() for x in samp_list]
+
+    for cand in samp_ladder:
+        if ((cand[2] < 10) & (cand[3] > minC)):
+            cfgg = np.transpose(np.array([sfrags2, lfrags2])).tolist()
+
+            cand_list.append([cfgg] + cand)
+
+    cand_list.sort(key=lambda tup: np.abs(tup[2]))
+
+    for cc in samp_ladder:
+        print(cc[2:])
+
+    return cand_list, sbas
 
 
 def endmat(para, send_end):
@@ -1413,6 +1716,116 @@ def blunt_ev3(cfgs,
     return NormHam
 
 
+def blunt_ev4t(cfgs,
+               intws,
+               relws,
+               basis,
+               nzopt,
+               costring,
+               bin_path,
+               mpipath,
+               potNN,
+               potNNN='',
+               parall=-1,
+               tnnii=10,
+               jay=0.5,
+               anzcores=6,
+               funcPath='',
+               dia=True):
+
+    #assert basisDim(basis) == len(sum(sum(relws, []), []))
+
+    lfrag = sum(np.array(cfgs)[:, 1].tolist(), [])
+    sfrag = np.array(cfgs)[:, 0].tolist()
+
+    insam(len(lfrag))
+
+    inlu_4(8, fn='INLUCN', fr=lfrag, indep=parall)
+    os.system(bin_path + 'LUDW_CN.exe')
+    inob_4(sfrag, 3, fn='INOB', indep=parall)
+    os.system(bin_path + 'KOBER.exe')
+
+    inqua_4(intwi=intws, relwi=relws, potf=potNN, inquaout='INQUA_N')
+    parallel_mod_of_3inqua(lfrag,
+                           sfrag,
+                           infile='INQUA_N',
+                           outfile='INQUA_N',
+                           einzel_path='')
+
+    inen_bdg_4(basis, jay, costring, fn='INEN', pari=0, nzop=nzopt, tni=tnnii)
+
+    if parall == -1:
+        diskfil = disk_avail(funcPath)
+
+        if diskfil < 0.2:
+            print('more than %s of disk space is already used!' %
+                  (str(diskfil) + '%'))
+            exit()
+
+        subprocess.run([
+            mpipath, '--oversubscribe', '-np',
+            '%d' % anzcores, bin_path + 'V18_PAR/mpi_quaf_v6'
+        ])
+        subprocess.run([bin_path + 'V18_PAR/sammel'])
+        subprocess.call('rm -rf DMOUT.*', shell=True)
+    else:
+        subprocess.run([bin_path + 'QUAFL_N.exe'])
+
+    subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
+    if tnnii == 11:
+        inlu_4(8, fn='INLU', fr=lfrag, indep=parall)
+        os.system(bin_path + 'DRLUD.exe')
+        inob_4(sfrag, 3, fn='INOB', indep=parall)
+        os.system(bin_path + 'DROBER.exe')
+
+        inqua_4(intwi=intws, relwi=relws, potf=potNNN, inquaout='INQUA_N')
+        parallel_mod_of_3inqua(lfrag,
+                               sfrag,
+                               infile='INQUA_N',
+                               outfile='INQUA_N',
+                               tni=1,
+                               einzel_path='')
+
+        if parall == -1:
+            diskfil = disk_avail(funcPath)
+
+            if diskfil < 0.2:
+                print('more than %s of disk space is already used!' %
+                      (str(diskfil) + '%'))
+                exit()
+
+            subprocess.run([
+                mpipath, '--oversubscribe', '-np',
+                '%d' % anzcores, bin_path + 'UIX_PAR/mpi_drqua_uix'
+            ])
+            subprocess.run([bin_path + 'UIX_PAR/SAMMEL-uix'])
+            subprocess.call('rm -rf DRDMOUT.*', shell=True)
+            subprocess.run([
+                bin_path + 'TDR2END_PYpoolnoo.exe', 'INEN',
+                'OUTPUT_TDR2END_PYpoolnoo', 'MATOUTB'
+            ],
+                           capture_output=True,
+                           text=True)
+        else:
+            subprocess.run([bin_path + 'DRQUA_AK_N.exe'])
+            subprocess.run([bin_path + 'DR2END_AK.exe'])
+    elif tnnii == 10:
+        if parall == -1:
+            subprocess.run([
+                bin_path + 'TDR2END_PYpoolnoo.exe', 'INEN',
+                'OUTPUT_TDR2END_PYpoolnoo', 'MATOUTB'
+            ],
+                           capture_output=True,
+                           text=True)
+        else:
+            subprocess.run([bin_path + 'DR2END_AK.exe'])
+
+    subprocess.call('cp -rf INQUA_N INQUA_N_UIX', shell=True)
+    NormHam = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
+
+    return NormHam
+
+
 def blunt_ev3_parallel(cfgs,
                        intws,
                        relws,
@@ -1479,7 +1892,7 @@ def blunt_ev4(cfgs,
     insam(len(lfrag))
     inlu_4(8, fn='INLUCN', fr=lfrag, indep=parall)
     os.system(bin_path + 'LUDW_CN.exe')
-    inob_4(sfrag, 8, fn='INOB', indep=parall)
+    inob_4(sfrag, 3, fn='INOB', indep=parall)
     os.system(bin_path + 'KOBER.exe')
 
     repl_line('INQUA_N', 1, potNN + '\n')
@@ -1526,7 +1939,7 @@ def blunt_ev4(cfgs,
     if tnnii == 11:
         inlu_4(8, fn='INLU', fr=lfrag, indep=parall)
         os.system(bin_path + 'DRLUD.exe')
-        inob_4(sfrag, 15, fn='INOB', indep=parall)
+        inob_4(sfrag, 3, fn='INOB', indep=parall)
         os.system(bin_path + 'DROBER.exe')
 
         repl_line('INQUA_N', 1, potNNN + '\n')

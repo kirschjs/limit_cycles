@@ -241,15 +241,30 @@ def get_quaf_width_set(inqua='INQUA_N'):
     return s.split()
 
 
-def get_bsv_rw_idx(inen='INEN', offset=7, int4=0):
+def get_bsv_rw_idx(inen='INEN', offset=7, int4=1):
     ws = []
     inf = [line for line in open(inen)][offset:]
     for nbv in range(int(inf[0][3 + int(int4):6 + int(2 * int4)])):
+
         tmp = np.array(
             np.nonzero(np.array(
                 inf[int(2 * nbv + 2)].split()).astype(int))) + 1
         ws.append([
-            int(inf[int(2 * nbv + 1)][3 + int(int4):6 + int(2 * int4)]), tmp[0]
+            int(inf[int(2 * nbv + 1)][3 + int(int4):6 + int(2 * int4)]),
+            tmp[0].tolist()
+        ])
+    return ws
+
+
+def get_bas(inen='INEN', offset=7, int4=1):
+    ws = []
+    inf = [line for line in open(inen)][offset:]
+    for nbv in range(int(inf[0][3 + int(int4):6 + int(2 * int4)])):
+
+        tmp = np.array(inf[int(2 * nbv + 2)].split()).astype(int)
+        ws.append([
+            int(inf[int(2 * nbv + 1)][3 + int(int4):6 + int(2 * int4)]),
+            tmp.tolist()
         ])
     return ws
 

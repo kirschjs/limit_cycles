@@ -25,6 +25,13 @@ dict_3to4 = {
     'he_no6': [['000-0'], ['hen_6s0']],
 }
 
+dict_4to5 = {
+    'tp_1s0': [['000-0'], ['tpn_1s0h']],
+    'tp_6s0': [['000-0'], ['tpn_6s0h']],
+    'hen_1s0': [['000-0'], ['henn_1s0h']],
+    'hen_6s0': [['000-0'], ['henn_6s0h']],
+}
+
 # -- LEC lists
 
 lec_list_oneMEV = {}
@@ -271,7 +278,7 @@ maxParLen = 120
 
 lec_set = lec_list_def  #lec_set_0__2__8
 
-lam = 10.0  #3.00 4.00 6.00 8.00 10.0
+lam = 6.0  #3.00 4.00 6.00 8.00 10.0
 
 la = ('%-4.2f' % lam)[:4]
 
@@ -290,6 +297,18 @@ channels_2 = {
 channels_3 = {
     'he': ['000', ['he_no1', 'he_no6']],
     't': ['000', ['t_no1', 't_no6']],
+}
+
+channels_4 = {
+    'alpha': [
+        ['000-0'],
+        [
+            'tp_1s0',
+            'tp_6s0',
+            'hen_1s0',
+            'hen_6s0'  #, 'np3s_np3s_S0', 'np1s_np1s_S0'
+        ]
+    ],
 }
 
 sysdir2base = pathbase + '/systems/2/%s' % la

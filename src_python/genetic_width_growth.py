@@ -2,10 +2,14 @@ import numpy as np
 import struct
 
 
-def loveliness(groundstateEnergy, conditionNumber, HeigenvaluesbelowX,
-               minimalConditionnumber, coefRAT):
+def loveliness(groundstateEnergy,
+               conditionNumber,
+               HeigenvaluesbelowX,
+               minimalConditionnumber,
+               coefRAT,
+               maxRat=10**5):
 
-    if ((np.abs(groundstateEnergy) < 500) & (coefRAT < 10**5)):
+    if ((np.abs(groundstateEnergy) < 500) & (coefRAT < maxRat)):
         pulchritude = np.exp((-1) * groundstateEnergy)
     else:
         pulchritude = 0.0
@@ -17,7 +21,8 @@ def basQ(normSpectrum,
          hamiltonianSpectrum,
          minCond=10**-10,
          denseEnergyInterval=[-35, 120],
-         coefRAT=1):
+         coefRAT=1,
+         maxRat=10**5):
 
     anzSigEV = len(
         [bvv for bvv in hamiltonianSpectrum if bvv < denseEnergyInterval[1]])
@@ -26,7 +31,8 @@ def basQ(normSpectrum,
 
     basCond = np.min(np.abs(normSpectrum)) / np.max(np.abs(normSpectrum))
 
-    attractiveness = loveliness(gsEnergy, basCond, anzSigEV, minCond, coefRAT)
+    attractiveness = loveliness(gsEnergy, basCond, anzSigEV, minCond, coefRAT,
+                                maxRat)
 
     return attractiveness, gsEnergy, basCond
 
@@ -195,6 +201,97 @@ def condense_basis_3to4(inputBasis, rws4, fn, MaxBVsPERcfg=12):
         outfile.write(outs)
 
     return ob_strus, lu_strus, drei_strus
+
+
+def condense_basis_4to5(inputBasis, rws4, fn, MaxBVsPERcfg=12):
+
+    unisA = []
+    for ncfg in range(len(inputBasis[0])):
+        if inputBasis[0][ncfg] in unisA:
+            continue
+        else:
+            unisA.append(inputBasis[0][ncfg])
+
+    bounds = np.add.accumulate([int(len(iws) / 2) for iws in inputBasis[1]])
+
+    lu_strus = []
+    ob_strus = []
+    drei_strus = []
+
+    D0s = [[], [], []]
+
+    for spinCFG in unisA:
+
+        D0s[0].append([])
+        D0s[1].append([])
+        D0s[2].append([])
+
+        for bv in range(len(inputBasis[3])):
+            cfgOFbv = sum([bound < inputBasis[3][bv][0] for bound in bounds])
+
+            if inputBasis[0][cfgOFbv] == spinCFG:
+
+                if D0s[1][-1] == []:
+                    D0s[0][-1].append(spinCFG)
+                    D0s[2][-1].append(rws4)
+
+                for rw in range(len(inputBasis[3][bv][1])):
+                    D0s[1][-1].append([
+                        sum(inputBasis[1], [])[2 * (inputBasis[3][bv][0] - 1)],
+                        sum(inputBasis[1],
+                            [])[2 * (inputBasis[3][bv][0] - 1) + 1],
+                        inputBasis[2][cfgOFbv][inputBasis[3][bv][1][rw] - 1]
+                    ])
+
+    outs = ''
+    # -----------------------------------------------------
+    bvPerZ = 8
+
+    bvnr = 0
+    for nz in range(len(D0s[0])):
+
+        anzBV = len(D0s[1][nz])
+        bvinZ = bvPerZ if anzBV >= bvPerZ else anzBV
+        zstruct = [bvinZ for n in range(0, int(anzBV / bvinZ))]
+        if anzBV % bvinZ != 0:
+
+            zstruct.append(anzBV % bvinZ)
+
+        drei_strus += zstruct
+        for z in range(0, len(zstruct)):
+            outs += '%3d\n%3d%3d\n' % (zstruct[z], zstruct[z], len(rws4))
+            for bv in range(zstruct[z]):
+                outs += '%60s%-12.6f\n%-12.6f%-12.6f\n' % (
+                    '', float(sum(
+                        D0s[1], [])[bvnr][0]), float(sum(D0s[1], [])[bvnr][1]),
+                    float(sum(D0s[1], [])[bvnr][2]))
+                bvnr += 1
+            for rw in range(0, len(rws4)):
+                outs += '%12.6f' % float(rws4[rw])
+                if ((rw + 1) % 6 == 0):
+                    outs += '\n'
+            outs += '\n'
+            for bb in range(0, zstruct[z]):
+                outs += '  1  1\n'
+                if zstruct[z] < 7:
+                    outs += '1.'.rjust(12 * (bb + 1))
+                    outs += '\n'
+                else:
+                    if bb < 6:
+                        outs += '1.'.rjust(12 * (bb + 1))
+                        outs += '\n\n'
+                    else:
+                        outs += '\n'
+                        outs += '1.'.rjust(12 * (bb % 6 + 1))
+                        outs += '\n'
+
+        ob_strus += len(zstruct) * [D0s[0][nz][0][0]]
+        lu_strus += len(zstruct) * [D0s[0][nz][0][1]]
+
+    with open(fn, 'w') as outfile:
+        outfile.write(outs)
+
+    return ob_strus, sum(lu_strus, []), drei_strus
 
 
 def write_basis_on_tape(basis, jay, btype, baspath=''):

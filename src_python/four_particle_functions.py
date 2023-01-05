@@ -379,6 +379,48 @@ def inob_4(fr, anzO, fn='INOB', indep=0):
         outfile.write(out)
 
 
+def inqua_4(intwi=[], relwi=[], potf='', inquaout='INQUA_M'):
+    s = ''
+    # NBAND1,NBAND2,NBAND3,NBAND4,NBAND5,NAUS,MOBAUS,LUPAUS,NBAUS
+    s += ' 10  8  9  3 00  0  0  0  0\n%s\n' % potf
+    zerl_counter = 0
+    bv_counter = 1
+    for n in range(len(intwi)):
+
+        zerl_counter += 1
+        nrel = len(relwi[n])
+        nb = int(len(intwi[n]) / 2)
+        s += '%3d%60s%s\n%3d%3d\n' % (
+            nb, '', 'Z%d  BVs %d - %d' %
+            (zerl_counter, bv_counter, bv_counter - 1 + nb), nb, nrel)
+
+        bv_counter += nb
+        for bv in range(nb):
+            s += '%48s%-12.6f%-12.6f\n' % ('', float(
+                intwi[n][2 * bv]), float(intwi[n][1 + 2 * bv]))
+
+        for rw in range(0, len(relwi[n])):
+            s += '%12.6f' % float(relwi[n][rw])
+            if ((rw != (len(relwi[n]) - 1)) & ((rw + 1) % 6 == 0)):
+                s += '\n'
+        s += '\n'
+
+        tmpln = np.ceil(nb / 6.)
+        for bb in range(0, nb):
+            s += '  1  1\n'
+            for i in range(int(bb / 6)):
+                s += '\n'
+            s += '1.'.rjust(12 * (bb % 6 + 1))
+
+            for ii in range(int(tmpln - int(bb / 6))):
+                s += '\n'
+
+    with open(inquaout, 'w') as outfile:
+        outfile.write(s)
+
+    return
+
+
 def inen_bdg_4(bas, jay, co, fn='INEN', pari=0, nzop=31, tni=11, idum=2):
     # idum=2 -> I4 for all other idum's -> I3
     # NBAND1,IDUM,NBAND3,NZOP,IFAKD,IGAK,NZZ,IAUW,IDRU,IPLO,IDUN,ICOPMA(=1 -> stop after N,H output)
