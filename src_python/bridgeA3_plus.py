@@ -18,21 +18,21 @@ from multiprocessing.pool import ThreadPool
 from four_particle_functions import from3to4
 
 # numerical stability
-mindisti = [0.05, 0.05]
-mindi = 2.0
-width_bnds = [0.01, 24.15, 0.02, 22.25]
-minCond = 10**-14
+mindi = 0.1
+
+width_bnds = [0.01, 14.15, 0.02, 12.25]
+minCond = 10**-12
 
 # genetic parameters
 anzNewBV = 6
-muta_initial = .04
+muta_initial = .02
 anzGen = 8
 seed_civ_size = 20
-target_pop_size = 10
+target_pop_size = 20
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 6
+nBV = 8
 nREL = 6
 
 J0 = 1 / 2
@@ -75,7 +75,7 @@ for channel in channels_3:
                                           coefstr=costr,
                                           funcPath=sysdir3,
                                           binPath=BINBDGpath,
-                                          mindists=mindisti,
+                                          mindists=mindi,
                                           ini_grid_bounds=width_bnds,
                                           ini_dims=[nBV, nREL],
                                           minC=minCond,
@@ -85,7 +85,7 @@ for channel in channels_3:
         print('>>> seed civilizations: %d/%d' % (len(civs), seed_civ_size))
 
     civs.sort(key=lambda tup: np.abs(tup[3]))
-    civs = sortprint(civs, pr=True)
+    civs = sortprint(civs, pr=False)
 
     for nGen in range(anzGen):
         tic = time.time()
@@ -102,7 +102,7 @@ for channel in channels_3:
         children = 0
         while children < anzNewBV:
             twins = []
-            while len(twins) < int(40 * anzNewBV):
+            while len(twins) < int(42 * anzNewBV):
                 #for ntwins in range(int(5 * anzNewBV)):
                 parent_pair = np.random.choice(range(civ_size),
                                                size=2,
@@ -265,7 +265,7 @@ for channel in channels_3:
 
     print('\n\n')
 
-    civs = sortprint(civs, pr=True)
+    civs = sortprint(civs, pr=False)
     #plotwidths3(sysdir3)
 
     ma = blunt_ev3(civs[0][0],
@@ -282,7 +282,7 @@ for channel in channels_3:
                    parall=-0,
                    anzcores=max(2, min(len(civs[0]), MaxProc)),
                    tnnii=tnni,
-                   jay=J0)
+                   jay=float(J0))
 
     os.system('cp INQUA_N INQUA_N_%s' % lam)
     os.system('cp OUTPUT bndg_out_%s' % lam)
@@ -322,3 +322,4 @@ for channel in channels_3:
     subprocess.call('rm -rf DMOUT.*', shell=True)
     subprocess.call('rm -rf DRDMOUT.*', shell=True)
     subprocess.call('rm -rf matout_*.*', shell=True)
+    print(">>> End of 3-body day in channel %s\n" % channel)

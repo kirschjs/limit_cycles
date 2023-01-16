@@ -24,6 +24,7 @@ def plotphas(infi='PHAOUT', oufi='tmp.pdf'):
     # read phases
     method = '1'
     phs = []
+    plt.cla()
     plt.subplot(111)
     #plt.set_title("channel: neutron-neutron")
     #leg = ax1.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
@@ -146,18 +147,29 @@ def sparse_subset(inset, mindist=0.001):
 def suche_fehler(ifi='OUTPUT'):
     out = [line for line in open(ifi)]
     for nj in range(1, len(out)):
-        if (out[nj].strip() == "FEHLERHAFT"):
+        if (out[nj].find("FEHLERHAFT") >= 0):
             print("TDR2ENDMAT: DIAGONALISATION FEHLERHAFT")
             exit()
 
     return
 
 
+def get_n_ev(n=1, ifi='OUTPUT'):
+    out = [line for line in open(ifi)]
+    for nj in range(1, len(out)):
+        if (out[nj].strip() == "EIGENWERTE DER NORMMATRIX"):
+            E_0 = out[nj + 3].split()
+    return np.array(E_0[:n]).astype(float)
+
+
 def get_h_ev(n=1, ifi='OUTPUT'):
     out = [line for line in open(ifi)]
+
+    suche_fehler(ifi)
     for nj in range(1, len(out)):
         if (out[nj].strip() == "EIGENWERTE DES HAMILTONOPERATORS"):
             E_0 = out[nj + 3].split()
+
     return np.array(E_0[:n]).astype(float)
 
 

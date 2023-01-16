@@ -10,6 +10,7 @@ from three_particle_functions import *
 from four_particle_functions import *
 from five_particle_functions import *
 from PSI_parallel_M import *
+from plot_array import *
 
 from rrgm_functions import *
 
@@ -21,22 +22,23 @@ from parameters_and_constants import *
 import multiprocessing
 from multiprocessing.pool import ThreadPool
 
-#import bridgeA2_plus
-#import bridgeA3_plus
+#import bridgeA4_opt
 
-findstablebas = 1
-newCal = 1
+findstablebas = 0
+newCal = 0
+einzel5 = True
 
 J0 = 0.5
+ll = 0
 
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
 J1J2SC = []
 channels = [
     [['000-0-0'], ['tpn_1s0h', 'tpn_6s0h', 'henn_1s0h', 'henn_6s0h'],
-     [1, 1, 0]],
+     [0, 1, 1]],
+    #[['000-0-1'], ['tpn_1s0h', 'tpn_6s0h', 'henn_1s0h', 'henn_6s0h'],
+    # [0, 1, 1]],
 ]
-
-einzel5 = True
 
 if os.path.isdir(sysdir5) == False:
     subprocess.check_call(['mkdir', '-p', sysdir5])
@@ -65,8 +67,6 @@ if einzel5:
 
 os.chdir(sysdir5)
 
-exit()
-
 fragment_energies = []
 cofli = []
 strus = []
@@ -77,58 +77,27 @@ ph2d = []
 
 subprocess.call('rm -rf INQUA_N', shell=True)
 
-# the order matters as we conventionally include physical channels
-# in ascending threshold energy. E.g. dd then he3n then tp;
-threedirs = []
-for ch in channels_3:
-    threedirs.append(sysdir3base + '/' + ch)
+sysdir4 = sysdir4 + '/' + list(channels_4.keys())[0]
+sbas = get_bsv_rw_idx(inen=sysdir4 + '/INEN', offset=7, int4=1)
 
-for sysdir3 in threedirs:
+strus = [
+    dict_4to5[line.strip()] for line in open(sysdir4 + '/obstru_%s' % lam)
+]
 
-    for line in open(sysdir3 + '/obstru_%s' % lam):
-        gogo = True
-        for ch in channels:
-            for cfg in ch[1]:
-                if sysdir3.split('/')[-1] in cfg:
-                    J1J2SC.append(ch[2])
-                    gogo = False
-                    break
-            if gogo == False:
-                break
-        if gogo == False:
-            break
+zstrus = [int(line.strip()) for line in open(sysdir4 + '/vier_stru_%s' % lam)]
 
-    sbas.append(get_bsv_rw_idx(inen=sysdir3 + '/INEN', offset=7, int4=1))
+fragment_energy = get_h_ev(n=1, ifi=sysdir4 + '/bndg_out_%s' % lam)[0]
+fourCoff = parse_ev_coeffs(mult=0,
+                           infil=sysdir4 + '/bndg_out_%s' % lam,
+                           outf='COEFF',
+                           bvnr=1)
 
-    strus.append([
-        dict_3to4[line.strip()] for line in open(sysdir3 + '/obstru_%s' % lam)
-    ])
-    zstrus.append(
-        [int(line.strip()) for line in open(sysdir3 + '/drei_stru_%s' % lam)])
+fourCoff = np.array(fourCoff).astype(float)
+cofli = fourCoff.tolist()
+qua_str = ''.join([line for line in open('%s/inq_4to5_%s' % (sysdir4, lam))])
+#subprocess.call('cat %s/inq_3to4_%s >> INQUA_N' % (sysdir3, lam),
+#                shell=True)
 
-    fragment_energies.append(
-        get_h_ev(n=1, ifi=sysdir3 + '/bndg_out_%s' % lam)[0])
-    threeCoff = parse_ev_coeffs(mult=0,
-                                infil=sysdir3 + '/bndg_out_%s' % lam,
-                                outf='COEFF',
-                                bvnr=1)
-
-    threeCoff = np.array(threeCoff).astype(float)
-    cofli.append(threeCoff.tolist())
-
-    qua_str.append(''.join(
-        [line for line in open('%s/inq_3to4_%s' % (sysdir3, lam))]))
-    #subprocess.call('cat %s/inq_3to4_%s >> INQUA_N' % (sysdir3, lam),
-    #                shell=True)
-
-idx = np.array(fragment_energies).argsort()[::-1]
-strus = sum([strus[id] for id in idx], [])
-zstrus = sum([zstrus[id] for id in idx], [])
-sbas = sum([sbas[id] for id in idx], [])
-cofli = [cofli[id] for id in idx]
-J1J2SC = [J1J2SC[id] for id in idx]
-
-qua_str = [qua_str[id] for id in idx]
 outs = ' 10  8  9  3 00  0  0  0\n%s\n' % nnpotstring
 for qua_part in qua_str:
     outs += qua_part
@@ -139,7 +108,7 @@ sb = []
 bv = 1
 varspacedim = sum([len(rset[1]) for rset in sbas])
 
-anzch = int(0.95 * (len(sum(cofli, [])) - 3 * len(cofli)))
+anzch = int(len(cofli) - 4)
 
 for nbv in range(1, varspacedim):
     relws = [
@@ -149,11 +118,12 @@ for nbv in range(1, varspacedim):
     sb.append([nbv, sum(relws, [])])
 
 if newCal:
-    ma = blunt_ev4(cfgs=strus,
+
+    ma = blunt_ev5(cfgs=strus,
                    bas=sb,
                    dmaa=[0, 1, 0, 1, 0, 1],
-                   j1j2sc=J1J2SC,
-                   funcPath=sysdir4,
+                   j1j2sc=channels[0][2],
+                   funcPath=sysdir5,
                    nzopt=zop,
                    frgCoff=cofli,
                    costring=costr,
@@ -204,12 +174,16 @@ if findstablebas:
     for DistCh in range(anzDist):
 
         inenLine = inen[7][:4] + '%4d' % (len(channels) + anzCh) + inen[7][8:]
-        #print(inenLine)
+        print(inenLine)
         repl_line('INEN', 7, inenLine)
         subprocess.run([BINBDGpath + 'TDR2END_AK.exe'])
         lastline = [ll for ll in open('OUTPUT')][-1]
 
-        if 'NOT CO' in lastline:
+        nEV = get_n_ev()
+        print(lastline)
+        print(nEV)
+
+        if (('NOT CO' in lastline) | (nEV < 0)):
 
             assert anzCh != 0
 
@@ -235,17 +209,35 @@ if findstablebas:
             anzCh += 1
 
 subprocess.run([BINBDGpath + 'TDR2END_AK.exe'])
+
+eh = get_h_ev()
+
 subprocess.run([BINBDGpath + 'S-POLE_zget.exe'])
 
-plotphas(oufi='4_body_phases.pdf')
-phdd = read_phase(phaout='PHAOUT', ch=[3, 3], meth=1, th_shift='')
-a_dd = [
-    -MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /
-    np.sqrt(2 * mn['137'] * phdd[n][0]) for n in range(len(phdd))
+waves = 'S-wave' if ll == 0 else 'P-wave'
+plotphas(oufi='5_phases_%2.4f_%s_cut-%2.1f.pdf' % (eh, waves, lam))
+
+ph = read_phase(phaout='PHAOUT', ch=[1, 1], meth=1, th_shift='')
+
+a_an = [
+    -np.tan(ph[n][2] * np.pi / 180.) / (np.sqrt(
+        (8. / 5.) * mn['137'] * ph[n][0] / MeVfm**2))**(2 * ll + 1)
+    for n in range(len(ph))
 ]
+k_an = [(np.sqrt((8. / 5.) * mn['137'] * ph[n][0] / MeVfm**2))
+        for n in range(len(ph))]
+
+plotarray(infiy=a_an,
+          infix=k_an,
+          outfi='5_scatt-length_%2.4f_%s_cut-%2.1f.pdf' % (eh, waves, lam),
+          xlab='$E_{match}\;\;\; [MeV]$',
+          ylab='$-tan(\delta_l)/k^{2l+1}\;\;\; [fm^{2l+1}]$',
+          lab='$\Lambda=%2.2f\;\;\;[fm^{-1}]$' % lam)
 print(
-    'l = %s fm^-1\n scattering lengths (lower/upper end of energy matching interval):\na_dd(E_min) = %4.4f fm   a_dd(E_max) = %4.4f fm'
-    % (lam, a_dd[0], a_dd[-1]))
+    'l = %s fm^-1\n scattering lengths (lower/upper end of energy matching interval):\na_an(E_min) = %4.4f fm   a_an(E_max) = %4.4f fm'
+    % (lam, a_an[0], a_an[-1]))
+
+exit()
 
 for channel in channels_2:
     J0 = channels_2[channel][1]

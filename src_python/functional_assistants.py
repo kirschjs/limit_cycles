@@ -13,6 +13,9 @@ def check_dist(width_array1=[], width_array2=[], minDist=0.5):
         for m in range(1, len(width_array1)):
             for n in range(m):
                 delt = np.linalg.norm(width_array1[m] - width_array1[n])
+
+                assert delt != 0
+
                 nm = np.max([
                     np.linalg.norm(width_array1[m]) / delt,
                     +np.linalg.norm(width_array1[n]) / delt
@@ -25,6 +28,9 @@ def check_dist(width_array1=[], width_array2=[], minDist=0.5):
         for m in range(1, len(width_array1)):
             for n in range(1, len(width_array2)):
                 delt = np.linalg.norm(width_array1[m] - width_array2[n])
+                if delt == 0:
+                    tooClose = True
+                    return tooClose
                 nm = np.max([
                     np.linalg.norm(width_array1[m]) / delt,
                     +np.linalg.norm(width_array2[n]) / delt

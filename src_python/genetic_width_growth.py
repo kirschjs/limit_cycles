@@ -7,7 +7,7 @@ def loveliness(groundstateEnergy,
                HeigenvaluesbelowX,
                minimalConditionnumber,
                coefRAT,
-               maxRat=10**5):
+               maxRat=10**15):
 
     if ((np.abs(groundstateEnergy) < 500) & (coefRAT < maxRat)):
         pulchritude = np.exp((-1) * groundstateEnergy)
@@ -166,7 +166,7 @@ def condense_basis_3to4(inputBasis, rws4, fn, MaxBVsPERcfg=12):
             zstruct.append(anzBV % bvinZ)
 
         drei_strus += zstruct
-        print(D0s[0], '\n', anzBV, bvinZ, '\n', zstruct, '\n', drei_strus)
+        #print(D0s[0], '\n', anzBV, bvinZ, '\n', zstruct, '\n', drei_strus)
         #        exit()
         for z in range(0, len(zstruct)):
             outs += '%3d\n%3d%3d\n' % (zstruct[z], zstruct[z], len(rws4))
@@ -251,6 +251,8 @@ def condense_basis_4to5(inputBasis, rws4, fn, MaxBVsPERcfg=12):
     for nz in range(len(D0s[0])):
 
         anzBV = len(D0s[1][nz])
+        if anzBV == 0:
+            continue
         bvinZ = bvPerZ if anzBV >= bvPerZ else anzBV
         zstruct = [bvinZ for n in range(0, int(anzBV / bvinZ))]
         if anzBV % bvinZ != 0:

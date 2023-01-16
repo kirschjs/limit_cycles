@@ -1,7 +1,7 @@
 CC          = mpicc
 F77         = mpifort
 
-FOPTS  =       -Ofast -ffpe-summary=none -fallow-argument-mismatch #-mcmodel=medium 
+FOPTS  =       -Ofast -ffpe-summary=none -fallow-argument-mismatch -mcmodel=medium 
 
 #COPTS       = -O2 -Wall -ggdb3
 #COPTS       = -O2

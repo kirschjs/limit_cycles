@@ -18,23 +18,22 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 
 # numerical stability
-mindisti = [0.001, 0.001]
-mindi = 0.001
-width_bnds = [0.001, 28.15, 0.002, 25.25]
+mindi = 10.0
+width_bnds = [0.1, 8.15, 0.2, 5.25]
 minCond = 10**-14
-maxRat = 10**16
+maxRat = 10**19
 
 # genetic parameters
-anzNewBV = 6
-muta_initial = .02
-anzGen = 20
-seed_civ_size = 15
-target_pop_size = 15
+anzNewBV = 8
+muta_initial = .002
+anzGen = 42
+seed_civ_size = 100
+target_pop_size = 100
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 8
-nREL = 6
+nBV = 12
+nREL = 8
 
 J0 = 0
 
@@ -76,7 +75,7 @@ for channel in channels_4:
                                           coefstr=costr,
                                           funcPath=sysdir4,
                                           binPath=BINBDGpath,
-                                          mindists=mindisti,
+                                          mindists=mindi,
                                           ini_grid_bounds=width_bnds,
                                           ini_dims=[nBV, nREL],
                                           minC=minCond,
@@ -104,7 +103,7 @@ for channel in channels_4:
         children = 0
         while children < anzNewBV:
             twins = []
-            while len(twins) < int(2 * anzNewBV):
+            while len(twins) < int(anzNewBV):
                 #for ntwins in range(int(5 * anzNewBV)):
                 parent_pair = np.random.choice(range(civ_size),
                                                size=2,
@@ -141,17 +140,24 @@ for channel in channels_4:
                         ]
 
                         rw1 = np.array(daughterson)[:, 0]  #.sort()
-                        rw1.sort()
+                        #rw1.sort()
                         rw2 = np.array(daughterson)[:, 1]  #.sort()
-                        rw2.sort()
+                        #rw2.sort()
                         wdau[-1].append(list(rw1)[::-1])
                         wson[-1].append(list(rw2)[::-1])
 
                 daughter = [mother[0], wdau, 0, 0, 0]
                 son = [mother[0], wson, 0, 0, 0]
 
+                #print(mother)
+                #print(father)
+
                 wa = sum(daughter[1][0] + daughter[1][1], [])
                 wb = sum(son[1][0] + son[1][1], [])
+
+                #print(wa)
+                #print(wb)
+                #exit()
 
                 prox_check1 = check_dist(width_array1=wa, minDist=mindi)
                 prox_check2 = check_dist(width_array1=wb, minDist=mindi)
@@ -189,6 +195,7 @@ for channel in channels_4:
             samp_list = []
             cand_list = []
 
+            print('rating offspring...')
             for chunk in Parchunks:
 
                 pool = ThreadPool(max(min(MaxProc, len(ParaSets)), 2))
@@ -207,6 +214,7 @@ for channel in channels_4:
                 for proc in jobs:
                     proc.join()
 
+            print('offspring rated.')
             samp_ladder = [x.recv() for x in samp_list]
 
             samp_ladder.sort(key=lambda tup: np.abs(tup[1]))
@@ -275,10 +283,7 @@ for channel in channels_4:
                     parall=-0,
                     anzcores=max(2, min(len(civs[0]), MaxProc)),
                     tnnii=tnni,
-                    jay=J0)
-
-    os.system('cp INQUA_N INQUA_N_%s' % lam)
-    os.system('cp OUTPUT bndg_out_%s' % lam)
+                    jay=float(J0))
 
     smartEV, parCond, gsRatio = smart_ev(ma, threshold=10**-9)
     gsEnergy = smartEV[-1]
@@ -303,6 +308,9 @@ for channel in channels_4:
     # reformat the basis as input for the 5-body calculation
 
     assert len(lu_strus) == len(ob_strus)
+
+    os.system('cp INQUA_N INQUA_N_%s' % lam)
+    os.system('cp OUTPUT bndg_out_%s' % lam)
 
     outl = ''
     outs = ''

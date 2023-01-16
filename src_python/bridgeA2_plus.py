@@ -18,18 +18,18 @@ from multiprocessing.pool import ThreadPool
 
 # numerical stability
 minCond = 10**-13
-minidi_breed = 2.0
+minidi_breed = 0.1
 minidi_seed = minidi_breed
 minidi_breed_rel = minidi_breed
 denseEVinterval = [-2, 2]
 width_bnds = [0.0005, 28.25]
-deutDim = 6
+deutDim = 8
 
 # genetic parameters
 anzNewBV = 5
 muta_initial = 0.01
-anzGen = 9
-civ_size = 20
+anzGen = 12
+civ_size = 10
 target_pop_size = civ_size
 zop = 14
 
@@ -44,6 +44,7 @@ for channel in channels_2:
     subprocess.call('rm -rf %s/civ_*' % sysdir2, shell=True)
 
     os.chdir(sysdir2base)
+    print('>>> working directory: ', sysdir2base)
 
     prep_pot_file_2N(lam=lam, wiC=cloW, baC=cloB, ps2=nnpot)
     prep_pot_file_3N(lam=la, d10=d0, ps3=nnnpot)
@@ -76,7 +77,7 @@ for channel in channels_2:
         print('>>> seed civilizations: %d/%d' % (len(civs), civ_size))
 
     civs.sort(key=lambda tup: np.abs(tup[3]))
-    civs = sortprint(civs, pr=True)
+    civs = sortprint(civs, pr=False)
 
     for nGen in range(anzGen):
 
@@ -96,7 +97,7 @@ for channel in channels_2:
 
         while children < anzNewBV:
             twins = []
-            while len(twins) < int(55 * anzNewBV):
+            while len(twins) < int(42 * anzNewBV):
                 parent_pair = np.random.choice(range(civ_size),
                                                size=2,
                                                replace=False,
@@ -240,7 +241,7 @@ for channel in channels_2:
 
     print('\n\n')
 
-    civs = sortprint(civs, pr=True, ordn=2)
+    civs = sortprint(civs, pr=False, ordn=2)
 
     ma = blunt_ev2(cfgs=civs[0][0],
                    widi=civs[0][1],
@@ -249,7 +250,7 @@ for channel in channels_2:
                    costring=costr,
                    binpath=BINBDGpath,
                    potNN=nnpotstring,
-                   jay=J0,
+                   jay=float(J0),
                    funcPath=sysdir2)
 
     smartEV, parCond, smartRAT = smart_ev(ma, threshold=minCond)
@@ -278,3 +279,5 @@ for channel in channels_2:
 
     subprocess.run([BINBDGpath + 'S-POLE_PdP.exe'])
     os.system('cp PHAOUT phaout_%s' % (lam))
+    print(">>> 2-body phases calculated. End of day for channel %s\n" %
+          channel)

@@ -38,7 +38,8 @@ channels = [
     [['000-0'], ['hen_1s0', 'hen_6s0'], [1, 1, 0]],
 ]
 
-einzel4 = True
+# prepare spin/orbital matrices for parallel computation
+einzel4 = False
 
 if os.path.isdir(sysdir4) == False:
     subprocess.check_call(['mkdir', '-p', sysdir4])
@@ -168,6 +169,8 @@ for sysdir3 in threedirs:
     #                shell=True)
 
 idx = np.array(fragment_energies).argsort()[::-1]
+print(len(strus), strus)
+
 strus = sum([strus[id] for id in idx], [])
 zstrus = sum([zstrus[id] for id in idx], [])
 sbas = sum([sbas[id] for id in idx], [])
@@ -186,6 +189,11 @@ bv = 1
 varspacedim = sum([len(rset[1]) for rset in sbas])
 
 anzch = int(0.95 * (len(sum(cofli, [])) - 3 * len(cofli)))
+
+print(
+    '\n Commencing 4-body calculation with %d channels (physical + distortion).'
+    % anzch)
+print('>>> working directory: ', sysdir4)
 
 for nbv in range(1, varspacedim):
     relws = [
@@ -257,7 +265,11 @@ if findstablebas:
 
         if 'NOT CO' in lastline:
 
-            assert anzCh != 0
+            if anzCh == 0:
+                print(
+                    'Basis numerically unstable. Re-optimze the 2- and/or 3-body bases and/or select a different set of widths to expand the relative motion.'
+                )
+                exit()
 
             inen = [line for line in open('INEN')]
             for ll in range(len(inen)):
@@ -284,7 +296,8 @@ subprocess.run([BINBDGpath + 'TDR2END_AK.exe'])
 subprocess.run([BINBDGpath + 'S-POLE_zget.exe'])
 
 plotphas(oufi='4_body_phases.pdf')
-phdd = read_phase(phaout='PHAOUT', ch=[3, 3], meth=1, th_shift='')
+chToRead = [1, 1]
+phdd = read_phase(phaout='PHAOUT', ch=chToRead, meth=1, th_shift='')
 a_dd = [
     -MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /
     np.sqrt(2 * mn['137'] * phdd[n][0]) for n in range(len(phdd))

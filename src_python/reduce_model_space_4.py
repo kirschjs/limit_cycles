@@ -14,9 +14,9 @@ def redmod(bin_path):
 
     max_coeff = 11000
     min_coeff = 90
-    target_size = 100
-    nbr_cycles = 400
-    max_diff = 0.02
+    target_size = 60
+    nbr_cycles = 900
+    max_diff = 0.05
     ord = 0
 
     basis_size = 400000
@@ -108,7 +108,7 @@ def redmod(bin_path):
 
         np.random.shuffle(bv_to_del)
         #print(bv_to_del)
-        to_del = int(len(bv_to_del) / 4)
+        to_del = 4  #int(len(bv_to_del) / 4)
         # 1. loop over all bv from which relw can be deleted
         for rem in bv_to_del[:max(1, min(to_del,
                                          len(bv_to_del) - 1))] + bv_to_del0:
