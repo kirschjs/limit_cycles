@@ -40,8 +40,8 @@ def end2(para, send_end):
     # paras: widi,widr,sbas,potNN,potNNN,Jstreu,civ,binPath,coefstr
     #inqua_2(relw=widr, ps2=nnpot)
     inqua_2(relw=para[0], ps2=para[2], inquaout=inqf)
-    cmdqua = para[4] + 'QUAFL_N_pop.exe %s %s %s' % (inqf, outputqf,
-                                                     quaf_to_end)
+    cmdqua = para[4] + 'QUAFL_N_pop%s.exe %s %s %s' % (bin_suffix, inqf,
+                                                       outputqf, quaf_to_end)
     #subprocess.run([binPath + 'QUAFL_N.exe'])
     #inen_bdg_2(sbas, j=Jstreu, costr=coefstr)
     inen_bdg_2(para[1], j=para[3], costr=para[5], fn=inenf, pari=0)
@@ -49,8 +49,8 @@ def end2(para, send_end):
 
     #print(para)
 
-    cmdend = para[4] + 'DR2END_AK_pop.exe %s %s %s %s %s' % (
-        quaf_to_end, 'no3bodyfile', inenf, outputef, maoutf)
+    cmdend = para[4] + 'DR2END_AK_pop%s.exe %s %s %s %s %s' % (
+        bin_suffix, quaf_to_end, 'no3bodyfile', inenf, outputef, maoutf)
 
     pqua = subprocess.Popen(shlex.split(cmdqua),
                             stdout=subprocess.PIPE,
@@ -131,7 +131,7 @@ def span_population2(anz_civ,
     rWmin = 0.0001
 
     # orbital-angular-momentum dependent upper bound '=' UV cutoff (narrowest state)
-    rLcutoff = 95.
+    rLcutoff = 951.
     nwrel = ini_dims
     rel_scale = 1.
 
@@ -256,8 +256,8 @@ def endmat2(para, send_end):
 
     inen_bdg_2(para[0], j=para[1], costr=para[2], fn=inenf, pari=0)
 
-    cmdend = para[6] + 'DR2END_AK_PYpoolnoo.exe %s %s %s' % (inenf, outf,
-                                                             maoutf)
+    cmdend = para[6] + 'DR2END_AK_PYpoolnoo%s.exe %s %s %s' % (
+        bin_suffix, inenf, outf, maoutf)
 
     pend = subprocess.Popen(shlex.split(cmdend),
                             stdout=subprocess.PIPE,
@@ -353,7 +353,7 @@ def span_initial_basis2(channel,
     # lower bound for width parameters '=' IR cutoff (broadest state)
     rWmin = 0.0001
     # orbital-angular-momentum dependent upper bound '=' UV cutoff (narrowest state)
-    iLcutoff = 120.
+    iLcutoff = 420.
 
     wi, wf, nw = ini_grid_bounds[0], ini_grid_bounds[1], ini_dims
 
@@ -428,13 +428,13 @@ def span_initial_basis2(channel,
     #print(widi)
     inqua_2(relw=widi, ps2=nnpotstring)
     #exit()
-    subprocess.run([binPath + 'QUAFL_N.exe'])
+    subprocess.run([binPath + 'QUAFL_N%s.exe' % bin_suffix])
 
     inen_bdg_2(sbas, j=Jstreu, costr=coefstr)
 
     subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
 
-    subprocess.run([binPath + 'DR2END_AK.exe'])
+    subprocess.run([binPath + 'DR2END_AK%s.exe' % bin_suffix])
 
     suche_fehler()
 
@@ -537,8 +537,8 @@ def span_initial_basis3(fragments,
     rWmin = 0.0001
 
     # orbital-angular-momentum dependent upper bound '=' UV cutoff (narrowest state)
-    iLcutoff = 92.
-    rLcutoff = 92.
+    iLcutoff = 492.
+    rLcutoff = 492.
     nwint = ini_dims[0]
     nwrel = ini_dims[1]
     rel_scale = 1.
@@ -663,13 +663,13 @@ def span_initial_basis3(fragments,
 
         subprocess.run([
             MPIRUN, '--oversubscribe', '-np',
-            '%d' % anzproc, binPath + 'V18_PAR/mpi_quaf_v6'
+            '%d' % anzproc, binPath + 'V18_PAR/mpi_quaf_v6%s' % bin_suffix
         ])
         subprocess.run([binPath + 'V18_PAR/sammel'])
         subprocess.call('rm -rf DMOUT.*', shell=True)
 
     else:
-        subprocess.run([binPath + 'QUAFL_N.exe'])
+        subprocess.run([binPath + 'QUAFL_N%s.exe' % bin_suffix])
 
     subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
 
@@ -697,18 +697,18 @@ def span_initial_basis3(fragments,
             subprocess.run([binPath + 'UIX_PAR/SAMMEL-uix'])
             subprocess.call('rm -rf DRDMOUT.*', shell=True)
 
-            subprocess.run([binPath + 'TDR2END_AK.exe'])
+            subprocess.run([binPath + 'TDR2END_AK%s.exe' % bin_suffix])
             subprocess.call('cp OUTPUT out_normal', shell=True)
         else:
             subprocess.run([binPath + 'DRQUA_AK_N.exe'])
-            subprocess.run([binPath + 'DR2END_AK.exe'])
+            subprocess.run([binPath + 'DR2END_AK%s.exe' % bin_suffix])
 
     elif tnni == 10:
         if parall == -1:
-            subprocess.run([binPath + 'TDR2END_AK.exe'])
+            subprocess.run([binPath + 'TDR2END_AK%s.exe' % bin_suffix])
             subprocess.call('cp OUTPUT out_normal', shell=True)
         else:
-            subprocess.run([binPath + 'DR2END_AK.exe'])
+            subprocess.run([binPath + 'DR2END_AK%s.exe' % bin_suffix])
 
     subprocess.call('cp -rf INQUA_N INQUA_N_UIX', shell=True)
     suche_fehler()
@@ -775,13 +775,13 @@ def end3(para, send_end):
     inqua_3(intwi=para[0], relwi=para[1], potf=para[3], inquaout=inqf)
     inqua_3(intwi=para[0], relwi=para[1], potf=para[4], inquaout=indqf)
 
-    cmdqua = para[7] + 'QUAFL_N_pop.exe %s %s %s' % (inqf, outputqf,
-                                                     quaf_to_end)
+    cmdqua = para[7] + 'QUAFL_N_pop%s.exe %s %s %s' % (bin_suffix, inqf,
+                                                       outputqf, quaf_to_end)
     cmddrqua = para[7] + 'DRQUA_AK_N_pop.exe %s %s %s' % (indqf, outputdrqf,
                                                           drquaf_to_end)
 
-    cmdend = para[7] + 'DR2END_AK_pop.exe %s %s %s %s %s' % (
-        quaf_to_end, drquaf_to_end, inenf, outputef, maoutf)
+    cmdend = para[7] + 'DR2END_AK_pop%s.exe %s %s %s %s %s' % (
+        bin_suffix, quaf_to_end, drquaf_to_end, inenf, outputef, maoutf)
 
     pqua = subprocess.Popen(shlex.split(cmdqua),
                             stdout=subprocess.PIPE,
@@ -879,8 +879,8 @@ def span_population3(anz_civ,
     rWmin = 0.0001
 
     # orbital-angular-momentum dependent upper bound '=' UV cutoff (narrowest state)
-    iLcutoff = 92.
-    rLcutoff = 92.
+    iLcutoff = 492.
+    rLcutoff = 492.
     nwint = ini_dims[0]
     nwrel = ini_dims[1]
     rel_scale = 1.
@@ -1033,7 +1033,7 @@ def span_population3(anz_civ,
     samp_ladder = [x.recv() for x in samp_list]
 
     for cand in samp_ladder:
-        if ((cand[2] < 0) & (cand[3] > minC)):
+        if ((cand[2] < 0.3) & (cand[3] > minC)):
             cfgg = np.transpose(np.array([sfrags2, lfrags2])).tolist()
 
             cand_list.append([cfgg] + cand)
@@ -1063,6 +1063,7 @@ def prepare_einzel3(funcPath, binPath):
             'he_no6',
             'he_no6y',
             't_no1',
+            't_no2',
             't_no6',
         ],
                8,
@@ -1085,6 +1086,7 @@ def prepare_einzel3(funcPath, binPath):
             'he_no6',
             'he_no6y',
             't_no1',
+            't_no2',
             't_no6',
         ],
                15,
@@ -1234,13 +1236,13 @@ def end4(para, send_end):
     inqua_4(intwi=para[0], relwi=para[1], potf=para[3], inquaout=inqf)
     inqua_4(intwi=para[0], relwi=para[1], potf=para[4], inquaout=indqf)
 
-    cmdqua = para[7] + 'QUAFL_N_pop.exe %s %s %s' % (inqf, outputqf,
-                                                     quaf_to_end)
+    cmdqua = para[7] + 'QUAFL_N_pop%s.exe %s %s %s' % (bin_suffix, inqf,
+                                                       outputqf, quaf_to_end)
     cmddrqua = para[7] + 'DRQUA_AK_N_pop.exe %s %s %s' % (indqf, outputdrqf,
                                                           drquaf_to_end)
 
-    cmdend = para[7] + 'DR2END_AK_pop.exe %s %s %s %s %s' % (
-        quaf_to_end, drquaf_to_end, inenf, outputef, maoutf)
+    cmdend = para[7] + 'DR2END_AK_pop%s.exe %s %s %s %s %s' % (
+        bin_suffix, quaf_to_end, drquaf_to_end, inenf, outputef, maoutf)
 
     pqua = subprocess.Popen(shlex.split(cmdqua),
                             stdout=subprocess.PIPE,
@@ -1341,8 +1343,8 @@ def span_population4(anz_civ,
     rWmin = 0.0001
 
     # orbital-angular-momentum dependent upper bound '=' UV cutoff (narrowest state)
-    iLcutoff = 192.
-    rLcutoff = 192.
+    iLcutoff = 492.
+    rLcutoff = 492.
     nwint = ini_dims[0]
     nwrel = ini_dims[1]
     rel_scale = 1.
@@ -1546,7 +1548,8 @@ def endmat(para, send_end):
                nzop=para[3],
                tni=para[4])
 
-    cmdend = para[6] + 'TDR2END_PYpoolnoo.exe %s %s %s' % (inenf, outf, maoutf)
+    cmdend = para[6] + 'TDR2END_PYpoolnoo%s.exe %s %s %s' % (bin_suffix, inenf,
+                                                             outf, maoutf)
 
     pend = subprocess.Popen(shlex.split(cmdend),
                             stdout=subprocess.PIPE,
@@ -1631,7 +1634,7 @@ def blunt_ev2(cfgs, widi, basis, nzopt, costring, binpath, potNN, jay,
     os.system(binpath + 'KOBER.exe')
 
     inqua_2(relw=widi, ps2=potNN)
-    subprocess.run([binpath + 'QUAFL_N.exe'])
+    subprocess.run([binpath + 'QUAFL_N%s.exe' % bin_suffix])
 
     inen_bdg_2(basis, j=jay, costr=costring, fn='INEN')
 
@@ -1646,7 +1649,7 @@ def blunt_ev2(cfgs, widi, basis, nzopt, costring, binpath, potNN, jay,
 
     subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
 
-    subprocess.run([binpath + 'DR2END_AK.exe'])
+    subprocess.run([binpath + 'DR2END_AK%s.exe' % bin_suffix])
 
     NormHam = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
 
@@ -1702,12 +1705,12 @@ def blunt_ev3(cfgs,
 
         subprocess.run([
             mpipath, '--oversubscribe', '-np',
-            '%d' % anzcores, bin_path + 'V18_PAR/mpi_quaf_v6'
+            '%d' % anzcores, bin_path + 'V18_PAR/mpi_quaf_v6%s' % bin_suffix
         ])
         subprocess.run([bin_path + 'V18_PAR/sammel'])
         subprocess.call('rm -rf DMOUT.*', shell=True)
     else:
-        subprocess.run([bin_path + 'QUAFL_N.exe'])
+        subprocess.run([bin_path + 'QUAFL_N%s.exe' % bin_suffix])
 
     subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
     if tnnii == 11:
@@ -1739,24 +1742,24 @@ def blunt_ev3(cfgs,
             subprocess.run([bin_path + 'UIX_PAR/SAMMEL-uix'])
             subprocess.call('rm -rf DRDMOUT.*', shell=True)
             subprocess.run([
-                bin_path + 'TDR2END_PYpoolnoo.exe', 'INEN',
+                bin_path + 'TDR2END_PYpoolnoo%s.exe' % bin_suffix, 'INEN',
                 'OUTPUT_TDR2END_PYpoolnoo', 'MATOUTB'
             ],
                            capture_output=True,
                            text=True)
         else:
             subprocess.run([bin_path + 'DRQUA_AK_N.exe'])
-            subprocess.run([bin_path + 'DR2END_AK.exe'])
+            subprocess.run([bin_path + 'DR2END_AK%s.exe' % bin_suffix])
     elif tnnii == 10:
         if parall == -1:
             subprocess.run([
-                bin_path + 'TDR2END_PYpoolnoo.exe', 'INEN',
+                bin_path + 'TDR2END_PYpoolnoo%s.exe' % bin_suffix, 'INEN',
                 'OUTPUT_TDR2END_PYpoolnoo', 'MATOUTB'
             ],
                            capture_output=True,
                            text=True)
         else:
-            subprocess.run([bin_path + 'DR2END_AK.exe'])
+            subprocess.run([bin_path + 'DR2END_AK%s.exe' % bin_suffix])
 
     subprocess.call('cp -rf INQUA_N INQUA_N_UIX', shell=True)
     NormHam = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
@@ -1812,12 +1815,12 @@ def blunt_ev4t(cfgs,
 
         subprocess.run([
             mpipath, '--oversubscribe', '-np',
-            '%d' % anzcores, bin_path + 'V18_PAR/mpi_quaf_v6'
+            '%d' % anzcores, bin_path + 'V18_PAR/mpi_quaf_v6%s' % bin_suffix
         ])
         subprocess.run([bin_path + 'V18_PAR/sammel'])
         subprocess.call('rm -rf DMOUT.*', shell=True)
     else:
-        subprocess.run([bin_path + 'QUAFL_N.exe'])
+        subprocess.run([bin_path + 'QUAFL_N%s.exe' % bin_suffix])
 
     subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
     if tnnii == 11:
@@ -1849,24 +1852,24 @@ def blunt_ev4t(cfgs,
             subprocess.run([bin_path + 'UIX_PAR/SAMMEL-uix'])
             subprocess.call('rm -rf DRDMOUT.*', shell=True)
             subprocess.run([
-                bin_path + 'TDR2END_PYpoolnoo.exe', 'INEN',
+                bin_path + 'TDR2END_PYpoolnoo%s.exe' % bin_suffix, 'INEN',
                 'OUTPUT_TDR2END_PYpoolnoo', 'MATOUTB'
             ],
                            capture_output=True,
                            text=True)
         else:
             subprocess.run([bin_path + 'DRQUA_AK_N.exe'])
-            subprocess.run([bin_path + 'DR2END_AK.exe'])
+            subprocess.run([bin_path + 'DR2END_AK%s.exe' % bin_suffix])
     elif tnnii == 10:
         if parall == -1:
             subprocess.run([
-                bin_path + 'TDR2END_PYpoolnoo.exe', 'INEN',
+                bin_path + 'TDR2END_PYpoolnoo%s.exe' % bin_suffix, 'INEN',
                 'OUTPUT_TDR2END_PYpoolnoo', 'MATOUTB'
             ],
                            capture_output=True,
                            text=True)
         else:
-            subprocess.run([bin_path + 'DR2END_AK.exe'])
+            subprocess.run([bin_path + 'DR2END_AK%s.exe' % bin_suffix])
 
     subprocess.call('cp -rf INQUA_N INQUA_N_UIX', shell=True)
     NormHam = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
@@ -1894,18 +1897,18 @@ def blunt_ev3_parallel(cfgs,
     inqua_3(intwi=intws, relwi=relws, potf=potNN, inquaout='INQUA_N')
     inen_bdg_3(basis, jay, costring, fn='INEN', pari=0, nzop=nzopt, tni=tnnii)
 
-    subprocess.run([bin_path + 'QUAFL_N.exe'])
+    subprocess.run([bin_path + 'QUAFL_N%s.exe' % bin_suffix])
 
     if tnnii == 11:
 
         inqua_3(intwi=intws, relwi=relws, potf=potNNN, inquaout='INQUA_N')
         subprocess.run([bin_path + 'DRQUA_AK_N.exe'])
 
-        subprocess.run([bin_path + 'DR2END_AK.exe'])
+        subprocess.run([bin_path + 'DR2END_AK%s.exe' % bin_suffix])
 
     elif tnnii == 10:
 
-        subprocess.run([bin_path + 'DR2END_AK.exe'])
+        subprocess.run([bin_path + 'DR2END_AK%s.exe' % bin_suffix])
 
     NormHam = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
 
@@ -1976,12 +1979,12 @@ def blunt_ev4(cfgs,
 
         subprocess.run([
             mpipath, '--oversubscribe', '-np',
-            '%d' % anzcores, bin_path + 'V18_PAR/mpi_quaf_v6'
+            '%d' % anzcores, bin_path + 'V18_PAR/mpi_quaf_v6%s' % bin_suffix
         ])
         subprocess.run([bin_path + 'V18_PAR/sammel'])
         subprocess.call('rm -rf DMOUT.*', shell=True)
     else:
-        subprocess.run([bin_path + 'QUAFL_N.exe'])
+        subprocess.run([bin_path + 'QUAFL_N%s.exe' % bin_suffix])
 
     subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
     if tnnii == 11:
@@ -2013,16 +2016,16 @@ def blunt_ev4(cfgs,
             #    bin_path + 'TDR2END_PYpoolnoo.exe', 'INEN',
             #    'OUTPUT_TDR2END_PYpoolnoo', 'MATOUTB'
             #],capture_output=True, text=True)
-            subprocess.run([bin_path + 'TDR2END_AK.exe'],
+            subprocess.run([bin_path + 'TDR2END_AK%s.exe' % bin_suffix],
                            capture_output=True,
                            text=True)
         else:
             subprocess.run([bin_path + 'DRQUA_AK_N.exe'])
-            subprocess.run([bin_path + 'DR2END_AK.exe'])
+            subprocess.run([bin_path + 'DR2END_AK%s.exe' % bin_suffix])
 
     elif tnnii == 10:
         if parall == -1:
-            subprocess.run([bin_path + 'TDR2END_AK.exe'],
+            subprocess.run([bin_path + 'TDR2END_AK%s.exe' % bin_suffix],
                            capture_output=True,
                            text=True)
             #subprocess.run([
@@ -2032,7 +2035,7 @@ def blunt_ev4(cfgs,
             #               capture_output=True,
             #               text=True)
         else:
-            subprocess.run([bin_path + 'DR2END_AK.exe'])
+            subprocess.run([bin_path + 'DR2END_AK%s.exe' % bin_suffix])
 
     NormHam = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
 
@@ -2103,12 +2106,12 @@ def blunt_ev5(cfgs,
 
         subprocess.run([
             mpipath, '--oversubscribe', '-np',
-            '%d' % anzcores, bin_path + 'V18_PAR/mpi_quaf_v6'
+            '%d' % anzcores, bin_path + 'V18_PAR/mpi_quaf_v6%s' % bin_suffix
         ])
         subprocess.run([bin_path + 'V18_PAR/sammel'])
         subprocess.call('rm -rf DMOUT.*', shell=True)
     else:
-        subprocess.run([bin_path + 'QUAFL_N.exe'])
+        subprocess.run([bin_path + 'QUAFL_N%s.exe' % bin_suffix])
 
     subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
 
@@ -2141,16 +2144,16 @@ def blunt_ev5(cfgs,
             #    bin_path + 'TDR2END_PYpoolnoo.exe', 'INEN',
             #    'OUTPUT_TDR2END_PYpoolnoo', 'MATOUTB'
             #],capture_output=True, text=True)
-            subprocess.run([bin_path + 'TDR2END_AK.exe'],
+            subprocess.run([bin_path + 'TDR2END_AK%s.exe' % bin_suffix],
                            capture_output=True,
                            text=True)
         else:
             subprocess.run([bin_path + 'DRQUA_AK_N.exe'])
-            subprocess.run([bin_path + 'DR2END_AK.exe'])
+            subprocess.run([bin_path + 'DR2END_AK%s.exe' % bin_suffix])
 
     elif tnnii == 10:
         if parall == -1:
-            subprocess.run([bin_path + 'TDR2END_AK.exe'],
+            subprocess.run([bin_path + 'TDR2END_AK%s.exe' % bin_suffix],
                            capture_output=True,
                            text=True)
             #subprocess.run([
@@ -2160,7 +2163,7 @@ def blunt_ev5(cfgs,
             #               capture_output=True,
             #               text=True)
         else:
-            subprocess.run([bin_path + 'DR2END_AK.exe'])
+            subprocess.run([bin_path + 'DR2END_AK%s.exe' % bin_suffix])
 
     NormHam = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
 

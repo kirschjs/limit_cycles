@@ -14,7 +14,10 @@ def check_dist(width_array1=[], width_array2=[], minDist=0.5):
             for n in range(m):
                 delt = np.linalg.norm(width_array1[m] - width_array1[n])
 
-                assert delt != 0
+                if delt == 0:
+                    print('identical widths in ws:\n', width_array1)
+                    tooClose = True
+                    return tooClose
 
                 nm = np.max([
                     np.linalg.norm(width_array1[m]) / delt,

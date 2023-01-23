@@ -18,21 +18,21 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 
 # numerical stability
-mindi = 10.0
-width_bnds = [0.1, 8.15, 0.2, 5.25]
+mindi = 0.2
+width_bnds = [0.1, 128.15, 0.2, 35.25]
 minCond = 10**-14
 maxRat = 10**19
 
 # genetic parameters
-anzNewBV = 8
+anzNewBV = 4
 muta_initial = .002
-anzGen = 42
-seed_civ_size = 100
-target_pop_size = 100
+anzGen = 10
+seed_civ_size = 20
+target_pop_size = 20
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 12
+nBV = 8
 nREL = 8
 
 J0 = 0
@@ -58,9 +58,9 @@ for channel in channels_4:
         if ((nn == 1) & (withCoul == True)):
             cf = 1.0
         elif (nn == 2):
-            cf = tnf
+            cf = twofac
         elif (nn == 14):
-            cf = tnnifac
+            cf = tnifac
         else:
             cf = 0.0
 

@@ -24,8 +24,8 @@ from multiprocessing.pool import ThreadPool
 
 #import bridgeA4_opt
 
-findstablebas = 0
-newCal = 0
+findstablebas = 1
+newCal = 1
 einzel5 = True
 
 J0 = 0.5
@@ -54,9 +54,9 @@ for nn in range(1, zop):
     if ((nn == 1) & (withCoul == True)):
         cf = 1.0
     elif (nn == 2):
-        cf = tnf
+        cf = twofac
     elif (nn == 14):
-        cf = tnnifac
+        cf = tnifac
     else:
         cf = 0.0
 
@@ -176,7 +176,7 @@ if findstablebas:
         inenLine = inen[7][:4] + '%4d' % (len(channels) + anzCh) + inen[7][8:]
         print(inenLine)
         repl_line('INEN', 7, inenLine)
-        subprocess.run([BINBDGpath + 'TDR2END_AK.exe'])
+        subprocess.run([BINBDGpath + 'TDR2END_AK%s.exe' % bin_suffix])
         lastline = [ll for ll in open('OUTPUT')][-1]
 
         nEV = get_n_ev()
@@ -208,7 +208,7 @@ if findstablebas:
         else:
             anzCh += 1
 
-subprocess.run([BINBDGpath + 'TDR2END_AK.exe'])
+subprocess.run([BINBDGpath + 'TDR2END_AK%s.exe' % bin_suffix])
 
 eh = get_h_ev()
 

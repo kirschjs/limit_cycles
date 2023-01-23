@@ -20,8 +20,8 @@ from parameters_and_constants import *
 import multiprocessing
 from multiprocessing.pool import ThreadPool
 
-#import bridgeA2_plus
-#import bridgeA3_plus
+import bridgeA2_plus
+import bridgeA3_plus
 
 findstablebas = 1
 newCal = 1
@@ -32,14 +32,14 @@ J0 = 0
 J1J2SC = []
 channels = [
     #[['000-0'], ['nn1s_nn1s_S0'], [0, 0, 0]],  # no DSI
-    [['000-0'], ['np1s_np1s_S0'], [0, 0, 0]],  # DSI
-    #[['000-0'], ['np3s_np3s_S0'], [2, 2, 0]],  # DSI
+    #[['000-0'], ['np1s_np1s_S0'], [0, 0, 0]],  # DSI
+    [['000-0'], ['np3s_np3s_S0'], [2, 2, 0]],  # DSI
     [['000-0'], ['tp_1s0', 'tp_6s0'], [1, 1, 0]],
     [['000-0'], ['hen_1s0', 'hen_6s0'], [1, 1, 0]],
 ]
 
 # prepare spin/orbital matrices for parallel computation
-einzel4 = False
+einzel4 = True
 
 if os.path.isdir(sysdir4) == False:
     subprocess.check_call(['mkdir', '-p', sysdir4])
@@ -55,9 +55,9 @@ for nn in range(1, zop):
     if ((nn == 1) & (withCoul == True)):
         cf = 1.0
     elif (nn == 2):
-        cf = tnf
+        cf = twofac
     elif (nn == 14):
-        cf = tnnifac
+        cf = tnifac
     else:
         cf = 0.0
 
@@ -260,7 +260,7 @@ if findstablebas:
         inenLine = inen[7][:4] + '%4d' % (len(channels) + anzCh) + inen[7][8:]
         #print(inenLine)
         repl_line('INEN', 7, inenLine)
-        subprocess.run([BINBDGpath + 'TDR2END_AK.exe'])
+        subprocess.run([BINBDGpath + 'TDR2END_AK%s.exe' % bin_suffix])
         lastline = [ll for ll in open('OUTPUT')][-1]
 
         if 'NOT CO' in lastline:
@@ -292,7 +292,7 @@ if findstablebas:
         else:
             anzCh += 1
 
-subprocess.run([BINBDGpath + 'TDR2END_AK.exe'])
+subprocess.run([BINBDGpath + 'TDR2END_AK%s.exe' % bin_suffix])
 subprocess.run([BINBDGpath + 'S-POLE_zget.exe'])
 
 plotphas(oufi='4_body_phases.pdf')

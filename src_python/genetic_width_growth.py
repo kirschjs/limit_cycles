@@ -421,7 +421,12 @@ def bin_to_float(binary):
     return struct.unpack('!f', struct.pack('!I', int(binary, 2)))[0]
 
 
-def intertwining(p1, p2, mutation_rate=0.0, wMin=0.001, wMax=20., dbg=False):
+def intertwining(p1,
+                 p2,
+                 mutation_rate=0.0,
+                 wMin=0.00001,
+                 wMax=920.,
+                 dbg=False):
 
     Bp1 = float_to_bin(p1)
     Bp2 = float_to_bin(p2)

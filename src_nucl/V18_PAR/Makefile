@@ -37,6 +37,15 @@ mpi_quaf_v7: mpi_quaf_v7.o
 mpi_quaf_eft_v1: mpi_quaf_eft_v1.o 
 	$(F77) $(FOPTS) $(MAKRO) -o $@ mpi_quaf_eft_v1.o   $(LIBS) $(MPI) 
 
+mpi_quaf_v6_m1: mpi_quaf_v6_m1.o 
+	$(F77) $(FOPTS) $(MAKRO) -o $@ mpi_quaf_v6_m1.o   $(LIBS) $(MPI) 
+
+mpi_quaf_v7_m1: mpi_quaf_v7_m1.o 
+	$(F77) $(FOPTS) $(MAKRO) -o $@ mpi_quaf_v7_m1.o   $(LIBS) $(MPI) 
+
+mpi_quaf_eft_m1: mpi_quaf_eft_m1.o 
+	$(F77) $(FOPTS) $(MAKRO) -o $@ mpi_quaf_eft_m1.o   $(LIBS) $(MPI) 
+
 mpi_quaf_eft_pi: mpi_quaf_eft_pi.o 
 	$(F77) $(FOPTS) $(MAKRO) -o $@ mpi_quaf_eft_pi.o   $(LIBS) $(MPI) 
 
@@ -46,4 +55,4 @@ sammel: sammel.o
 clean:
 	$(RM) *.o *.exe pvm_tniq *~
 
-all: mpi_quaf_v6 sammel clean
+all: mpi_quaf_v6 mpi_quaf_v6_m1 sammel clean

@@ -22,8 +22,8 @@ minidi_breed = 0.1
 minidi_seed = minidi_breed
 minidi_breed_rel = minidi_breed
 denseEVinterval = [-2, 2]
-width_bnds = [0.0005, 28.25]
-deutDim = 8
+width_bnds = [0.0005, 8.25]
+deutDim = 6
 
 # genetic parameters
 anzNewBV = 5
@@ -54,7 +54,7 @@ for channel in channels_2:
 
     costr = ''
     for nn in range(1, zop):
-        cf = tnf if (1 <= nn <= 28) else 0.0
+        cf = twofac if (1 <= nn <= 28) else 0.0
         costr += '%12.7f' % cf if (nn % 7 != 0) else '%12.7f\n' % cf
 
     # 1) prepare an initial set of bases ----------------------------------------------------------------------------------
@@ -263,7 +263,7 @@ for channel in channels_2:
     os.system('cp OUTPUT bndg_out_%s' % (lam))
     os.system('cp INEN INEN_BDG')
     os.system('cp INEN_STR INEN')
-    subprocess.run([BINBDGpath + 'DR2END_AK.exe'])
+    subprocess.run([BINBDGpath + 'DR2END_AK%s.exe' % bin_suffix])
 
     print(">>> calculating 2-body phases.")
     spole_2(nzen=nzEN,

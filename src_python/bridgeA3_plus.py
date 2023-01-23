@@ -18,15 +18,15 @@ from multiprocessing.pool import ThreadPool
 from four_particle_functions import from3to4
 
 # numerical stability
-mindi = 0.1
+mindi = 0.2
 
-width_bnds = [0.01, 14.15, 0.02, 12.25]
-minCond = 10**-12
+width_bnds = [0.01, 5.15, 0.02, 8.25]
+minCond = 10**-14
 
 # genetic parameters
-anzNewBV = 6
+anzNewBV = 4
 muta_initial = .02
-anzGen = 8
+anzGen = 28
 seed_civ_size = 20
 target_pop_size = 20
 
@@ -56,9 +56,9 @@ for channel in channels_3:
         if ((nn == 1) & (withCoul == True)):
             cf = 1.0
         elif (nn == 2):
-            cf = tnf
+            cf = twofac
         elif (nn == 14):
-            cf = tnnifac
+            cf = tnifac
         else:
             cf = 0.0
 
@@ -70,7 +70,7 @@ for channel in channels_3:
     civs = []
     while len(civs) < seed_civ_size:
         new_civs, basi = span_population3(anz_civ=int(3 * seed_civ_size),
-                                          fragments=[channels_3[channel]],
+                                          fragments=channels_3[channel],
                                           Jstreu=float(J0),
                                           coefstr=costr,
                                           funcPath=sysdir3,
@@ -85,8 +85,7 @@ for channel in channels_3:
         print('>>> seed civilizations: %d/%d' % (len(civs), seed_civ_size))
 
     civs.sort(key=lambda tup: np.abs(tup[3]))
-    civs = sortprint(civs, pr=False)
-
+    civs = sortprint(civs, pr=True)
     for nGen in range(anzGen):
         tic = time.time()
 
