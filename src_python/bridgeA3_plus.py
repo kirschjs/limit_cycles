@@ -26,13 +26,13 @@ minCond = 10**-14
 # genetic parameters
 anzNewBV = 4
 muta_initial = .02
-anzGen = 28
-seed_civ_size = 20
-target_pop_size = 20
+anzGen = 20
+seed_civ_size = 10
+target_pop_size = 10
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 8
+nBV = 6
 nREL = 6
 
 J0 = 1 / 2
