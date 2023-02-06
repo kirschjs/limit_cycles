@@ -307,7 +307,7 @@ parall = -1
 # too many files too be opened simulataneously
 maxParLen = 120
 
-lam = 10.00    # 0.50 0.75 1.00 1.50 2.00 3.00 4.00 6.00 8.00 10.0
+lam = 4.00    # 0.50 0.75 1.00 1.50 2.00 3.00 4.00 6.00 8.00 10.0
 # lec_list_nucl_n  : spin-dependent LO pionless interaction: 2 2-body LECs (deuteron, a(1S0)=-23fm), 1 3-body LEC (triton)
 # lec_list_SU4     : spin-independent (SU(4) symmetric) LO pionless: 1 2-body LEC (deuteron), 1 3-body LEC (triton)
 lec_set = lec_list_SU4  #lec_list_m1  #  lec_list_unitary  # lec_list_oneMEV  #  lec_list_SU4  #

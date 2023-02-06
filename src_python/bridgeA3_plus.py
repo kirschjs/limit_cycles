@@ -32,8 +32,8 @@ target_pop_size = 10
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 6
-nREL = 6
+nBV = 7
+nREL = 7
 
 J0 = 1 / 2
 
