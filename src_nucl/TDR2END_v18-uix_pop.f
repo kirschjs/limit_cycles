@@ -1254,7 +1254,7 @@ c     *   FORM='UNFORMATTED')
 c      CLOSE(UNIT=29,STATUS='KEEP')      
 c --- if this line is reached, hamilton and norm matrix were stored
 
-      STOP 'TDR2END_PYpool.f:   NORM, HAMILTONIAN MATRICES WRITTEN.'
+      STOP
 
   950 CONTINUE
 C
