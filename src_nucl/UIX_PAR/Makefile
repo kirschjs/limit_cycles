@@ -23,28 +23,28 @@ clean:
 	rm -f *.o core
 
 
-mpi_quaf_v6.o:  mpi_quaf_v6.F  par.h Makefile
+mpi_drqua_n_v18-uix.o:  mpi_drqua_n_v18-uix.F  par.h Makefile
+mpi_drqua_m_v18-uix.o:  mpi_drqua_m_v18-uix.F  par.h Makefile
+mpi_drqua_n_eft-cib.o:  mpi_drqua_n_eft-cib.F  par-cib.h Makefile
+mpi_drqua_m_eft-cib.o:  mpi_drqua_m_eft-cib.F  par-cib.h Makefile
 
-mpi_drqua_i.o:  mpi_drqua_i.F  par.h Makefile
 
-mpi_drqua_uix.o:  mpi_drqua_uix.F  par.h Makefile
+mpi_drqua_n_v18-uix: mpi_drqua_n_v18-uix.o
+	$(F77) $(FFLAGS) $(MAKRO) -o mpi_drqua_n_v18-uix mpi_drqua_n_v18-uix.o $(LIBS) $(MPI)
 
-mpi_quaf_v6: mpi_quaf_v6.o
-	$(F77) $(FFLAGS) $(MAKRO) -o mpi_quaf_v6_l mpi_quaf_v6.o $(LIBS) $(MPI)
+mpi_drqua_m_v18-uix: mpi_drqua_m_v18-uix.o
+	$(F77) $(FFLAGS) $(MAKRO) -o mpi_drqua_m_v18-uix mpi_drqua_m_v18-uix.o $(LIBS) $(MPI)
 
-mpi_drqua_i: mpi_drqua_i.o
-	$(F77) $(FFLAGS) $(MAKRO) -o mpi_drqua_i_l mpi_drqua_i.o $(LIBS) $(MPI)
+mpi_drqua_n_eft-cib: mpi_drqua_n_eft-cib.o
+	$(F77) $(FFLAGS) $(MAKRO) -o mpi_drqua_n_eft-cib mpi_drqua_n_eft-cib.o $(LIBS) $(MPI)
 
-mpi_drqua_uix: mpi_drqua_uix.o
-	$(F77) $(FFLAGS) $(MAKRO) -o mpi_drqua_uix mpi_drqua_uix.o $(LIBS) $(MPI)
+mpi_drqua_m_eft-cib: mpi_drqua_m_eft-cib.o
+	$(F77) $(FFLAGS) $(MAKRO) -o mpi_drqua_m_eft-cib mpi_drqua_m_eft-cib.o $(LIBS) $(MPI)
 
-mpi_drqua_v7: mpi_drqua_v7.o
-	$(F77) $(FFLAGS) $(MAKRO) -o mpi_drqua_v7 mpi_drqua_v7.o $(LIBS) $(MPI)
+drsammel_v18-uix: drsammel_v18-uix.o  par.h
+	$(F77) $(FOPTS) $(MAKRO) -o $@ drsammel_v18-uix.o $(LIBS)
 
-sammel: sammel.o
-	$(F77) $(FOPTS) $(MAKRO) -o $@ sammel.o $(LIBS)
+drsammel_eft-cib: drsammel_eft-cib.o  par-cib.h
+	$(F77) $(FOPTS) $(MAKRO) -o $@ drsammel_eft-cib.o $(LIBS)
 
-SAMMEL-uix: SAMMEL-uix.o  par.h
-	$(F77) $(FOPTS) $(MAKRO) -o $@ SAMMEL-uix.o $(LIBS)
-
-all: mpi_drqua_uix SAMMEL-uix clean
+all: mpi_drqua_n_v18-uix mpi_drqua_m_v18-uix mpi_drqua_n_eft-cib mpi_drqua_m_eft-cib drsammel_v18-uix drsammel_eft-cib clean

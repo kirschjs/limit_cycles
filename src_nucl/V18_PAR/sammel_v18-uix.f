@@ -1,56 +1,54 @@
       PROGRAM SAMMEL
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 
-C
-C      INTEGERS IM FORMAT 24I3, REALS IM FORMAT 6E12.4
-C
-      include "par/DRQUA_AK"
+      include "par.h"
       
-C     NZOPER: ANZAHL DER OPERATOREN IN QUAF
-C     NZFMAX:     "      "     "  ZERLEGUNGEN
-C     NZRHOM:     "      "     "  BASISVEKTOREN PRO ZERLEGUNG
-C     MZPARM:     "      "     "  RADIALPARAMETER
+C       NZOPER: ANZAHL DER OPERATOREN IN QUAF
+C       NZFMAX:     "      "     "  ZERLEGUNGEN
+C       NZRHOM:     "      "     "  BASISVEKTOREN PRO ZERLEGUNG
+C       MZPARM:     "      "     "  RADIALPARAMETER
 C
       parameter (lind=(nzfmax*(nzfmax+1))/2*nzoper)
       integer nteil
+C 
 C
       dimension index(lind),mop(lind),mmfr(lind)
       DIMENSION   NUM(NZRHOM,NZFMAX),kmax(nzfmax),
      *           MZPAR(NZFMAX), NZRHO(NZFMAX),kmin(nzfmax)
-      COMMON    DM(NDIM,NDIM,2,nzfmax,nzoper)
+      DIMENSION    DM(NDIM,NDIM,2,nzfmax,nzoper)
       DIMENSION IOP(0:NZFMAX)
-      DIMENSION LREG(NZOPER)
+      DIMENSION LREG(NZOPER) 
 C
       character*80  fnumber, qname
+
  
-         OPEN(UNIT=10,FILE='DRQUAOUT',STATUS='OLD',FORM='UNFORMATTED')
-         OPEN(UNIT=14,FILE='DRFINDEX',STATUS='OLD',FORM='UNFORMATTED')
-         OPEN(UNIT=5 ,FILE='INSAM',STATUS='OLD')
+C
+         OPEN(UNIT=10,FILE='QUAOUT',STATUS='OLD',FORM='UNFORMATTED')
+         OPEN(UNIT=14,FILE='FINDEX',STATUS='OLD',FORM='UNFORMATTED')
+         OPEN(UNIT=15,FILE='INSAM',STATUS='OLD',FORM='FORMATTED')
          OPEN(UNIT=16 ,FILE='OUTPUT',
      $        STATUS='REPLACE', FORM='FORMATTED')
 
+      INPUT=15
+      NOUT=16
       WRITE(NOUT, 1111)
-      
-1111  FORMAT('1 DRSAMMEL VERSION VOM 7.9.01')
-      INPUT=5
+       
+1111  FORMAT('1 SAMMEL VERSION VOM 5.9.01')
+C
       nband1=10
-      read(input,1002) jfilmax,naus,ntest
+      read(input,1002) jfilmax,naus
       I=0
-      WRITE (NOUT,*) ' Matrizen in files DROUTDM.',jfilmax        
+      WRITE (NOUT,*) ' Matrizen in files OUTDM.',jfilmax
       read(input,1002) mflu,mflo
       write(nout,*) 'Es wird von Zerlegung ',mflu,' bis ',mflo,
      *    ' aufgesammelt'
       REWIND NBAND1
-            close(unit=nout, status='keep')
-         OPEN(UNIT=16 ,FILE='OUTPUT',
-     $        POSITION='APPEND', FORM='FORMATTED')
+
       READ(NBAND1) NZF,(LREG(K),K=1,NZOPER),NZBASV2,(NZRHO(K),K=1,NZF)
       DO 22  MFL = 1,NZF
-      MZPAR(MFL) = 0
       KK=NZRHO(MFL)
- 1002 FORMAT(2I3,i6)
+ 1002 FORMAT(20I3)
       I=I+KK
-      
    22 CONTINUE
       I=0
       DO 950  K = 1,NZF
@@ -61,17 +59,7 @@ C
  4536 CONTINUE
   950 CONTINUE
             close(unit=nband1, status='keep')
-      REWIND 14
-      if(ntest.eq.0) then
-            READ(14) NGER,(INDEX(I),I=1,NGER-1)
-      else
-          read(14) nger,(index(i),i=1,ntest)
-          write(nout,*) ' Von ',nger,' gerechneten operatoren werden',
-     *    ntest,' eingelesen'
-          if(naus.gt.0) write(nout,309) (index(i),i=1,ntest)
-309   format(10i12)
-          nger=ntest
-      endif
+      READ(14) NGER,(INDEX(I),I=1,NGER-1)
       write(nout,*) 'nger',  NGER
       nteil = 0
       iop(0)=0
@@ -85,7 +73,6 @@ C
          nnn = nzrho(mfl)*nzrho(mfr)
       if(lreg(mkc)*nnn .eq. 0) goto 142
       nteil=nteil+1
-      IF(MFL.LT.MFLU) GOTO 142
       if(index(nteil).eq.-1) then
          write(nout,*) ' Fuer Zerlegung links ',mfl,' und rechts ',mfr,
      *   'ist operator ',mkc,' nicht gerechnet, nteil=',nteil
@@ -95,7 +82,7 @@ C
       if(index(nteil).gt.jfilmax) then
          write(nout,*) ' Fuer Zerlegung links ',mfl,' und rechts ',mfr,
      *   'ist operator ',mkc,' nicht korrekt, nteil=',nteil
-          if(naus.lt.2) stop 'dm falsch'
+          if(naus.eq.0) stop 'dm falsch'
           kstop=kstop+1
       endif
       mop(nteil)=mkc
@@ -106,23 +93,22 @@ C
       endif
 142   CONTINUE
 141   CONTINUE
-        iop(mfl)=nteil
+        iop(mfl)=nteil   
 140   CONTINUE
-       if(istop.gt.0) then
-            write(nout,*) ' Es fehlen ',istop,' operatoren'
-            stop ' dm fehlt'
-       endif
 
-       if(kstop.gt.0) then
-            write(nout,*) ' Es sind ',kstop,' operatoren inkorrekt'
-            stop ' dm falsch'
-       endif
-
-c       print *,'iop',(iop(ix),ix=0,nzf)
-c       print *,'kmin',(kmin(ix),ix=1,nzf)
-c       print *,'kmax',(kmax(ix),ix=1,nzf)
-c       print *,'mop',(mop(ix),ix=1,nger)
-c       print *,'mmfr',(mmfr(ix),ix=1,nger)
+      if(istop.gt.0) then
+         write(nout,*) ' Es fehlen ',istop,' operatoren'
+         stop 'dm fehlt'
+      endif
+      if(kstop.gt.0) then
+         write(nout,*) ' Es sind ',kstop,' operatoren inkorrekt'
+         stop 'dm falsch'
+      endif
+c       write(nout,*) 'iop',(iop(ix),ix=0,nzf)
+c       write(nout,*) 'kmin',(kmin(ix),ix=1,nzf)
+c       write(nout,*) 'kmax',(kmax(ix),ix=1,nzf)
+c       write(nout,*) 'mop',(mop(ix),ix=1,nger)
+c       write(nout,*) 'mmfr',(mmfr(ix),ix=1,nger)
 C
        DO 447 MFL=MFLU,MFLO
        CLOSE(UNIT=11,STATUS='KEEP')
@@ -133,10 +119,10 @@ C
   297       do j=i, 255
                if(fnumber(j:j).eq.' ') goto 298
             end do
-  298       qname = 'TDQUAOUT.' // fnumber(i:j)
+  298       qname = 'TQUAOUT.' // fnumber(i:j)
             open(unit=11, file=qname, form='unformatted',
      $           STATUS='REPLACE')
-      
+
       do 809 mkc=1,nzoper
       do 808 mfr=1,mfl
       do 807 i=1,2
@@ -154,36 +140,49 @@ C
             IF(INDEX(JLIM).GT.0)IFERTIG=IFERTIG+1
 312    CONTINUE
 
+       write(nout,*)'DMOUT.',kmin(mfl),' bis DMOUT.',kmax(mfl),' used'
+c     write(nout,*)'iop(mfl-1,mfl),ifertig',iop(mfl-1),iop(mfl),ifertig
       DO 317 IDMCOUNT=KMIN(MFL),KMAX(MFL)
       NBAND=40+IDMCOUNT
       CLOSE(UNIT=NBAND,STATUS='KEEP')
             write(fnumber,*) IDMCOUNT
             do i=1, 255
                if(fnumber(i:i).ne.' ') goto  997
-            end do
+            end do   
   997       do j=i, 255
                if(fnumber(j:j).eq.' ') goto 998
             end do
-  998       qname = 'DRDMOUT.' // fnumber(i:j)
+  998       qname = 'DMOUT.' // fnumber(i:j)
             open(unit=NBAND, file=qname, form='unformatted',
      $           STATUS='OLD')
-131      READ(NBAND,END=317,err=317) MTEIL,JCOUNT,INDEXR
-c        print *, MTEIL,JCOUNT,INDEXR
-         IF(INDEXR.EQ.0)  GOTO 131
-         IF(MTEIL.LT.(IOP(MFL-1)+1) .OR. MTEIL.GT.IOP(MFL)) THEN
+131      READ(NBAND,END=317,ERR=317 ) MTEIL,JCOUNT,INDEXR
+c131      READ(NBAND,END=317,ERR=313 ) MTEIL,JCOUNT,INDEXR
+c 313 -> 317 ; 315 -> 317
+         write(nout,*)  'mteil',MTEIL,JCOUNT,INDEXR
+         GOTO 314
+313               CONTINUE
+c                  WRITE(NOUT,*)'MTEIL,JCOUNT,INDEXR',MTEIL,JCOUNT,INDEXR 
+c                  stop '313'
+314      IF(INDEXR.EQ.0)  GOTO 131
+         IF(MTEIL.LT.(IOP(MFL-1)+1) .OR. MTEIL.GT.IOP(MFL)
+     $    .or.indexr.ne.index(mteil)) THEN
             READ (NBAND,END=131)
+c            READ (NBAND,END=317)
             GOTO 131
          ELSE
-        read(NBAND,end=317,err=317)(((dm(i,j,k,mmfr(mteil),mop(mteil)),
+        read(NBAND,ERR=317)(((dm(i,j,k,mmfr(mteil),mop(mteil)),
      $        i=1,ndim),j=1,ndim),k=1,2)
            ifertig= ifertig - 1
-           if(KMIN(MFL).EQ.KMAX(MFL) .AND. ifertig.eq.0) goto 318
+c jk two statements flipped following SAMMEL-uix.f
+          if(KMIN(MFL).EQ.KMAX(MFL) .AND. ifertig.eq.0) goto 318
+c           if( ifertig.eq.0) goto 318
            GOTO 131
-      ENDIF  
+C315               stop 315          
+      ENDIF
 317        CONTINUE
 
 318   IRHO=NZRHO(MFL)
-      IK1=MZPAR(MFL)
+      IK1=MZPAR(MFL) 
 
       jteil=iop(mfl-1)
       DO 341 MFR=1,MFL
@@ -200,15 +199,15 @@ c        print *, MTEIL,JCOUNT,INDEXR
             NUML=NUM(M,MFL)
             DO 581 N=1,JRHO
                NUMR=NUM(N,MFR)
-               IF( NUML.LT.NUMR) GOTO 581   
+               IF( NUML.LT.NUMR) GOTO 581
                WRITE (11)NUML,NUMR,II1,II1,A,A
  581        CONTINUE
  580     CONTINUE
          goto 342
          endif
 
-      DO 480 M=1,IRHO
-      NUML=NUM(M,MFL)
+      DO 480 M=1,IRHO 
+      NUML=NUM(M,MFL) 
       DO 481 N=1,JRHO
       NUMR=NUM(N,MFR)
       IF(NUML.LT.NUMR) GOTO 481
@@ -228,7 +227,8 @@ c        print *, MTEIL,JCOUNT,INDEXR
 512   WRITE(11) NUML,NUMR,IK1,JK1,(((DM(K,L,I,mfr,mkc),
      1 K=M1,M2), L=N1,N2), I=1,2)
       IF (NAUS.EQ.0) GOTO 481
-      WRITE (NOUT,*) 'mfl,mfr,mkc',mfl,mfr,mkc,NUML, NUMR, IK1, JK1
+      WRITE (NOUT,1004) NUML, NUMR, IK1, JK1
+1004  FORMAT(2I5,2I3)      
       IF(NAUS.LT.2) GOTO 481
       WRITE (NOUT,1021) (((DM(K,L,I,mfr,mkc), K=M1,M2),L=N1,N2),I=1,2)
 1021  FORMAT(1X,10E12.5)
@@ -246,6 +246,6 @@ C        LOOP OPERATOREN
       CLOSE(UNIT=12,STATUS='KEEP')
 
 
-      STOP
+ 666  STOP
 
       END

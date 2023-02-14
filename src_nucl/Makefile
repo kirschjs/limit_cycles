@@ -19,177 +19,89 @@ LIBS    = -L -lgfortran -L/usr/lib/x86_64-linux-gnu/lapack -llapack -lblas
 clean:
 	rm -f *.o core
 
-Tmat: Tmat.o 
-	$(F77) $(FFLAGS) -o Tmat.exe Tmat.o $(LIBS)
+KOBER_eft-cib: KOBER_eft-cib.o par/KOBER_EFT
+	$(F77) $(FFLAGS) -o KOBER_eft-cib.exe KOBER_eft-cib.o $(LIBS)
 
-best: best.o 
-	$(F77) $(FFLAGS) -o best.exe best.o $(LIBS)
+LUDW_eft-cib: LUDW_eft-cib.o par/LUCN_EFT
+	$(F77) $(FFLAGS) -o LUDW_eft-cib.exe LUDW_eft-cib.o $(LIBS)
 
-QUAFL_N: QUAFL_N.o par/QUAF
-	$(F77) $(FFLAGS) -o QUAFL_N.exe QUAFL_N.o
+QUAFL_N_eft-cib: QUAFL_N_eft-cib.o par/QUAF_EFT
+	$(F77) $(FFLAGS) -o QUAFL_N_eft-cib.exe QUAFL_N_eft-cib.o
 
-QUAFL_N_pop: QUAFL_N_pop.o par/QUAF
-	$(F77) $(FFLAGS) -o QUAFL_N_pop.exe QUAFL_N_pop.o 
+QUAFL_N_eft-cib_pop: QUAFL_N_eft-cib_pop.o par/QUAF_EFT
+	$(F77) $(FFLAGS) -o QUAFL_N_eft-cib_pop.exe QUAFL_N_eft-cib_pop.o
 
-QUAFL_M: QUAFL_M.o par/QUAF
-	$(F77) $(FFLAGS) -o QUAFL_M.exe QUAFL_M.o
+DROBER_eft-cib: DROBER_eft-cib.o par/DROBER
+	$(F77) $(FFLAGS) -o DROBER_eft-cib.exe DROBER_eft-cib.o $(LIBS)
 
-QUAFL_N_m1: QUAFL_N_m1.o par/QUAF
-	$(F77) $(FFLAGS) -o QUAFL_N_m1.exe QUAFL_N_m1.o
+DRLUD_eft-cib: DRLUD_eft-cib.o par/DRLUD
+	$(F77) $(FFLAGS) -o DRLUD_eft-cib.exe DRLUD_eft-cib.o $(LIBS)
 
-QUAFL_N_pop_m1: QUAFL_N_pop_m1.o par/QUAF
-	$(F77) $(FFLAGS) -o QUAFL_N_pop_m1.exe QUAFL_N_pop_m1.o 
+DRQUA_N_eft-cib: DRQUA_N_eft-cib.o par/DRQUA_AK
+	$(F77) $(FFLAGS) -o DRQUA_N_eft-cib.exe DRQUA_N_eft-cib.o $(LIBS)
 
-LUDW_CN: LUDW_CN.o par/LUCN
-	$(F77) $(FFLAGS) -o LUDW_CN.exe LUDW_CN.o $(LIBS)
+DRQUA_N_eft-cib_pop: DRQUA_N_eft-cib_pop.o par/DRQUA_AK
+	$(F77) $(FFLAGS) -o DRQUA_N_eft-cib_pop.exe DRQUA_N_eft-cib_pop.o $(LIBS)
 
-DRQUA_AK_N: DRQUA_AK_N.o par/DRQUA_AK
-	$(F77) $(FFLAGS) -o DRQUA_AK_N.exe DRQUA_AK_N.o $(LIBS)
+DR2END_eft-cib: DR2END_eft-cib.o par/DR2END_EFT
+	$(F77) $(FFLAGS) -o DR2END_eft-cib.exe DR2END_eft-cib.o $(LIBS)
 
-DRQUA_AK_N_pop: DRQUA_AK_N_pop.o par/DRQUA_AK
-	$(F77) $(FFLAGS) -o DRQUA_AK_N_pop.exe DRQUA_AK_N_pop.o $(LIBS)
+DR2END_eft-cib_pop: DR2END_eft-cib_pop.o par/DR2END_EFT
+	$(F77) $(FFLAGS) -o DR2END_eft-cib_pop.exe DR2END_eft-cib_pop.o $(LIBS)
 
-DRQUA_AK_M: DRQUA_AK_M.o par/DRQUA_AK
-	$(F77) $(FFLAGS) -o DRQUA_AK_M.exe DRQUA_AK_M.o $(LIBS)
+TDR2END_eft-cib: TDR2END_eft-cib.o par/DR2END_EFT
+	$(F77) $(FFLAGS) -o TDR2END_eft-cib.exe TDR2END_eft-cib.o $(LIBS)
 
-DRQUA_I: DRQUA_I.o par/DRQUA_I
-	$(F77) $(FFLAGS) -o DRQUA_I.exe DRQUA_I.o $(LIBS)
+TDR2END_eft-cib_pop: TDR2END_eft-cib_pop.o par/DR2END_EFT
+	$(F77) $(FFLAGS) -o TDR2END_eft-cib_pop.exe TDR2END_eft-cib_pop.o $(LIBS)
 
-DRQUA_I_2: DRQUA_I_2.o par/DRQUA_I_2
-	$(F77) $(FFLAGS) -o DRQUA_I_2.exe DRQUA_I_2.o $(LIBS)
+KOBER_v18-uix: KOBER_v18-uix.o par/KOBER
+	$(F77) $(FFLAGS) -o KOBER_v18-uix.exe KOBER_v18-uix.o $(LIBS)
 
-TDR2ENDM_AK_N: TDR2ENDM_AK_N.o par/DR2END_AK
-	$(F77) $(FFLAGS) -o TDR2ENDM_AK_N.exe TDR2ENDM_AK_N.o $(LIBS)
+LUDW_v18-uix: LUDW_v18-uix.o par/LUCN
+	$(F77) $(FFLAGS) -o LUDW_v18-uix.exe LUDW_v18-uix.o $(LIBS)
 
-TDR2END_AK: TDR2END_AK.o par/DR2END_AK
-	$(F77) $(FFLAGS) -o TDR2END_AK.exe TDR2END_AK.o $(LIBS)
+QUAFL_N_v18-uix: QUAFL_N_v18-uix.o par/QUAF
+	$(F77) $(FFLAGS) -o QUAFL_N_v18-uix.exe QUAFL_N_v18-uix.o
 
-TDR2END_AK_m1: TDR2END_AK_m1.o par/DR2END_AK
-	$(F77) $(FFLAGS) -o TDR2END_AK_m1.exe TDR2END_AK_m1.o $(LIBS)
+QUAFL_N_v18-uix_pop: QUAFL_N_v18-uix_pop.o par/QUAF
+	$(F77) $(FFLAGS) -o QUAFL_N_v18-uix_pop.exe QUAFL_N_v18-uix_pop.o
 
-TDR2END_NORMAL: TDR2END_NORMAL.o par/DR2END_AK
-	$(F77) $(FFLAGS) -o TDR2END_NORMAL.exe TDR2END_NORMAL.o $(LIBS)
+DROBER_v18-uix: DROBER_v18-uix.o par/DROBER
+	$(F77) $(FFLAGS) -o DROBER_v18-uix.exe DROBER_v18-uix.o $(LIBS)
 
-TDR2END_PYpool: TDR2END_PYpool.o par/DR2END_AK
-	$(F77) $(FFLAGS) -o TDR2END_PYpool.exe TDR2END_PYpool.o $(LIBS)
+DRLUD_v18-uix: DRLUD_v18-uix.o par/DRLUD
+	$(F77) $(FFLAGS) -o DRLUD_v18-uix.exe DRLUD_v18-uix.o $(LIBS)
 
-TDR2END_PYpoolnoo: TDR2END_PYpoolnoo.o par/DR2END_AK
-	$(F77) $(FFLAGS) -o TDR2END_PYpoolnoo.exe TDR2END_PYpoolnoo.o $(LIBS)
+DRQUA_N_v18-uix: DRQUA_N_v18-uix.o par/DRQUA_AK
+	$(F77) $(FFLAGS) -o DRQUA_N_v18-uix.exe DRQUA_N_v18-uix.o $(LIBS)
 
-TDR2END_PYpoolnoo_m1: TDR2END_PYpoolnoo_m1.o par/DR2END_AK
-	$(F77) $(FFLAGS) -o TDR2END_PYpoolnoo_m1.exe TDR2END_PYpoolnoo_m1.o $(LIBS)
+DRQUA_N_v18-uix_pop: DRQUA_N_v18-uix_pop.o par/DRQUA_AK
+	$(F77) $(FFLAGS) -o DRQUA_N_v18-uix_pop.exe DRQUA_N_v18-uix_pop.o $(LIBS)
 
-TDR2END_I_2: TDR2END_I_2.o par/DR2END_AK_I_2
-	$(F77) $(FFLAGS) -o TDR2END_I_2.exe TDR2END_I_2.o $(LIBS)
+DR2END_v18-uix: DR2END_v18-uix.o par/DR2END_AK
+	$(F77) $(FFLAGS) -o DR2END_v18-uix.exe DR2END_v18-uix.o $(LIBS)
 
-DR2END_AK_exp: DR2END_AK_exp.o par/DR2END_AK
-	$(F77) $(FFLAGS) -o DR2END_AK_exp.exe DR2END_AK_exp.o $(LIBS)
+DR2END_v18-uix_pop: DR2END_v18-uix_pop.o par/DR2END_AK
+	$(F77) $(FFLAGS) -o DR2END_v18-uix_pop.exe DR2END_v18-uix_pop.o $(LIBS)	
 
-DR2END_AK: DR2END_AK.o par/DR2END_AK
-	$(F77) $(FFLAGS) -o DR2END_AK.exe DR2END_AK.o $(LIBS)
+TDR2END_v18-uix: TDR2END_v18-uix.o par/DR2END_AK
+	$(F77) $(FFLAGS) -o TDR2END_v18-uix.exe TDR2END_v18-uix.o $(LIBS)
 
-DR2END_AK_PYpoolnoo: DR2END_AK_PYpoolnoo.o par/DR2END_AK
-	$(F77) $(FFLAGS) -o DR2END_AK_PYpoolnoo.exe DR2END_AK_PYpoolnoo.o $(LIBS)
+TDR2END_v18-uix_pop: TDR2END_v18-uix_pop.o par/DR2END_AK
+	$(F77) $(FFLAGS) -o TDR2END_v18-uix_pop.exe TDR2END_v18-uix_pop.o $(LIBS)
 
-DR2END_AK_pop: DR2END_AK_pop.o par/DR2END_AK
-	$(F77) $(FFLAGS) -o DR2END_AK_pop.exe DR2END_AK_pop.o $(LIBS)
+QUAFL_M_v18-uix: QUAFL_M_v18-uix.o par/QUAF
+	$(F77) $(FFLAGS) -o QUAFL_M_v18-uix.exe QUAFL_M_v18-uix.o
 
-DR2END_AK_m1: DR2END_AK_m1.o par/DR2END_AK
-	$(F77) $(FFLAGS) -o DR2END_AK_m1.exe DR2END_AK_m1.o $(LIBS)
+DRQUA_M_v18-uix: DRQUA_M_v18-uix.o par/DRQUA_AK
+	$(F77) $(FFLAGS) -o DRQUA_M_v18-uix.exe DRQUA_M_v18-uix.o $(LIBS)
 
-DR2END_AK_PYpoolnoo_m1: DR2END_AK_PYpoolnoo_m1.o par/DR2END_AK
-	$(F77) $(FFLAGS) -o DR2END_AK_PYpoolnoo_m1.exe DR2END_AK_PYpoolnoo_m1.o $(LIBS)
-
-DR2END_AK_pop_m1: DR2END_AK_pop_m1.o par/DR2END_AK
-	$(F77) $(FFLAGS) -o DR2END_AK_pop_m1.exe DR2END_AK_pop_m1.o $(LIBS)
-
-DR2END_NORMAL: DR2END_NORMAL.o par/DR2END_AK
-	$(F77) $(FFLAGS) -o DR2END_NORMAL.exe DR2END_NORMAL.o $(LIBS)
-
-DR2END_BM: DR2END_BM.o par/DR2END_AK
-	$(F77) $(FFLAGS) -o DR2END_BM.exe DR2END_BM.o $(LIBS)	
-
-DR2END_AK_I: DR2END_AK_I.o par/DR2END_AK_I
-	$(F77) $(FFLAGS) -o DR2END_AK_I.exe DR2END_AK_I.o $(LIBS)
-
-DR2END_AK_I_2: DR2END_AK_I_2.o par/DR2END_AK_I_2
-	$(F77) $(FFLAGS) -o DR2END_AK_I_2.exe DR2END_AK_I_2.o $(LIBS)
-
-TDR2ENDM: TDR2ENDM.o par/DR2END
-	$(F77) $(FFLAGS) -o TDR2ENDM.exe TDR2ENDM.o $(LIBS)
-
-TDRQUA: TDRQUA.o par/DRQUA
-	$(F77) $(FFLAGS) -o TDRQUA.exe TDRQUA.o $(LIBS)
-
-DR2ENDM: DR2ENDM.o par/DR2END
-	$(F77) $(FFLAGS) -o DR2ENDM.exe DR2ENDM.o $(LIBS)
-
-DRQUA: DRQUA.o par/DRQUA
-	$(F77) $(FFLAGS) -o DRQUA.exe DRQUA.o $(LIBS)
-
-DRLUD: DRLUD.o par/DRLUD
-	$(F77) $(FFLAGS) -o DRLUD.exe DRLUD.o $(LIBS)
-
-DRLUD_I: DRLUD_I.o par/DRLUD_I
-	$(F77) $(FFLAGS) -o DRLUD_I.exe DRLUD_I.o $(LIBS)
-
-DRLUD_I_2: DRLUD_I_2.o par/DRLUD_I_2
-	$(F77) $(FFLAGS) -o DRLUD_I_2.exe DRLUD_I_2.o $(LIBS)
-
-DROBER: DROBER.o par/DROBER
-	$(F77) $(FFLAGS) -o DROBER.exe DROBER.o $(LIBS)
-
-DROBER_I: DROBER_I.o par/DROBER_I
-	$(F77) $(FFLAGS) -o DROBER_I.exe DROBER_I.o $(LIBS)
-
-DROBER_I_2: DROBER_I_2.o par/DROBER_I_2
-	$(F77) $(FFLAGS) -o DROBER_I_2.exe DROBER_I_2.o $(LIBS)
-
-KOBER: KOBER.o par/KOBER
-	$(F77) $(FFLAGS) -o KOBER.exe KOBER.o $(LIBS)
-
-KOBERb: KOBERb.o par/KOBER
-	$(F77) $(FFLAGS) -o KOBERb.exe KOBERb.o $(LIBS)
-
-DROBERb: DROBERb.o par/DROBER
-	$(F77) $(FFLAGS) -o DROBERb.exe DROBERb.o $(LIBS)
-
-umnum: umnum.o 
-	$(F77) $(FFLAGS) -o umnum.exe umnum.o $(LIBS)
-
-samel: samel.o 
-	$(F77) $(FFLAGS) -o samel.exe samel.o $(LIBS)
-
-nana_exp: nana_exp.o 
-	$(F77) $(FFLAGS) -o nana_exp.exe nana_exp.o $(LIBS)
-
-nana_c: nana_c.o 
-	$(F77) $(FFLAGS) -o nana_c.exe nana_c.o $(LIBS)
-
-nana_R: nana_R.o 
-	$(F77) $(FFLAGS) -o nana_R.exe nana_R.o $(LIBS)
-
-streimat: streimat.o par.endm
-	$(F77) $(FFLAGS) -o streimat.exe streimat.o $(LIBS)
 
 S-POLE_PdP: S-POLE_PdP.o par/verma coul.o
 	$(F77) $(FFLAGS) -o S-POLE_PdP.exe S-POLE_PdP.o coul.o $(LIBS)
 
-S-POLE_RC: S-POLE_RC.o par/verma coulfg5.o
-	$(F77) $(FFLAGS) -o S-POLE_RC.exe S-POLE_RC.o coulfg5.o $(LIBS)
-
-S-POLE_INV: S-POLE_INV.o par/verma coul.o
-	$(F77) $(FFLAGS) -o S-POLE_INV.exe S-POLE_INV.o coul.o $(LIBS)
-
-S-POLE_cmplx: S-POLE_cmplx.o par/verma coul.o
-	$(F77) $(FFLAGS) -o S-POLE_cmplx.exe S-POLE_cmplx.o coul.o $(LIBS)
-
 S-POLE_zget: S-POLE_zget.o par/verma coul.o
 	$(F77) $(FFLAGS) -o S-POLE_zget.exe S-POLE_zget.o coul.o $(LIBS)
 
-S-POLE_zget_PWBA: S-POLE_zget_PWBA.o par/verma coul.o
-	$(F77) $(FFLAGS) -o S-POLE_zget_PWBA.exe S-POLE_zget_PWBA.o coul.o $(LIBS)
-
-all: QUAFL_N_pop_m1 TDR2END_PYpoolnoo_m1 DR2END_AK_pop_m1 DR2END_AK_PYpoolnoo_m1 TDR2END_AK_m1 QUAFL_N_m1 DR2END_AK_m1 S-POLE_zget TDR2END_AK DRQUA_AK_N DRQUA_AK_N_pop QUAFL_N QUAFL_N_pop DR2END_AK_pop DR2END_AK S-POLE_PdP LUDW_CN KOBER DROBER DRLUD TDR2END_PYpool TDR2END_PYpoolnoo clean
-
-allNM: DRQUA_AK_N_pop QUAFL_N_pop DR2END_AK_pop LUDW_CN KOBER DROBER DRLUD QUAFL_N QUAFL_M DRQUA_AK_N DRQUA_AK_M DR2END_NORMAL TDR2END_NORMAL TDR2END_PYpool TDR2END_PYpoolnoo clean	
+all: KOBER_eft-cib LUDW_eft-cib QUAFL_N_eft-cib QUAFL_N_eft-cib_pop DROBER_eft-cib DRLUD_eft-cib DRQUA_N_eft-cib DR2END_eft-cib DR2END_eft-cib_pop KOBER_v18-uix LUDW_v18-uix QUAFL_N_v18-uix QUAFL_N_v18-uix_pop DROBER_v18-uix DRLUD_v18-uix DRQUA_N_v18-uix DRQUA_N_v18-uix_pop TDR2END_v18-uix TDR2END_v18-uix_pop DR2END_v18-uix DR2END_v18-uix_pop QUAFL_M_v18-uix DRQUA_M_v18-uix S-POLE_PdP S-POLE_zget DRQUA_N_eft-cib_pop TDR2END_eft-cib TDR2END_eft-cib_pop clean

@@ -1,9 +1,9 @@
-      PROGRAM QUAF_EFT_P
+      PROGRAM QUAF_S
 C     FUER SMIN STATTDESSEN
 CC    SUBROUTINE QUAF
       IMPLICIT REAL*8 (A-H,O-Z)
       include 'mpif.h'
-C
+C 
 C     FUER ARGONNE-18 POTENTIAL
 C     VERSION FUER 6 CLUSTER
 C     VERLANGT KURZOBFILES!!!!!!!!!!!!!!!!
@@ -38,14 +38,16 @@ C
 C     1. OPERATOR: NORM
 C     2. OPERATOR: KIN. ENERGIE
 C     3. OPERATOR: COULOMB
-C     4. OPERATOR: ZENTRAL
-C     5. OPERATOR: P**2
-C     6. OPERATOR: R**2
-C     7. OPERATOR: LS
-C     8. OPERATOR: TENSOR
-C     9. OPERATOR: TENSOR-p
+C     4. OPERATOR: ZENTRAL-CIB-PP 
+C     5. OPERATOR: ZENTRAL-CIB-NN
+C     6. OPERATOR: ZENTRAL
+C     7. OPERATOR: P-QUADRAT
+C     8. OPERATOR: R-QUADRAT
+C     9. OPERATOR: SPIN-BAHN
+C    10. OPERATOR: TENSOR
+C    11. OPERATOR: TENSOR_p antisymmetric
 C
-C
+C  
 C     INPUT DES PROGRAMMS
 C      INTEGERS IM FORMAT 24I3, REALS IM FORMAT 6E12.4
 C
@@ -55,7 +57,7 @@ C     von unit=25: DIE STEUERKARTE FUER DIE ZU RECHNENDEN OPERATOREN
 C     von unit=25: DIE STEUERKARTEN FUER DIE KORRELATIONSFUNKTIONEN       
 C     von unit=25: DIE DEFINITION DER POTENTIALE
 C
-C EINGABE FUER DIE FUNKTIONEN
+C  EINGABE FUER DIE FUNKTIONEN
 C
 C JEDER INDEX I) ENTSPRICHT EINER KARTE
 C
@@ -67,7 +69,7 @@ C     DIE RADIALWEITEPARAMETER
 C WENN NBAND5=0,WIRD ALLES NEU GERECHNET,WENN NBAND5#0,WIRD AUFGESETZT
 C
 C
-      include "par-eft.h"
+      include "par-cib.h"
       
 C     NZOPER: ANZAHL DER OPERATOREN IN QUAF
 C     NZOPOB:   "     "      "      "  OBER
@@ -181,21 +183,28 @@ C
      *          WERTNO(NDIM4,NDIM4), WERTTE(NDIM4,NDIM4)
       DIMENSION IMV(NZMAT), UM(NZMAT), LCALT(NZTMAX), NKSU(NZFMAX)
 C
-      CHARACTER*80 INFIL  ,INFILU
+      CHARACTER*100 INFIL  ,INFILU
       CHARACTER*50 VARFOR(NZOPER)
-      CHARACTER*80 CPOTFIL
+      CHARACTER*100 CPOTFIL
 C
-      DATA VARFOR/'('' NORM'')','('' KINETISCHE ENERGIE'')',
-     *'('' COULOMB'')','('' ZENTRAL '')',
-     *'('' P-QUADRAT-POTENTIAL'')','('' R-QUADRAT-POTENTIAL'')',
+      DATA VARFOR/
+     *'('' NORM'')',
+     *'('' KINETISCHE ENERGIE'')',
+     *'('' COULOMB'')',
+     *'('' CIB_PP '')',
+     *'('' CIB_NN '')',
+     *'('' ZENTRAL '')',
+     *'('' P-QUADRAT-POTENTIAL'')',
+     *'('' R-QUADRAT-POTENTIAL'')',
      *'(''  SPIN-BAHN'')',
-     8'('' TENSOR '')', '('' TENSOR_p antisymmetrisch '')'/
+     *'('' TENSOR'')',
+     *'('' TENSOR_p antisymmetrisch'')'/
 C
       DATA NZPOT/NZOPER*1/
 C
-      DATA NKCM/1,1,1,4,4,4,2,2,2/
-      DATA JRELU/1,2,3,0,0,4,5,6,7/
-      DATA JREOB/1,0,2,3,0,0,4,5,0/
+      DATA NKCM/1,1,1,1,1,4,4,4,2,2,2/
+      DATA JRELU/1,2,3,0,0,0,0,4,5,6,7/
+      DATA JREOB/1,0,2,3,4,5,0,0,6,7,8/
 C
 C     FUER SMIN SIND DIE MIT 'CC' VERSEHENEN KARTEN ZU AKTIVIEREN UND
 C     DIE ANGEGEBENEN ZEILEN ZU DEAKTIVIEREN
@@ -232,7 +241,7 @@ C     Anzahl der Prozessoren
 
       WRITE(NOUT, 1111)
       
-1111  FORMAT('1 QUAF_EFT_P VERSION VOM 13.7.08')
+1111  FORMAT('1 QUAF_S VERSION VOM 2.9.98')
       INPUT=15
       INPOT=25
       PHI=3.1415926535897932384D0
@@ -278,10 +287,9 @@ c     write(6,*) 'nger',nger,(index(i),i=1,nger)
       enddo
       endif
       READ(INPUT,993) CPOTFIL                                               
-993   FORMAT(A80)                                                   
+993   FORMAT(A100)                                                   
       OPEN(UNIT=25,FILE=CPOTFIL,STATUS='OLD',FORM='FORMATTED')
       READ(INPOT,1002)(LREG(K),K=1, NZOPER)
-C differs from av18
  1020 FORMAT(6E20.13)
 C     KORRELATIONSFUNKTION
       A=0.
@@ -353,6 +361,7 @@ C     EINLESEN DER FUNKTIONSEIGENSCHAFTEN UND PARAMETER
          enddo
       enddo
 
+
       IF(NBAND5.LE.0) GOTO 900
       
       write(nout,*) 'KOM:'
@@ -383,6 +392,7 @@ C     EINLESEN DER FUNKTIONSEIGENSCHAFTEN UND PARAMETER
       INDEX(I)=-1
    94 KOM(L,KL,KR)=0
    93 CONTINUE
+      write(nout,*) 'LINDy=',LIND,I
       NZV1 = NZV - 1
       WECPOT(1,1,1)=2./ DBLE(NZT*NZV)
       DO 20  K = 1,NZF
@@ -428,26 +438,40 @@ C
 C     UEBERPRUEFUNG, OB GERECHNETE OPERATOREN IN OBER, LUDWIG UND
 C     QUAF ZUSAMMENPASSEN
 C
-      IF (IENT(1).EQ.0) call fehler( 253)
+C     CHECK FUER NORM
+      IF (IENT(1).EQ.0) call fehler(253)
       IF (LREG(2).EQ.0) GOTO 254
-      IF (IENT(2).EQ.0) call fehler(  254)
-254   IF (LREG(3).EQ.0) GOTO 256
-      IF (IENT(3).EQ.0 .OR. NREG(2).EQ.0) call fehler(  256)
-256   IF (LREG(4).EQ.0) GOTO 258
-      IF (NREG(3).EQ.0) call fehler(  258)
-258   IF (LREG(5).EQ.0) GOTO 260
-      IF (NREG(3).EQ.0) call fehler(  260)
-260   IF (LREG(6).EQ.0) GOTO 1261
-      IF (NREG(3).EQ.0 .OR. IENT(4).EQ.0) call fehler( 260)
-1261  IF (LREG(7).EQ.0) GOTO 1260
-      IF (NREG(4).EQ.0 .OR. IENT(5).EQ.0) call fehler( 1261)
-1260  IF (LREG(8).EQ.0) GOTO 1258
-      IF (NREG(5).EQ.0 .OR. IENT(6).EQ.0) call fehler( 1260)
-1258  IF (LREG(9).EQ.0) GOTO 262
-      IF (NREG(5).EQ.0 .OR. IENT(7).EQ.0) call fehler( 1258)
+C     CHECK FUER KINETISCHE ENERGIE
+      IF (IENT(2).EQ.0) call fehler( 254)
+254   IF (LREG(3).EQ.0) GOTO 255
+C     CHECK FUER COULOMB
+      IF (IENT(3).EQ.0 .OR. NREG(2).EQ.0) call fehler( 255)
+255   IF (LREG(4).EQ.0) GOTO 256
+C     CHECK FUER ZENTRAL-CIB-PP
+      IF (NREG(3).EQ.0) call fehler( 256)
+256   IF (LREG(5).EQ.0) GOTO 257
+C     CHECK FUER ZENTRAL-CIB-NN
+      IF (NREG(4).EQ.0) call fehler( 256)
+257   IF (LREG(6).EQ.0) GOTO 258
+C     CHECK FUER ZENTRAL
+      IF (NREG(5).EQ.0) call fehler( 258)
+258   IF (LREG(7).EQ.0) GOTO 260
+C     CHECK FUER P**2 POTENTIAL
+      IF (NREG(5).EQ.0) call fehler( 260)
+260   IF (LREG(8).EQ.0) GOTO 1261
+C     CHECK FUER R**2 POTENTIAL
+      IF (NREG(5).EQ.0 .OR. IENT(4).EQ.0) call fehler(1261)
+1261  IF (LREG(9).EQ.0) GOTO 1256
+C     CHECK FUER LS POTENTIAL
+      IF (NREG(6).EQ.0 .OR. IENT(5).EQ.0) call fehler(1256)
+1256  IF (LREG(10).EQ.0) GOTO 1262
+C     CHECK FUER TENSOR POTENTIAL
+      IF (NREG(7).EQ.0 .OR. IENT(6).EQ.0) call fehler( 1256)
+1262  IF (LREG(11).EQ.0) GOTO 262
+C     CHECK FUER TENSOR_p anti POTENTIAL
+      IF (NREG(7).EQ.0 .OR. IENT(7).EQ.0) call fehler( 1262)
 262   CONTINUE
 C     CHECK OBER/LUDWIG ZU ENDE
-C
 C     KONSTRUKTION DER BAHNDREHIMPULSE
       DO 264 K=1,NZF
       M1=2*NZC(K)-3
@@ -623,11 +647,7 @@ C     ENDE DEFINITION BASISVEKTOREN
 810   CONTINUE
   950 CONTINUE
       WECPOT(1,1,2) = -(2.72099*0.529172*137.0373)**2/
-     1                 ((1634.0+1634.0)* DBLE(NZT))
-C      WECPOT(1,1,2) = -(2.72099*0.529172*137.0373)**2/
-C     1                 ((1320.0+1320.0)* DBLE(NZT))
-C      WECPOT(1,1,2) = -(2.72099*0.529172*137.0373)**2/
-C     1                 ((938.211+939.505)* DBLE(NZT))
+     1                 ((938.211+939.505)* DBLE(NZT))
       ISTOPP=0
 C
 C
@@ -693,7 +713,7 @@ C     BESTIMMUNG DER ORTSMATRIXELEMENTE VOR EINSETZEN DER DREHIMPULSE
       MD1= MD - 1
       IF(INDEPO.NE.0) THEN                            
          READ(INPUT,378) INFIL                      
- 378     FORMAT(A80)               
+ 378     FORMAT(A100)               
          write(NOUT,*) 'Oeffnen? MFL,MFR,KOM2(MFL,MFR)',
      $        MFL,MFR,KOM2(MFL,MFR),INFIL
          if(KOM2(MFL,MFR).EQ.0) goto 9010
@@ -721,18 +741,35 @@ c        OPEN(UNIT=6,FILE='OUTPUT', POSITION='APPEND')
          if(KOM2(MFL,MFR).EQ.0) goto 9011
       READ(NBAND2)    ((VW(M,K),M=1,NZT),K=1,MD1)
  9011 CONTINUE
-C -------------------------------------------------------------------
       IZL=MC1*(1+ITPO(MFL))+MD1*(1+ITPO(MFR))
+C -----------------------------
+c Norm
       INQ(1)=1
+c Ekin
       INQ(2)=((IZL-1)*IZL)/2 +1
+c Coulomb
       INQ(3)=INQ(2) +1
+c CIB-PP
       INQ(4)=INQ(1)
-      INQ(5)=INQ(2)
-      INQ(6)=2
+c CIB-NN
+      INQ(5)=INQ(1)
+c Zentral
+      INQ(6)=INQ(1)
+c P**2
       INQ(7)=INQ(2)
+c R**2
       INQ(8)=2
-      INQ(9)=((IZL-1)*IZL)/2 + IZL + 1
-C -------------------------------------------------------------------
+c LS
+      INQ(9)=INQ(2)
+c Tensor
+      INQ(10)=2
+c Tensor_p
+c   - entries 2 -> ((z-1)z)/2 +1            : \sum_{n<n'}
+c   - entries (z(z-1))/2+2 -> (z(z+1))/2+1  : \sum_{n=n'}
+      INQ(11)=((IZL-1)*IZL)/2 + IZL + 1
+c      write(nout,*)'INQ(2) = ',INQ(2)
+c      write(nout,*)'INQ(9) = ',INQ(9)
+C -----------------------------
       DO 42 MKC=1, NZOPER
        rewind 18
       FOP=1.
@@ -742,8 +779,9 @@ C -------------------------------------------------------------------
       NZAV=MC1+MD1
       IZLURE=1
       IF(LREG(MKC).GT.0) WRITE(NOUT,VARFOR(MKC))
-C     OPERATOR 1   2    3    4    5    6    7    8    9
-      GO TO (3008,3002,3003,3008,3002,3005,3002,3004,3002),MKC
+C     OPERATOR 1   2    3    4    5    6    7    8    9    10  
+      GO TO (3008,3002,3003,3008,3008,3008,3002,3005,3002,3004,
+     *       3002),MKC
 3002      NREB = 1
       IZLURE=MC1*(1+ITPO(MFL))+MD1*(1+ITPO(MFR))
       GO TO 3008
@@ -752,7 +790,10 @@ C     OPERATOR 1   2    3    4    5    6    7    8    9
       GOTO 3008
 3005      NZAV=NZAV+2
 3008  CONTINUE
-      if(NZAV.GT.NZAVMA) call fehler(9001)
+      if(NZAV.GT.NZAVMA) then
+      WRITE(NOUT,*) 'ZUVIELE AKT VAR, NZAV=',NZAV,' > NZAVMA=',NZAVMA
+      STOP 'NZAVMA'
+      endif
       KORR = (NOP(MKC)+1)**2
       NL = MZG(MFL)
       NR = MZG(MFR)
@@ -809,7 +850,7 @@ C       READ LUPO ELEMENTE
       DO 1144, I=1, IZ
 1144       WERTNO(I,J)=WERTL(I,J)
        ENDIF
-      IF(MKC.EQ.8) THEN
+      IF(MKC.EQ.10) THEN
        DO 1145, J=1, JZ
       DO 1145, I=1, IZ
 1145       WERTTE(I,J)=WERTL(I,J)
@@ -826,6 +867,8 @@ C       READ LUPO ELEMENTE
  6033 CONTINUE
       IF(MKC.EQ.4) ITV2=KZHV(2,1)
       IF(MKC.EQ.5) ITV2=KZHV(2,1)
+      IF(MKC.EQ.6) ITV2=KZHV(2,1)
+      IF(MKC.EQ.7) ITV2=KZHV(2,1)
       IF(KOM(MKC,MFL,MFR).EQ.0) GOTO 95
       if(mfl .ne. mfr) then
          nnn = nzrho(mfl)*nzrho(mfr)
@@ -1159,7 +1202,7 @@ C     Ende Hauptprogramm
       SUBROUTINE CALCU
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-      include "par-eft.h"
+      include "par-cib.h"
 C
       PARAMETER (NOUT=16, NBAND1=10)
 C
@@ -1207,11 +1250,9 @@ C
 C
       PHI=3.1415926535897932384D0
       FOP=1.                                                    
-C -- not for NLO op.!
-c      IF(MKC.EQ.7) FOP= 1./3.                          
-c      IF(MKC.EQ.9) FOP= -1./2.                             
-c      IF(MKC.EQ.11) FOP= SQRT(15./(2.*PHI))/12.
-C --      
+      IF(MKC.EQ.7) FOP= 1./3.                          
+      IF(MKC.EQ.9) FOP= -1./2.                             
+      IF(MKC.EQ.11) FOP= SQRT(15./(2.*PHI))/12.
       DO 460 N=1,NDIM
       DO 460 M=1,NDIM
       DM(M,N,1)=.0
@@ -1401,7 +1442,7 @@ C
       IMPLICIT REAL*8 (A-H,O-Z)
 C     SCORR BERECHNET DIE KORRELATIONSFUNKTION
 C
-      include "par-eft.h"
+      include "par-cib.h"
 C
       COMMON /SC/ ABC(4), ABD(4), ABE(4)
 C
@@ -1421,14 +1462,14 @@ C
 7     QOR(N,M)=0.
       DO 100K=1,KORR
       FF=F*ABC(K)
-       GOTO (30,5,2,2,5,2,2,2,2),MKC
+       GOTO (30,5,2,2,2,2,5,2,2,2,2),MKC
    30 IF(K.EQ.1) GOTO 8
       FF=FF* DBLE((NZT*NZV)/2)
       GO TO 4
     5 IF(K.EQ.1) GOTO 8
       FF = FF* DBLE(NZT)/2.
       IF(K-4)      1,8,8
-    2 IF(MKC.GE.6) GOTO 8
+    2 IF(MKC.GE.8) GOTO 8
     4 GO TO (8,1,11,8) ,K
    11 FF=2.*FF
     8 DO 10  M = 1,NZV
@@ -1455,7 +1496,7 @@ C
 C     HAUPT FUEHRT HAUPTACHSENTRANSFORMATION DURCH
 C     TRANSFORMATION IN VZ, HAUPTACHSENWERTE IN QO
 C
-      include "par-eft.h"
+      include "par-cib.h"
 C
       COMMON /IMP/  MKC, NZV, MFL,NREB,NZAV
 C
@@ -1484,7 +1525,7 @@ C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 C
-      include "par-eft.h"
+      include "par-cib.h"
 C
       PARAMETER (PHI2=1.77245385090552D0)
       parameter (NOUT=26)
@@ -1591,8 +1632,8 @@ C      P(M,N)=P(M,N) EQ 7.11
     4 P(NN,M)=P(NN,M)*BETA(M)
 C      P= TRANSFORMATIONS-MATRIX VON RELATIV AUF DIAGONALKOORDINATEN T
 C      BEREITS DIVIDIERT DURCH WURZEL BETA
-      GOTO (10,10,7,10,10,710,10,7,10), MKC
-C R**2 --
+      GOTO (10,10,7,10,10,10,10,710,10,7,10), MKC
+C --- R**2
   710 DO 711 M=1,NZV
       DO 712 K=1,M
       P(NZAV-1,M)=P(NZAV-1,M)+UR(K)*VZ(M,K)
@@ -1642,7 +1683,7 @@ C     SIGMA(N,N') EQ 7.14
       ZZH(N)=ZZH(N) + RTH(K)*P(N,K)
 62    YH(N)=YH(N) + RT(K)*P(N,K)
   46  GG = G - 2.*GRHO
-      GOTO (88,88,88,88,47,88,88,88,88), MKC
+      GOTO (88,88,88,88,88,88,47,88,88,88,88),MKC
 47    G1=0.
        G2=0.
        IF(NZV1.EQ.0) GOTO 88
@@ -1675,7 +1716,7 @@ c133   WRITE(NOUT,*) ' T ',(VZ(N,M),N=1,NZV)
       IF(NREB.GT.0) GOTO 19
       G = FF
       H(1)=G
-      IF(MKC.EQ.6 .OR. MKC.EQ.8) H(2)=G
+      IF(MKC.EQ.8 .OR. MKC.EQ.10) H(2)=G
       IF (MKC.NE.3) GOTO 33
       I=(NZAV*(NZAV+1))/2
       IC = I+1
@@ -1703,11 +1744,11 @@ c      IF(NAUS.GT.2) WRITE(NOUT,*) ' RTH' ,(RTH(M),M=1,NZV)
       YGAM(N) = YH(N) + RT(NZV)*P(N,NZV) -2.*GAM(N)
 24    ZZ(N) = ZZH(N) + RTH(NZV)*P(N,NZV)
       IF(MKC.EQ.2) GOTO 196
-      IF(MKC.EQ.7) GOTO 32
+      IF(MKC.EQ.9) GOTO 32
       G0P=G0+RT(NZV)*RT(NZV)
       G1P=G1+RT(NZV)*RTH(NZV)
       G2P=G2+RTH(NZV)*RTH(NZV)
-      IF(MKC.EQ.5) G=.5*(GG+RT(NZV)*RT(NZV))+2.*POWE*(G1P
+      IF(MKC.EQ.7) G=.5*(GG+RT(NZV)*RT(NZV))+2.*POWE*(G1P
      1               -2.+POWE*2.*G2P)
       GOTO 97
 196   G = GG + RT(NZV)*RT(NZV)
@@ -1717,7 +1758,7 @@ c      IF(NAUS.GT.2) WRITE(NOUT,*) ' RTH' ,(RTH(M),M=1,NZV)
 98    DO 44 N=1,NZAV
       DO 44 M=1,NZAV
    44 HX(M,N)=2.*FF*YGAM(M)*YGAM(N)
-      GOTO(30,52,30,30,150,30,30,30,311), MKC
+      GOTO(30,52,30,30,30,30,150,30,30,30,311),MKC
 52    DO 144 M=2,IZLURE
       MXH=(M-2)/NZAV
       MH=M-1-MXH*NZAV
@@ -1727,10 +1768,11 @@ c      IF(NAUS.GT.2) WRITE(NOUT,*) ' RTH' ,(RTH(M),M=1,NZV)
       II=II+1
 144   H(II)=HX(MH,NH)
 145   CONTINUE
-      IF(MKC.EQ.9) THEN
+      IF(MKC.EQ.11) then
       DO 1444 M=1,IZLURE
       II=II+1
 1444  H(II)=HX(M,M)
+c      write(nout,*)II,'EINTRAEGE IN H GESCHRIEBEN'
       ENDIF
 148   IF(NAUS.LT.3) GOTO 149
 c      WRITE(NOUT,*) 'WR2 ',WR2,' GRHO ',GRHO,' FF ',FF
@@ -1752,11 +1794,12 @@ C     LS
      1  +4.*POWE*ZZ(M)*ZZ(N))+.5*HX(M,N)
 C     P**2
       GOTO 52
+C     P**2
+      GOTO 52
 c --------------------------- tensor_p a --------------------------
 311   DO 511 M=1,NZAV
       DO 511 N=1,NZAV
 c -- faktor 2 von nn'+n'n, 0.25 unterschied zu hx_kin
-c -- y->ygam fuer parallel quaf
   511 HX(M,N)=FF*( 2.*0.25*2.*(YGAM(M))*(YGAM(N))
      1        +2.*POWE*(ZZ(M)*(2.*POWE*ZZ(N)+YGAM(N))
      2                    +ZZ(N)*(2.*POWE*ZZ(M)+YGAM(M))) )
@@ -1764,7 +1807,7 @@ c -- y->ygam fuer parallel quaf
       GOTO 52
 c -----------------------------------------------------------------
 160   FR=1.
-      IF(MKC.EQ.11) FR=-0.5
+      IF(MKC.EQ.13) FR=-0.5
       DO 164 N=1,NZAV
       DO 164 M=N,NZAV
 164   HX(N,M)=FR*(FF*.5*(
@@ -1778,7 +1821,7 @@ c -----------------------------------------------------------------
       C(N,M,NP,MP)=-.125*FF*ZZ(N)*ZZ(NP)*YGAM(M)*YGAM(MP)
 166   CONTINUE
 C     L**2,LS**2 SKALAR
-      IF(MKC.LT.11) GOTO 52
+      IF(MKC.LT.13) GOTO 52
 C     LS**2 TENSOR
       II=2
       DO 168 N=1,NZAV
@@ -1811,7 +1854,7 @@ c      WRITE(NOUT,120) M,I1,I2,SH(M),WS,DMM(I1,1),DMM(I1,2)
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 C
-      include "par-eft.h"
+      include "par-cib.h"
       parameter (NOUT=16)
 C
       COMMON /LURI/ KVK(NDIM1), JQ(NDIM1), INDPO(NDIM1),
@@ -1835,14 +1878,11 @@ c    4 WERT(LL,LR) = .0
       WS=0.
       NU=1
       NN=NQ
-      GO TO(13,13,10,13,13,11,11,11,11),MKC
+      GO TO(13,13,10,13,13,13,13,11,11,11,11),MKC
    10 NU = NQ
       GO TO 13
    11 NU = 2
-13    IF(LUPAUS.GT.3) THEN
-c      WRITE(NOUT,*) ' H ',(H(N),N=NU,NN)
-c      WRITE(NOUT,*) ' S ',(S(N),N=1,12)
-      ENDIF
+   13 continue
       DO 1 N=NU,NN
       K3ZAHL = KZHV(2,N)
       IF(K3ZAHL.EQ.0) GOTO 1
@@ -1899,7 +1939,7 @@ c      wertt(1)=wertt(1)+W
       IMPLICIT REAL*8 (A-H,O-Z)
 C     LURE LIEST MATRIXELEMENTE AUS LUDWIG EIN
 C
-      include "par-eft.h"
+      include "par-cib.h"
       PARAMETER (NOUT=16)
 C
       COMMON /LURI/ KVK(NDIM1), JQ(NDIM1), INDPO(NDIM1),
@@ -1914,8 +1954,8 @@ C
 C
       ITV2=0
       IU=2
-C    OPERATOR 1  2   3   4    5   6  7   8  9
-      GOTO (10, 60, 40,400, 400, 20,20, 20,60), MKC
+C    OPERATOR 1  2   3   4   5   6    7   8   9  10  11
+      GOTO (10, 60, 40,400,400,400, 400, 20, 20, 20, 60),MKC
 C
 10    IU=1
 20    DO 30, I=1, IZ
@@ -1923,8 +1963,8 @@ C
         WERTL(I,J)=0.
 30    CONTINUE
 60    CONTINUE
-C    OPERATOR 1   2   3   4   5  6  7  8  9
-      GOTO(  61, 61,446,400,400,61,61,61,61), MKC
+C    OPERATOR 1  2   3   4   5   6   7   8   9  10  11
+      GOTO(  61, 61,446,400,400,400,400,61, 61, 61, 61),MKC
 40    IU=INQ(2) +1
       GOTO 61
 C
@@ -1946,13 +1986,15 @@ c      IF (LUPAUS.GT.0) WRITE (NOUT,1000) IIZ, K1ZAHL, IQMH
        READ (NBAND3) (JQ(KW),INDPO(KW),EPO(KW),(MVK(IW,KW),
      *                IW=1,IQMH), KW=K2ZAHL,KZAHL)
 C    SORTIEREN NACH ANZAHL DER SIGMA FAKTOREN
+      if(MKC.EQ.8) write(nout,*) 'EPO(123)-2=',EPO(1),EPO(2),EPO(3)
         CALL ORDSRT(IIZ,K2ZAHL,KZAHL)
 C
        CALL FAPOR(K2ZAHL,KZAHL)
+      if(MKC.EQ.8) write(nout,*) 'EPO(123)-3=',EPO(1),EPO(2),EPO(3)
 200   CONTINUE
 C
       ITV2=KZAHL
-      IF (MKC.GE.6) ITV2=ITV2-KZHV(2,1)
+      IF (MKC.GE.8) ITV2=ITV2-KZHV(2,1)
 C
 400   RETURN
 C
@@ -1973,7 +2015,7 @@ C
       IMPLICIT REAL*8 (A-H,O-Z)
 C     FAPOR REPRODUZIERT DIE DREIMPULS- UND POLYNOMSTRUKTUR
 C
-      include "par-eft.h"
+      include "par-cib.h"
       PARAMETER (NOUT=16)
 C
       COMMON /LURI/ KVK(NDIM1), JQ(NDIM1), INDPO(NDIM1),
@@ -2007,7 +2049,7 @@ C
 C     ORDSRT SORTIERT DEN GESAMTEN COMMONBLOCK LUP NACH AUFSTEIGENDER
 C     ANZAHL VON SIGMAFAKTOREN
       
-      include "par-eft.h"
+      include "par-cib.h"
       PARAMETER (NOUT=16)
 C
       COMMON /LURI/ KVK(NDIM1), JQ(NDIM1), INDPO(NDIM1),

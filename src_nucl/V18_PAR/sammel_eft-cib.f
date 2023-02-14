@@ -1,7 +1,7 @@
       PROGRAM SAMMEL
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 
-      include "par.h"
+      include "par-cib.h"
       
 C       NZOPER: ANZAHL DER OPERATOREN IN QUAF
 C       NZFMAX:     "      "     "  ZERLEGUNGEN

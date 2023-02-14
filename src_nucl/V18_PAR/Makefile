@@ -23,36 +23,39 @@ CFLAGS      = -o $@ $? $(PRECFLAGS)
 .F.o:
 	$(F77) $(FOPTS) $(MAKRO) -c -o $*.o $< 
 
-mpi_quaf_v6.o: mpi_quaf_v6.F par.h Makefile
-mpi_quaf_v7.o: mpi_quaf_v6.F par.h Makefile	
-mpi_quaf_eft_v1.o: mpi_quaf_eft_v1.F par-eft.h Makefile
+mpi_quaf_n_v18-uix.o: mpi_quaf_n_v18-uix.F par.h Makefile
+mpi_quaf_m_v18-uix.o: mpi_quaf_m_v18-uix.F par.h Makefile	
+mpi_quaf_eft.o: mpi_quaf_eft.F par-eft.h Makefile
+mpi_quaf_n_eft-cib.o: mpi_quaf_n_eft-cib.F par-cib.h Makefile
 
+mpi_quaf_n_v18-uix: mpi_quaf_n_v18-uix.o 
+	$(F77) $(FOPTS) $(MAKRO) -o $@ mpi_quaf_n_v18-uix.o   $(LIBS) $(MPI)
 
-mpi_quaf_v6: mpi_quaf_v6.o 
-	$(F77) $(FOPTS) $(MAKRO) -o $@ mpi_quaf_v6.o   $(LIBS) $(MPI) 
+mpi_quaf_n_eft-cib: mpi_quaf_n_eft-cib.o 
+	$(F77) $(FOPTS) $(MAKRO) -o $@ mpi_quaf_n_eft-cib.o   $(LIBS) $(MPI) 
 
-mpi_quaf_v7: mpi_quaf_v7.o 
-	$(F77) $(FOPTS) $(MAKRO) -o $@ mpi_quaf_v7.o   $(LIBS) $(MPI) 
+mpi_quaf_m_v18-uix: mpi_quaf_m_v18-uix.o 
+	$(F77) $(FOPTS) $(MAKRO) -o $@ mpi_quaf_m_v18-uix.o   $(LIBS) $(MPI) 
 
-mpi_quaf_eft_v1: mpi_quaf_eft_v1.o 
-	$(F77) $(FOPTS) $(MAKRO) -o $@ mpi_quaf_eft_v1.o   $(LIBS) $(MPI) 
+mpi_quaf_eft: mpi_quaf_eft.o 
+	$(F77) $(FOPTS) $(MAKRO) -o $@ mpi_quaf_eft.o   $(LIBS) $(MPI) 
 
-mpi_quaf_v6_m1: mpi_quaf_v6_m1.o 
-	$(F77) $(FOPTS) $(MAKRO) -o $@ mpi_quaf_v6_m1.o   $(LIBS) $(MPI) 
+mpi_quaf_n_v18-uix_m1: mpi_quaf_n_v18-uix_m1.o 
+	$(F77) $(FOPTS) $(MAKRO) -o $@ mpi_quaf_n_v18-uix_m1.o   $(LIBS) $(MPI) 
 
-mpi_quaf_v7_m1: mpi_quaf_v7_m1.o 
-	$(F77) $(FOPTS) $(MAKRO) -o $@ mpi_quaf_v7_m1.o   $(LIBS) $(MPI) 
+mpi_quaf_m_v18-uix_m1: mpi_quaf_m_v18-uix_m1.o 
+	$(F77) $(FOPTS) $(MAKRO) -o $@ mpi_quaf_m_v18-uix_m1.o   $(LIBS) $(MPI) 
 
 mpi_quaf_eft_m1: mpi_quaf_eft_m1.o 
-	$(F77) $(FOPTS) $(MAKRO) -o $@ mpi_quaf_eft_m1.o   $(LIBS) $(MPI) 
+	$(F77) $(FOPTS) $(MAKRO) -o $@ mpi_quaf_eft_m1.o   $(LIBS) $(MPI)
 
-mpi_quaf_eft_pi: mpi_quaf_eft_pi.o 
-	$(F77) $(FOPTS) $(MAKRO) -o $@ mpi_quaf_eft_pi.o   $(LIBS) $(MPI) 
+sammel_v18-uix: sammel_v18-uix.o
+	$(F77) $(FOPTS) $(MAKRO) -o $@ sammel_v18-uix.o $(LIBS)
 
-sammel: sammel.o
-	$(F77) $(FOPTS) $(MAKRO) -o $@ sammel.o $(LIBS)
+sammel_eft-cib: sammel_eft-cib.o
+	$(F77) $(FOPTS) $(MAKRO) -o $@ sammel_eft-cib.o $(LIBS)
 
 clean:
 	$(RM) *.o *.exe pvm_tniq *~
 
-all: mpi_quaf_v6 mpi_quaf_v6_m1 sammel clean
+all: mpi_quaf_n_eft-cib mpi_quaf_n_v18-uix mpi_quaf_n_v18-uix_m1 mpi_quaf_m_v18-uix mpi_quaf_m_v18-uix_m1 mpi_quaf_eft mpi_quaf_eft_m1 sammel_eft-cib sammel_v18-uix clean

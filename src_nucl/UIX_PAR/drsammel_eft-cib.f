@@ -1,10 +1,12 @@
       PROGRAM SAMMEL
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 
-C
+C 
 C      INTEGERS IM FORMAT 24I3, REALS IM FORMAT 6E12.4
 C
-      include "par/DRQUA_AK"
+
+      INCLUDE 'par-cib.h'
+
       
 C     NZOPER: ANZAHL DER OPERATOREN IN QUAF
 C     NZFMAX:     "      "     "  ZERLEGUNGEN
@@ -23,26 +25,30 @@ C
 C
       character*80  fnumber, qname
  
-         OPEN(UNIT=10,FILE='DRQUAOUT',STATUS='OLD',FORM='UNFORMATTED')
-         OPEN(UNIT=14,FILE='DRFINDEX',STATUS='OLD',FORM='UNFORMATTED')
+         OPEN(UNIT=10,FILE='DRQUAOUT',STATUS='OLD',
+     *        FORM='UNFORMATTED')
+         OPEN(UNIT=14,FILE='DRFINDEX',STATUS='OLD',
+     *        FORM='UNFORMATTED')
          OPEN(UNIT=5 ,FILE='INSAM',STATUS='OLD')
          OPEN(UNIT=16 ,FILE='OUTPUT',
-     $        STATUS='REPLACE', FORM='FORMATTED')
+     *        STATUS='REPLACE', FORM='FORMATTED')
 
+      NOUT=16
       WRITE(NOUT, 1111)
       
-1111  FORMAT('1 DRSAMMEL VERSION VOM 7.9.01')
+1111  FORMAT('1 DRSAMMEL VERSION VOM 29.05.2009')
+
       INPUT=5
       nband1=10
       read(input,1002) jfilmax,naus,ntest
       I=0
-      WRITE (NOUT,*) ' Matrizen in files DROUTDM.',jfilmax        
+      WRITE (NOUT,*) ' Matrizen in files DRDMOUT.',jfilmax        
       read(input,1002) mflu,mflo
       write(nout,*) 'Es wird von Zerlegung ',mflu,' bis ',mflo,
      *    ' aufgesammelt'
       REWIND NBAND1
             close(unit=nout, status='keep')
-         OPEN(UNIT=16 ,FILE='OUTPUT',
+         OPEN(UNIT=nout ,FILE='OUTPUT',
      $        POSITION='APPEND', FORM='FORMATTED')
       READ(NBAND1) NZF,(LREG(K),K=1,NZOPER),NZBASV2,(NZRHO(K),K=1,NZF)
       DO 22  MFL = 1,NZF
@@ -224,6 +230,7 @@ c        print *, MTEIL,JCOUNT,INDEXR
  510  A = A + ABS(DM(K,L,I,mfr,mkc))
       IF(A.GT.0.) GOTO512
       WRITE (11) NUML,NUMR,II1,II1,A,A
+      WRITE (NOUT,*) NUML,NUMR,II1,II1,A,A
       GOTO 481
 512   WRITE(11) NUML,NUMR,IK1,JK1,(((DM(K,L,I,mfr,mkc),
      1 K=M1,M2), L=N1,N2), I=1,2)

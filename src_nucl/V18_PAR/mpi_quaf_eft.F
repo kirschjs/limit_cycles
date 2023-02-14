@@ -622,6 +622,10 @@ C     ENDE DEFINITION BASISVEKTOREN
 809   CONTINUE
 810   CONTINUE
   950 CONTINUE
+C      WECPOT(1,1,2) = -(2.72099*0.529172*137.0373)**2/
+C     1                 ((1634.0+1634.0)* DBLE(NZT))
+C      WECPOT(1,1,2) = -(2.72099*0.529172*137.0373)**2/
+C     1                 ((1320.0+1320.0)* DBLE(NZT))
       WECPOT(1,1,2) = -(2.72099*0.529172*137.0373)**2/
      1                 ((938.211+939.505)* DBLE(NZT))
       ISTOPP=0

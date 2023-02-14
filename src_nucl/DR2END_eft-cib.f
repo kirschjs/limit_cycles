@@ -1,15 +1,15 @@
-      PROGRAM DR2END_AK
-C       FUERs SMIN STATTDESSEN
+      PROGRAM DR2END_AK_I_2
+C     FUER SMIN STATTDESSEN
 CC    SUBROUTINE ENDMAT(EOV)
       IMPLICIT double precision (A-H,O-Z)
 C     STREU ENDMAT NUR FUER STREUPOTENTIALE (KEINE QUARKS!!!!!!!!)
 C     ZUSAETZLICH FUER 3-N-POTENTIALE!!!!!!!!!
-C     VORBEREITET FUER SMIN 
+C     VORBEREITET FUER SMIN
 C     JEWEILS SMIN SUCHEN UND NACH VORSCHRIFT HANDELN
 C     DAMIT DIE COMMONBLOCKS STIMMEN MUSS 'par/DR2END_AK' durch 'par/SMIN' ERSETZT
 C     WERDEN
 C     FUER ZWEI SORTEN VON TEILCHENMASSEN
-C 
+C
 C   NZOP=14 FUER SZ,BONN,AV14,AV18 POTENTIALE
 C      NZOP=23 FUER ZUSATZLICH 3N-POTENTIALE
 C      NEU NZOP=31 FUER NEUES 3N-POTENTIAL
@@ -36,21 +36,29 @@ C     22.1.03 AUSBAU VON LOOP KPUTZ, ES WIRD NUR NOCH EINMAL VOM FILE QUAOUT
 C             GELESEN H.M.H.
 C
 C     FOLGENDE OPERATOREN WERDEN BERECHNET:
-C     1. NORM 
-C     2. KINETISCHE ENERGIE
-C     3. COULOMB 
-C     4. ZENTRALPOTENTIALE 
-C     5.  P-QUADRAT
-C     6.  L-QUADRAT 
-C     7.  LS-QUADRAT SKALAR
-C     8. SPIN-BAHN 
-C     9. LS-QUADRAT VEKTOR 
+c - NN ------------------------------------------
+C     1. OPERATOR: NORM
+C     2. OPERATOR: KIN. ENERGIE
+C     3. OPERATOR: COULOMB
+C     4. OPERATOR: CIB-PP
+C     5. OPERATOR: CIB-NN
+C     6. OPERATOR: ZENTRAL
+C     7. OPERATOR: P-QUADRAT
+C     8. OPERATOR: R-QUADRAT
+C     9. OPERATOR: SPIN-BAHN
+C    10. OPERATOR: TENSOR
+C    11. OPERATOR: TENSOR_p antisymmetric
+c - NNN -----------------------------------------
+C    12. OPERATOR: 3N NORM
+C    13. OPERATOR: 3N OLD URBANA9 ZENTRAL OP WITHOUT (ISO)SPIN DEP
+C    14. OPERATOR: 3N LO CONTACT \tau\cdot\tau
+c -----------------------------------------------
 C     10. TENSOR 
 C     11.  LS-QUADRAT TENSOR 
 C     12. ISO-TENSOR SKALAR
 C     13. ISO-TENSOR TENSOR
 C     14. CHARGE-ASYMMETRIC
-C     15. OPERATOR: NORM  3TEILCHEN
+C     15. OPERATOR: NORM  3TEILCHEN UIX
 C     16. OPERATOR: ZENTRAL
 C     17. OPERATOR: SPIN-SPIN ANTI
 C     18. OPERATOR: SPIN-SPIN KOM
@@ -65,8 +73,19 @@ C     26. OPERATOR: TENSOR-TENSOR RANG=1   KOM
 C     27. OPERATOR: TENSOR-TENSOR RANG=2   ANTI
 C     28. OPERATOR: TENSOR-TENSOR RANG=2   KOM
 C     29. OPERATOR: TENSOR-TENSOR RANG=3   KOM
-C     30. OPERATOR: SPIN-SPIN VPVS 
+C     30. OPERATOR: SPIN-SPIN VPVS
 C     31. OPERATOR: TENSOR R_IK VPVS
+C     32. OPERATOR: NORM  3TEILCHEN ILL
+C     33. OPERATOR: SPIN-TENSOR I
+C     34. OPERATOR: TENSOR**2 RG1 I      
+C     35. OPERATOR: TENSOR**2 RG2 I      
+C     36. OPERATOR: TENSOR**3 RG0 I      
+C     37. OPERATOR: TENSOR**3 RG(1)1 I   
+C     38. OPERATOR: TENSOR**3 RG(2)1 I   
+C     39. OPERATOR: TENSOR**3 RG(3)1 I   
+C     40. OPERATOR: TENSOR**3 RG(2)2 I   
+C     41. OPERATOR: TENSOR**3 RG(3)2 I   
+C     42. OPERATOR: TENSOR**3 RG(3)3 I   
 C
 C    FALLS TNI UNGESPLITTET
 C     17. OPERATOR: SPIN-SPIN
@@ -78,7 +97,7 @@ C     22. OPERATOR: TENSOR-TENSOR RANG=2
 C     23. OPERATOR: TENSOR-TENSOR RANG=3
 C
 C
-        INCLUDE 'par/DR2END_AK'
+        INCLUDE 'par/DR2END_EFT'
 C
 C     NZOPER: MAXIMALE ANZAHL DER OPERATOREN IN ENDMAT
 C     MZPARM:     "      "     "  RADIALRARAMETER
@@ -86,7 +105,7 @@ C     NZKMAX:     "      "     "  KANAELE
 C     NZBMAX:     "      "     "  BASISVEKTOREN AUS QUAF
 C     NZUMAX:     "      "     "  UEBERLAGERUGNSKOEFFIZIENTEN
 C     NZFMAX:     "      "     "  ZERLEGUNGEN
-C     NDIMD:     "      "     "  AUSGEDRUCKTEN EIGENFUNKTIONEN
+C     NZZMAX:     "      "     "  AUSGEDRUCKTEN EIGENFUNKTIONEN
 C     NDIMD  :     "      "     "  RADIALPARAMETER*KANAELE
 C                                 NDIMD.LE.MZPARM*NZKMAX
 C
@@ -137,27 +156,30 @@ C
 C
 C
       CHARACTER*36 VARFOR(NZOPER), UNSPLIT(7)
-C      CHARACTER*20 INFILE
 C
       CHARACTER*10 CHINT(2)
       DATA CHINT /'(26I3)','(20I4)'/
 C
-      DATA VARFOR/        '('' NORM !!!!             '',F16.7)',
-     2'('' KINETISCHE ENERGIE =  '',F16.7)',
-     3'('' COULOMB ENERGIE=      '',F16.7)',
-     4'('' ZENTRAL ENERGIE=      '',F16.7)',
-     4'('' P-QUADRAT    =        '',F16.7)',
-     5'('' L-QUADRAT    =        '',F16.7)', 
-     5'('' LS**2 SKALAR  =       '',F16.7)',
-     6'('' SPINBAHN ENERGIE =    '',F16.7)', 
-     6'('' LS**2 VEKTOR   =      '',F16.7)',
-     7'('' TENSOR ENERGIE =      '',F16.7)', 
-     7'('' LS**2 TENSOR   =      '',F16.7)',
-     *'('' ISO-TENSOR SKA =      '',F16.7)',
-     *'('' ISO-TENSOR TEN =      '',F16.7)',
-     *'('' CHARGE ASYMMET =      '',F16.7)',
-     *'('' NORM      3TEIL=      '',F16.7)',
-     *'('' ZENTRAL  3TEIL =      '',F16.7)',
+      DATA VARFOR/
+     *'('' NORM !!!!             '',F16.7)',
+     *'('' KINETISCHE ENERGIE =  '',F16.7)',
+     *'('' COULOMB ENERGIE    =  '',F16.7)',
+     *'('' CIB_PP             =  '',F16.7)',
+     *'('' CIB_NN             =  '',F16.7)',
+     *'('' ZENTRAL NN         =  '',F16.7)',
+     *'('' P_SQ               =  '',F16.7)',
+     *'('' R_SQ               =  '',F16.7)',
+     *'('' SPIN_BAHN          =  '',F16.7)',
+     *'('' TENSOR             =  '',F16.7)',
+     *'('' TENSOR_p           =  '',F16.7)',
+     *'('' NORM TNI           =  '',F16.7)',
+     *'('' ZENTRAL  TNI   UIX =  '',F16.7)',
+     *'('' ZENTRAL NNN        =  '',F16.7)',
+     *'('' ZENTRAL  3TEIL UIX =  '',F16.7)',
+     *'('' ZENTRAL  3TEIL UIX =  '',F16.7)',
+     *'('' ZENTRAL  3TEIL UIX =  '',F16.7)',
+     *'('' ZENTRAL  3TEIL UIX =  '',F16.7)',
+     *'('' ZENTRAL  3TEIL UIX =  '',F16.7)',
      *'('' S-S-POTENTIAL 3N AK = '',F16.7)',
      *'('' S-S-POTENTIAL 3N KO = '',F16.7)',
      *'('' S-T-POTENTIAL IK 3N A '',F16.7)',
@@ -172,7 +194,15 @@ C
      *'('' TENSOR-T RANG=2  3N K '',F16.7)',
      *'('' TENSOR-T RANG=3  3N K '',F16.7)',
      *'('' S-S-POTENTIAL 3N VPVS '',F16.7)',
-     *'('' T-POTENTIAL IK 3N VP  '',F16.7)'/
+     *'('' T-POTENTIAL IK 3N VP  '',F16.7)',
+     *'('' NORM      3TEIL ILL=  '',F16.7)',
+     *'('' SPIN-TENSOR I      =  '',F16.7)',
+     *'('' TENSOR**2 RG1 I    =  '',F16.7)',
+     *'('' TENSOR**2 RG2 I    =  '',F16.7)',
+     *'('' TENSOR**3 RG0 I    =  '',F16.7)',
+     *'('' TENSOR**3 RG(1)1 I =  '',F16.7)',
+     *'('' TENSOR**3 RG(2)1 I =  '',F16.7)',
+     *'('' TENSOR**3 RG(3)2 I =  '',F16.7)'/
 C
       DATA UNSPLIT/
      *'('' S-S-POTENTIAL 3N =    '',F16.7)',
@@ -183,14 +213,12 @@ C
      *'('' TENSOR-T RANG=2  3N = '',F16.7)',
      *'('' TENSOR-T RANG=3  3N = '',F16.7)'/
 C
-C      call getarg(1,INFILE)
-C      OPEN(UNIT=5,FILE=INFILE,STATUS='OLD')      
       OPEN(UNIT=5,FILE='INEN',STATUS='OLD')
 C
       OPEN(UNIT=NOUT,FILE='OUTPUT')
 C     FUER SMIN SIND DIESE OPEN STATEMENTS ZU BESEITIGEN
 C
- 1002 FORMAT(50I3)
+ 1002 FORMAT(30I3)
  1005 FORMAT(10H ES WERDEN,I3,20H KANAELE BETRACHTET //)
  6071 FORMAT(//,20H GESAMTDREHIMPULS = ,I3,3H /2 ,14H  PARITAET = - //)
  1004 FORMAT(20H GESAMTDREHIMPULS = ,I3,3H /2 ,14H  PARITAET = + //)
@@ -223,7 +251,7 @@ C
 10    CONTINUE
 C     FAKU(I)=DBLE(I!!)
 C      WRITE (NOUT,1111)
- 1111 FORMAT(' STREU ENDMAT VOM 29.6.00')	
+ 1111 FORMAT(' STREU ENDMAT_I_2 (EFT Version) VOM 11.09.07')	
 C
       D(1)=.0
       D(2)=.0
@@ -239,17 +267,45 @@ C
      1              FORM='UNFORMATTED')
 C
       IZWEI=0
-      IDREI=0
-      IF(NBAND1.GT.0)  THEN
+      IDREI_U=0
+      IDREI_I=0
+C NBAND1 = 10  :  EFT NN  NLO
+C        =-11  :  EFT NNN NLO
+C        = 22  :
+C        = 13  :  EFT NLO NN+NNN
+C        = 42  :
+      IF(NBAND1.EQ.10)  THEN
           OPEN(UNIT=10,FILE='QUAOUT',STATUS='OLD',FORM='UNFORMATTED')
           IZWEI=1
           endif
-      IDREI=0
-      IF(ABS(NBAND1).GT.10)  THEN
+      IF(NBAND1.EQ.(-11))  THEN
         OPEN(UNIT=11,FILE='DRQUAOUT',STATUS='OLD',FORM='UNFORMATTED')
-          IDREI=1
+          IDREI_U=1
           endif
-
+      IF(NBAND1.EQ.22)  THEN
+        OPEN(UNIT=22,FILE='DRQUAOUT_I_2',STATUS='OLD',
+     1      FORM='UNFORMATTED')
+          IDREI_I=1
+          endif
+      IF((NBAND1.GT.10).AND.(NBAND1.LT.21))  THEN
+        OPEN(UNIT=10,FILE='QUAOUT',STATUS='OLD',FORM='UNFORMATTED')
+          IZWEI=1
+        OPEN(UNIT=11,FILE='DRQUAOUT',STATUS='OLD',FORM='UNFORMATTED')
+          IDREI_U=1
+C idrei_u ist NNN von EFT
+          NBAND1=10
+        write(nout,*)'nn+nnn'
+          endif
+      IF(NBAND1.EQ.42)  THEN
+        OPEN(UNIT=10,FILE='QUAOUT',STATUS='OLD',FORM='UNFORMATTED')
+          IZWEI=1
+        OPEN(UNIT=11,FILE='DRQUAOUT',STATUS='OLD',FORM='UNFORMATTED')
+          IDREI_U=1
+        OPEN(UNIT=22,FILE='DRQUAOUT_I_2',STATUS='OLD',
+     1      FORM='UNFORMATTED')
+          IDREI_I=1
+          NBAND1=10
+          endif
       IF(IDUM.NE.2) IDUM=1
 C     IDUM=2 WAEHLT FORMAT 20I4 FALLS MEHR ALS 999 KANAELE ODER BV
 C
@@ -267,22 +323,25 @@ C      EIGENVEKTOR ENTWICKELT WERDEN SOLL
 C      IPLO= -1 NOKEHA UND PLOB WERDEN NICHT GERUFEN
 C      IPLO .GE. 0 NOKEHA WIRD GERUFEN
 C      IPLO .GT. 0 PLOB WIRD GERUFEN
+
+C -- EFT NN: NZOP=11, NN+NNN: NZOP=28
+      IF (NZOP.NE.11 .AND. NZOP.NE.28)  STOP 2
 C
-      IF (NZOP.NE.14 .AND. NZOP.NE.23 .AND. NZOP.NE.29 .AND.
-     *    NZOP.NE.31)  STOP 2
-      IF(NZOP.EQ.23) THEN
-          DO 137 K=1,7
-137       VARFOR(16+K)=UNSPLIT(K)
-      ENDIF
       READ(INPUT,1002) (MREG(K),K=1,NZOP)
-      IF(IZWEI.EQ.1) MREG(15)=0
+      IF(IZWEI.EQ.1) THEN
+      MREG(10)=0
+c      MREG(32)=0
+      END IF
 C
       DO 110 K=1,NZOP
   110 POTFAK(K) =1.
 C
+C      H2M=197.31613**2/(2.0*1634.0)
+C      H2M=197.31613**2/(2.0*1320.0)
+C      H2M=197.31613**2/(2.0*1226.0)
       H2M=(2.72099*.529172*137.0373)**2/(938.211+939.505)
-C     H2M=197.31613**2/(938.211+939.505)
-      E2R0=.51098*2.81785
+C      H2M=43278.738
+C      E2R0=.51098*2.81785
 C     E2R0=197.31613/137.0373
       IF(IFAKD.LE.0) GOTO 111
       READ(INPUT,1113) (POTFAK(K),K=3,NZOP)
@@ -291,20 +350,40 @@ C     E2R0=197.31613/137.0373
 111   MREG(1)=1
       NBAND1=ABS(NBAND1)
       NZBASV2=0
-      NZBASV3=0
+      NZBASV3_U=0
+      NZBASV3_I=0
       REWIND 10
       REWIND 11
+      REWIND 22
       DO 113 K=1,NZOP
 113   LREG(K)=0
-
-      IF(IZWEI.EQ.1) READ(10) NZF,(LREG(K),K=1,14),NZBASV2,
+      IF(IZWEI.EQ.1) READ(10) NZF,(LREG(K),K=1,11),NZBASV2,
      1  (NZRHO(K),K=1,NZF)
-      IF(IDREI.EQ.1) READ(11) NZF,(LREG(K),K=15,NZOPER),NZBASV3,
+      WRITE(NOUT,*) NZF,(LREG(K),K=1,NZOPER),NZBASV2,
      1  (NZRHO(K),K=1,NZF)
-      IF(IZWEI+IDREI.EQ.2) THEN
-      NZBASV=MIN(NZBASV2,NZBASV3)
-      ELSE
-      NZBASV=MAX(NZBASV2,NZBASV3)
+      IF(IDREI_U.EQ.1) READ(11) NZF,(LREG(K),K=12,28),NZBASV3_U,
+     1  (NZRHO(K),K=1,NZF)
+      WRITE(NOUT,*) NZF,(LREG(K),K=1,NZOPER),NZBASV3_U,
+     1  (NZRHO(K),K=1,NZF)
+      IF(IDREI_I.EQ.1) READ(22) NZF,(LREG(K),K=32,NZOPER),NZBASV3_I,
+     1  (NZRHO(K),K=1,NZF)
+      MKCU=1
+      MKCO=NZOP
+      IF(IZWEI+IDREI_U+IDREI_I.EQ.3) THEN
+      NZBASV=MIN(NZBASV2,NZBASV3_U,NZBASV3_I)
+      ELSE IF(IZWEI+IDREI_U.EQ.2) THEN 
+      NZBASV=MIN(NZBASV2,NZBASV3_U)
+      MKCO=28
+      ELSE IF(IZWEI.EQ.1) THEN
+      NZBASV=NZBASV2
+      MKCO=11
+      ELSE IF(IDREI_U.EQ.1) THEN
+      NZBASV=NZBASV3_U
+      MKCU=12
+      MKCO=28
+      ELSE IF(IDREI_I.EQ.1) THEN
+      NZBASV=NZBASV3_I
+      MKCU=32
       END IF
       IF(NZBASV.GT.NZBMAX)  GOTO 808
       DO 1 N=1,NZBASV
@@ -323,6 +402,8 @@ C     E2R0=197.31613/137.0373
 C
       READ(INPUT,CHINT(IDUM)) JWS,NZKA,NENTP,KAUSD,NPARI,KEIND,
      *                        NZKAPO,NREL,IABLK
+C      write(nout,*) JWS,NZKA,NENTP,KAUSD,NPARI,KEIND,
+C     *                        NZKAPO,NREL,IABLK
       IF(NENTP.EQ.0) OPEN(UNIT=12,FILE='ENOUT',STATUS='UNKNOWN',
      *               FORM='UNFORMATTED')
       IF(NREL.EQ.1) WRITE(NOUT,*)' KEINE RELATIVISTIK MOEGLICH'
@@ -443,7 +524,7 @@ C     NKAENT < 0, DISTORTIONSKANAELE
 C      CHECK FUER BASIVECTOREN EINES KANALS
       IF(NKAENT(N).LT.0.AND.KEIND.LE.-2) GOTO 18
       IF(LWERT(4,N).NE.MLWERT(4,J)) GOTO 16
-C     CHECK AUF GLEICHE RADIALDREHIMPULSE
+C      CHECK AUF GLEICHE RADIALDREHIMPULSE
       IF(KPK(N).NE.KPB(J)) GOTO 16
    18 A=0.
       DO 20 M=1,MM
@@ -496,7 +577,7 @@ C       DEFINITION DER POLYNOMKANAELE
       DO 24 K=NZKB+1,NZKA
    24 NKAENT(K)=-1
       GO TO 30
-C      ENDE KANALDEFINITION STREURECHNUNG UND GEKOPPELTE BINDUNGSRECHNUNG
+C     ENDE KANALDEFINITION STREURECHNUNG UND GEKOPPELTE BINDUNGSRECHNUNG
 C
 C
    4   CONTINUE
@@ -511,17 +592,16 @@ C
       DO 193 J=1,KK
       IF(NUMK(J).GT.NZBASV .OR. NUMK(J).EQ.0) THEN 
         WRITE(NOUT,*)' IM KANAL ',
-     *  N,' IST DER INPUT FUER BV ',J,' FALSCH', NUMK(J),
-     *  NUMK(J),'>?',NZBASV
+     *  N,' IST DER INPUT FUER BV ',J,' FALSCH', NUMK(J)
         STOP 'FALSCHER BV'
         ENDIF
       L = NUMK(J)
       JKK(NUMK(J))= JKK(NUMK(J))+ 1
       IF(JKK(NUMK(J)).GT.KKMAX) THEN
-	WRITE(NOUT,*) ' BASISVIKTOR ',NUMK(J),' TAUCHT IN MEHR ALS ',
-     *  KKMAX,' KANAELEN UNTER, KANALNR ',N
-	STOP 193
-	ENDIF
+      WRITE(NOUT,*) ' BASISVEKTOR ',NUMK(J),' TAUCHT IN MEHR ALS ',
+     *  KKMAX,' KANAELEN AUF, KANALNR ',N
+      STOP 193
+      ENDIF
       KANUM(NUMK(J),JKK(NUMK(J)))= N
       KBVM=MAX(KBVM,NUMK(J))
       IF (KEIND.EQ.0) GOTO 193
@@ -568,10 +648,9 @@ C
   410 CONTINUE
       LUM(MM+1,N)=J1
       GO TO 84
-   87 continue
-      IF(NZP(N).NE.NZPAQ(J)) GOTO 16
+   87 IF(NZP(N).NE.NZPAQ(J)) GOTO 16
       DO 713   M = 1,MM
-      IF(ABS(PAR(M,N)-PAQ(M,J)).GT..00001) GOTO 16
+      IF(ABS(PAR(M,N)-PAQ(M,J)).GT..00001) GOTO16
   713 CONTINUE
       IF(KEIND.LT.0) GOTO 84
       IF(MS(3,N).NE.MMS(3,J)) GOTO 16
@@ -583,7 +662,6 @@ C
       NZP(N)=LUM(MM+1,N)
   28  CONTINUE
       CALL DEFPOK(NZP,NZKA,0,NZKB,NZKPB)
-c      CALL DEFPOK(NZP,NZKA,1,NZKB,NZKPB)
 C     ENDE KANALDEFINITION BINDUNGSRECHNUNG
 C
 C
@@ -628,11 +706,10 @@ C
 C     1. DURCHLAUF: BERECHNUNG VON NORM- UND HAMILTONMATRIX,
 C                   DIAGONALISATION UND BESTIMMUNG DER EIGENVEKTOREN
 C     2. DURCHLAUF: NUR FUER BINDUNGSRECHNUNG; BESTIMMUNG DER EINELNEN
-C                   BEITRAEGE DER OPERATOREN FUER DIE ERSTEN NDIMD E.V.
+C                   BEITRAEGE DER OPERATOREN FUER DIE ERSTEN NZZMAX E.V.
 C
 C
       IIKUNT=2
-C NENTP=1 for bound-state calculations => MEMPT assumes 1,2      
       IF(NENTP.EQ.2) IIKUNT=1
       IF (MEMPT.EQ.1) IIKUNT=NZOP
 C
@@ -640,6 +717,7 @@ C
 C
       ISTART=2
       IF (MEMPT.EQ.1.OR.(IIK.EQ.IIKUNT .AND. IIK.NE.NZOP)) ISTART=1
+
 C
       IF(IZWEI.EQ.1) THEN
 C
@@ -649,12 +727,20 @@ C
 36       READ (10)
       ENDIF
 C
-      IF(IDREI.EQ.1) THEN
+      IF(IDREI_U.EQ.1) THEN
 C
          REWIND 11
          READ (11)
-         DO 361 IH=1, NZBASV3
+         DO 361 IH=1, NZBASV3_U
 361      READ (11)
+      ENDIF
+C
+      IF(IDREI_I.EQ.1) THEN
+C
+         REWIND 22
+         READ (22)
+         DO 363 IH=1, NZBASV3_I
+363      READ (22)
       ENDIF
 C
        IF(MEMPT.EQ.1)GOTO 350
@@ -667,10 +753,10 @@ C
 337    DM(M,N,2,1)= 0.
 350   CONTINUE
 C
-         MKCU=1
-      MKCO=NZOP
-      IF(IZWEI.EQ.0)MKCU=15
-      IF(IDREI.EQ.0)MKCO=14
+C      MKCU=1
+C      MKCO=NZOP
+C      IF(IZWEI.EQ.0)MKCU=15
+C      IF(IDREI_U.EQ.0)MKCO=14
       IF (MEMPT.GT.1) THEN
       MKCU=IIK
       MKCO=IIK
@@ -691,9 +777,10 @@ C
       NBAND1=10
       DO 41, MKC=1,NZOP
       KPUTZ=2
-      IF(MKC.EQ.1 .OR. MKC.EQ.15) KPUTZ=1
-C     LOOP OPERATOREN 
-      IF(MKC.GT.14) NBAND1=11
+      IF(MKC.EQ.1 .OR. MKC.EQ.12 .OR. MKC.EQ.32) KPUTZ=1
+C     LOOP OPERATOREN
+      IF(MKC.GT.11) NBAND1=11
+      IF(MKC.GT.31) NBAND1=22
 C
       IF(LREG(MKC).LE.0) GOTO 41
       IF (MKC.GE.MKCU.AND.MKC.LE.MKCO) GOTO 430
@@ -706,10 +793,10 @@ C
       DO 40 NLES=1,MLES
         READ(NBAND1)   NUML,NUMR,IK1,JK1,(((DN(K,L,I),K=1,IK1),L=1,JK1),
      1 I=1,2)
-      IF(IGAK.LT.-2.OR.MEMPT.GT.1) GOTO 221
+      IF(IGAK.LT.2.OR.MEMPT.GT.1) GOTO 221
       WRITE(NOUT,219) MKC,NUML,NUMR,IK1,JK1
 219   FORMAT(' MKC,NUML,NUMR,IK1,JK1 ',5I3)
-      IF(IGAK.LT.-3) GOTO 221
+      IF(IGAK.LT.3) GOTO 221
       WRITE(NOUT,220)(((DN(K,L,I),K=1,IK1),L=1,JK1),I=1,2)
 220   FORMAT(1X,10E12.4)
 221   CONTINUE
@@ -723,9 +810,9 @@ C
       MR=MMS(3,NUMR)
       KAK=0
 C OPERATOR                1  2  3  4  5  6  7  8  9  10
-      IF(NZOP.LE.23) GOTO(96,96,96,96,96,96,96,92,92,93,
-     *                    93,96,93,96,96,96,96,93,93,96,
-     *                    92,93,94),MKC
+      IF(NZOP.LE.28) GOTO(96,96,96,96,96,96,96,96,92,93,
+     *                    93,96,96,96,96,93,93,93,93,96,
+     *                    96,92,92,93,93,94,96,93),MKC
       IF(NZOP.EQ.29) GOTO(96,96,96,96,96,96,96,92,92,93,
      *                    93,96,93,96,96,96,96,96,93,93,
      *                    93,93,96,96,92,92,93,93,94),MKC
@@ -733,16 +820,17 @@ C OPERATOR                1  2  3  4  5  6  7  8  9  10
      *                    93,96,93,96,96,96,96,96,93,93,
      *                    93,93,96,96,92,92,93,93,94,96,
      *                    93),MKC
+      IF(NZOP.EQ.42) GOTO(96,96,96,96,96,96,96,92,92,93,
+     *                    93,96,93,96,96,96,96,96,93,93,
+     *                    93,93,96,96,92,92,93,93,94,96,
+     *                    93,96,93,92,93,96,92,92,92,93,
+     *                    93,94),MKC
    92 KAK=2
       GO TO 96
    93 KAK=4
       GO TO 96
    94 KAK=6
    96 F=(-1)**((2*LBR+2*MR-ML+JWS)/2)* POTFAK(MKC)
-C       LB-R/L = total orbital angular momenta
-C       M-R/L  = 2 * total Spin
-C       SP-R/L =     total Spin
-C       2(SR+1)  <SL||id||SR> = 1/Sqrt[2S+1]   
       FK=F6J(2*LBR,MR,JWS,ML,2*LBL,KAK)
       F=F*FK
       IF(F.EQ.0.) GOTO 40
@@ -757,13 +845,12 @@ C       2(SR+1)  <SL||id||SR> = 1/Sqrt[2S+1]
       FAK2 = UMKOF(KANL,NUMR)*UMKOF(KANR,NUML)
        IF (ABS(FAK1)+ABS(FAK2).LT.1.D-16) GOTO 142
       IF(NUML.EQ.NUMR) THEN
-	     FAK2=0.
-	     KWIED=1
+      FAK2=0.
+      KWIED=1
       ENDIF
       IF(KANL.EQ.KANR) KWIED=1
       F1=FAK1*F
       F2=FAK2*F
-c      write(nout,'(A11,2E12.4,I3)')'FAK1/2,MKC=',FAK1,FAK2,MKC
       DO 46 K=1,IK1
       DO 146 L=1,JK1
       K1=LUM(K,KANL)
@@ -775,28 +862,26 @@ c      write(nout,'(A11,2E12.4,I3)')'FAK1/2,MKC=',FAK1,FAK2,MKC
       LK=NZQ(KANR)+K2
       KL=NZQ(KANL)+L2
 C
-c      write(nout,*)'F1/2=',F1,F2
+C
       IF(K1*L1.LE.0) GOTO 420
 C   DN(.,.,1) ENTHAELT NUR TERME MIT AUSTAUSCH ODER WW UEBER FRAGMENTGRENZEN
-C   DN(.,.,2) ENTHAELT ALLE TERME
-C   KPUTZ=1 for norm , for all other operators KPUTZ=2
-      DM(KK,LL,1,KPUTZ) = DM(KK,LL,1,KPUTZ) + DN(K,L,1) * F1
+C    DN(.,.,2) ENTHAELT ALLE TERME
+      DM (KK,LL,1,KPUTZ) = DM (KK,LL,1,KPUTZ) + DN(K,L,1) * F1
       DM(KK,LL,2,KPUTZ) = DM(KK,LL,2,KPUTZ) + DN(K,L,2) * F1
  420   IF(K2*L2.LE.0) GOTO 45
-      DM(KL,LK,1,KPUTZ) = DM(KL,LK,1,KPUTZ) + DN(K,L,1) * F2
+      DM (KL,LK,1,KPUTZ) = DM (KL,LK,1,KPUTZ) + DN(K,L,1) * F2
       DM(KL,LK,2,KPUTZ) = DM(KL,LK,2,KPUTZ) + DN(K,L,2) * F2
-c      if(MKC.eq.1)write(nout,'(A19,I3,4E12.4)')'MEMPT/DN1,2/F1,2 = ',
-c     *    MEMPT,DN(KL,LK,1),DN(KL,LK,2),F1,F2
 45    IF(MEMPT.GT.1) GOTO 50
       IF(IABS(KANL-KANR)+IABS(K-L).NE.0) GOTO 50
       IF(K1.LE.0) GOTO 50
-      OPWERT(MKC,KK)=OPWERT(MKC,KK) + (F1+F2)*DN(K,K,2)
-      IF(MKC.NE.1 .AND. MKC.NE.15) GOTO 49
+      OPWERT(MKC,KK )=OPWERT(MKC,KK ) + (F1+F2)*DN(K,K,2)
+      IF(MKC.NE.1 .AND. MKC.NE.12 .AND. MKC.NE.32) GOTO 49
       OPWERT(NZOPER+1,KK) =
      *   OPWERT(NZOPER+1,KK) + (F1+F2)*(DN(K,K,2)-DN(K,K,1))
       GO TO 50
    49 OPWERT(NZOPER+2,KK) =
      *   OPWERT(NZOPER+2,KK) + (F1+F2)*(DN(K,K,2)-DN(K,K,1))
+c      WRITE(NOUT,166) (OPWERT(NZOPER+2,KK),KK=KANF,KEND)
    50 CONTINUE
 146   CONTINUE
 C     LOOP PARAMETER RECHTS
@@ -832,10 +917,10 @@ C     WIRD NUR EINMAL DURCHLAUFEN
       DO 1400 M=1, IZP(K)
       KK = IZQ(K) + M
 C     CHECK NORM GT 0
-      IF (OPWERT(MKCU,KK).GT.1.D-10) GOTO 1400
-      WRITE (NOUT,1401) K, M, KK,NZKAPO,
-     *  OPWERT(NZOPER+1,KK),OPWERT(MKCU,KK)
- 1401 FORMAT (14H EINGABEFEHLER ,4I3, 2E12.4)
+C-JK--vorher abbruch bei GT.1.D-10                                 <==
+      IF (OPWERT(MKCU,KK).GT.1.D-18) GOTO 1400
+      WRITE (NOUT,1401) K, M,KK,OPWERT(NZOPER+1,KK),OPWERT(MKCU,KK)
+ 1401 FORMAT (14H EINGABEFEHLER ,3I5, 2E12.4)
       KONTRO=1
  1400 CONTINUE
       IF (KONTRO.EQ.1) STOP 50
@@ -853,16 +938,11 @@ C    *       CALL SCHEMA(DM(1,1,2,KPUTZ),MMM,MMM,NDIMD,10)
 C
       IF(ICOPMA.GT.0 .AND. MEMPT.EQ.1 ) THEN
       OPEN(UNIT=19,FILE='MATOUT',STATUS='UNKNOWN',FORM='FORMATTED')
-      WRITE(19,'(I8)') MMM
-      WRITE(19,'(E20.14)')
+      WRITE(MATOU,'(I8)') MMM
+      WRITE(MATOU,'(E20.14)')
      *  (((DM(N,M,2,JK1),N=1,MMM),M=1,MMM),JK1=1,2)
       ENDIF
-CC
-C      IF(ICOPMA.GT.0 .AND. MEMPT.EQ.1 ) THEN
-C      OPEN(UNIT=19,FILE='MATOUT',STATUS='UNKNOWN',FORM='UNFORMATTED')
-C      WRITE(MATOU) MMM,(((DM(N,M,2,JK1),N=1,MMM),M=1,MMM),JK1=1,2)
-C      ENDIF
-CC
+C
       IF (ISTART.GT.1.AND.MEMPT.EQ.1) GOTO 500
       CALL UMNORM (NENTP,NBAND9,MEMPT,ISTART,IPLO)
 C
@@ -929,16 +1009,10 @@ C     WIRD NUR EINMAL DURCHLAUFEN (FUER MEMPT=1)
       DO 1100 K=1,NZKAPO
        KANF=IZQ(K)+1
        KEND=IZQ(K)+NZP(K)
-       WRITE(NOUT,'(A37,10F20.8)') 
-     *            'NORM: (F1+F2)*(DN(K,K,2)-DN(K,K,1)): ',
-     *                   (OPWERT(NZOPER+1,KK),KK=KANF,KEND)
-       WRITE(NOUT,'(A37,10F20.8)') 
-     *            'NORM: (F1+F2)* DN(K,K,2)           : ',
-     *                   (OPWERT(1,KK),KK=KANF,KEND)
-       WRITE(NOUT,'(A37,10F20.8)') 
-     *            'HAMI: (F1+F2)*(DN(K,K,2)-DN(K,K,1)): ',
-     *                   (OPWERT(NZOPER+2,KK),KK=KANF,KEND)
-165   FORMAT(' OPW FUER MM VGL',10E12.5)
+       WRITE(NOUT,165) (OPWERT(NZOPER+1,KK),KK=KANF,KEND)
+165   FORMAT(' OPW(NZO+1) ',10E12.5)
+       WRITE(NOUT,166) (OPWERT(NZOPER+2,KK),KK=KANF,KEND)
+166   FORMAT(' OPW(NZO+2) ',10E12.5)
  1100 CONTINUE
 C
 1168  IF (NENTP.EQ.1) GOTO 800
@@ -960,11 +1034,15 @@ C     SCHIEBUNG GETAN
 C     SCHREIBEN AUF TAPE ZUR WEITERGABE
       REWIND NBAND3
       WRITE (NBAND3) NZKAPO,JWS,NPARI,NZKPB,NREL
+c      write (nout,*) '1#',NZKAPO,JWS,NPARI,NZKPB,NREL
       DO 1102 M=1,NZKAPO
       MH=KAPO(M)
       WRITE (NBAND3) LWERT(4,MH),REDM(MH)/H2M,E2K(MH),
      *      JWERT(3,MH),MASSE(1,MH),MASSE(2,MH),MLAD(1,MH),MLAD(2,MH),
      *      EBIN(M),WNORM(M),RUHM(1,MH),RUHM(2,MH),B
+c      write (nout,*) '2#',LWERT(4,MH),REDM(MH)/H2M,E2K(MH),
+c     *      JWERT(3,MH),MASSE(1,MH),MASSE(2,MH),MLAD(1,MH),MLAD(2,MH),
+c     *      EBIN(M),WNORM(M),RUHM(1,MH),RUHM(2,MH),B
 1102  CONTINUE
       IF(KAUSD.LT.4) GOTO 840
       WRITE(NOUT,1017)
@@ -978,31 +1056,34 @@ C     BINDUNGS RECHNUNG
 C     KEIN AUSDRUCK DER ENERGIEN FUER KAUSD .LT. 0
       I=0
       LU=2
-      IF(IZWEI.EQ.0) LU=16
+      IF(IZWEI.EQ.0 .AND. IDREI_U.EQ.1) LU=12
+      IF(IZWEI.EQ.0 .AND. IDREI_U.EQ.0) LU=33
+      
       DO 70 K=1,NZKA
       MMP=NZP(K)
       DO 71 M=1,MMP
       KK = NZQ(K) + M
       A1=.0
       I=I+1
-      WRITE(NOUT,1009)  M,K,I
+      WRITE(NOUT,1009) M,K,I
       DO 72 L=LU,NZOP
       IF(IZWEI.EQ.1) OPWERT(L,KK )=OPWERT(L,KK )/OPWERT(1,KK )
-      IF(IZWEI.EQ.0) OPWERT(L,KK )=OPWERT(L,KK )/OPWERT(15,KK )
+      IF(IZWEI.EQ.0 .AND. IDREI_U.EQ.1) OPWERT(L,KK )=
+     *                                  OPWERT(L,KK )/OPWERT(12,KK )
+      IF(IZWEI.EQ.0 .AND. IDREI_U.EQ.0) OPWERT(L,KK )=
+     *                                  OPWERT(L,KK )/OPWERT(32,KK )
       IF(MREG(L).NE.0) WRITE(NOUT,VARFOR(L)) OPWERT(L,KK)
 72    A1=A1+OPWERT(L,KK )
       WRITE (NOUT,1008) A1
 71    CONTINUE
    70 CONTINUE
 C
-840   continue
-      CALL UMNORM(NENTP,NBAND9,MEMPT,2,IPLO)
+840   CALL UMNORM(NENTP,NBAND9,MEMPT,2,IPLO)
       IF (KAUSD.LT.2) GOTO 845
       WRITE(NOUT,*) 'VOR ORTHO H'
       CALL SCHEMA(DM(1,1,2,2),MMM,MMM,NDIMD,MIN(MMM,10))
       WRITE(NOUT,*) 'VOR ORTHO EN'
       CALL SCHEMA(DM(1,1,2,1),MMM,MMM,NDIMD,MIN(MMM,10))
-C
 845   CALL ORTHO(NZQ(NZKA+1),EOV)
 C
 C     ENDE LOOP ITT
@@ -1011,7 +1092,7 @@ C
       IF (MEMPT.EQ.1) GOTO 950
 C     NUR FUER BINDUNGSRECHNUNG (MEMPT=2)
       DO 242 K=1,NZZ
-C        LOOP AUSGEDRUCKTE BASISVEKTOREN
+C     LOOP AUSGEDRUCKTE BASISVEKTOREN
 C
       WRITE(NOUT,1014) K
  1014 FORMAT (6H0 DER ,I3,24H TE EIGENVEKTOR LIEFERT //)
@@ -1065,10 +1146,9 @@ C      A1 IST NORMIERUNG DER KANALFUNKTIONEN BEZUEGLICH EN
   304 CONTINUE
       DO 79 L=1,NZKA
 79    NUMK(L) = 10000. * OPWERT(2,L)
-      WRITE (NOUT,'(1X,10I8)') (NUMK(L),L=1,NZKA)
-C 105   FORMAT (1X,10I8)
-C replaced to enable compatibility with red_mod_2.py      
-105   FORMAT (I4,') ',1X,30I18)
+      WRITE (NOUT,106) (NUMK(L),L=1,NZKA)
+105   FORMAT (I4,') ',1X,20I8)
+106   FORMAT (1X,10I8)
   242 CONTINUE
 C
 C     ENDE LOOP ILAUF
@@ -1099,7 +1179,7 @@ C
       SUBROUTINE POLKA(NBAND3)
       IMPLICIT double precision (A-H,O-Z)
 C
-        INCLUDE 'par/DR2END_AK'
+        INCLUDE 'par/DR2END_EFT'
 C
       COMMON /PARA/ PAR(MZPARM,NZKMAX),NAR(MZPARM,NZKMAX)
 C
@@ -1130,6 +1210,7 @@ C
 20    IZPWM=MAX0(IZPWM,IZP(I))
       IF(IZQ(NZKAPO+1).NE.NZQ(K2+1)) STOP 333
       WRITE (NBAND3) IZQ(NZKAPO+1),IZPWM,(IZP(I),IZQ(I),I=1,NZKAPO)
+c      write (nout,*) '3#',IZQ(NZKAPO+1),IZPWM,(IZP(I),IZQ(I),I=1,NZKAPO)
       K1=1
       DO 30 IH=1,NZKAPO
       K2=KAPO(IH)
@@ -1143,6 +1224,8 @@ C
 25     CONTINUE
       WRITE(NBAND3) (IDUM(K),K=1,IZPWM)
       WRITE(NBAND3) (DUM(K),K=1,IZPWM)
+c      write(nout,*) '4#',(IDUM(K),K=1,IZPWM)
+c      write(nout,*) '5#',(DUM(K),K=1,IZPWM)
 30    K1=K2+1
       RETURN
       END
@@ -1150,7 +1233,7 @@ C
       IMPLICIT double precision (A-H,O-Z)
 C     CKECKT DIE ERGEBNISSE
 C
-        INCLUDE 'par/DR2END_AK'
+        INCLUDE 'par/DR2END_EFT'
 C
       COMMON /PARA/ PAR(MZPARM,NZKMAX),NAR(MZPARM,NZKMAX)
 C
@@ -1162,7 +1245,7 @@ C
       COMMON /UMNO/ REDM(NZKMAX), NZKA, NZKB, MMM, 
      *              NZQ(NZKMAX+1), LWERT(5,NZKMAX), 
      *              KPK(NZKMAX), MASSE(2,NZKMAX)
-C 
+C
       COMMON /KAN/ OPWERT(NZOPER+2,NDIMD), WNORM(NZKMAX),
      *             NZP(NZKMAX), EBIN(NZKMAX), MLAD(2,NZKMAX),
      *             H2M, E2R0 ,
@@ -1170,7 +1253,7 @@ C
 C
       DIMENSION MREG(NZOPER),HILF(NDIMD),GAMMA(31)
 C
-C     BESTIMMUNG DER KANAELE,DIE ZUE EINEM POLYNOMKANAL GEHOEREN
+C     BESTIMMUNG DER KANAELE,DIE ZU EINEM POLYNOMKANAL GEHOEREN
       GAMMA(1)= SQRT(3.1415926535897932384)
       GAMMA(2)=1.
       DO 100 K=1,28
@@ -1294,7 +1377,7 @@ c     write(nout,*) 'wnorm',wnorm(k)
       IMPLICIT double precision (A-H,O-Z)
 C     DEFINIERT DIE POLYNOMKANAELE
 C
-        INCLUDE 'par/DR2END_AK'
+        INCLUDE 'par/DR2END_EFT'
 C
       COMMON /POKA/ B, IKAPO(NZKMAX),IZP(NZKMAX),IZQ(NZKMAX+1),
      *               NZKAPO,KAPO(NZKMAX),IZPWM
@@ -1338,18 +1421,14 @@ C    ZUORDNUNG POLYNOMKANAL LETZTER EINFACHER KANAL
       SUBROUTINE ORTHO(NXH,EOV)
       IMPLICIT double precision (A-H,O-Z)
 C
-        INCLUDE 'par/DR2END_AK'
+        INCLUDE 'par/DR2END_EFT'
 C
       COMMON /PARA/ PAR(MZPARM,NZKMAX),NAR(MZPARM,NZKMAX)
 C
       COMMON /POKA/ B, IKAPO(NZKMAX),IZP(NZKMAX),IZQ(NZKMAX+1),
      *               NZKAPO,KAPO(NZKMAX),IZPWM
 C
-      COMMON /UMNO/ REDM(NZKMAX), NZKA, NZKB, MMM, 
-     *              NZQ(NZKMAX+1), LWERT(5,NZKMAX), 
-     *              KPK(NZKMAX), MASSE(2,NZKMAX)
-C
-      COMMON /BIGG/ DM(NDIMD,NDIMD,2,2)
+      COMMON /BIGG/ DM(NDIMD,NDIMD,2,2),DMTMP(NDIMD,NDIMD)
 C
       COMMON /PLO/ SNORM(NZKMAX), QQN(NDIMD), SWW
 C
@@ -1358,33 +1437,31 @@ C
       COMMON /DREH/ MLWERT(5,NZBMAX),JWERT(3,NZKMAX),
      *              MMS(3,NZBMAX),JWS
 C
+      COMMON /UMNO/ REDM(NZKMAX), NZKA, NZKB, MMM, 
+     *              NZQ(NZKMAX+1), LWERT(5,NZKMAX), 
+     *              KPK(NZKMAX), MASSE(2,NZKMAX)
+C
       COMMON QQ(NDIMD,NDIMD),
      *       INPUT, NBAND3, NBAND9, NENTP, NZZ, IAUW,
      *       IDRU, NB15, IPLO
 C
       COMMON /STORE/ZH(NDIMD,NDIMD),H(NDIMD,NDIMD), EN(NDIMD,NDIMD)
-     *                            ,Hu(NDIMD,NDIMD), ENu(NDIMD,NDIMD)
 C
-      DIMENSION FC1(8*NDIMD), Q(NXH), IWORK(5*NDIMD), IFAIL(NDIMD),
-     *          Qsrt(NXH), QNO(NXH) 
-
-      INTEGER   LDA, LDVL, LDVR, LWMAX, INFO, LWORK,INFU(NXH)
-
-      parameter (LWMAX = 1000)
-      double precision VL(NXH,NXH), VR(NXH,NXH), WR(NXH), WI(NXH),
-     *                 VL2(NXH,NXH),VR2(NXH,NXH),WR2(NXH),WI2(NXH),
-     *                 WORK(LWMAX)
+      DIMENSION FC1(8*NDIMD), Q(NDIMD), IWORK(5*NDIMD), IFAIL(NDIMD),
+     *          isuppz(2*NDIMD)
 c     DIMENSION FC1(NDIMD),FC2(NDIMD)
-      dimension ZHt(NDIMD,NDIMD), ENt(NDIMD,NDIMD)     
-      CHARACTER*1 JOBZ,UPLO, RANGE,JOBVL,JOBVR
+      CHARACTER*1 JOBZ,UPLO, RANGE
 C
 
 C
       NX=NXH
+      ITYPE=1
+      JOBZ='V'
+      UPLO='U'
+      RANGE='A' 
  1000 FORMAT (1P10E13.5)
- 1101 FORMAT(/8X,'EIGENWERTE DES HAMILTONOPERATORS',//)
- 1103 FORMAT(/8X,'EIGENWERTE DER NORMMATRIX',//) 
- 1002 FORMAT(50I3)
+1101  FORMAT(/8X,'EIGENWERTE DES HAMILTONOPERATORS',//)
+ 1002 FORMAT(20I3)
  1004 FORMAT(//8X,18H H-ERWARTUNGSWERTE//)
       IF(MOD(NENTP,2).EQ.1) GOTO 209
 C     STREURECHNUNG UND BINGUNGRECHNUNG MIT GEKOPPELTEN FUNKTIONEN
@@ -1400,6 +1477,8 @@ c     write(nout,*) 'normierung b=',b
       CALL POLKA(NBAND3)
       WRITE(NBAND3)((DM(M,N,1,1),M=1,NX),N=1,NX)
       WRITE(NBAND3)(( DM(M,N,1,2),M=1,NX),N=1,NX)
+C      write(nout,*) '6#',((DM(M,N,1,1),M=1,NX),N=1,NX)
+C      write(nout,*) '7#',(( DM(M,N,1,2),M=1,NX),N=1,NX)
       DO 15  N=1,NX
    15 Q(N)=DM(N,N,2,2)/DM(N,N,2,1)
       WRITE(NOUT,1004)
@@ -1420,34 +1499,41 @@ C       BINDUNGS UND STREURECHNUNG
       CALL SCHEMA(DM(1,1,2,2) ,NX,NX,NDIMD,5)
       IF(IDRU.LT.3)GOTO 210
 C     LAPACK-AUFRUF
-      JOBZ='V'
-      UPLO='U'
-      RANGE='A' 
-C     'A' = find 'A'll Eigenvectors, there is an issue when 'I' is used here      
-C      IF(NENTP.NE.0) RANGE='I'
-c     FUER BINDUNGSRECHNUNGEN NUR NZZ EIGENWERTE UND VEKTOREN BERECHNEN
-      IL= 1
-      IU= NZZ
-      ABSTOL=0.0
-      LWORK=8*NDIMD      
-c      write(nout,*)'DSYEVX args: ',JOBZ,RANGE,UPLO
-      DO 352 M=1,NX
-      DO 352 N=1,NX
-  352 EN(N,M) =  DM(N,M,2,1)
-       CALL DSYEVX(JOBZ,RANGE,UPLO,NX,EN,NDIMD,VL,VU,Il,IU,
+      LWORK=8*NDIMD
+c      write(nout,*)'JOBZ, RANGE, UPLO, NX, NDIMD, VL, VU, Il, IU,
+c     * ABSTOL, NDIMD, LWORK, IERR'
+c      write(nout,*) JOBZ, RANGE, UPLO, NX, NDIMD, VL, VU, Il, IU,
+c     * ABSTOL, NDIMD, LWORK, IERR
+C -- replaced because of linking issues on woody, analogous to gen_min DREND
+      do i=1,ndimd
+         do j=1,ndimd
+            DMTMP(i,j)=DM(i,j,2,1)
+         enddo
+      enddo
+C     LAPACK-AUFRUF
+C  DSYEVX computes selected eigenvalues and, optionally, eigenvectors
+C  of a real symmetric matrix A.  Eigenvalues and eigenvectors can be
+C  selected by specifying either a range of values or a range of indices
+C  for the desired eigenvalues.
+       CALL DSYEVX(JOBZ,RANGE,UPLO,NX,DMTMP(1,1),NDIMD,VL,VU,Il,IU,
      *  ABSTOL, MOUT,Q,ZH,NDIMD,FC1,LWORK,IWORK,IFAIL,IERR)
+C
+c       CALL DSYEVR(JOBZ,RANGE,UPLO,NX,DM(1,1,2,1),NDIMD,VL,VU,Il,IU,
+c     *  ABSTOL, MOUT,Q,ZH,NDIMD,isuppz,FC1,LWORK,IWORK,LWORK,IERR)
+c       CALL DSYEVX(JOBZ,RANGE,UPLO,NX,DM(1,1,2,1),NDIMD,VL,VU,Il,IU,
+c     *  ABSTOL, MOUT,Q,ZH,NDIMD,FC1,LWORK,IWORK,IFAIL,IERR)
 C
       WRITE (NOUT,*) ' EIGENWERTE DER NORMMATRIX'
       IF(IERR.NE.0) WRITE(NOUT,*) ' DIAGONALISATION FEHLERHAFT'
       WRITE (NOUT,1000) (Q(M),M=1,NX)
-      NZZ = MIN0(MAX0(1,NZZ),NX,NDIMD)
+      NZZ = MIN0(MAX0(1,NZZ),NX,NZZMAX)
       DO 1800  K=1,NZZ
-C      DO 1800  K=1,NX
       WRITE (NOUT,1008)  K
       WRITE(NOUT,1007) (ZH(M,K),M,M=1,NX)
  1800 CONTINUE
-C      IF(IDRU.LT.4) GOTO 1811
-      IF(IDRU.LT.4) GOTO 210
+      WRITE(NOUT,*) 'CONDITION NUMBER'
+      WRITE(NOUT,1000) Q(NX)/Q(1)
+      IF(IDRU.LT.4) GOTO 1811
       DO 1810 K=1,NX
       DO 1810 KS=1,NX
       EN(KS,K)=0.
@@ -1457,8 +1543,7 @@ C      IF(IDRU.LT.4) GOTO 1811
       IF(IDRU.GT.5)WRITE(NOUT,*) ' ME ',K,KS,' M,N ',M,N,EN(KS,K)
 1808  CONTINUE
       EN(KS,K)=EN(KS,K)/SQRT(Q(KS)*Q(K))
-      IF(IDRU.GT.4)WRITE(NOUT,*) ' ME,Q(K),Q(KS) ',
-     *                       K,KS,EN(KS,K),Q(K),Q(KS),(Q(KS)*Q(K))
+      IF(IDRU.GT.4)WRITE(NOUT,*) ' ME ',K,KS,EN(KS,K)
 1810  CONTINUE
       DO 751 MW=2,MMM
       DO 751 NW=1,MW-1
@@ -1468,114 +1553,78 @@ C      IF(IDRU.LT.4) GOTO 1811
 751   CONTINUE
       WRITE(NOUT,*) ' TRANSFORMIERTE HAMILTON-MATRIX MIT NORM-EW'
       CALL SCHEMA (EN,NX,NX,NDIMD,5)
- 1811 STOP 'EIGENWERTE DER NORMMATRIX'
+c1811  STOP 'EIGENWERTE DER NORMMATRIX'
+1811  CONTINUE
   210 CONTINUE
       DO 322 M=1,NX
       DO 322 N=1,NX
-      ENu(N,M) =  DM(N,M,2,1)
-      Hu(N,M) =  DM(N,M,2,2)
-      EN(N,M)  =  DM(N,M,2,1)/SQRT(DM(M,M,2,1)*DM(N,N,2,1))
-      ENt(N,M) =  DM(N,M,2,1)/SQRT(DM(M,M,2,1)*DM(N,N,2,1))
-  322 H(N,M) =  DM(N,M,2,2)/SQRT(DM(M,M,2,1)*DM(N,N,2,1))
+      EN(N,M) =  DM(N,M,2,1)
+  322 H(N,M) =  DM(N,M,2,2)
       IERR=0
 C
-      WRITE(NOUT,*) ' unnormierte NORM/HAMILTON-MATRIX'
-      CALL SCHEMA (ENu,NX,NX,NDIMD,5)
-      CALL SCHEMA (Hu,NX,NX,NDIMD,5)
-      WRITE(NOUT,*) ' TRANSFORMIERTE NORM/HAMILTON-MATRIX MIT NORM-EW'
-      CALL SCHEMA (EN,NX,NX,NDIMD,5)
-      CALL SCHEMA (H,NX,NX,NDIMD,5)      
-
       OPEN(UNIT=29,FILE='MATOUTB',STATUS='REPLACE',
      *   FORM='UNFORMATTED')
       WRITE(29) 
      * ((EN(N,M),N=1,MMM),M=1,MMM),
      * ((H(N,M),N=1,MMM),M=1,MMM)
-      CLOSE(UNIT=29,STATUS='KEEP')      
-c      STOP 'NORM, HAMILTONIAN MATRICES WRITTEN.'
-
+      CLOSE(UNIT=29,STATUS='KEEP')
 C      STOP 'NORM, HAMILTONIAN MATRICES WRITTEN.'
+C     NAGLIB-AUFRUF
+C      CALL F02AEF(H,NDIMD,EN,NDIMD,NX,Q,ZH,NDIMD,FC1,FC2,IERR)
+C
+C     EISPACK-AUFRUF
+C     CALL RSG(NDIMD,NX,H,EN,Q,1,ZH,FC1,FC2,IERR)
+C
 C     LAPACK-AUFRUF
-      ITYPE=1
-      JOBZ='V'
-      UPLO='U'
-      RANGE='A' 
-C     'A' = find 'A'll Eigenvectors, there is an issue when 'I' is used here      
-C      IF(NENTP.NE.0) RANGE='I'
-c     FUER BINDUNGSRECHNUNGEN NUR NZZ EIGENWERTE UND VEKTORENEN BERECHNEN
-C      IL= 1
-C      IU= NZZ
-      ABSTOL=0.0
+      IF(NENTP.NE.0) THEN 
+      RANGE='A'
+c      RANGE='I'
+      NZZ = MIN0(MAX0(1,NZZ),NX,NZZMAX)
+      END IF
+c     FUER BINDUNGSRECHNUNGEN NUR NZZ EIGENWERTE UND VEKTOREN BERECHNEN
+      IL= 1
+      IU= NZZ
+      ABSTOL=0.00001
       LWORK=8*NDIMD
-      JOBVR='N'
-      JOBVL='N'
-
-      LDA = NXH
-      LDVL = NXH
-      LDVR = NXH
-
-       CALL DSYEVX(JOBZ,RANGE,UPLO,NX,ENt(1,1),NDIMD,VL,VU,Il,IU,
-     *  ABSTOL, MOUT,Q,ZHt,NDIMD,FC1,LWORK,IWORK,IFAIL,IERR)
-
-      WRITE (NOUT,1103)
-      WRITE (NOUT,1000) (Q(M),M=1,NX)
-
-      CALL DSYGVX(1,'V','A','U',NXH,H,NDIMD,EN,NDIMD,VL,VU,
+C Lapack: computes selected EW + evtl. EV for real, symmetric, generalized EV prob.
+C         ITYPE=1: A*x=\labda B_symm*x ; JOBZ=N(EW),V(EW+EV) ; RANGE=which EV
+C         UPLO=U,L triangle ME stored ; NX=order of matrix pencil ; H=input mat A
+C         NDIMD=dim(A) ; EN=input mat B ; NDIMD=dim(B) ; VL VU IL IU ABSTOL ; MOUT=#EW found
+C         Q=1D array with EW(ascending) ; ZH=mat with orthnom EV
+C
+CC  in gen_min dsygv is used, which stores EV in original matrix A.
+CC
+      CALL DSYGVX(ITYPE,JOBZ,RANGE,UPLO,NX,H,NDIMD,EN,NDIMD,VL,VU,
      *    IL,IU,ABSTOL,MOUT,Q,ZH,NDIMD,FC1,LWORK,IWORK,IFAIL,IERR)
 
-C      DO 147   M = 1,NX
-C 147   Q(M) = WR(M)/WR2(M)
-C      DO 149   M = 1,NX
-C        IF(ABS(Q(M)).LT.1.E10) THEN
-C        Qsrt(M) = Q(M)
-C        ELSE
-C          Qsrt(M)=42.0
-C          Q(M)=42.0
-C        ENDIF
-C149   CONTINUE
-
-C     'I': increasing order ; NX: dimension ; Qsrt: unsorted input -> sorted after sucessful exit      
-C      CALL dlasrt('I',NX,Qsrt,INFO)
-
-C      CALL cmpvec( Q, Qsrt, NX, INFU )
 
       WRITE (NOUT,1101)
-C      WRITE (NOUT,1000) ( Qsrt(M),M=1,NX )
-      WRITE (NOUT,1000) ( Q(M),M=1,NX )
-
+      WRITE (NOUT,1000) (Q(M),M=1,NX)
       EOV = Q(1)
       IF(IERR.EQ.0) GOTO 950
       WRITE (NOUT,945) IERR
 945   FORMAT('0 DIAGONALISIERUNG FEHLERHAFT, SIEHE LAPACK MANUAL',I10)
       WRITE(NOUT,*) ' NOT CONVERGED AT ',(IFAIL(IX),IX=1,NZZ)
+ 
   950 CONTINUE
 C
-C      NENTP=0,   STREURECHNUNG
-C      NENTP=1,   BINDUNGSRECHNUNG FUER UNGEKOPPELTE FUNKTIONEN
-C 
+C
       IF (NENTP.EQ.0) GOTO 802
 C     BINGUNGSRECHNUNG MIT UND OHNE GEKOPPELTE FUNKTIONEN
-c      NZZ = MIN0(MAX0(1,NZZ),NX,NDIMD)
-C if the eigensystem is solved without sorting, all EVs have to
-C       be calculated 
-      NZZ = NX
-      NZZ = 2 
       DO 800  K=1,NZZ
       KK=K
       IF (IAUW.NE.0)  READ (INPUT,1002)  KK
       WRITE (NOUT,1008)  KK
  1008 FORMAT(//16H ENTWICKLUNG DES,I3,17H TEN EIGENVEKTORS/)
       DO 144   M = 1,NX
-C 144   QQ(M,K)=VR(M,INFU(KK))
 144   QQ(M,K)=ZH(M,KK)
       WRITE(NOUT,1007) (QQ(M,K),M,M=1,NX)
   800 CONTINUE
  1007 FORMAT (4(1PE18.10,' /',I4,')'))
-
       IF (IPLO.LE.0) GOTO 801
       REWIND NBAND9
       READ (NBAND9) NY,((EN(N,M),M=1,NY),N=1,NY)
-C      HIER WIRD EN TRANSPONIERT EINGELESEN!!!!
+C     HIER WIRD EN TRANSPONIERT EINGELESEN!!!!
       DO 5 N=1,NY
 5     QQN(N)=0.
       DO 20 J=1,NY
@@ -1592,13 +1641,17 @@ C     STREURECHNUNG UND BINDUNGSRECHNUNG MIT GEKOPPELTEN FUNKTIONEN
       WRITE(NBAND3)(Q(M)  ,M=1,NX)
       WRITE(NBAND3)((DM(M,N,2,1),M=1,NX),N=1,NX)
       WRITE(NBAND3)(( DM(M,N,2,2),M=1,NX),N=1,NX)
+c      write(nout,*) '8#',((ZH(M,N),M=1,NX),N=1,NX)
+c      write(nout,*) '9#',(Q(M)  ,M=1,NX)
+c      write(nout,*) '10#',((DM(M,N,2,1),M=1,NX),N=1,NX)
+c      write(nout,*) '11#',(( DM(M,N,2,2),M=1,NX),N=1,NX)
 C
 990   RETURN
       END
       SUBROUTINE UMNORM (NENTP,NBAND9,MEMPT,KPUTZ,IPLO)
       IMPLICIT double precision (A-H,O-Z)
 C
-        INCLUDE 'par/DR2END_AK'
+        INCLUDE 'par/DR2END_EFT'
 C
       COMMON /BIGG/ DM(NDIMD,NDIMD,2,2)
 C
@@ -1643,7 +1696,7 @@ C
       SUBROUTINE SCHEMA(S,IM1,IM2,JM2,IDH)
       IMPLICIT double precision (A-H,O-Z)
 C  AUFRUF VON SCHEMA   (NAME,ZEILENZAHL,SPALTENZAHL,ZEILENDIMENSION)
-        INCLUDE 'par/DR2END_AK'
+        INCLUDE 'par/DR2END_EFT'
       DIMENSION S(JM2*IM2)
       CHARACTER*20 ERGL(6),HEAD(6)
       DATA ERGL/ '(I4,2X,1P5E22.14)', '(I4,2X,1P6E20.12)',
@@ -1683,7 +1736,7 @@ C     UMKOP BERECHNET 9J(L1,L2,L3;S1,S2,S3;J1,J2,J3)*
 C      6J(J,S3,L5;L3,L4,J3)*
 C       HAT(J1,J2,L3,S3,L5,J3)*(-)**(L5+S3-J)
 C
-        INCLUDE 'par/DR2END_AK'
+        INCLUDE 'par/DR2END_EFT'
 C
       COMMON /DREH/ MLWERT(5,NZBMAX),JWERT(3,NZKMAX),
      *              MMS(3,NZBMAX),JWS
@@ -1702,7 +1755,7 @@ C
       IMPLICIT double precision (A-H,O-Z)
 C     FUHERT NORMKERNTRANSFORMATION DURCH
 C
-        INCLUDE 'par/DR2END_AK'
+        INCLUDE 'par/DR2END_EFT'
 C
       COMMON /BIGG/ DM(NDIMD,NDIMD,2,2)
 C
@@ -1713,7 +1766,6 @@ C
       COMMON /FAKUL/ FAKU(13)
 C
       COMMON /STORE/ZH(NDIMD,NDIMD),H(NDIMD,NDIMD), EN(NDIMD,NDIMD)
-     *                            ,Hu(NDIMD,NDIMD), ENu(NDIMD,NDIMD)     
 C
       DIMENSION EIG(NDIMD),FV1(8*NDIMD),IWORK(5*NDIMD),QN(NDIMD),
      *          IFAIL(NDIMD)
@@ -1722,7 +1774,6 @@ c     DIMENSION FV1(NDIMD),FV2(NDIMD)
 C 
 C
       NX=MMM
-      STOP 'NOKEHA dysfunctional!' 
 C     EN ENTHAELT DIE GESAMTNORM
       DO 10 N=1,NX
       DO 10 M=1,NX
@@ -1765,10 +1816,10 @@ C     LAPACK-AUFRUF
       JOBZ='V'
       UPLO='U'
       RANGE= 'A'
-      ABSTOL=0.0
+      ABSTOL=0.00001
       LWORK=8*NDIMD  
-C       CALL DSYEVX(JOBZ,RANGE,UPLO,NX,H,NDIMD,VL,VU,Il,IU,
-C     *  ABSTOL, MOUT,EIG,ZH,NDIMD,FV1,LWORK,IWORK,IFAIL,IERR)
+       CALL DSYEVX(JOBZ,RANGE,UPLO,NX,H,NDIMD,VL,VU,Il,IU,
+     *  ABSTOL, MOUT,EIG,ZH,NDIMD,FV1,LWORK,IWORK,IFAIL,IERR)
 
 C     H DIAGONALISERT
 1001  FORMAT(1X,10E12.5)
@@ -1793,8 +1844,8 @@ C
 C      CALL RS(NDIMD,NX,H,EIG,1,EN,FV1,FV2,IERR)
 C
 C
-C       CALL DSYEVX(JOBZ,RANGE,UPLO,NX,H,NDIMD,VL,VU,Il,IU,
-C     *  ABSTOL, MOUT,EIG,EN,NDIMD,FV1,LWORK,IWORK,IFAIL,IERR)
+       CALL DSYEVX(JOBZ,RANGE,UPLO,NX,H,NDIMD,VL,VU,Il,IU,
+     *  ABSTOL, MOUT,EIG,EN,NDIMD,FV1,LWORK,IWORK,IFAIL,IERR)
 
 C     GESAMT NORM DIAGONALISIERT
       DO 30 M=1,NX
@@ -1844,7 +1895,7 @@ C
       SUBROUTINE PLOB(E,IPLO,NB15,NENTP)
       IMPLICIT double precision (A-H,O-Z)
 C
-        INCLUDE 'par/DR2END_AK'
+        INCLUDE 'par/DR2END_EFT'
 C
       COMMON /PARA/ PAR(MZPARM,NZKMAX),NAR(MZPARM,NZKMAX)
 C
@@ -1860,7 +1911,7 @@ C
 C
       COMMON /PLO/ SNORM(NZKMAX), QQN(NDIMD), SWW
 C
-      COMMON QQ(NDIMD,NDIMD),
+      COMMON QQ(NDIMD,NZZMAX),
      *       INPUT
 C
       NX=MMM
@@ -1910,7 +1961,7 @@ C     MAL WURZEL-SNORM
       END
       FUNCTION RELEN(P1,B1,M1,P2,B2,M2,L)
       IMPLICIT double precision (A-H,O-Z)
-        INCLUDE 'par/DR2END_AK'
+        INCLUDE 'par/DR2END_EFT'
 C
 C      RECHNET KINETISCHE ENERGIE DER RELATIVBEWEGUNG
 C      (ABER RELATIVISTISCH, GELL!)
@@ -1930,7 +1981,7 @@ C                      (IST LI. UND RE. SOWIESO
 C                       GLEICH)
 C
        INTEGER P1, P2, L, MAXDEG, K
-       double precision  B1, B2, M1, M2, HC, PI, ALPHA, E1, E2,
+       REAL*8  B1, B2, M1, M2, HC, PI, ALPHA, E1, E2,
      *         FAK, GAMMA, RK, RL, X1, X2, XLU
 C
        PARAMETER (PI=3.141592653589793238, HC=197.32858, MAXDEG=5)
@@ -1976,13 +2027,13 @@ C
 C      RECHNET GAMMA-QUER-KOEFFIZIENTEN GEM.
 C      AUFSCHRIEB AUS. DIE HEISSEN HIER ALLERDINGS GAMMA.
 C      LAGER RUFT KEINE UNTERPROGRAMME MEHR.
-C 
+C
        INTEGER P1, P2, L, J, K, N, MAXDEG
-       double precision  B1, B2, RP1, RP2, C1, C2, GAMMA, FAK,
+       REAL*8  B1, B2, RP1, RP2, C1, C2, GAMMA, FAK,
      *         ALPHA, RK, F
 C
        PARAMETER (MAXDEG=5)
-        INCLUDE 'par/DR2END_AK'
+        INCLUDE 'par/DR2END_EFT'
 C
        DIMENSION C1(0:MAXDEG), C2(0:MAXDEG),
      *           GAMMA(0:2*MAXDEG)
@@ -2029,7 +2080,7 @@ C      ALGORITHMUS UND LITERATUR SIEHE AUFSCHRIEB.
 C      XLU RUFT KEINE UNTERPROGRAMME.
 C
        INTEGER K, L, SIZE
-       double precision  RL, P, PP, XX, Y, Q0, Q1, Q2, C1, D1,
+       REAL*8  RL, P, PP, XX, Y, Q0, Q1, Q2, C1, D1,
      *         G1, G2, G3, A, B, X
 C
        PARAMETER (SIZE=30)
@@ -2398,30 +2449,5 @@ C     CALCULATE DELTA FUNCTIONS
       P=EXP (PLOG)
       S6J=P*S
       IF(MOD(MINH,2).NE.0)  S6J=-S6J
-      RETURN
-      END
-
-      SUBROUTINE cmpvec( vunsrt, vsrt, dim, idx )
-C  returns the index of an element of <vunsrt> in <vsrt>
-      INTEGER            dim
-      INTEGER            idx( dim )
-      double precision             vunsrt( dim ), vsrt( dim )
- 
-      do 551 n1=1,dim
-        
-        do 552 n2=1,dim
-C         where is the lowest, next-to-lowest, ... entry to be
-C         found in the *unsorted* vector?
-          IF (vsrt(n1).EQ.vunsrt(n2)) THEN
-            idx(n1) = n2
-          endif
-  552   continue
-      if(idx(n1).EQ.0) THEN
-        print *,'eigenvalue sorting failed!'
-        stop
-      endif
-  551 continue 
-
-
       RETURN
       END
