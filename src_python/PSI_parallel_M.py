@@ -38,19 +38,20 @@ def end2(para, send_end):
     outputef = 'endout_%s' % child_id
 
     # paras: widi,widr,sbas,potNN,potNNN,Jstreu,civ,binPath,coefstr
-    #inqua_2(relw=widr, ps2=nnpot)
+    # inqua_2(relw=widr, ps2=nnpot)
     inqua_2(relw=para[0], ps2=para[2], inquaout=inqf)
-    cmdqua = para[4] + 'QUAFL_N_pop%s.exe %s %s %s' % (bin_suffix, inqf,
-                                                       outputqf, quaf_to_end)
+    cmdqua = para[4] + NNhamilEXE_pool + ' %s %s %s' % (inqf, outputqf,
+                                                        quaf_to_end)
     #subprocess.run([binPath + 'QUAFL_N.exe'])
     #inen_bdg_2(sbas, j=Jstreu, costr=coefstr)
-    inen_bdg_2(para[1], j=para[3], costr=para[5], fn=inenf, pari=0)
+    nbrop = 14 if bin_suffix == '_v18-uix' else 11
+    inen_bdg_2(para[1], j=para[3], costr=para[5], fn=inenf, anzo=nbrop, pari=0)
     #subprocess.run([binPath + 'DR2END_AK.exe'])
 
     #print(para)
 
-    cmdend = para[4] + 'DR2END_AK_pop%s.exe %s %s %s %s %s' % (
-        bin_suffix, quaf_to_end, 'no3bodyfile', inenf, outputef, maoutf)
+    cmdend = para[4] + spectralEXE_serial_pool + ' %s %s %s %s %s' % (
+        quaf_to_end, 'no3bodyfile', inenf, outputef, maoutf)
 
     pqua = subprocess.Popen(shlex.split(cmdqua),
                             stdout=subprocess.PIPE,
@@ -111,6 +112,7 @@ def span_population2(anz_civ,
                      coefstr,
                      funcPath,
                      binPath,
+                     min_seedE=0.0,
                      mindist=0.1,
                      ini_grid_bounds=[0.01, 9.5],
                      ini_dims=8,
@@ -128,10 +130,10 @@ def span_population2(anz_civ,
     rwma = 20
 
     # lower bound for width parameters '=' IR cutoff (broadest state)
-    rWmin = 0.0001
+    IRcutoff = 0.001
 
     # orbital-angular-momentum dependent upper bound '=' UV cutoff (narrowest state)
-    rLcutoff = 951.
+    UVcutoff = 951.
     nwrel = ini_dims
     rel_scale = 1.
 
@@ -164,8 +166,10 @@ def span_population2(anz_civ,
                                      width_array2=widthSet_relative,
                                      minDist=mindist)
 
-            if prox_check * prox_checkr == False:
+            if ((prox_check * prox_checkr == False) |
+                (np.array(lit_w_t) < IRcutoff).any() == True):
                 lit_w_t = []
+
             itera += 1
             assert itera <= 180000
 
@@ -204,10 +208,9 @@ def span_population2(anz_civ,
     os.chdir(funcPath)
 
     inlu_2(anzo=8, anzf=len(widr))
-    os.system(binPath + 'LUDW_CN.exe')
+    os.system(binPath + NNorbitalEXE)
     inob_2(anzo=8, anzf=len(widr))
-    os.system(binPath + 'KOBER.exe')
-
+    os.system(binPath + NNspinEXE)
     samp_list = []
     cand_list = []
     pool = ThreadPool(max(min(MaxProc, len(ParaSets)), 2))
@@ -227,7 +230,7 @@ def span_population2(anz_civ,
     samp_ladder = [x.recv() for x in samp_list]
 
     for cand in samp_ladder:
-        if ((cand[2] < 0) & (cand[3] > minC)):
+        if ((cand[2] < min_seedE) & (cand[3] > minC)):
             cfgg = np.transpose(np.array([sfrags2, lfrags2])).tolist()
 
             cand_list.append([cfgg] + cand)
@@ -256,8 +259,8 @@ def endmat2(para, send_end):
 
     inen_bdg_2(para[0], j=para[1], costr=para[2], fn=inenf, pari=0)
 
-    cmdend = para[6] + 'DR2END_AK_PYpoolnoo%s.exe %s %s %s' % (
-        bin_suffix, inenf, outf, maoutf)
+    cmdend = para[6] + spectralEXE_serial_pool + ' %s %s %s' % (inenf, outf,
+                                                                maoutf)
 
     pend = subprocess.Popen(shlex.split(cmdend),
                             stdout=subprocess.PIPE,
@@ -421,20 +424,20 @@ def span_initial_basis2(channel,
     os.chdir(funcPath)
 
     inlu_2(anzo=8, anzf=len(frags))
-    os.system(binPath + 'LUDW_CN.exe')
+    os.system(binPath + NNorbitalEXE)
     inob_2(anzo=8, anzf=len(frags))
-    os.system(binPath + 'KOBER.exe')
+    os.system(binPath + NNspinEXE)
 
     #print(widi)
     inqua_2(relw=widi, ps2=nnpotstring)
     #exit()
-    subprocess.run([binPath + 'QUAFL_N%s.exe' % bin_suffix])
+    subprocess.run([binPath + NNhamilEXE_serial])
 
     inen_bdg_2(sbas, j=Jstreu, costr=coefstr)
 
     subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
 
-    subprocess.run([binPath + 'DR2END_AK%s.exe' % bin_suffix])
+    subprocess.run([binPath + spectralEXE_serial])
 
     suche_fehler()
 
@@ -632,15 +635,16 @@ def span_initial_basis3(fragments,
     os.chdir(funcPath)
 
     inlu_3(8, fn='INLU', fr=lfrags2, indep=parall)
-    os.system(binPath + 'DRLUD.exe')
+    os.system(binPath + NNNorbitalEXE)
     inlu_3(8, fn='INLUCN', fr=lfrags2, indep=parall)
-    os.system(binPath + 'LUDW_CN.exe')
+    os.system(binPath + NNorbitalEXE)
     inob_3(sfrags2, 8, fn='INOB', indep=parall)
-    os.system(binPath + 'KOBER.exe')
+    os.system(binPath + NNspinEXE)
     inob_3(sfrags2, 15, fn='INOB', indep=parall)
-    os.system(binPath + 'DROBER.exe')
+    os.system(binPath + NNNspinEXE)
 
     inqua_3(intwi=widi, relwi=widr, potf=nnpotstring, inquaout='INQUA_N')
+
     parallel_mod_of_3inqua(lfrags2,
                            sfrags2,
                            infile='INQUA_N',
@@ -663,13 +667,13 @@ def span_initial_basis3(fragments,
 
         subprocess.run([
             MPIRUN, '--oversubscribe', '-np',
-            '%d' % anzproc, binPath + 'V18_PAR/mpi_quaf_v6%s' % bin_suffix
+            '%d' % anzproc, binPath + NNhamilEXE_mpi
         ])
-        subprocess.run([binPath + 'V18_PAR/sammel'])
+        subprocess.run([binPath + NNcollect_mpi])
         subprocess.call('rm -rf DMOUT.*', shell=True)
 
     else:
-        subprocess.run([binPath + 'QUAFL_N%s.exe' % bin_suffix])
+        subprocess.run([binPath + NNhamilEXE_serial])
 
     subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
 
@@ -691,24 +695,24 @@ def span_initial_basis3(fragments,
 
             subprocess.run([
                 MPIRUN, '--oversubscribe', '-np',
-                '%d' % anzproc, binPath + 'UIX_PAR/mpi_drqua_uix'
+                '%d' % anzproc, binPath + NNNhamilEXE_mpi
             ])
 
-            subprocess.run([binPath + 'UIX_PAR/SAMMEL-uix'])
+            subprocess.run([binPath + NNNcollect_mpi])
             subprocess.call('rm -rf DRDMOUT.*', shell=True)
 
-            subprocess.run([binPath + 'TDR2END_AK%s.exe' % bin_suffix])
+            subprocess.run([binPath + spectralEXE_mpi])
             subprocess.call('cp OUTPUT out_normal', shell=True)
         else:
-            subprocess.run([binPath + 'DRQUA_AK_N.exe'])
-            subprocess.run([binPath + 'DR2END_AK%s.exe' % bin_suffix])
+            subprocess.run([binPath + NNNhamilEXE_serial])
+            subprocess.run([binPath + spectralEXE_serial])
 
     elif tnni == 10:
         if parall == -1:
-            subprocess.run([binPath + 'TDR2END_AK%s.exe' % bin_suffix])
+            subprocess.run([binPath + spectralEXE_mpi])
             subprocess.call('cp OUTPUT out_normal', shell=True)
         else:
-            subprocess.run([binPath + 'DR2END_AK%s.exe' % bin_suffix])
+            subprocess.run([binPath + spectralEXE_serial])
 
     subprocess.call('cp -rf INQUA_N INQUA_N_UIX', shell=True)
     suche_fehler()
@@ -770,18 +774,18 @@ def end3(para, send_end):
 
     # paras: widi,widr,sbas,potNN,potNNN,Jstreu,civ,binPath,coefstr
 
-    inen_bdg_3(para[2], para[5], para[8], fn=inenf, pari=0)
+    inen_bdg_3(para[2], para[5], para[8], fn=inenf, pari=0, nzop=para[11])
 
     inqua_3(intwi=para[0], relwi=para[1], potf=para[3], inquaout=inqf)
     inqua_3(intwi=para[0], relwi=para[1], potf=para[4], inquaout=indqf)
 
-    cmdqua = para[7] + 'QUAFL_N_pop%s.exe %s %s %s' % (bin_suffix, inqf,
-                                                       outputqf, quaf_to_end)
-    cmddrqua = para[7] + 'DRQUA_AK_N_pop.exe %s %s %s' % (indqf, outputdrqf,
-                                                          drquaf_to_end)
+    cmdqua = para[7] + NNhamilEXE_pool + ' %s %s %s' % (inqf, outputqf,
+                                                        quaf_to_end)
+    cmddrqua = para[7] + NNNhamilEXE_pool + ' %s %s %s' % (indqf, outputdrqf,
+                                                           drquaf_to_end)
 
-    cmdend = para[7] + 'DR2END_AK_pop%s.exe %s %s %s %s %s' % (
-        bin_suffix, quaf_to_end, drquaf_to_end, inenf, outputef, maoutf)
+    cmdend = para[7] + spectralEXE_serial_pool + ' %s %s %s %s %s' % (
+        quaf_to_end, drquaf_to_end, inenf, outputef, maoutf)
 
     pqua = subprocess.Popen(shlex.split(cmdqua),
                             stdout=subprocess.PIPE,
@@ -852,6 +856,7 @@ def span_population3(anz_civ,
                      coefstr,
                      funcPath,
                      binPath,
+                     nzo=31,
                      mindists=1.0,
                      ini_grid_bounds=[0.01, 9.5, 0.001, 11.5],
                      ini_dims=[4, 4],
@@ -999,20 +1004,20 @@ def span_population3(anz_civ,
                 bv += 1
         ParaSets.append([
             widi, widr, sbas, nnpotstring, nnnpotstring, Jstreu, civ, binPath,
-            coefstr, minC, evWin
+            coefstr, minC, evWin, nzo
         ])
 
     assert len(ParaSets) == anz_civ
     os.chdir(funcPath)
 
     inlu_3(8, fn='INLU', fr=lfrags2, indep=0)
-    os.system(binPath + 'DRLUD.exe')
+    os.system(binPath + NNNorbitalEXE)
     inlu_3(8, fn='INLUCN', fr=lfrags2, indep=0)
-    os.system(binPath + 'LUDW_CN.exe')
+    os.system(binPath + NNorbitalEXE)
     inob_3(sfrags2, 8, fn='INOB', indep=0)
-    os.system(binPath + 'KOBER.exe')
+    os.system(binPath + NNspinEXE)
     inob_3(sfrags2, 15, fn='INOB', indep=0)
-    os.system(binPath + 'DROBER.exe')
+    os.system(binPath + NNNspinEXE)
 
     samp_list = []
     cand_list = []
@@ -1033,7 +1038,7 @@ def span_population3(anz_civ,
     samp_ladder = [x.recv() for x in samp_list]
 
     for cand in samp_ladder:
-        if ((cand[2] < 0.3) & (cand[3] > minC)):
+        if ((cand[2] < 0.0) & (cand[3] > minC)):
             cfgg = np.transpose(np.array([sfrags2, lfrags2])).tolist()
 
             cand_list.append([cfgg] + cand)
@@ -1069,7 +1074,7 @@ def prepare_einzel3(funcPath, binPath):
                8,
                fn='INOB',
                indep=+1)
-        os.system(binPath + 'KOBER.exe')
+        os.system(binPath + NNspinEXE)
 
     if os.path.isdir(funcPath + '/eob-tni') == False:
         subprocess.check_call(['mkdir', '-p', funcPath + '/eob-tni'])
@@ -1092,7 +1097,7 @@ def prepare_einzel3(funcPath, binPath):
                15,
                fn='INOB',
                indep=+1)
-        os.system(binPath + 'DROBER.exe')
+        os.system(binPath + NNNspinEXE)
 
     if os.path.isdir(funcPath + '/elu') == False:
         subprocess.check_call(['mkdir', '-p', funcPath + '/elu'])
@@ -1120,7 +1125,7 @@ def prepare_einzel3(funcPath, binPath):
                    '220',
                ],
                indep=+1)
-        os.system(binPath + 'LUDW_CN.exe')
+        os.system(binPath + NNorbitalEXE)
 
     if os.path.isdir(funcPath + '/elu-tni') == False:
         subprocess.check_call(['mkdir', '-p', funcPath + '/elu-tni'])
@@ -1148,7 +1153,7 @@ def prepare_einzel3(funcPath, binPath):
                    '220',
                ],
                indep=+1)
-        os.system(binPath + 'DRLUD.exe')
+        os.system(binPath + NNNorbitalEXE)
 
 
 def prepare_einzel4(funcPath, binPath, channels):
@@ -1159,26 +1164,26 @@ def prepare_einzel4(funcPath, binPath, channels):
     if os.path.isdir(funcPath + '/eob') == False:
         subprocess.check_call(['mkdir', '-p', funcPath + '/eob'])
     os.chdir(funcPath + '/eob')
-    inob_4(frgsS, 3, fn='INOB', indep=+1)
-    os.system(binPath + 'KOBER.exe')
+    inob_4(frgsS, 8, fn='INOB', indep=+1)
+    os.system(binPath + NNspinEXE)
 
     if os.path.isdir(funcPath + '/eob-tni') == False:
         subprocess.check_call(['mkdir', '-p', funcPath + '/eob-tni'])
     os.chdir(funcPath + '/eob-tni')
-    inob_4(frgsS, 3, fn='INOB', indep=+1)
-    os.system(binPath + 'DROBER.exe')
+    inob_4(frgsS, 15, fn='INOB', indep=+1)
+    os.system(binPath + NNNspinEXE)
 
     if os.path.isdir(funcPath + '/elu') == False:
         subprocess.check_call(['mkdir', '-p', funcPath + '/elu'])
     os.chdir(funcPath + '/elu')
     inlu_4(8, fn='INLUCN', fr=frgsL, indep=+1)
-    os.system(binPath + 'LUDW_CN.exe')
+    os.system(binPath + NNorbitalEXE)
 
     if os.path.isdir(funcPath + '/elu-tni') == False:
         subprocess.check_call(['mkdir', '-p', funcPath + '/elu-tni'])
     os.chdir(funcPath + '/elu-tni')
     inlu_4(8, fn='INLU', fr=frgsL, indep=+1)
-    os.system(binPath + 'DRLUD.exe')
+    os.system(binPath + NNNorbitalEXE)
 
 
 def prepare_einzel5(funcPath, binPath, channels):
@@ -1189,26 +1194,26 @@ def prepare_einzel5(funcPath, binPath, channels):
     if os.path.isdir(funcPath + '/eob') == False:
         subprocess.check_call(['mkdir', '-p', funcPath + '/eob'])
     os.chdir(funcPath + '/eob')
-    inob_5(frgsS, 3, fn='INOB', indep=+1)
-    os.system(binPath + 'KOBER.exe')
+    inob_5(frgsS, 8, fn='INOB', indep=+1)
+    os.system(binPath + NNspinEXE)
 
     if os.path.isdir(funcPath + '/eob-tni') == False:
         subprocess.check_call(['mkdir', '-p', funcPath + '/eob-tni'])
     os.chdir(funcPath + '/eob-tni')
-    inob_5(frgsS, 3, fn='INOB', indep=+1)
-    os.system(binPath + 'DROBER.exe')
+    inob_5(frgsS, 15, fn='INOB', indep=+1)
+    os.system(binPath + NNNspinEXE)
 
     if os.path.isdir(funcPath + '/elu') == False:
         subprocess.check_call(['mkdir', '-p', funcPath + '/elu'])
     os.chdir(funcPath + '/elu')
     inlu_5(8, fn='INLUCN', fr=frgsL, indep=+1)
-    os.system(binPath + 'LUDW_CN.exe')
+    os.system(binPath + NNorbitalEXE)
 
     if os.path.isdir(funcPath + '/elu-tni') == False:
         subprocess.check_call(['mkdir', '-p', funcPath + '/elu-tni'])
     os.chdir(funcPath + '/elu-tni')
     inlu_5(8, fn='INLU', fr=frgsL, indep=+1)
-    os.system(binPath + 'DRLUD.exe')
+    os.system(binPath + NNNorbitalEXE)
 
 
 def end4(para, send_end):
@@ -1231,18 +1236,18 @@ def end4(para, send_end):
 
     # paras: widi,widr,sbas,potNN,potNNN,Jstreu,civ,binPath,coefstr
 
-    inen_bdg_4(para[2], para[5], para[8], fn=inenf, pari=0)
+    inen_bdg_4(para[2], para[5], para[8], fn=inenf, pari=0, nzop=para[12])
 
     inqua_4(intwi=para[0], relwi=para[1], potf=para[3], inquaout=inqf)
     inqua_4(intwi=para[0], relwi=para[1], potf=para[4], inquaout=indqf)
 
-    cmdqua = para[7] + 'QUAFL_N_pop%s.exe %s %s %s' % (bin_suffix, inqf,
-                                                       outputqf, quaf_to_end)
-    cmddrqua = para[7] + 'DRQUA_AK_N_pop.exe %s %s %s' % (indqf, outputdrqf,
-                                                          drquaf_to_end)
+    cmdqua = para[7] + NNhamilEXE_pool + ' %s %s %s' % (inqf, outputqf,
+                                                        quaf_to_end)
+    cmddrqua = para[7] + NNNhamilEXE_pool + ' %s %s %s' % (indqf, outputdrqf,
+                                                           drquaf_to_end)
 
-    cmdend = para[7] + 'DR2END_AK_pop%s.exe %s %s %s %s %s' % (
-        bin_suffix, quaf_to_end, drquaf_to_end, inenf, outputef, maoutf)
+    cmdend = para[7] + spectralEXE_serial_pool + ' %s %s %s %s %s' % (
+        quaf_to_end, drquaf_to_end, inenf, outputef, maoutf)
 
     pqua = subprocess.Popen(shlex.split(cmdqua),
                             stdout=subprocess.PIPE,
@@ -1315,6 +1320,7 @@ def span_population4(anz_civ,
                      coefstr,
                      funcPath,
                      binPath,
+                     nzo=31,
                      mindists=0.001,
                      ini_grid_bounds=[0.01, 9.5, 0.001, 11.5],
                      ini_dims=[4, 4],
@@ -1479,21 +1485,21 @@ def span_population4(anz_civ,
                 bv += 1
         ParaSets.append([
             widi, widr, sbas, nnpotstring, nnnpotstring, Jstreu, civ, binPath,
-            coefstr, minC, evWin, maxR
+            coefstr, minC, evWin, maxR, nzo
         ])
 
     assert len(ParaSets) == anz_civ
     os.chdir(funcPath)
 
     inlu_4(8, fn='INLU', fr=sum(lfrags2, []), indep=0)
-    os.system(binPath + 'DRLUD.exe')
+    os.system(binPath + NNNorbitalEXE)
     inlu_4(8, fn='INLUCN', fr=sum(lfrags2, []), indep=0)
-    os.system(binPath + 'LUDW_CN.exe')
+    os.system(binPath + NNorbitalEXE)
     #
-    inob_4(sfrags2, 3, fn='INOB', indep=0)
-    os.system(binPath + 'KOBER.exe')
-    inob_4(sfrags2, 3, fn='INOB', indep=0)
-    os.system(binPath + 'DROBER.exe')
+    inob_4(sfrags2, 8, fn='INOB', indep=0)
+    os.system(binPath + NNspinEXE)
+    inob_4(sfrags2, 15, fn='INOB', indep=0)
+    os.system(binPath + NNNspinEXE)
 
     samp_list = []
     cand_list = []
@@ -1548,8 +1554,8 @@ def endmat(para, send_end):
                nzop=para[3],
                tni=para[4])
 
-    cmdend = para[6] + 'TDR2END_PYpoolnoo%s.exe %s %s %s' % (bin_suffix, inenf,
-                                                             outf, maoutf)
+    cmdend = para[6] + spectralEXE_mpi_pool + ' %s %s %s' % (inenf, outf,
+                                                             maoutf)
 
     pend = subprocess.Popen(shlex.split(cmdend),
                             stdout=subprocess.PIPE,
@@ -1629,14 +1635,14 @@ def blunt_ev2(cfgs, widi, basis, nzopt, costring, binpath, potNN, jay,
     os.chdir(funcPath)
 
     inlu_2(anzo=8, anzf=anzcfg)
-    os.system(binpath + 'LUDW_CN.exe')
+    os.system(binpath + NNorbitalEXE)
     inob_2(anzo=8, anzf=anzcfg)
-    os.system(binpath + 'KOBER.exe')
+    os.system(binpath + NNspinEXE)
 
     inqua_2(relw=widi, ps2=potNN)
-    subprocess.run([binpath + 'QUAFL_N%s.exe' % bin_suffix])
+    subprocess.run([binpath + NNhamilEXE_serial])
 
-    inen_bdg_2(basis, j=jay, costr=costring, fn='INEN')
+    inen_bdg_2(basis, j=jay, costr=costring, fn='INEN', anzo=nzopt)
 
     sc = jay
     inen_str_2(costring,
@@ -1649,7 +1655,7 @@ def blunt_ev2(cfgs, widi, basis, nzopt, costring, binpath, potNN, jay,
 
     subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
 
-    subprocess.run([binpath + 'DR2END_AK%s.exe' % bin_suffix])
+    subprocess.run([binpath + spectralEXE_serial])
 
     NormHam = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
 
@@ -1682,9 +1688,9 @@ def blunt_ev3(cfgs,
     insam(len(lfrag))
 
     inlu_3(8, fn='INLUCN', fr=lfrag, indep=parall)
-    os.system(bin_path + 'LUDW_CN.exe')
+    os.system(bin_path + NNorbitalEXE)
     inob_3(sfrag, 8, fn='INOB', indep=parall)
-    os.system(bin_path + 'KOBER.exe')
+    os.system(bin_path + NNspinEXE)
 
     inqua_3(intwi=intws, relwi=relws, potf=potNN, inquaout='INQUA_N')
     parallel_mod_of_3inqua(lfrag,
@@ -1705,19 +1711,19 @@ def blunt_ev3(cfgs,
 
         subprocess.run([
             mpipath, '--oversubscribe', '-np',
-            '%d' % anzcores, bin_path + 'V18_PAR/mpi_quaf_v6%s' % bin_suffix
+            '%d' % anzcores, bin_path + NNhamilEXE_mpi
         ])
-        subprocess.run([bin_path + 'V18_PAR/sammel'])
+        subprocess.run([bin_path + NNcollect_mpi])
         subprocess.call('rm -rf DMOUT.*', shell=True)
     else:
-        subprocess.run([bin_path + 'QUAFL_N%s.exe' % bin_suffix])
+        subprocess.run([bin_path + NNhamilEXE_serial])
 
     subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
     if tnnii == 11:
         inlu_3(8, fn='INLU', fr=lfrag, indep=parall)
-        os.system(bin_path + 'DRLUD.exe')
+        os.system(bin_path + NNNorbitalEXE)
         inob_3(sfrag, 15, fn='INOB', indep=parall)
-        os.system(bin_path + 'DROBER.exe')
+        os.system(bin_path + NNNspinEXE)
 
         inqua_3(intwi=intws, relwi=relws, potf=potNNN, inquaout='INQUA_N')
         parallel_mod_of_3inqua(lfrag,
@@ -1737,29 +1743,26 @@ def blunt_ev3(cfgs,
 
             subprocess.run([
                 mpipath, '--oversubscribe', '-np',
-                '%d' % anzcores, bin_path + 'UIX_PAR/mpi_drqua_uix'
+                '%d' % anzcores, bin_path + NNNhamilEXE_mpi
             ])
-            subprocess.run([bin_path + 'UIX_PAR/SAMMEL-uix'])
+            subprocess.run([bin_path + NNNcollect_mpi])
             subprocess.call('rm -rf DRDMOUT.*', shell=True)
-            subprocess.run([
-                bin_path + 'TDR2END_PYpoolnoo%s.exe' % bin_suffix, 'INEN',
-                'OUTPUT_TDR2END_PYpoolnoo', 'MATOUTB'
-            ],
-                           capture_output=True,
-                           text=True)
+            subprocess.run(
+                [bin_path + spectralEXE_mpi_pool, 'INEN', 'OUTPUT', 'MATOUTB'],
+                capture_output=True,
+                text=True)
+
         else:
-            subprocess.run([bin_path + 'DRQUA_AK_N.exe'])
-            subprocess.run([bin_path + 'DR2END_AK%s.exe' % bin_suffix])
+            subprocess.run([bin_path + NNNhamilEXE_serial])
+            subprocess.run([bin_path + spectralEXE_serial])
     elif tnnii == 10:
         if parall == -1:
-            subprocess.run([
-                bin_path + 'TDR2END_PYpoolnoo%s.exe' % bin_suffix, 'INEN',
-                'OUTPUT_TDR2END_PYpoolnoo', 'MATOUTB'
-            ],
-                           capture_output=True,
-                           text=True)
+            subprocess.run(
+                [bin_path + spectralEXE_mpi_pool, 'INEN', 'OUTPUT', 'MATOUTB'],
+                capture_output=True,
+                text=True)
         else:
-            subprocess.run([bin_path + 'DR2END_AK%s.exe' % bin_suffix])
+            subprocess.run([bin_path + spectralEXE_serial])
 
     subprocess.call('cp -rf INQUA_N INQUA_N_UIX', shell=True)
     NormHam = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
@@ -1792,9 +1795,9 @@ def blunt_ev4t(cfgs,
     insam(len(lfrag))
 
     inlu_4(8, fn='INLUCN', fr=lfrag, indep=parall)
-    os.system(bin_path + 'LUDW_CN.exe')
-    inob_4(sfrag, 3, fn='INOB', indep=parall)
-    os.system(bin_path + 'KOBER.exe')
+    os.system(bin_path + NNorbitalEXE)
+    inob_4(sfrag, 8, fn='INOB', indep=parall)
+    os.system(bin_path + NNspinEXE)
 
     inqua_4(intwi=intws, relwi=relws, potf=potNN, inquaout='INQUA_N')
     parallel_mod_of_3inqua(lfrag,
@@ -1815,19 +1818,19 @@ def blunt_ev4t(cfgs,
 
         subprocess.run([
             mpipath, '--oversubscribe', '-np',
-            '%d' % anzcores, bin_path + 'V18_PAR/mpi_quaf_v6%s' % bin_suffix
+            '%d' % anzcores, bin_path + NNhamilEXE_mpi
         ])
-        subprocess.run([bin_path + 'V18_PAR/sammel'])
+        subprocess.run([bin_path + NNcollect_mpi])
         subprocess.call('rm -rf DMOUT.*', shell=True)
     else:
-        subprocess.run([bin_path + 'QUAFL_N%s.exe' % bin_suffix])
+        subprocess.run([bin_path + NNhamilEXE_serial])
 
     subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
     if tnnii == 11:
         inlu_4(8, fn='INLU', fr=lfrag, indep=parall)
-        os.system(bin_path + 'DRLUD.exe')
-        inob_4(sfrag, 3, fn='INOB', indep=parall)
-        os.system(bin_path + 'DROBER.exe')
+        os.system(bin_path + NNNorbitalEXE)
+        inob_4(sfrag, 8, fn='INOB', indep=parall)
+        os.system(bin_path + NNNspinEXE)
 
         inqua_4(intwi=intws, relwi=relws, potf=potNNN, inquaout='INQUA_N')
         parallel_mod_of_3inqua(lfrag,
@@ -1847,29 +1850,27 @@ def blunt_ev4t(cfgs,
 
             subprocess.run([
                 mpipath, '--oversubscribe', '-np',
-                '%d' % anzcores, bin_path + 'UIX_PAR/mpi_drqua_uix'
+                '%d' % anzcores, bin_path + NNNhamilEXE_mpi
             ])
-            subprocess.run([bin_path + 'UIX_PAR/SAMMEL-uix'])
+            subprocess.run([bin_path + NNNcollect_mpi])
             subprocess.call('rm -rf DRDMOUT.*', shell=True)
             subprocess.run([
-                bin_path + 'TDR2END_PYpoolnoo%s.exe' % bin_suffix, 'INEN',
-                'OUTPUT_TDR2END_PYpoolnoo', 'MATOUTB'
+                bin_path + spectralEXE_mpi_pool + spectralEXE_mpi_pool, 'INEN',
+                'OUTPUT', 'MATOUTB'
             ],
                            capture_output=True,
                            text=True)
         else:
-            subprocess.run([bin_path + 'DRQUA_AK_N.exe'])
-            subprocess.run([bin_path + 'DR2END_AK%s.exe' % bin_suffix])
+            subprocess.run([bin_path + NNNhamilEXE_serial])
+            subprocess.run([bin_path + spectralEXE_serial])
     elif tnnii == 10:
         if parall == -1:
-            subprocess.run([
-                bin_path + 'TDR2END_PYpoolnoo%s.exe' % bin_suffix, 'INEN',
-                'OUTPUT_TDR2END_PYpoolnoo', 'MATOUTB'
-            ],
-                           capture_output=True,
-                           text=True)
+            subprocess.run(
+                [bin_path + spectralEXE_mpi_pool, 'INEN', 'OUTPUT', 'MATOUTB'],
+                capture_output=True,
+                text=True)
         else:
-            subprocess.run([bin_path + 'DR2END_AK%s.exe' % bin_suffix])
+            subprocess.run([bin_path + spectralEXE_serial])
 
     subprocess.call('cp -rf INQUA_N INQUA_N_UIX', shell=True)
     NormHam = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
@@ -1897,18 +1898,18 @@ def blunt_ev3_parallel(cfgs,
     inqua_3(intwi=intws, relwi=relws, potf=potNN, inquaout='INQUA_N')
     inen_bdg_3(basis, jay, costring, fn='INEN', pari=0, nzop=nzopt, tni=tnnii)
 
-    subprocess.run([bin_path + 'QUAFL_N%s.exe' % bin_suffix])
+    subprocess.run([bin_path + NNhamilEXE_serial])
 
     if tnnii == 11:
 
         inqua_3(intwi=intws, relwi=relws, potf=potNNN, inquaout='INQUA_N')
-        subprocess.run([bin_path + 'DRQUA_AK_N.exe'])
+        subprocess.run([bin_path + NNNhamilEXE_serial])
 
-        subprocess.run([bin_path + 'DR2END_AK%s.exe' % bin_suffix])
+        subprocess.run([bin_path + spectralEXE_serial])
 
     elif tnnii == 10:
 
-        subprocess.run([bin_path + 'DR2END_AK%s.exe' % bin_suffix])
+        subprocess.run([bin_path + spectralEXE_serial])
 
     NormHam = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
 
@@ -1942,9 +1943,9 @@ def blunt_ev4(cfgs,
     sfrag = np.array(tt)[:, 1].tolist()
     insam(len(lfrag))
     inlu_4(8, fn='INLUCN', fr=lfrag, indep=parall)
-    os.system(bin_path + 'LUDW_CN.exe')
-    inob_4(sfrag, 3, fn='INOB', indep=parall)
-    os.system(bin_path + 'KOBER.exe')
+    os.system(bin_path + NNorbitalEXE)
+    inob_4(sfrag, 8, fn='INOB', indep=parall)
+    os.system(bin_path + NNspinEXE)
 
     repl_line('INQUA_N', 1, potNN + '\n')
 
@@ -1979,19 +1980,19 @@ def blunt_ev4(cfgs,
 
         subprocess.run([
             mpipath, '--oversubscribe', '-np',
-            '%d' % anzcores, bin_path + 'V18_PAR/mpi_quaf_v6%s' % bin_suffix
+            '%d' % anzcores, bin_path + NNhamilEXE_mpi
         ])
-        subprocess.run([bin_path + 'V18_PAR/sammel'])
+        subprocess.run([bin_path + NNcollect_mpi])
         subprocess.call('rm -rf DMOUT.*', shell=True)
     else:
-        subprocess.run([bin_path + 'QUAFL_N%s.exe' % bin_suffix])
+        subprocess.run([bin_path + NNhamilEXE_serial])
 
     subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
     if tnnii == 11:
         inlu_4(8, fn='INLU', fr=lfrag, indep=parall)
-        os.system(bin_path + 'DRLUD.exe')
-        inob_4(sfrag, 3, fn='INOB', indep=parall)
-        os.system(bin_path + 'DROBER.exe')
+        os.system(bin_path + NNNorbitalEXE)
+        inob_4(sfrag, 15, fn='INOB', indep=parall)
+        os.system(bin_path + NNNspinEXE)
 
         repl_line('INQUA_N', 1, potNNN + '\n')
 
@@ -2007,35 +2008,28 @@ def blunt_ev4(cfgs,
         if parall == -1:
             subprocess.run([
                 mpipath, '--oversubscribe', '-np',
-                '%d' % anzcores, bin_path + 'UIX_PAR/mpi_drqua_uix'
+                '%d' % anzcores, bin_path + NNNhamilEXE_mpi
             ])
 
-            subprocess.run([bin_path + 'UIX_PAR/SAMMEL-uix'])
+            subprocess.run([bin_path + NNNcollect_mpi])
             subprocess.call('rm -rf DRDMOUT.*', shell=True)
-            #subprocess.run([
-            #    bin_path + 'TDR2END_PYpoolnoo.exe', 'INEN',
-            #    'OUTPUT_TDR2END_PYpoolnoo', 'MATOUTB'
-            #],capture_output=True, text=True)
-            subprocess.run([bin_path + 'TDR2END_AK%s.exe' % bin_suffix],
-                           capture_output=True,
-                           text=True)
+            subprocess.run(
+                [bin_path + spectralEXE_mpi_pool, 'INEN', 'OUTPUT', 'MATOUTB'],
+                capture_output=True,
+                text=True)
+
         else:
-            subprocess.run([bin_path + 'DRQUA_AK_N.exe'])
-            subprocess.run([bin_path + 'DR2END_AK%s.exe' % bin_suffix])
+            subprocess.run([bin_path + NNNhamilEXE_serial])
+            subprocess.run([bin_path + spectralEXE_serial])
 
     elif tnnii == 10:
         if parall == -1:
-            subprocess.run([bin_path + 'TDR2END_AK%s.exe' % bin_suffix],
-                           capture_output=True,
-                           text=True)
-            #subprocess.run([
-            #    bin_path + 'TDR2END_PYpoolnoo.exe', 'INEN',
-            #    'OUTPUT_TDR2END_PYpoolnoo', 'MATOUTB'
-            #],
-            #               capture_output=True,
-            #               text=True)
+            subprocess.run(
+                [bin_path + spectralEXE_mpi_pool, 'INEN', 'OUTPUT', 'MATOUTB'],
+                capture_output=True,
+                text=True)
         else:
-            subprocess.run([bin_path + 'DR2END_AK%s.exe' % bin_suffix])
+            subprocess.run([bin_path + spectralEXE_serial])
 
     NormHam = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
 
@@ -2069,9 +2063,9 @@ def blunt_ev5(cfgs,
     sfrag = np.array(tt)[:, 1].tolist()
     insam(len(lfrag))
     inlu_5(8, fn='INLUCN', fr=lfrag, indep=parall)
-    os.system(bin_path + 'LUDW_CN.exe')
-    inob_5(sfrag, 3, fn='INOB', indep=parall)
-    os.system(bin_path + 'KOBER.exe')
+    os.system(bin_path + NNorbitalEXE)
+    inob_5(sfrag, 8, fn='INOB', indep=parall)
+    os.system(bin_path + NNspinEXE)
 
     repl_line('INQUA_N', 1, potNN + '\n')
 
@@ -2106,20 +2100,20 @@ def blunt_ev5(cfgs,
 
         subprocess.run([
             mpipath, '--oversubscribe', '-np',
-            '%d' % anzcores, bin_path + 'V18_PAR/mpi_quaf_v6%s' % bin_suffix
+            '%d' % anzcores, bin_path + NNhamilEXE_mpi
         ])
-        subprocess.run([bin_path + 'V18_PAR/sammel'])
+        subprocess.run([bin_path + NNcollect_mpi])
         subprocess.call('rm -rf DMOUT.*', shell=True)
     else:
-        subprocess.run([bin_path + 'QUAFL_N%s.exe' % bin_suffix])
+        subprocess.run([bin_path + NNhamilEXE_serial])
 
     subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
 
     if tnnii == 11:
         inlu_5(8, fn='INLU', fr=lfrag, indep=parall)
-        os.system(bin_path + 'DRLUD.exe')
-        inob_5(sfrag, 3, fn='INOB', indep=parall)
-        os.system(bin_path + 'DROBER.exe')
+        os.system(bin_path + NNNorbitalEXE)
+        inob_5(sfrag, 8, fn='INOB', indep=parall)
+        os.system(bin_path + NNNspinEXE)
 
         repl_line('INQUA_N', 1, potNNN + '\n')
 
@@ -2135,35 +2129,28 @@ def blunt_ev5(cfgs,
         if parall == -1:
             subprocess.run([
                 mpipath, '--oversubscribe', '-np',
-                '%d' % anzcores, bin_path + 'UIX_PAR/mpi_drqua_uix'
+                '%d' % anzcores, bin_path + NNNhamilEXE_mpi
             ])
 
-            subprocess.run([bin_path + 'UIX_PAR/SAMMEL-uix'])
+            subprocess.run([bin_path + NNNcollect_mpi])
             subprocess.call('rm -rf DRDMOUT.*', shell=True)
-            #subprocess.run([
-            #    bin_path + 'TDR2END_PYpoolnoo.exe', 'INEN',
-            #    'OUTPUT_TDR2END_PYpoolnoo', 'MATOUTB'
-            #],capture_output=True, text=True)
-            subprocess.run([bin_path + 'TDR2END_AK%s.exe' % bin_suffix],
-                           capture_output=True,
-                           text=True)
+            subprocess.run(
+                [bin_path + spectralEXE_mpi_pool, 'INEN', 'OUTPUT', 'MATOUTB'],
+                capture_output=True,
+                text=True)
+
         else:
-            subprocess.run([bin_path + 'DRQUA_AK_N.exe'])
-            subprocess.run([bin_path + 'DR2END_AK%s.exe' % bin_suffix])
+            subprocess.run([bin_path + NNNhamilEXE_serial])
+            subprocess.run([bin_path + spectralEXE_serial])
 
     elif tnnii == 10:
         if parall == -1:
-            subprocess.run([bin_path + 'TDR2END_AK%s.exe' % bin_suffix],
-                           capture_output=True,
-                           text=True)
-            #subprocess.run([
-            #    bin_path + 'TDR2END_PYpoolnoo.exe', 'INEN',
-            #    'OUTPUT_TDR2END_PYpoolnoo', 'MATOUTB'
-            #],
-            #               capture_output=True,
-            #               text=True)
+            subprocess.run(
+                [bin_path + spectralEXE_mpi_pool, 'INEN', 'OUTPUT', 'MATOUTB'],
+                capture_output=True,
+                text=True)
         else:
-            subprocess.run([bin_path + 'DR2END_AK%s.exe' % bin_suffix])
+            subprocess.run([bin_path + spectralEXE_serial])
 
     NormHam = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
 

@@ -1,0 +1,11 @@
+dimer types:
+
+u2)  two-component fermions (uncharged)
+c2)  two-component fermions (charged)
+u4)  four-component fermions (uncharged)
+c4)  four-component fermions (charged)
+
+minimalistic description:
+
+u2) scale-free for B(dimer)->0
+u4) emergent three-body scale for B(dimer)->0 

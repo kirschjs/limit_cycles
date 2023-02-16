@@ -9,6 +9,12 @@ import matplotlib.animation as animation
 import mpmath
 
 
+def output_nbr(outfi='tmpout', outval=0):
+    s = '%12.12f' % float(outval)
+    with open(outfi, 'w') as outfile:
+        outfile.write(s)
+
+
 def plotphas(infi='PHAOUT', oufi='tmp.pdf'):
 
     # read entire file
@@ -58,6 +64,8 @@ def plotphas(infi='PHAOUT', oufi='tmp.pdf'):
 
 
 def c_eta(x):
+    #print(np.sqrt(2 * np.pi * x / (np.exp(2 * np.pi * x) - 1)))
+    #exit()
     return np.sqrt(2 * np.pi * x / (np.exp(2 * np.pi * x) - 1))
 
 
@@ -68,17 +76,21 @@ def eta(k, mu, q1=1, q2=1):
 
 
 def hn(k, mu, q1=1, q2=1):
-    return mpmath.psi(
+    # H(eta) according to 3NCSBv1.pdf eq.(12)
+    hfunc = mpmath.psi(
         0,
         eta(k, mu, q1, q2) * 1j) + 1 / (2 * 1j * eta(k, mu, q1, q2)) - np.log(
             1j * eta(k, mu, q1, q2))
+    #print(hfunc)
+    #exit()
+    return np.real(hfunc)
 
 
 def appC(d, k, mu, q1=1, q2=1):
     # fine-structure constant in natural units
     alpha = 0.0072973525376
     return -MeVfm / (c_eta(eta(k, mu, q1, q2) + eps)**2 * k *
-                     (1 / (np.tan(d) + eps) - 1j) +
+                     (1 / (np.tan(d) + eps) - 0 * 1j) +
                      q1 * q2 * alpha * mu * hn(k, mu, q1, q2))
 
 
@@ -420,6 +432,22 @@ def prep_pot_file_2N(lam, wiC, baC, ps2):
     if int((wiC != 0) | (baC != 0)):
         s += '%-20.4f%-20.6f%-20.4f%-20.4f%-20.4f\n' % (1.0, float(lam)**2 /
                                                         4.0, wiC, 0.0, baC)
+
+    with open(ps2, 'w') as outfile:
+        outfile.write(s)
+    return
+
+
+def prep_pot_file_2N_pp(lam, wiC, baC, ppC, ps2):
+    s = ''
+    s += '  1  1  1  1  1  1  1  1  1\n'
+    # pdp:      pp nn  c
+    s += '  0\n  1  0  1  0  0  0  0\n'
+    # central LO Cs and Ct and LOp p*p' C_1-4
+    s += '%-20.4f%-20.6f%-20.4f%-20.4f%-20.4f%-20.4f%-20.4f%-20.4f\n' % (
+        1.0, float(lam)**2 / 4.0, ppC, 0.0, 0.0, 0.0, 0.0, 0.0)
+    s += '%-20.4f%-20.6f%-20.4f%-20.4f%-20.4f%-20.4f%-20.4f%-20.4f\n' % (
+        1.0, float(lam)**2 / 4.0, wiC, 0.0, baC, 0.0, 0.0, 0.0)
 
     with open(ps2, 'w') as outfile:
         outfile.write(s)

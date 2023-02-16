@@ -24,7 +24,7 @@ from multiprocessing.pool import ThreadPool
 
 #import bridgeA4_opt
 
-findstablebas = 1
+findstablebas = 0
 newCal = 1
 einzel5 = True
 

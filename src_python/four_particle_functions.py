@@ -76,7 +76,7 @@ elem_spin_prods_4 = {
     'tn_6s1':
     '  4  6  1  3   tn No1  S=1,T12,S12=0    z1\n  1  1  1  1\n  4  3  1  3\n  4  1  3  3\n  2  3  3  3\n  3  4  1  3\n  3  2  3  3\n  1  4  3  3\n  1  3\n -1 12\n -1 12\n -1  3\n  1 12\n  1 12\n',
     'dist_4':
-    '  4  1  1  4        polarized 4-par\n  1  1  1  1\n  1  2  3  4\n  1  1\n',
+    '  4  1  1  2        polarized 4-par\n  1  1  1  1\n  1  2  3  4\n  1  1\n',
 }
 
 
@@ -427,7 +427,11 @@ def inen_bdg_4(bas, jay, co, fn='INEN', pari=0, nzop=31, tni=11, idum=2):
     # idum=2 -> I4 for all other idum's -> I3
     # NBAND1,IDUM,NBAND3,NZOP,IFAKD,IGAK,NZZ,IAUW,IDRU,IPLO,IDUN,ICOPMA(=1 -> stop after N,H output)
     head = '%3d%3d 12%3d  1  0 +0  0  0 -1  0 +0\n' % (tni, idum, nzop)
-    head += '  1  1  1  1  0  0  0  0  0  0  0  0  0  0  1  1\n'
+
+    if nzop == 31:
+        head += '  1  1  1  1  0  0  0  0  0  0  0  0  0  0  1  1\n'
+    elif nzop == 28:
+        head += '  1  1  1  1  1  1  0  0  0  0  0  0  1\n'
 
     head += co + '\n'
 
@@ -472,7 +476,10 @@ def inen_str_4(coeff,
 
     s = '%3d  2 12%3d  1  1 +2  0  0 -1\n' % (tni, nzop)
 
-    s += '  1  1  1  1  0  0  0  0  0  0  0  0  0  0  1  1\n'
+    if nzop == 31:
+        s += '  1  1  1  1  0  0  0  0  0  0  0  0  0  0  1  1\n'
+    elif nzop == 28:
+        s += '  1  1  1  1  1  1  0  0  0  0  0  0  1\n'
 
     s += coeff + '\n'
 

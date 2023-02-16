@@ -17,21 +17,22 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 
 # numerical stability
-minCond = 10**-13
+minCond = 10**-10
 minidi_breed = 0.1
 minidi_seed = minidi_breed
 minidi_breed_rel = minidi_breed
 denseEVinterval = [-2, 2]
-width_bnds = [0.0005, 8.25]
-deutDim = 6
+width_bnds = [0.004, 118.25]
+deutDim = 8
+miniE_breed = 0.1
 
 # genetic parameters
 anzNewBV = 5
 muta_initial = 0.01
-anzGen = 12
+anzGen = 6
 civ_size = 10
-target_pop_size = civ_size
-zop = 14
+target_pop_size = 12
+zop = 14 if bin_suffix == '_v18-uix' else 11
 
 for channel in channels_2:
     J0 = channels_2[channel][1]
@@ -46,11 +47,47 @@ for channel in channels_2:
     os.chdir(sysdir2base)
     print('>>> working directory: ', sysdir2base)
 
-    prep_pot_file_2N(lam=lam, wiC=cloW, baC=cloB, ps2=nnpot)
+    if bin_suffix == '_v18-uix':
+        prep_pot_file_2N(lam=lam, wiC=cloW, baC=cloB, ps2=nnpot)
+    elif bin_suffix == '_eft-cib':
+        prep_pot_file_2N_pp(lam=lam, wiC=cloW, baC=cloB, ppC=cpp, ps2=nnpot)
+    else:
+        print('no potential structure assigned to suffix.')
+        exit()
     prep_pot_file_3N(lam=la, d10=d0, ps3=nnnpot)
 
     os.chdir(sysdir2)
     subprocess.call('cp %s .' % nnpot, shell=True)
+
+    prescat = False
+    if prescat:
+        os.system('cp PHAOUT phaout_%s' % (lam))
+        print(">>> 2-body phases calculated. End of day for channel %s\n" %
+              channel)
+
+        phaa = read_phase()
+
+        redmass = mn['137'] / 2
+        if channel[:2] == 'pp':
+            print('proton-proton channel:\n')
+            a_aa = [
+                appC(phaa[n][2] * np.pi / 180.,
+                     np.sqrt(2 * redmass * phaa[n][0]),
+                     redmass,
+                     q1=1,
+                     q2=1) for n in range(len(phaa))
+            ]
+        else:
+            a_aa = [
+                -MeVfm * np.tan(phaa[n][2] * np.pi / 180.) /
+                np.sqrt(2 * redmass * phaa[n][0]) for n in range(len(phaa))
+            ]
+        print(
+            'a_aa(E_min) = (%4.4f+i%4.4f) fm   a_aa(E_max) = (%4.4f+i%4.4f) fm'
+            % (a_aa[0].real, a_aa[0].imag, a_aa[-1].real, a_aa[-1].imag))
+        plotarray([float(a.real) for a in a_aa],
+                  [phaa[n][0] for n in range(len(phaa))], 'a_atom-atom.pdf')
+        exit()
 
     costr = ''
     for nn in range(1, zop):
@@ -68,6 +105,7 @@ for channel in channels_2:
                                           funcPath=sysdir2,
                                           binPath=BINBDGpath,
                                           mindist=minidi_seed,
+                                          min_seedE=miniE_breed,
                                           ini_grid_bounds=width_bnds,
                                           ini_dims=deutDim,
                                           minC=minCond,
@@ -263,7 +301,7 @@ for channel in channels_2:
     os.system('cp OUTPUT bndg_out_%s' % (lam))
     os.system('cp INEN INEN_BDG')
     os.system('cp INEN_STR INEN')
-    subprocess.run([BINBDGpath + 'DR2END_AK%s.exe' % bin_suffix])
+    subprocess.run([BINBDGpath + spectralEXE_serial])
 
     print(">>> calculating 2-body phases.")
     spole_2(nzen=nzEN,
@@ -277,7 +315,27 @@ for channel in channels_2:
             rhf=1.0,
             pw=0)
 
-    subprocess.run([BINBDGpath + 'S-POLE_PdP.exe'])
+    subprocess.run([BINBDGpath + smatrixEXE])
+
     os.system('cp PHAOUT phaout_%s' % (lam))
     print(">>> 2-body phases calculated. End of day for channel %s\n" %
           channel)
+    phaa = read_phase()
+    if channel[:2] == 'pp':
+        print('proton-proton channel:\n')
+        a_aa = [
+            appC(phaa[n][2] * np.pi / 180.,
+                 np.sqrt(mn['137'] * phaa[n][0]),
+                 0.5 * mn['137'],
+                 q1=1,
+                 q2=1) for n in range(len(phaa))
+        ]
+    else:
+        a_aa = [
+            -MeVfm * np.tan(phaa[n][2] * np.pi / 180.) /
+            np.sqrt(mn['137'] * phaa[n][0]) for n in range(len(phaa))
+        ]
+    print('a_aa(E_min) = (%4.4f+i%4.4f) fm   a_aa(E_max) = (%4.4f+i%4.4f) fm' %
+          (a_aa[0].real, a_aa[0].imag, a_aa[-1].real, a_aa[-1].imag))
+    plotarray([float(a.real) for a in a_aa],
+              [phaa[n][0] for n in range(len(phaa))], 'a_atom-atom.pdf')

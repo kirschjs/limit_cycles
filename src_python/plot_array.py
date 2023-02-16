@@ -11,7 +11,7 @@ def plotarray(infiy,
               outfi,
               xlab='$E_{cm}$ [MeV]',
               ylab='$\delta$ [deg]',
-              lab=''):
+              lab='plotarray function (<plot_array.py>)'):
 
     # read entire file
     plt.cla()

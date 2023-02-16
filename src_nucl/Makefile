@@ -97,7 +97,6 @@ QUAFL_M_v18-uix: QUAFL_M_v18-uix.o par/QUAF
 DRQUA_M_v18-uix: DRQUA_M_v18-uix.o par/DRQUA_AK
 	$(F77) $(FFLAGS) -o DRQUA_M_v18-uix.exe DRQUA_M_v18-uix.o $(LIBS)
 
-
 S-POLE_PdP: S-POLE_PdP.o par/verma coul.o
 	$(F77) $(FFLAGS) -o S-POLE_PdP.exe S-POLE_PdP.o coul.o $(LIBS)
 

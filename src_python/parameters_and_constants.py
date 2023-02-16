@@ -1,5 +1,6 @@
 import os
 import numpy as np
+from plot_array import *
 
 # -- LEC lists
 
@@ -100,31 +101,31 @@ lec_list_nucl_1 = {
 
 lec_list_nucl_2 = {
     #Lambda     C1      C2      D0 (a(2,1S0)=-22.x B(2,3S1)=2.2 B(3)=8.48)
-    '1.00': [-24.865314, -44.452881, -1.090890],
-    '1.25': [-39.701653, -63.713196, 7.038951],
-    '1.50': [-58.014429, -86.452591, 20.215887],
-    '1.75': [-79.804432, -112.670937, 39.352447],
-    '2.00': [-105.072079, -142.367920, 65.398024],
-    '2.25': [-133.817606, -175.543495, 99.360264],
-    '2.50': [-166.041167, -212.197571, 142.312382],
-    '2.75': [-201.742841, -252.330353, 195.411046],
-    '3.00': [-240.922703, -295.941406, 259.914609],
-    '3.25': [-283.580794, -343.030983, 337.185927],
-    '3.50': [-329.717148, -393.599060, 428.727069],
-    '3.75': [-379.331792, -447.645454, 536.167894],
-    '4.00': [-432.424733, -505.170349, 661.319374],
-    '4.50': [-549.045587, -630.655548, 972.883628],
-    '5.00': [-679.579793, -770.054016, 1381.913369],
-    '5.50': [-824.027382, -923.366302, 1911.066441],
-    '6.00': [-982.388428, -1090.592316, 2588.121061],
-    '6.50': [-1154.662904, -1271.731659, 3447.416722],
-    '7.00': [-1340.850860, -1466.784790, 4531.265494],
-    '7.50': [-1540.952314, -1675.751495, 5892.121670],
-    '8.00': [-1754.967263, -1898.631287, 7594.603203],
-    '8.50': [-1982.895717, -2135.424988, 9720.229049],
-    '9.00': [-2224.737643, -2386.132385, 12367.676809],
-    '9.50': [-2480.493135, -2650.753189, 15662.699273],
-    '10.0': [-2750.162114, -2929.287720, 19760.444731],
+    '1.00': [-44.452881, -24.865314, -1.090890],
+    '1.25': [-63.713196, -39.701653, 7.038951],
+    '1.50': [-86.452591, -58.014429, 20.215887],
+    '1.75': [-112.670937, -79.804432, 39.352447],
+    '2.00': [-142.367920, -105.072079, 65.398024],
+    '2.25': [-175.543495, -133.817606, 99.360264],
+    '2.50': [-212.197571, -166.041167, 142.312382],
+    '2.75': [-252.330353, -201.742841, 195.411046],
+    '3.00': [-295.941406, -240.922703, 259.914609],
+    '3.25': [-343.030983, -283.580794, 337.185927],
+    '3.50': [-393.599060, -329.717148, 428.727069],
+    '3.75': [-447.645454, -379.331792, 536.167894],
+    '4.00': [-505.170349, -432.424733, 661.319374],
+    '4.50': [-630.655548, -549.045587, 972.883628],
+    '5.00': [-770.054016, -679.579793, 1381.913369],
+    '5.50': [-923.366302, -824.027382, 1911.066441],
+    '6.00': [-1090.592316, -982.388428, 2588.121061],
+    '6.50': [-1271.731659, -1154.662904, 3447.416722],
+    '7.00': [-1466.784790, -1340.850860, 4531.265494],
+    '7.50': [-1675.751495, -1540.952314, 5892.121670],
+    '8.00': [-1898.631287, -1754.967263, 7594.603203],
+    '8.50': [-2135.424988, -1982.895717, 9720.229049],
+    '9.00': [-2386.132385, -2224.737643, 12367.676809],
+    '9.50': [-2650.753189, -2480.493135, 15662.699273],
+    '10.0': [-2929.287720, -2750.162114, 19760.444731],
 }
 
 lec_list_nucl_3 = {
@@ -164,6 +165,17 @@ lec_list_nucl_4 = {  #d0GS  TNI-UIX  ZENTRAL    NNN        PROJ           d0ES
         -6479.576, -6221.5028, 195570.801, 0.0, 118778.9520, -4694.7019,
         -71.996883
     ]
+}
+
+lec_list_cib = {
+    #    L       CT      CS         D0 GS           CPP
+    '2.00': [-142.364, -106.2793, 68.4883, -0.830307],
+    '4.00': [-505.164, -434.9584, 677.7989, -7.645753],
+    '6.00': [-1090.584, -986.2518, 2652.651, -16.854889],
+    '8.00': [-1898.622, -1760.1617, 7816.228, -27.502527],
+    '10.0': [-2929.277, -2756.6884, 20483.217, -39.169742],
+    '12.0': [-4182.363, -3975.6195, 50939.941, -52.024708],
+    '15.0': [-6479.576, -6221.5028, 195570.801, -71.996883],
 }
 
 lec_list_oneMEV = {  #d0GS TNI-UIX  ZENTRAL NNN   PROJ           d0ES
@@ -307,12 +319,76 @@ parall = -1
 # too many files too be opened simulataneously
 maxParLen = 120
 
-lam = 4.00  #0.50 0.75 1.00 1.50 2.00 3.00 4.00 6.00 8.00 10.0
+cib = 0  # if set, EFTnoPi with charge independence broken by Coulomb and an acompanying
+# contact-term correction is employed (leading order)
+
+lam = 8.00  #0.50 0.75 1.00 1.50 2.00 3.00 4.00 6.00 8.00 10.0
 # lec_list_nucl_n  : spin-dependent LO pionless interaction: 2 2-body LECs (deuteron, a(1S0)=-23fm), 1 3-body LEC (triton)
 # lec_list_SU4     : spin-independent (SU(4) symmetric) LO pionless: 1 2-body LEC (deuteron), 1 3-body LEC (triton)
-lec_set = lec_list_nucl_2  #lec_list_m1  #  lec_list_unitary  # lec_list_oneMEV  #  lec_list_SU4  #
+lec_set = lec_list_cib if cib else lec_list_SU4  #lec_list_m1  #  lec_list_unitary  # lec_list_oneMEV  #  lec_list_SU4  #
 
-bin_suffix = '_m1' if lec_set == lec_list_m1 else ''
+# list of suffices:
+# _m1       : hbar/(2m) = 1  -> modified kinetic-energy operators (available for _v18-uix operator set, only, at present)
+# _v18-uix  :
+# _eft      :
+# _eft-cib  :
+# if there is a 'b' attached it refers to a symmetrization of the total wave function
+
+bin_suffix = '_eft-cib' if cib else '_v18-uix'
+
+if bin_suffix == '_v18-uix':
+    inenOffset = 7
+    nOperators = 31
+    withCoul = False
+elif bin_suffix == '_eft-cib':
+    inenOffset = 6
+    nOperators = 28
+    withCoul = True
+else:
+    print('unrecognized operator structure.')
+    exit()
+
+# 2-body iso-spin and spin matrix elements
+# <<< INOB
+NNspinEXE = 'KOBER%s.exe' % bin_suffix
+
+# 3-body iso-spin and spin matrix elements
+# <<< INOB
+NNNspinEXE = 'DROBER%s.exe' % bin_suffix
+
+# 2-body orbital-angular-momentum structure of the spatial matrix elements
+# <<< INLUCN
+NNorbitalEXE = 'LUDW%s.exe' % bin_suffix
+
+# 3-body orbital-angular-momentum structure of the spatial matrix elements
+# <<< INLU
+NNNorbitalEXE = 'DRLUD%s.exe' % bin_suffix
+
+# calculation of Hamilton and Norm matrix combining (iso)spin, orbital, and radial wave-function components
+# for 2-body operators
+# <<< INQUA_N (2nd line = 2N potential)
+NNhamilEXE_serial = 'QUAFL_N%s.exe' % bin_suffix
+NNhamilEXE_pool = 'QUAFL_N%s_pop.exe' % bin_suffix
+NNhamilEXE_mpi = 'V18_PAR/mpi_quaf_n%s' % bin_suffix
+NNcollect_mpi = 'V18_PAR/sammel%s' % bin_suffix
+
+# calculation of Hamilton and Norm matrix combining (iso)spin, orbital, and radial wave-function components
+# for 3-body operators
+# <<< INQUA_N (2nd line = 3N potential, otherwise identical to 2N INQUA_N)
+NNNhamilEXE_serial = 'DRQUA_N%s.exe' % bin_suffix
+NNNhamilEXE_pool = 'DRQUA_N%s_pop.exe' % bin_suffix
+NNNhamilEXE_mpi = 'UIX_PAR/mpi_drqua_n%s' % bin_suffix
+NNNcollect_mpi = 'UIX_PAR/drsammel%s' % bin_suffix
+
+# diagonalization of the Norm- and Hamilton matrices
+spectralEXE_serial = 'DR2END%s.exe' % bin_suffix
+spectralEXE_mpi = 'TDR2END%s.exe' % bin_suffix
+spectralEXE_serial_pool = 'DR2END%s_pop.exe' % bin_suffix
+spectralEXE_mpi_pool = 'TDR2END%s_pop.exe' % bin_suffix
+
+# calculation of scattering matrices/amplitudes as solutions to the Kohn variational functional
+smatrixEXE = 'S-POLE_PdP.exe'
+smatrixEXE_multichann = 'S-POLE_zget.exe'
 
 la = ('%-4.2f' % lam)[:4]
 
@@ -330,7 +406,7 @@ channels_2 = {
 
 channels_3 = {
     'he': [['000', ['he_no1', 'he_no6']]],
-    't': [['000', ['he_no1', 'he_no6']]],
+    't': [['000', ['t_no1', 't_no6']]],
     #'boltz': ['000', ['dist_3', 'dist_3']],
 }
 
@@ -338,11 +414,15 @@ channels_4 = {
     'alpha': [
         ['000-0'],
         [
+            'dist_4',
+            'dist_4',
+            'dist_4',
+            'dist_4',
             #'dist_4',
-            'tp_1s0',
-            'tp_6s0',
-            'hen_1s0',
-            'hen_6s0'  #, 'np3s_np3s_S0', 'np1s_np1s_S0'
+            #'tp_1s0',
+            #'tp_6s0',
+            #'hen_1s0',
+            #'hen_6s0'  #, 'np3s_np3s_S0', 'np1s_np1s_S0'
         ]
     ],
 }
@@ -358,24 +438,26 @@ nnnpotstring = 'nnn_pot'
 nnpot = sysdir2base + '/' + nnpotstring
 nnnpot = sysdir2base + '/' + nnnpotstring
 
-# B2 = 1 MeV and B3 = 8.48 MeV
-try:
-    cloW = 0.5 * (lec_set[la][1] + lec_set[la][0])
-    cloB = 0.5 * (lec_set[la][1] - lec_set[la][0])
+if len(lec_set[la]) >= 4:
+    cloW = 0.5 * (lec_set[la][0] + lec_set[la][1])
+    cloB = 0.5 * (lec_set[la][0] - lec_set[la][1])
     d0 = lec_set[la][2]
-except:
+    cpp = lec_set[la][3]
+elif len(lec_set[la]) == 3:
+    cloW = 0.5 * (lec_set[la][0] + lec_set[la][1])
+    cloB = 0.5 * (lec_set[la][0] - lec_set[la][1])
+    d0 = lec_set[la][2]
+elif len(lec_set[la]) == 2:
     cloW = lec_set[la][0]
     cloB = 0.0
     d0 = lec_set[la][1]
 
 evWindow = [-30, 150]
 
-withCoul = False
-
 nzEN = 100
-E0 = 0.1
-D0 = 0.04
-Eps = 0.01
+E0 = 0.01
+D0 = 0.05
+Eps = 0.2
 Bet = 2.1
 
 MeVfm = 197.3161329

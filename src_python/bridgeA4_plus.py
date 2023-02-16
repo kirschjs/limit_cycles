@@ -20,11 +20,11 @@ from parameters_and_constants import *
 import multiprocessing
 from multiprocessing.pool import ThreadPool
 
-import bridgeA2_plus
-import bridgeA3_plus
+#import bridgeA2_plus
+#import bridgeA3_plus
 
-findstablebas = 1
-newCal = 1
+findstablebas = 0
+newCal = 0
 
 J0 = 0
 
@@ -39,7 +39,7 @@ channels = [
 ]
 
 # prepare spin/orbital matrices for parallel computation
-einzel4 = True
+einzel4 = 1
 
 if os.path.isdir(sysdir4) == False:
     subprocess.check_call(['mkdir', '-p', sysdir4])
@@ -50,16 +50,16 @@ subprocess.call('cp %s .' % nnpot, shell=True)
 subprocess.call('cp %s .' % nnnpot, shell=True)
 
 costr = ''
-zop = 31 if tnni == 11 else 14
+zop = nOperators if tnni == 11 else 14
 for nn in range(1, zop):
-    if ((nn == 1) & (withCoul == True)):
-        cf = 1.0
+    if (nn == 1):
+        cf = int(withCoul)
     elif (nn == 2):
         cf = twofac
     elif (nn == 14):
         cf = tnifac
     else:
-        cf = 0.0
+        cf = 1.0
 
     costr += '%12.7f' % cf if (nn % 7 != 0) else '%12.7f\n' % cf
 
@@ -145,16 +145,15 @@ for sysdir3 in threedirs:
         if gogo == False:
             break
 
-    sbas.append(get_bsv_rw_idx(inen=sysdir3 + '/INEN', offset=7, int4=1))
-
+    sbas.append(
+        get_bsv_rw_idx(inen=sysdir3 + '/INEN', offset=inenOffset, int4=1))
     strus.append([
         dict_3to4[line.strip()] for line in open(sysdir3 + '/obstru_%s' % lam)
     ])
     zstrus.append(
         [int(line.strip()) for line in open(sysdir3 + '/drei_stru_%s' % lam)])
 
-    fragment_energies.append(
-        get_h_ev(n=1, ifi=sysdir3 + '/bndg_out_%s' % lam)[0])
+    fragment_energies.append([float(ee) for ee in open(sysdir3 + '/E0')][0])
     threeCoff = parse_ev_coeffs(mult=0,
                                 infil=sysdir3 + '/bndg_out_%s' % lam,
                                 outf='COEFF',
@@ -169,7 +168,6 @@ for sysdir3 in threedirs:
     #                shell=True)
 
 idx = np.array(fragment_energies).argsort()[::-1]
-print(len(strus), strus)
 
 strus = sum([strus[id] for id in idx], [])
 zstrus = sum([zstrus[id] for id in idx], [])
@@ -205,7 +203,7 @@ for nbv in range(1, varspacedim):
 if newCal:
     ma = blunt_ev4(cfgs=strus,
                    bas=sb,
-                   dmaa=[0, 1, 0, 1, 0, 1],
+                   dmaa=[1, 1, 1, 1, 0, 0, 0],
                    j1j2sc=J1J2SC,
                    funcPath=sysdir4,
                    nzopt=zop,
@@ -226,8 +224,6 @@ if newCal:
     print(
         'jj-coupled hamiltonian yields:\n E_0 = %f MeV\ncondition number = %E\n|coeff_max/coeff_min| = %E'
         % (gs, basCond, smartRAT))
-
-    #print(smartEV[-20:])
 
 spole_2(nzen=nzEN,
         e0=E0,
@@ -257,12 +253,15 @@ if findstablebas:
     anzCh = 0
     for DistCh in range(anzDist):
 
-        inenLine = inen[7][:4] + '%4d' % (len(channels) + anzCh) + inen[7][8:]
+        line_offset = 7 if nOperators == 31 else 6
+        inenLine = inen[line_offset][:4] + '%4d' % (
+            len(channels) + anzCh) + inen[line_offset][8:]
         #print(inenLine)
-        repl_line('INEN', 7, inenLine)
-        subprocess.run([BINBDGpath + 'TDR2END_AK%s.exe' % bin_suffix])
+        repl_line('INEN', line_offset, inenLine)
+        subprocess.run([BINBDGpath + spectralEXE_mpi])
         lastline = [ll for ll in open('OUTPUT')][-1]
-
+        tmp = get_h_ev()
+        print('E_0(#Dch:%d)=%4.4f MeV' % (len(channels) + anzCh, tmp))
         if 'NOT CO' in lastline:
 
             if anzCh == 0:
@@ -292,19 +291,35 @@ if findstablebas:
         else:
             anzCh += 1
 
-subprocess.run([BINBDGpath + 'TDR2END_AK%s.exe' % bin_suffix])
-subprocess.run([BINBDGpath + 'S-POLE_zget.exe'])
+subprocess.run([BINBDGpath + spectralEXE_mpi])
+subprocess.run([BINBDGpath + smatrixEXE_multichann])
 
 plotphas(oufi='4_body_phases.pdf')
-chToRead = [1, 1]
+chToRead = [3, 3]
 phdd = read_phase(phaout='PHAOUT', ch=chToRead, meth=1, th_shift='')
-a_dd = [
-    -MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /
-    np.sqrt(2 * mn['137'] * phdd[n][0]) for n in range(len(phdd))
-]
+
+redmass = (3. / 4.) * mn['137']
+if ((chToRead == [2, 2]) | (chToRead == [3, 3])) & cib:
+    print('charged-fragment channel:\n')
+    a_dd = [
+        appC(phdd[n][2] * np.pi / 180.,
+             np.sqrt(2 * redmass * phdd[n][0]),
+             redmass,
+             q1=1,
+             q2=1) for n in range(len(phdd))
+    ]
+else:
+    print('uncharged-fragment channel:\n')
+    a_dd = [
+        -MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /
+        np.sqrt(2 * redmass * phdd[n][0]) for n in range(len(phdd))
+    ]
 print(
     'l = %s fm^-1\n scattering lengths (lower/upper end of energy matching interval):\na_dd(E_min) = %4.4f fm   a_dd(E_max) = %4.4f fm'
-    % (lam, a_dd[0], a_dd[-1]))
+    % (lam, a_dd[0].real, a_dd[-1].real))
+
+plotarray([float(a.real) for a in a_dd],
+          [phdd[n][0] for n in range(len(phdd))], 'a_dimer-dimer.pdf')
 
 for channel in channels_2:
     J0 = channels_2[channel][1]
@@ -321,7 +336,8 @@ for channel in channels_2:
     ]
     print(
         'a_aa(E_min) = %4.4f fm   a_aa(E_max) = %4.4f fm\na_dd/a_aa(E_min) = %4.4f   a_dd/a_aa(E_max) = %4.4f'
-        % (a_aa[0], a_aa[-1], a_dd[0] / a_aa[0], a_dd[-1] / a_aa[-1]))
+        %
+        (a_aa[0], a_aa[-1], a_dd[0].real / a_aa[0], a_dd[-1].real / a_aa[-1]))
 
 exit()
 

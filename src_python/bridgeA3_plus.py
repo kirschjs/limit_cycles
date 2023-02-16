@@ -20,20 +20,20 @@ from four_particle_functions import from3to4
 # numerical stability
 mindi = 0.2
 
-width_bnds = [0.01, 5.15, 0.02, 8.25]
+width_bnds = [0.01, 35.15, 0.02, 38.25]
 minCond = 10**-14
 
 # genetic parameters
-anzNewBV = 4
+anzNewBV = 6
 muta_initial = .02
-anzGen = 28
-seed_civ_size = 20
-target_pop_size = 20
+anzGen = 13
+seed_civ_size = 12
+target_pop_size = 12
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 8
-nREL = 6
+nBV = 14
+nREL = 12
 
 J0 = 1 / 2
 
@@ -51,16 +51,16 @@ for channel in channels_3:
     subprocess.call('rm -rf *.dat', shell=True)
 
     costr = ''
-    zop = 31 if tnni == 11 else 14
+    zop = nOperators if tnni == 11 else 14
     for nn in range(1, zop):
-        if ((nn == 1) & (withCoul == True)):
-            cf = 1.0
+        if (nn == 1):
+            cf = int(withCoul)
         elif (nn == 2):
             cf = twofac
         elif (nn == 14):
             cf = tnifac
         else:
-            cf = 0.0
+            cf = 1.0
 
         costr += '%12.7f' % cf if (nn % 7 != 0) else '%12.7f\n' % cf
 
@@ -73,6 +73,7 @@ for channel in channels_3:
                                           fragments=channels_3[channel],
                                           Jstreu=float(J0),
                                           coefstr=costr,
+                                          nzo=nOperators,
                                           funcPath=sysdir3,
                                           binPath=BINBDGpath,
                                           mindists=mindi,
@@ -172,7 +173,8 @@ for channel in channels_3:
             ParaSets = [[
                 twins[twinID][1][0], twins[twinID][1][1], sbas, nnpotstring,
                 nnnpotstring,
-                float(J0), twinID, BINBDGpath, costr, minCond, evWindow
+                float(J0), twinID, BINBDGpath, costr, minCond, evWindow,
+                nOperators
             ] for twinID in range(len(twins))]
 
             # x) the parallel environment is set up in sets(chunks) of bases
@@ -267,21 +269,24 @@ for channel in channels_3:
     civs = sortprint(civs, pr=False)
     #plotwidths3(sysdir3)
 
-    ma = blunt_ev3(civs[0][0],
-                   civs[0][1][0],
-                   civs[0][1][1],
-                   sbas,
-                   funcPath=sysdir3,
-                   nzopt=zop,
-                   costring=costr,
-                   bin_path=BINBDGpath,
-                   mpipath=MPIRUN,
-                   potNN='%s' % nnpotstring,
-                   potNNN='%s' % nnnpotstring,
-                   parall=-0,
-                   anzcores=max(2, min(len(civs[0]), MaxProc)),
-                   tnnii=tnni,
-                   jay=float(J0))
+    ma = blunt_ev3(
+        civs[0][0],
+        civs[0][1][0],
+        civs[0][1][1],
+        sbas,
+        funcPath=sysdir3,
+        nzopt=zop,
+        costring=costr,
+        bin_path=BINBDGpath,
+        mpipath=MPIRUN,
+        potNN='%s' % nnpotstring,
+        potNNN='%s' % nnnpotstring,
+        # in order to pass superposition coefficients through bndg_out on to 4- and 5- body
+        # scattering-calculation input, this function needs to run serial
+        parall=-0,
+        anzcores=max(2, min(len(civs[0]), MaxProc)),
+        tnnii=tnni,
+        jay=float(J0))
 
     os.system('cp INQUA_N INQUA_N_%s' % lam)
     os.system('cp OUTPUT bndg_out_%s' % lam)
@@ -291,6 +296,8 @@ for channel in channels_3:
 
     print('\n> basType %s : C-nbr = %4.4e E0 = %4.4e\n\n' %
           (channels_3[channel], parCond, gsEnergy))
+
+    output_nbr(outfi='E0', outval=gsEnergy)
 
     # reformat the basis as input for the 4-body calculation
     finCiv = [civs[0][0], civs[0][1][0], civs[0][1][1], sbas]
