@@ -20,20 +20,20 @@ from four_particle_functions import from3to4
 # numerical stability
 mindi = 0.2
 
-width_bnds = [0.01, 35.15, 0.02, 38.25]
+width_bnds = [0.1, 11.15, 0.2, 12.25]
 minCond = 10**-14
 
 # genetic parameters
 anzNewBV = 6
 muta_initial = .02
-anzGen = 13
+anzGen = 4
 seed_civ_size = 12
 target_pop_size = 12
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 14
-nREL = 12
+nBV = 8
+nREL = 6
 
 J0 = 1 / 2
 
@@ -301,9 +301,24 @@ for channel in channels_3:
 
     # reformat the basis as input for the 4-body calculation
     finCiv = [civs[0][0], civs[0][1][0], civs[0][1][1], sbas]
-    ob_strus, lu_strus, strus = condense_basis_3to4(finCiv,
-                                                    widthSet_relative,
-                                                    fn='inq_3to4_%s' % lam)
+    ob_strus, lu_strus, strus, bvwidthString = condense_basis_3to4(
+        finCiv, widthSet_relative, fn='inq_3to4_%s' % lam)
+
+    expC = parse_ev_coeffs_normiert(mult=0,
+                                    infil='OUTPUT',
+                                    outf='COEFF_NORMAL')
+    #    expC = parse_ev_coeffs(mult=0, infil='OUTPUT', outf='COEFF', bvnr=1)
+
+    for wn in range(len(bvwidthString.split('\n'))):
+        if bvwidthString.split('\n')[wn] != '':
+            #print('%+12.8f    %s' %
+            #      (float(expC[wn]), bvwidthString.split('\n')[wn]))
+            print('{%12.8f , %12.8f , %12.8f },' %
+                  (float(expC[wn]),
+                   float(bvwidthString.split('\n')[wn].split()[0]),
+                   float(bvwidthString.split('\n')[wn].split()[1])))
+
+    exit()
 
     assert len(lu_strus) == len(ob_strus)
 

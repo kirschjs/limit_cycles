@@ -514,7 +514,7 @@ def parse_ev_coeffs(mult=0, infil='OUTPUT', outf='COEFF', bvnr=1):
     with open(outf, 'w') as outfile:
         outfile.write(ss)
 
-    return ss.split()
+    return coeffp
 
 
 def parse_ev_coeffs_normiert(mult=0, infil='OUTPUT', outf='COEFF_NORMAL'):
@@ -548,7 +548,7 @@ def parse_ev_coeffs_normiert(mult=0, infil='OUTPUT', outf='COEFF_NORMAL'):
     with open(outf, 'w') as outfile:
         outfile.write(ss)
 
-    return
+    return coeffp
 
 
 def read_phase(phaout='PHAOUT', ch=[1, 1], meth=1, th_shift=''):

@@ -20,11 +20,13 @@ from parameters_and_constants import *
 import multiprocessing
 from multiprocessing.pool import ThreadPool
 
-#import bridgeA2_plus
-#import bridgeA3_plus
+import bridgeA2_plus
+import bridgeA3_plus
 
-findstablebas = 0
-newCal = 0
+# prepare spin/orbital matrices for parallel computation
+einzel4 = 0
+findstablebas = 1
+newCal = 1
 
 J0 = 0
 
@@ -37,9 +39,6 @@ channels = [
     [['000-0'], ['tp_1s0', 'tp_6s0'], [1, 1, 0]],
     [['000-0'], ['hen_1s0', 'hen_6s0'], [1, 1, 0]],
 ]
-
-# prepare spin/orbital matrices for parallel computation
-einzel4 = 1
 
 if os.path.isdir(sysdir4) == False:
     subprocess.check_call(['mkdir', '-p', sysdir4])
@@ -160,6 +159,9 @@ for sysdir3 in threedirs:
                                 bvnr=1)
 
     threeCoff = np.array(threeCoff).astype(float)
+    for cf in threeCoff:
+        print('%+15.12f' % cf)
+    exit()
     cofli.append(threeCoff.tolist())
 
     qua_str.append(''.join(
@@ -186,7 +188,7 @@ sb = []
 bv = 1
 varspacedim = sum([len(rset[1]) for rset in sbas])
 
-anzch = int(0.95 * (len(sum(cofli, [])) - 3 * len(cofli)))
+anzch = int(np.max([1, len(sum(cofli, [])) - 5 * len(cofli)]))
 
 print(
     '\n Commencing 4-body calculation with %d channels (physical + distortion).'

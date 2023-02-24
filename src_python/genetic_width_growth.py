@@ -152,6 +152,7 @@ def condense_basis_3to4(inputBasis, rws4, fn, MaxBVsPERcfg=12):
                     ])
 
     outs = ''
+    outwi = ''
     # -----------------------------------------------------
     bvPerZ = 8
 
@@ -174,6 +175,8 @@ def condense_basis_3to4(inputBasis, rws4, fn, MaxBVsPERcfg=12):
                 outs += '%48s%-12.6f%-12.6f\n' % (
                     '', float(sum(
                         D0s[1], [])[bvnr][0]), float(sum(D0s[1], [])[bvnr][1]))
+                outwi += '%-12.6f%-12.6f\n' % (float(sum(
+                    D0s[1], [])[bvnr][0]), float(sum(D0s[1], [])[bvnr][1]))
                 bvnr += 1
             for rw in range(0, len(rws4)):
                 outs += '%12.6f' % float(rws4[rw])
@@ -200,7 +203,7 @@ def condense_basis_3to4(inputBasis, rws4, fn, MaxBVsPERcfg=12):
     with open(fn, 'w') as outfile:
         outfile.write(outs)
 
-    return ob_strus, lu_strus, drei_strus
+    return ob_strus, lu_strus, drei_strus, outwi
 
 
 def condense_basis_4to5(inputBasis, rws4, fn, MaxBVsPERcfg=12):
