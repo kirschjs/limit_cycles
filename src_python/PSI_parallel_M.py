@@ -811,7 +811,8 @@ def end3(para, send_end):
             [bvv for bvv in smartEV if para[10][0] < bvv < para[10][1]])
 
         gsEnergy = smartEV[-1]
-        attractiveness = loveliness(gsEnergy, basCond, anzSigEV, minCond,
+
+        attractiveness = loveliness(smartEV[-1], basCond, anzSigEV, minCond,
                                     smartRAT)
 
         os.system('rm -rf ./%s' % inqf)
@@ -1274,7 +1275,7 @@ def end4(para, send_end):
             [bvv for bvv in smartEV if para[10][0] < bvv < para[10][1]])
 
         gsEnergy = smartEV[-1]
-        attractiveness = loveliness(gsEnergy, basCond, anzSigEV, minCond,
+        attractiveness = loveliness(smartEV[-2], basCond, anzSigEV, minCond,
                                     smartRAT, maxRa)
 
         os.system('rm -rf ./%s' % inqf)
@@ -1287,7 +1288,7 @@ def end4(para, send_end):
         os.system('rm -rf ./%s' % drquaf_to_end)
         os.system('rm -rf ./%s' % maoutf)
 
-        #  [ intw, relw, qualREF, gsREF, basCond ]
+        #  [ [intw, relw], qualREF, gsREF, basCond ]
         #  print('%12.4e%12.4f%12.4e' % (attractiveness, gsEnergy, basCond))
         send_end.send([
             [para[0], para[1]],
@@ -1520,15 +1521,15 @@ def span_population4(anz_civ,
     samp_ladder = [x.recv() for x in samp_list]
 
     for cand in samp_ladder:
-        if ((cand[2] < 10) & (cand[3] > minC)):
+        if ((cand[2] < 1) & (cand[3] > minC)):
             cfgg = np.transpose(np.array([sfrags2, lfrags2])).tolist()
 
             cand_list.append([cfgg] + cand)
 
     cand_list.sort(key=lambda tup: np.abs(tup[2]))
 
-    for cc in samp_ladder:
-        print(cc[2:])
+    #for cc in samp_ladder:
+    #    print(cc[2:])
 
     return cand_list, sbas
 

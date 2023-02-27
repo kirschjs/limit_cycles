@@ -20,7 +20,7 @@ from four_particle_functions import from3to4
 # numerical stability
 mindi = 0.2
 
-width_bnds = [0.1, 11.15, 0.2, 12.25]
+width_bnds = [0.1, 31.15, 0.2, 32.25]
 minCond = 10**-14
 
 # genetic parameters
@@ -33,7 +33,7 @@ target_pop_size = 12
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
 nBV = 8
-nREL = 6
+nREL = 10
 
 J0 = 1 / 2
 

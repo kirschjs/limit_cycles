@@ -19,21 +19,21 @@ from multiprocessing.pool import ThreadPool
 
 # numerical stability
 mindi = 0.2
-width_bnds = [0.001, 618.15, 0.002, 751.25]
+width_bnds = [0.001, 118.15, 0.002, 151.25]
 minCond = 10**-14
 maxRat = 10**19
 
 # genetic parameters
 anzNewBV = 4
 muta_initial = .002
-anzGen = 10
+anzGen = 8
 seed_civ_size = 20
 target_pop_size = 20
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
 nBV = 12
-nREL = 12
+nREL = 10
 
 einzel4 = True
 
@@ -88,6 +88,7 @@ for channel in channels_4:
             civs.append(cciv)
         print('>>> seed civilizations: %d/%d' % (len(civs), seed_civ_size))
 
+        # tup[3] = pulchritude tup[4] = Energy EV tup[5] = condition number
     civs.sort(key=lambda tup: np.abs(tup[3]))
     civs = sortprint(civs, pr=True)
 
@@ -180,7 +181,8 @@ for channel in channels_4:
             ParaSets = [[
                 twins[twinID][1][0], twins[twinID][1][1], sbas, nnpotstring,
                 nnnpotstring,
-                float(J0), twinID, BINBDGpath, costr, minCond, evWindow, maxRat
+                float(J0), twinID, BINBDGpath, costr, minCond, evWindow,
+                maxRat, nOperators
             ] for twinID in range(len(twins))]
 
             # x) the parallel environment is set up in sets(chunks) of bases
@@ -198,7 +200,7 @@ for channel in channels_4:
             samp_list = []
             cand_list = []
 
-            print('rating offspring...')
+            #print('rating offspring...')
             for chunk in Parchunks:
 
                 pool = ThreadPool(max(min(MaxProc, len(ParaSets)), 2))
@@ -217,7 +219,7 @@ for channel in channels_4:
                 for proc in jobs:
                     proc.join()
 
-            print('offspring rated.')
+            #print('offspring rated.')
             samp_ladder = [x.recv() for x in samp_list]
 
             samp_ladder.sort(key=lambda tup: np.abs(tup[1]))
@@ -231,7 +233,7 @@ for channel in channels_4:
 
                     civs.append([cfgg] + cand)
                     children += 1
-                    print('another prodigy added.')
+                    #print('another prodigy added.')
 
                     if children > anzNewBV:
                         break
@@ -294,23 +296,51 @@ for channel in channels_4:
     print('\n> basType %s : C-nbr = %4.4e E0 = %4.4e\n\n' %
           (channels_4[channel], parCond, gsEnergy))
 
-    print(civs[0])
-
-    redmod(BINBDGpath)
-
+    #    print(civs[0])
+    #
+    #    redmod(BINBDGpath)
+    #
     tt = get_bas()
     ttt = get_bsv_rw_idx()
-    # reformat the basis as input for the 5-body calculation
-
+    #    # reformat the basis as input for the 5-body calculation
+    #
     finCiv = [civs[0][0], civs[0][1][0], civs[0][1][1], ttt]
-    ob_strus, lu_strus, strus = condense_basis_4to5(finCiv,
-                                                    widthSet_relative,
-                                                    fn='inq_4to5_%s' % lam)
+    ob_strus, lu_strus, strus, bvwidthString = condense_basis_4to5(
+        finCiv, widthSet_relative, fn='inq_4to5_%s' % lam)
 
-    print(ob_strus, lu_strus, strus)
-    # reformat the basis as input for the 5-body calculation
+    expC_GS = parse_ev_coeffs_normiert(mult=0,
+                                       infil='OUTPUT',
+                                       outf='COEFF_NORMAL')
+    expC_ES = parse_ev_coeffs_normiert(mult=0,
+                                       infil='OUTPUT',
+                                       outf='COEFF_NORMAL',
+                                       nbv=2)
+    #    expC = parse_ev_coeffs(mult=0, infil='OUTPUT', outf='COEFF', bvnr=1)
 
-    assert len(lu_strus) == len(ob_strus)
+    for wn in range(len(bvwidthString.split('\n'))):
+        if bvwidthString.split('\n')[wn] != '':
+            #print('%+12.8f    %s' %
+            #      (float(expC[wn]), bvwidthString.split('\n')[wn]))
+            print('{%12.8f , %12.8f , %12.8f , %12.8f },' %
+                  (float(expC_GS[wn]),
+                   float(bvwidthString.split('\n')[wn].split()[0]),
+                   float(bvwidthString.split('\n')[wn].split()[1]),
+                   float(bvwidthString.split('\n')[wn].split()[2])))
+
+    print('\n')
+    for wn in range(len(bvwidthString.split('\n'))):
+        if bvwidthString.split('\n')[wn] != '':
+            #print('%+12.8f    %s' %
+            #      (float(expC[wn]), bvwidthString.split('\n')[wn]))
+            print('{%12.8f , %12.8f , %12.8f , %12.8f },' %
+                  (float(expC_ES[wn]),
+                   float(bvwidthString.split('\n')[wn].split()[0]),
+                   float(bvwidthString.split('\n')[wn].split()[1]),
+                   float(bvwidthString.split('\n')[wn].split()[2])))
+    #    print(ob_strus, lu_strus, strus)
+    #    # reformat the basis as input for the 5-body calculation
+    #
+    #    assert len(lu_strus) == len(ob_strus)
 
     os.system('cp INQUA_N INQUA_N_%s' % lam)
     os.system('cp OUTPUT bndg_out_%s' % lam)

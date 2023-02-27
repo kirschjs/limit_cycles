@@ -1054,7 +1054,7 @@ C      A1 IST NORMIERUNG DER KANALFUNKTIONEN BEZUEGLICH EN
       WRITE (NOUT,'(1X,10I8)') (NUMK(L),L=1,NZKA)
 C 105   FORMAT (1X,10I8)
 C replaced to enable compatibility with red_mod_2.py      
-105   FORMAT (I4,') ',1X,10E20.6)
+105   FORMAT (I4,') ',1X,30E20.6)
   242 CONTINUE
 C
 C     ENDE LOOP ILAUF

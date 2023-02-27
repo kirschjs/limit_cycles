@@ -9,8 +9,9 @@ def loveliness(groundstateEnergy,
                coefRAT,
                maxRat=10**15):
 
-    if ((np.abs(groundstateEnergy) < 500) & (coefRAT < maxRat)):
-        pulchritude = np.exp((-1) * groundstateEnergy)
+    if ((np.abs(groundstateEnergy) < 1e5) & (coefRAT < maxRat)):
+        #pulchritude = np.exp((-1) * groundstateEnergy)
+        pulchritude = np.power(1.1, (-1) * groundstateEnergy)
     else:
         pulchritude = 0.0
 
@@ -175,8 +176,8 @@ def condense_basis_3to4(inputBasis, rws4, fn, MaxBVsPERcfg=12):
                 outs += '%48s%-12.6f%-12.6f\n' % (
                     '', float(sum(
                         D0s[1], [])[bvnr][0]), float(sum(D0s[1], [])[bvnr][1]))
-                outwi += '%-12.6f%-12.6f\n' % (float(sum(
-                    D0s[1], [])[bvnr][0]), float(sum(D0s[1], [])[bvnr][1]))
+                outwi += '%-12.6f  %-12.6f\n' % (float(
+                    sum(D0s[1], [])[bvnr][0]), float(sum(D0s[1], [])[bvnr][1]))
                 bvnr += 1
             for rw in range(0, len(rws4)):
                 outs += '%12.6f' % float(rws4[rw])
@@ -247,6 +248,7 @@ def condense_basis_4to5(inputBasis, rws4, fn, MaxBVsPERcfg=12):
                     ])
 
     outs = ''
+    outwi = ''
     # -----------------------------------------------------
     bvPerZ = 8
 
@@ -270,6 +272,9 @@ def condense_basis_4to5(inputBasis, rws4, fn, MaxBVsPERcfg=12):
                     '', float(sum(
                         D0s[1], [])[bvnr][0]), float(sum(D0s[1], [])[bvnr][1]),
                     float(sum(D0s[1], [])[bvnr][2]))
+                outwi += '%-12.6f  %-12.6f  %-12.6f\n' % (float(
+                    sum(D0s[1], [])[bvnr][0]), float(sum(
+                        D0s[1], [])[bvnr][1]), float(sum(D0s[1], [])[bvnr][2]))
                 bvnr += 1
             for rw in range(0, len(rws4)):
                 outs += '%12.6f' % float(rws4[rw])
@@ -296,7 +301,7 @@ def condense_basis_4to5(inputBasis, rws4, fn, MaxBVsPERcfg=12):
     with open(fn, 'w') as outfile:
         outfile.write(outs)
 
-    return ob_strus, sum(lu_strus, []), drei_strus
+    return ob_strus, sum(lu_strus, []), drei_strus, outwi
 
 
 def write_basis_on_tape(basis, jay, btype, baspath=''):

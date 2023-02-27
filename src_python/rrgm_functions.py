@@ -517,7 +517,10 @@ def parse_ev_coeffs(mult=0, infil='OUTPUT', outf='COEFF', bvnr=1):
     return coeffp
 
 
-def parse_ev_coeffs_normiert(mult=0, infil='OUTPUT', outf='COEFF_NORMAL'):
+def parse_ev_coeffs_normiert(mult=0,
+                             infil='OUTPUT',
+                             outf='COEFF_NORMAL',
+                             nbv=1):
     os.system('cp ' + infil + ' tmp')
     out = [line2 for line2 in open(infil)]
 
@@ -526,7 +529,8 @@ def parse_ev_coeffs_normiert(mult=0, infil='OUTPUT', outf='COEFF_NORMAL'):
     coeff_mult = []
     bvc = 0
     for line in range(0, len(out) - 1):
-        if re.search('ENTWICKLUNG DES  1 TEN EIGENVEKTORS,AUS', out[line]):
+        if re.search('ENTWICKLUNG DES  %d TEN EIGENVEKTORS,AUS' % nbv,
+                     out[line]):
             for bvl in range(line + 2, len(out)):
                 if '0UE' in out[bvl][:4]:
                     break

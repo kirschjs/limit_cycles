@@ -156,7 +156,7 @@ def sortprint(civi, pr=False, ordn=2):
         )
 
         for civ in civi:
-            print('%19.5f %19.5f %19.5e' % (civ[2], civ[3], civ[4]))
+            print('%19.5e %19.5f %19.5e' % (civ[2], civ[3], civ[4]))
         print('-----------------------------------------------------------')
     return civi
 

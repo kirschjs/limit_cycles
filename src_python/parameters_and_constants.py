@@ -322,7 +322,7 @@ maxParLen = 120
 cib = 0  # if set, EFTnoPi with charge independence broken by Coulomb and an acompanying
 # contact-term correction is employed (leading order)
 
-lam = 2.00  #0.50 0.75 1.00 1.50 2.00 3.00 4.00 6.00 8.00 10.0
+lam = 6.00  #0.50 0.75 1.00 1.50 2.00 3.00 4.00 6.00 8.00 10.0
 # lec_list_nucl_n  : spin-dependent LO pionless interaction: 2 2-body LECs (deuteron, a(1S0)=-23fm), 1 3-body LEC (triton)
 # lec_list_SU4     : spin-independent (SU(4) symmetric) LO pionless: 1 2-body LEC (deuteron), 1 3-body LEC (triton)
 lec_set = lec_list_cib if cib else lec_list_SU4  #lec_list_m1  #  lec_list_unitary  # lec_list_oneMEV  #  lec_list_SU4  #
@@ -414,15 +414,15 @@ channels_4 = {
     'alpha': [
         ['000-0'],
         [
-            'dist_4',
-            'dist_4',
-            'dist_4',
-            'dist_4',
             #'dist_4',
-            #'tp_1s0',
-            #'tp_6s0',
-            #'hen_1s0',
-            #'hen_6s0'  #, 'np3s_np3s_S0', 'np1s_np1s_S0'
+            #'dist_4',
+            #'dist_4',
+            #'dist_4',
+            #'dist_4',
+            'tp_1s0',
+            'tp_6s0',
+            'hen_1s0',
+            'hen_6s0'  #, 'np3s_np3s_S0', 'np1s_np1s_S0'
         ]
     ],
 }
