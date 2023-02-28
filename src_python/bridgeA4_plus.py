@@ -24,7 +24,7 @@ import bridgeA2_plus
 import bridgeA3_plus
 
 # prepare spin/orbital matrices for parallel computation
-einzel4 = 0
+einzel4 = 1
 findstablebas = 1
 newCal = 1
 
@@ -114,6 +114,7 @@ for sysdir2 in twodirs:
                              infil=sysdir2 + '/bndg_out_%s' % lam,
                              outf='COEFF',
                              bvnr=1)
+
     ddCoff = np.array(ddCoff).astype(float)
     cofli.append(ddCoff.tolist())
 
@@ -159,9 +160,6 @@ for sysdir3 in threedirs:
                                 bvnr=1)
 
     threeCoff = np.array(threeCoff).astype(float)
-    for cf in threeCoff:
-        print('%+15.12f' % cf)
-    exit()
     cofli.append(threeCoff.tolist())
 
     qua_str.append(''.join(
@@ -205,7 +203,7 @@ for nbv in range(1, varspacedim):
 if newCal:
     ma = blunt_ev4(cfgs=strus,
                    bas=sb,
-                   dmaa=[1, 1, 1, 1, 0, 0, 0],
+                   dmaa=[0, 1, 0, 1, 0, 1, 0],
                    j1j2sc=J1J2SC,
                    funcPath=sysdir4,
                    nzopt=zop,

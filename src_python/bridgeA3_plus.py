@@ -20,7 +20,7 @@ from four_particle_functions import from3to4
 # numerical stability
 mindi = 0.2
 
-width_bnds = [0.1, 31.15, 0.2, 32.25]
+width_bnds = [0.1, 21.15, 0.2, 32.25]
 minCond = 10**-14
 
 # genetic parameters
@@ -33,7 +33,7 @@ target_pop_size = 12
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
 nBV = 8
-nREL = 10
+nREL = 8
 
 J0 = 1 / 2
 
@@ -307,18 +307,15 @@ for channel in channels_3:
     expC = parse_ev_coeffs_normiert(mult=0,
                                     infil='OUTPUT',
                                     outf='COEFF_NORMAL')
-    #    expC = parse_ev_coeffs(mult=0, infil='OUTPUT', outf='COEFF', bvnr=1)
 
     for wn in range(len(bvwidthString.split('\n'))):
+
         if bvwidthString.split('\n')[wn] != '':
-            #print('%+12.8f    %s' %
-            #      (float(expC[wn]), bvwidthString.split('\n')[wn]))
+
             print('{%12.8f , %12.8f , %12.8f },' %
                   (float(expC[wn]),
                    float(bvwidthString.split('\n')[wn].split()[0]),
                    float(bvwidthString.split('\n')[wn].split()[1])))
-
-    exit()
 
     assert len(lu_strus) == len(ob_strus)
 

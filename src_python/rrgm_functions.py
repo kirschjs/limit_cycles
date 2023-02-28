@@ -508,13 +508,14 @@ def parse_ev_coeffs(mult=0, infil='OUTPUT', outf='COEFF', bvnr=1):
         else:
             s += '%E' % (coeffp[n]) + '\n'
             #s += '%18.10g' % (coeffp[n]) + '\n'
+
     ss = s.replace('e', 'E')
     if bvc == 0:
         print("No coefficients found in %s" % infil)
     with open(outf, 'w') as outfile:
         outfile.write(ss)
 
-    return coeffp
+    return ss.split()
 
 
 def parse_ev_coeffs_normiert(mult=0,
