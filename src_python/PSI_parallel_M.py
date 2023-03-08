@@ -1221,6 +1221,10 @@ def end4(para, send_end):
 
     # [widi, widr, sbas, nnpot, nnnpot, Jstreu, civ, binPath, coefstr]
 
+    # nOpt: 0: ground-state optimization
+    #       n: n-th excited-state energy is minimized
+    nOpt = 0
+
     child_id = ''.join(str(x) for x in np.array([para[6]]))
 
     inqf = 'inq_%s' % child_id
@@ -1275,8 +1279,8 @@ def end4(para, send_end):
             [bvv for bvv in smartEV if para[10][0] < bvv < para[10][1]])
 
         gsEnergy = smartEV[-1]
-        attractiveness = loveliness(smartEV[-2], basCond, anzSigEV, minCond,
-                                    smartRAT, maxRa)
+        attractiveness = loveliness(smartEV[int(-1 - nOpt)], basCond, anzSigEV,
+                                    minCond, smartRAT, maxRa)
 
         os.system('rm -rf ./%s' % inqf)
         os.system('rm -rf ./%s' % indqf)
@@ -1521,7 +1525,7 @@ def span_population4(anz_civ,
     samp_ladder = [x.recv() for x in samp_list]
 
     for cand in samp_ladder:
-        if ((cand[2] < 1) & (cand[3] > minC)):
+        if ((cand[2] < -0) & (cand[3] > minC)):
             cfgg = np.transpose(np.array([sfrags2, lfrags2])).tolist()
 
             cand_list.append([cfgg] + cand)

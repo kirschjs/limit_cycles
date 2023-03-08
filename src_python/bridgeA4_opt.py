@@ -19,21 +19,21 @@ from multiprocessing.pool import ThreadPool
 
 # numerical stability
 mindi = 0.2
-width_bnds = [0.001, 118.15, 0.002, 151.25]
-minCond = 10**-14
+width_bnds = [0.001, 158.15, 0.002, 271.25]
+minCond = 10**-16
 maxRat = 10**19
 
 # genetic parameters
 anzNewBV = 4
 muta_initial = .002
 anzGen = 8
-seed_civ_size = 20
-target_pop_size = 20
+seed_civ_size = 10
+target_pop_size = 10
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 12
-nREL = 10
+nBV = 4
+nREL = 2
 
 einzel4 = True
 
@@ -222,7 +222,7 @@ for channel in channels_4:
             #print('offspring rated.')
             samp_ladder = [x.recv() for x in samp_list]
 
-            samp_ladder.sort(key=lambda tup: np.abs(tup[1]))
+            samp_ladder.sort(key=lambda tup: np.abs(tup[2]))
 
             #for el in samp_ladder:
             #    print(el[1:])

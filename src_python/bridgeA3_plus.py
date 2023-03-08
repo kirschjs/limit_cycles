@@ -5,6 +5,7 @@ import sympy as sy
 # CG(j1, m1, j2, m2, j3, m3)
 from sympy.physics.quantum.cg import CG
 from scipy.linalg import eigh
+from scipy.optimize import fmin
 
 from three_particle_functions import *
 from PSI_parallel_M import *
@@ -17,18 +18,22 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 from four_particle_functions import from3to4
 
+# flag to be set if after the optimization of the model space, a calibration within
+# that space to an observable is ``requested''
+fitt = True
+
 # numerical stability
 mindi = 0.2
 
-width_bnds = [0.1, 21.15, 0.2, 32.25]
+width_bnds = [0.1, 91.15, 0.2, 132.25]
 minCond = 10**-14
 
 # genetic parameters
 anzNewBV = 6
 muta_initial = .02
-anzGen = 4
-seed_civ_size = 12
-target_pop_size = 12
+anzGen = 6
+seed_civ_size = 8
+target_pop_size = 8
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
@@ -335,9 +340,44 @@ for channel in channels_3:
     with open('drei_stru_%s' % lam, 'w') as outfile:
         outfile.write(outst)
 
+    print(">>> End of 3-body day in channel %s\n" % channel)
+
+    if fitt:
+
+        def fitti(fac3, fitb, fix=-1):
+            repl_line(
+                'INEN', 3,
+                '%+12.6f%+12.6f%+12.6f%+12.6f%+12.6f%+12.6f%+12.6f\n' %
+                (1.0, 1.0, 1.0, 1.0, 1.0, 1.0, fac3))
+
+            subprocess.run([BINBDGpath + spectralEXE_serial])
+
+            matout = np.core.records.fromfile('MATOUTB',
+                                              formats='f8',
+                                              offset=4)
+
+            smartEV, parCond, gsRatio = smart_ev(matout, threshold=10**-10)
+
+            print(np.real(smartEV[-4:]))
+            E_0 = np.real(smartEV[fix])
+            print(abs(float(E_0) + fitb))
+            return abs(float(E_0) + fitb)
+
+        # energy to fit to
+        trib = 3.0
+        # initial scaling factor from which the root-finding algorithm commences its search
+        fac = 1.015
+
+        ft_lo = fmin(fitti, fac, args=(trib, -1), disp=False)
+
+        res_lo = fitti(ft_lo[0], 0.0, -1)
+        print('L = %2.2f:  D = %12.4f => B(3)= %8.4f   ;  D_start = %12.4f' %
+              (lam, d0 * ft_lo[0], res_lo, d0))
+
+    exit()
+
     subprocess.call('rm -rf TQUAOUT.*', shell=True)
     subprocess.call('rm -rf TDQUAOUT.*', shell=True)
     subprocess.call('rm -rf DMOUT.*', shell=True)
     subprocess.call('rm -rf DRDMOUT.*', shell=True)
     subprocess.call('rm -rf matout_*.*', shell=True)
-    print(">>> End of 3-body day in channel %s\n" % channel)

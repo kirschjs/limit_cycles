@@ -4,6 +4,26 @@ from plot_array import *
 
 # -- LEC lists
 
+lec_list_unitary2 = {
+    '2.00': [-112.1436908, 8.4620],
+    '3.00': [-252.0437066, 123.17],
+    '4.00': [-447.7751164, 372.60],
+    '6.00': [-1006.279979, 3290.5519],
+    '8.00': [-1789.956812, 4165.0],
+    '10.0': [-2780.644546, 9491.0],
+}
+
+lec_list_unitary = {
+    #L [fm-1]   C0  D0
+    '1.50': [-62.6076, -13.3650],
+    '2.00': [-111.3024, 8.4620],
+    '3.00': [-250.4304, 123.1780],
+    '4.00': [-445.2096, 372.6020],
+    '6.00': [-1001.7216, 1524.2500],
+    '8.00': [-1780.8384, 4165.5500],
+    '10.0': [-2782.5600, 9491.9000]
+}
+
 lec_list_nucl_1 = {
     '0.10': [-4.6123, -0.1936, -3.8940, -2.3037],  #-283.0033,-11280.2471],
     '0.20': [-6.4580, -0.8196, -8.1672, -3.5258],
@@ -212,17 +232,6 @@ lec_list_oneMEV = {  #d0GS TNI-UIX  ZENTRAL NNN   PROJ           d0ES
     '10.0': [-2880.3865, -29933.4954397]
 }
 
-lec_list_unitary = {
-    #L [fm-1]   C0  D0
-    '1.50': [-62.6076, -13.3650],
-    '2.00': [-111.3024, 8.4620],
-    '3.00': [-250.4304, 123.1780],
-    '4.00': [-445.2096, 372.6020],
-    '6.00': [-1001.7216, 1524.2500],
-    '8.00': [-1780.8384, 4165.5500],
-    '10.0': [-2782.5600, 9491.9000]
-}
-
 lec_list_SU4 = {  #d0GS TNI-UIX  ZENTRAL NNN   PROJ           d0ES
     '0.50': [-16.3721, 4.436],
     '0.75': [-28.6714, 12.936],
@@ -322,10 +331,10 @@ maxParLen = 120
 cib = 0  # if set, EFTnoPi with charge independence broken by Coulomb and an acompanying
 # contact-term correction is employed (leading order)
 
-lam = 4.00  #0.50 0.75 1.00 1.50 2.00 3.00 4.00 6.00 8.00 10.0
+lam = 6.00  #0.50 0.75 1.00 1.50 2.00 3.00 4.00 6.00 8.00 10.0
 # lec_list_nucl_n  : spin-dependent LO pionless interaction: 2 2-body LECs (deuteron, a(1S0)=-23fm), 1 3-body LEC (triton)
 # lec_list_SU4     : spin-independent (SU(4) symmetric) LO pionless: 1 2-body LEC (deuteron), 1 3-body LEC (triton)
-lec_set = lec_list_cib if cib else lec_list_SU4  #lec_list_m1  #  lec_list_unitary  # lec_list_oneMEV  #  lec_list_SU4  #
+lec_set = lec_list_cib if cib else lec_list_unitary2  #lec_list_m1  #  lec_list_unitary  # lec_list_oneMEV  #  lec_list_SU4  #
 
 # list of suffices:
 # _m1       : hbar/(2m) = 1  -> modified kinetic-energy operators (available for _v18-uix operator set, only, at present)
@@ -423,7 +432,9 @@ channels_4 = {
             'tp_1s0',
             'tp_6s0',
             'hen_1s0',
-            'hen_6s0'  #, 'np3s_np3s_S0', 'np1s_np1s_S0'
+            'hen_6s0',
+            'np3s_np3s_S0',
+            'np1s_np1s_S0'
         ]
     ],
 }
