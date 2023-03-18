@@ -20,18 +20,18 @@ from four_particle_functions import from3to4
 
 # flag to be set if after the optimization of the model space, a calibration within
 # that space to an observable is ``requested''
-fitt = True
+fitt = False
 
 # numerical stability
 mindi = 0.2
 
-width_bnds = [0.1, 91.15, 0.2, 132.25]
+width_bnds = [0.1, 41.15, 0.2, 32.25]
 minCond = 10**-14
 
 # genetic parameters
 anzNewBV = 6
 muta_initial = .02
-anzGen = 6
+anzGen = 12
 seed_civ_size = 8
 target_pop_size = 8
 
@@ -364,7 +364,7 @@ for channel in channels_3:
             return abs(float(E_0) + fitb)
 
         # energy to fit to
-        trib = 3.0
+        trib = 8.48
         # initial scaling factor from which the root-finding algorithm commences its search
         fac = 1.015
 
@@ -373,8 +373,7 @@ for channel in channels_3:
         res_lo = fitti(ft_lo[0], 0.0, -1)
         print('L = %2.2f:  D = %12.4f => B(3)= %8.4f   ;  D_start = %12.4f' %
               (lam, d0 * ft_lo[0], res_lo, d0))
-
-    exit()
+        exit()
 
     subprocess.call('rm -rf TQUAOUT.*', shell=True)
     subprocess.call('rm -rf TDQUAOUT.*', shell=True)

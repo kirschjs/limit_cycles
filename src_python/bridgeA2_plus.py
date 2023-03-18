@@ -18,7 +18,7 @@ from multiprocessing.pool import ThreadPool
 
 # flag to be set if after the optimization of the model space, a calibration within
 # that space to an observable is ``requested''
-fitt = True
+fitt = False
 
 # numerical stability
 minCond = 10**-10
@@ -26,14 +26,14 @@ minidi_breed = 0.1
 minidi_seed = minidi_breed
 minidi_breed_rel = minidi_breed
 denseEVinterval = [-2, 2]
-width_bnds = [0.01, 82.25]
-deutDim = 18
+width_bnds = [0.01, 32.25]
+deutDim = 6
 miniE_breed = 0.1
 
 # genetic parameters
 anzNewBV = 5
 muta_initial = 0.01
-anzGen = 8
+anzGen = 14
 civ_size = 10
 target_pop_size = 12
 zop = 14 if bin_suffix == '_v18-uix' else 11
@@ -343,45 +343,56 @@ for channel in channels_2:
           (a_aa[0].real, a_aa[0].imag, a_aa[-1].real, a_aa[-1].imag))
     plotarray([float(a.real) for a in a_aa],
               [phaa[n][0] for n in range(len(phaa))], 'a_atom-atom.pdf')
-#
+
 #    if fitt:
 #
-#        def fit_a_rgm(lecc,ch,afit=0.0):
+#        def fit_a_rgm(lecc, ch, afit=0.0):
 #            #
-#            if (ch==2)|(ch==6)|(ch==7):
+#            if (ch == 2) | (ch == 6) | (ch == 7):
 #                j = 1
 #            else:
 #                j = 0
-#            sc= j
+#            sc = j
 #            phases = []
-#            inen_nn_str(w120,j,sc,ch,lecc)
-#            os.system(bin_dir+'DR2END_CIB_'+mpii+'.exe')
-#            inputsphase_nn(e0=0.05,nzen=2,eps=0.1,bet=4.1,d0=0.05,nzrw=400,frr=0.02,rhg=8.0,rhf=1.0)
+#            inen_nn_str(w120, j, sc, ch, lecc)
+#            os.system(bin_dir + 'DR2END_CIB_' + mpii + '.exe')
+#            inputsphase_nn(e0=0.05,
+#                           nzen=2,
+#                           eps=0.1,
+#                           bet=4.1,
+#                           d0=0.05,
+#                           nzrw=400,
+#                           frr=0.02,
+#                           rhg=8.0,
+#                           rhf=1.0)
 #            os.system(bin_dir + 'S-POLE_CIB.exe')
-#            read_phase(phases,np_dir,1)
-#            if ch==3:
-#                a = appC(phases[-1][0]*pi/180.0,sqrt(mn[mpii]*phases[0][0]))
+#            read_phase(phases, np_dir, 1)
+#            if ch == 3:
+#                a = appC(phases[-1][0] * pi / 180.0,
+#                         sqrt(mn[mpii] * phases[0][0]))
 #                #print a.real,afit,ch
 #            else:
-#                a = anp(phases[-1][0]*pi/180.0,sqrt(mn[mpii]*phases[0][0]))
+#                a = anp(phases[-1][0] * pi / 180.0,
+#                        sqrt(mn[mpii] * phases[0][0]))
 #            #print 'a    = %4.2f + i%4.2f fm' %(a.real,a.imag), afit
 #            #exit()
-#            return a.real-afit
+#            return a.real - afit
+#
+#
 ##
-#def fit_e_rgm(lecc,ch,efit=0.0):
+#def fit_e_rgm(lecc, ch, efit=0.0):
 #    #
-#    if (ch==2)|(ch==6)|(ch==7):
+#    if (ch == 2) | (ch == 6) | (ch == 7):
 #        j = 1
 #    else:
 #        j = 0
-#    sc= j
+#    sc = j
 #    phases = []
-#    inen_nn_str(w120,j,sc,ch,lecc)
-#    os.system(bin_dir+'DR2END_CIB_'+mpii+'.exe')
+#    inen_nn_str(w120, j, sc, ch, lecc)
+#    os.system(bin_dir + 'DR2END_CIB_' + mpii + '.exe')
 #    out = [line for line in open('OUTPUT')]
-#    for n in range(1,len(out)):
-#        if(out[n].strip()=="EIGENWERTE DES HAMILTONOPERATORS"):
-#            bbb = float(out[n+3].split()[0])
+#    for n in range(1, len(out)):
+#        if (out[n].strip() == "EIGENWERTE DES HAMILTONOPERATORS"):
+#            bbb = float(out[n + 3].split()[0])
 #
-#    return bbb+efit
-#
+#    return bbb + efit

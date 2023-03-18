@@ -20,13 +20,13 @@ from parameters_and_constants import *
 import multiprocessing
 from multiprocessing.pool import ThreadPool
 
-import bridgeA2_plus
-import bridgeA3_plus
+#import bridgeA2_plus
+#import bridgeA3_plus
 
 # prepare spin/orbital matrices for parallel computation
-einzel4 = 1
-findstablebas = 1
-newCal = 1
+einzel4 = 0
+findstablebas = 0
+newCal = 0
 
 J0 = 0
 
@@ -203,7 +203,7 @@ for nbv in range(1, varspacedim):
 if newCal:
     ma = blunt_ev4(cfgs=strus,
                    bas=sb,
-                   dmaa=[0, 1, 0, 1, 0, 1, 0],
+                   dmaa=[0, 1, 0, 1, 0, 1, 0, 1, 0],
                    j1j2sc=J1J2SC,
                    funcPath=sysdir4,
                    nzopt=zop,
@@ -292,13 +292,55 @@ if findstablebas:
             anzCh += 1
 
 subprocess.run([BINBDGpath + spectralEXE_mpi])
+
+chToRead = [3, 3]
+redmass = (4. / 4.) * mn['137']
+a_of_epsi = []
+for epsi in np.linspace(0.01, 0.025, 20):
+    spole_2(nzen=nzEN,
+            e0=E0,
+            d0=D0,
+            eps=epsi,
+            bet=2.52,
+            nzrw=100,
+            frr=0.06,
+            rhg=8.0,
+            rhf=1.0,
+            pw=0)
+    subprocess.run([BINBDGpath + smatrixEXE_multichann])
+    phdd = read_phase(phaout='PHAOUT', ch=chToRead, meth=1, th_shift='')
+
+    if ((chToRead == [2, 2]) | (chToRead == [3, 3])) & cib:
+        a_dd = [
+            appC(phdd[n][2] * np.pi / 180.,
+                 np.sqrt(2 * redmass * phdd[n][0]),
+                 redmass,
+                 q1=1,
+                 q2=1) for n in range(len(phdd))
+        ]
+    else:
+        a_dd = [
+            -MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /
+            np.sqrt(2 * redmass * phdd[n][0]) for n in range(len(phdd))
+        ]
+    a_of_epsi.append([epsi, a_dd[0].real, a_dd[-1].real])
+
+spole_2(nzen=nzEN,
+        e0=E0,
+        d0=D0,
+        eps=0.015,
+        bet=Bet,
+        nzrw=100,
+        frr=0.06,
+        rhg=8.0,
+        rhf=1.0,
+        pw=0)
 subprocess.run([BINBDGpath + smatrixEXE_multichann])
 
-plotphas(oufi='4_body_phases.pdf')
 chToRead = [3, 3]
 phdd = read_phase(phaout='PHAOUT', ch=chToRead, meth=1, th_shift='')
 
-redmass = (3. / 4.) * mn['137']
+redmass = (4. / 4.) * mn['137']
 if ((chToRead == [2, 2]) | (chToRead == [3, 3])) & cib:
     print('charged-fragment channel:\n')
     a_dd = [
@@ -318,8 +360,20 @@ print(
     'l = %s fm^-1\n scattering lengths (lower/upper end of energy matching interval):\na_dd(E_min) = %4.4f fm   a_dd(E_max) = %4.4f fm'
     % (lam, a_dd[0].real, a_dd[-1].real))
 
+plotphas(oufi='4_body_phases.pdf')
+
+plotarray(infix=[float(a[0]) for a in a_of_epsi],
+          infiy=[n[1] for n in a_of_epsi],
+          ylab='$a_{dd}$ [fm]',
+          xlab='$\epsilon$ [fm$^{-1}$]',
+          outfi='a_of_epsilon.pdf',
+          plotrange='med')
+
 plotarray([float(a.real) for a in a_dd],
-          [phdd[n][0] for n in range(len(phdd))], 'a_dimer-dimer.pdf')
+          [phdd[n][0] for n in range(len(phdd))],
+          ylab='$a_{dd}$ [fm]',
+          xlab='$E_0$ [MeV]',
+          outfi='a_dimer-dimer.pdf')
 
 for channel in channels_2:
     J0 = channels_2[channel][1]

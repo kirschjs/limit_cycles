@@ -9,6 +9,7 @@ import shutil
 def plotarray(infiy,
               infix,
               outfi,
+              plotrange='max',
               xlab='$E_{cm}$ [MeV]',
               ylab='$\delta$ [deg]',
               lab='plotarray function (<plot_array.py>)'):
@@ -22,13 +23,54 @@ def plotarray(infiy,
     plt.xlabel(r'%s' % xlab)
     plt.ylabel(r'%s' % ylab)
     ym = np.median(infiy)
+
     if ym < 0:
         plt.ylim(bottom=2 * ym)
     else:
         plt.ylim(top=2 * ym)
+
+    if plotrange == 'max':
+        plt.ylim(np.min(infiy), np.max(infiy))
 
     stylel = 'solid' if len(infiy) > 100 else 'dashdot'
     plt.plot(infix, infiy, label='%s' % lab, linestyle=stylel)
 
     plt.legend(loc='best', numpoints=1)
     plt.savefig(outfi)
+
+
+#def plotarray2(outfi,
+#               infix=[],
+#               infiy=[],
+#               plotrange=['max'],
+#               xlab=['$E_{cm}$ [MeV]'],
+#               ylab=['$\delta$ [deg]'],
+#               label=['plotarray function (<plot_array.py>)']):
+#
+#    nbr_panels = len(infiy)
+#    nbr
+#    fig, axs = plt.subplots(, 2)
+#
+#    # read entire file
+#    plt.cla()
+#    plt.subplot(111)
+#    #plt.set_title("channel: neutron-neutron")
+#    #leg = ax1.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+#    #    ncol=1, mode="expand", borderaxespad=0.)
+#    plt.xlabel(r'%s' % xlab)
+#    plt.ylabel(r'%s' % ylab)
+#    ym = np.median(infiy)
+#
+#    if ym < 0:
+#        plt.ylim(bottom=2 * ym)
+#    else:
+#        plt.ylim(top=2 * ym)
+#
+#    if plotrange == 'max':
+#        plt.ylim(np.min(infiy), np.max(infiy))
+#
+#    stylel = 'solid' if len(infiy) > 100 else 'dashdot'
+#    plt.plot(infix, infiy, label='%s' % lab, linestyle=stylel)
+#
+#    plt.legend(loc='best', numpoints=1)
+#    plt.savefig(outfi)

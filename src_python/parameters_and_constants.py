@@ -4,13 +4,22 @@ from plot_array import *
 
 # -- LEC lists
 
+lec_list_unitary3 = {
+    '2.00': [-117.28, 113.8436],
+    '3.00': [-258.13, 410.2642],
+    '4.00': [-455.42, 1104.989],
+    '6.00': [-1016.9, 1833.141],  # 5253.7588],
+    '8.00': [-1801.1, 5089.4129],  # 20435.5012],
+    '10.0': [-2807.8, 12041.7346],  # 74179.8635]
+}
+
 lec_list_unitary2 = {
-    '2.00': [-112.1436908, 8.4620],
-    '3.00': [-252.0437066, 123.17],
-    '4.00': [-447.7751164, 372.60],
-    '6.00': [-1006.279979, 3290.5519],
-    '8.00': [-1789.956812, 4165.0],
-    '10.0': [-2780.644546, 9491.0],
+    '2.00': [-117.89, 33.9971],
+    '3.00': [-259.85, 180.0912],
+    '4.00': [-457.74, 488.0747],
+    '6.00': [-1020.58, 1915.8821],
+    '8.00': [-1806.42, 5323.0474],
+    '10.0': [-2815.55, 12777.144],
 }
 
 lec_list_unitary = {
@@ -319,7 +328,7 @@ BINBDGpath = pathbase + '/src_nucl/'
 
 # NN: tnni=10   NN+NNN: tnni=11
 tnni = 11
-tnifac = 1.
+tnifac = 1.0
 twofac = 1.
 parall = -1
 
@@ -334,7 +343,7 @@ cib = 0  # if set, EFTnoPi with charge independence broken by Coulomb and an aco
 lam = 6.00  #0.50 0.75 1.00 1.50 2.00 3.00 4.00 6.00 8.00 10.0
 # lec_list_nucl_n  : spin-dependent LO pionless interaction: 2 2-body LECs (deuteron, a(1S0)=-23fm), 1 3-body LEC (triton)
 # lec_list_SU4     : spin-independent (SU(4) symmetric) LO pionless: 1 2-body LEC (deuteron), 1 3-body LEC (triton)
-lec_set = lec_list_cib if cib else lec_list_unitary2  #lec_list_m1  #  lec_list_unitary  # lec_list_oneMEV  #  lec_list_SU4  #
+lec_set = lec_list_cib if cib else lec_list_unitary3  #lec_list_m1  #  lec_list_unitary  # lec_list_oneMEV  #  lec_list_SU4  #
 
 # list of suffices:
 # _m1       : hbar/(2m) = 1  -> modified kinetic-energy operators (available for _v18-uix operator set, only, at present)
@@ -466,14 +475,14 @@ elif len(lec_set[la]) == 2:
 
 evWindow = [-30, 150]
 
-nzEN = 100
+nzEN = 60
 E0 = 0.01
-D0 = 0.05
+D0 = 0.15
 Eps = 0.2
 Bet = 2.1
 
 MeVfm = 197.3161329
 
-widthSet_relative = w120
+widthSet_relative = w12
 
 eps = np.finfo(float).eps
