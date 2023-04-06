@@ -739,8 +739,7 @@ def span_initial_basis3(fragments,
         for ws in widi:
             np.savetxt(f, [ws], fmt='%12.6f', delimiter=' ')
         f.seek(NEWLINE_SIZE_IN_BYTES, 2)
-        f.truncate()
-    f.close()
+        f.f.close()
 
     path_relw = funcPath + '/relw.dat'
     if os.path.exists(path_relw): os.remove(path_relw)
@@ -1039,7 +1038,7 @@ def span_population3(anz_civ,
     samp_ladder = [x.recv() for x in samp_list]
 
     for cand in samp_ladder:
-        if ((cand[2] < 0.0) & (cand[3] > minC)):
+        if ((cand[2] < 1.0) & (cand[3] > minC)):
             cfgg = np.transpose(np.array([sfrags2, lfrags2])).tolist()
 
             cand_list.append([cfgg] + cand)

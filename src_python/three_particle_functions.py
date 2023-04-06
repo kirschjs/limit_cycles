@@ -106,7 +106,8 @@ def inen_bdg_3(bas, jay, co, fn='INEN', pari=0, nzop=31, tni=11, idum=2):
     # NBAND1,IDUM,NBAND3,NZOP,IFAKD,IGAK,NZZ,IAUW,IDRU,IPLO,IDUN,ICOPMA(=1 -> stop after N,H output)
     head = '%3d%3d 12%3d  1  0 +0  0  0 -1  0 +0\n' % (tni, idum, nzop)
     if nzop == 31:
-        head += '  1  1  1  1  0  0  0  0  0  0  0  0  0  0  1  1\n'
+        #          N  T Co  C                                  C3
+        head += '  1  1  0  1  0  0  0  0  0  0  0  0  0  0  0  1\n'
     elif nzop == 28:
         head += '  1  1  1  1  1  1  0  0  0  0  0  0  1\n'
 

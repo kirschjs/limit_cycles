@@ -11,6 +11,8 @@ elem_spin_prods_4 = {
     '  4 24  1  2        dd S=0          z5   \n  1  1  1  1\n  4  2  3  1\n  4  2  1  3\n  4  1  4  1\n  4  1  2  3\n  4  1  3  2\n  4  1  1  4\n  2  4  3  1\n  2  4  1  3\n  2  3  4  1\n  2  3  2  3\n  2  3  3  2\n  2  3  1  4\n  3  2  4  1\n  3  2  2  3\n  3  2  3  2\n  3  2  1  4\n  3  1  4  2\n  3  1  2  4\n  1  4  4  1\n  1  4  2  3\n  1  4  3  2\n  1  4  1  4\n  1  3  4  2\n  1  3  2  4\n  1 12\n -1 12\n -1 48\n  1 48\n -1 48\n  1 48\n -1 12\n  1 12\n  1 48\n -1 48\n  1 48\n -1 48\n -1 48\n  1 48\n -1 48\n  1 48\n  1 12\n -1 12\n  1 48\n -1 48\n  1 48\n -1 48\n -1 12\n  1 12\n',
     'np1s_np1s_S0':
     '  4 16  1  2        dq-dq S=0       z    \n  1  1  1  1\n  1  4  1  4  0  0\n  1  4  2  3  0  0\n  1  4  3  2  0  0\n  1  4  4  1  0  0\n  2  3  1  4  0  0\n  2  3  2  3  0  0\n  2  3  3  2  0  0\n  2  3  4  1  0  0\n  3  2  1  4  0  0\n  3  2  2  3  0  0\n  3  2  3  2  0  0\n  3  2  4  1  0  0\n  4  1  1  4  0  0\n  4  1  2  3  0  0\n  4  1  3  2  0  0\n  4  1  4  1  0  0\n -1 48\n  1 48\n -1 48\n  1 48\n  1 48\n -1 48\n  1 48\n -1 48\n -1 48\n  1 48\n -1 48\n  1 48\n  1 48\n -1 48\n  1 48\n -1 48\n',
+    'pp1s_nn1s_S0':
+    '  4  4  1  2        pp-nn S=0       z    \n  1  1  1  1\n  2  1  4  3\n  2  1  3  4\n  1  2  4  3\n  1  2  3  4\n  1 12\n -1 12\n -1 12\n  1 12\n',
     'nn1s_nn1s_S0':
     '  4  4  1  2     nn0-nn0 S=0  z\n  1  1  1  1\n  3  4  3  4\n  4  3  4  3\n  4  3  3  4\n  3  4  4  3\n  1  4\n  1  4\n -1  4\n -1  4\n',
     'nnnnS0':
@@ -635,6 +637,90 @@ def from2to4(relw, zwei_inq, vier_dir, fn, app=False):
             else:
                 bvl = bvl - 1
                 bvr = bvl
+        for rw in range(0, len(relw)):
+            outs += '%12.6f' % float(relw[rw])
+            if ((rw + 1) % 6 == 0):
+                outs += '\n'
+        outs += '\n'
+        for bb in range(0, zstruct[z]):
+            outs += '  1  1\n'
+            if zstruct[z] < 7:
+                outs += '1.'.rjust(12 * (bb + 1))
+                outs += '\n'
+            else:
+                if bb < 6:
+                    outs += '1.'.rjust(12 * (bb + 1))
+                    outs += '\n\n'
+                else:
+                    outs += '\n'
+                    outs += '1.'.rjust(12 * (bb % 6 + 1))
+                    outs += '\n'
+
+    #writemode = 'a' if app else 'w'
+    #with open(vier_dir + '/INQUA_N', writemode) as outfile:
+    #    outfile.write(outs)
+
+    return zstruct, outs
+
+
+def from22to4(relw, zwei_inq_1, zwei_inq_2, vier_dir, fn, app=False):
+
+    # input 1: two(!) two-body bases are read from "zwei_inq_1/2" as sets of width parameters
+    # for particular LST configuration
+    # input 2: a set of radial widths which expands the relative motion between the two dimers
+
+    # output: input file for the 4-body channel corresponding to a dimer-dimer partition
+
+    outs = ''
+    if app == False:
+        outs += ' 10  8  9  3 00  0  0  0\n%s\n' % fn
+    dstru = []
+
+    # dimer 1 --------------------------------------------
+    inquas = zwei_inq_1
+
+    lines_inquas = [line for line in open(inquas)]
+
+    arw1 = int(lines_inquas[3].split()[1])
+    lines_inquas = lines_inquas[5:5 + int(arw1 / 6) + int(arw1 % 6 > 0)]
+    wws1 = []
+    for ll in lines_inquas:
+        for l in ll.strip().split():
+            wws1.append(float(l))
+    wws1 = wws1[::-1]
+
+    # dimer 2 --------------------------------------------
+    inquas = zwei_inq_2
+
+    lines_inquas = [line for line in open(inquas)]
+
+    arw2 = int(lines_inquas[3].split()[1])
+    lines_inquas = lines_inquas[5:5 + int(arw2 / 6) + int(arw2 % 6 > 0)]
+    wws2 = []
+    for ll in lines_inquas:
+        for l in ll.strip().split():
+            wws2.append(float(l))
+    wws2 = wws2[::-1]
+
+    bvPerZ = 8
+    anzBV = int(arw1 * arw2)
+    zstruct = [bvPerZ for n in range(0, int(anzBV / bvPerZ))]
+    if anzBV % bvPerZ != 0:
+        zstruct.append(anzBV % bvPerZ)
+
+    print(zstruct, len(zstruct), 'x dimer-dimer')
+    bvl = arw1 - 1
+    bvr = arw2 - 1
+    for z in range(0, len(zstruct)):
+        outs += '%3d\n%3d%3d\n' % (zstruct[z], zstruct[z], len(relw))
+        for bv in range(zstruct[z]):
+            outs += '%48s%-12.6f%-12.6f\n' % ('', float(
+                wws1[bvl]), float(wws2[bvr]))
+            if bvr > 0:
+                bvr = bvr - 1
+            else:
+                bvl = bvl - 1
+                bvr = arw2 - 1
         for rw in range(0, len(relw)):
             outs += '%12.6f' % float(relw[rw])
             if ((rw + 1) % 6 == 0):

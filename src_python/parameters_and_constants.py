@@ -5,21 +5,19 @@ from plot_array import *
 # -- LEC lists
 
 lec_list_unitary3 = {
+    '4.00': [-455.42, 262.5175],
+    '6.00': [-1016.9, 1117.1898],  # 5253.7588],
+    '8.00': [-1801.1, 2966.8236],  # 20435.5012],
+    '10.0': [-2807.8, 6444.9262],  # 74179.8635]
+}
+
+lec_list_unitary2 = {
     '2.00': [-117.28, 113.8436],
     '3.00': [-258.13, 410.2642],
     '4.00': [-455.42, 1104.989],
     '6.00': [-1016.9, 1833.141],  # 5253.7588],
     '8.00': [-1801.1, 5089.4129],  # 20435.5012],
     '10.0': [-2807.8, 12041.7346],  # 74179.8635]
-}
-
-lec_list_unitary2 = {
-    '2.00': [-117.89, 33.9971],
-    '3.00': [-259.85, 180.0912],
-    '4.00': [-457.74, 488.0747],
-    '6.00': [-1020.58, 1915.8821],
-    '8.00': [-1806.42, 5323.0474],
-    '10.0': [-2815.55, 12777.144],
 }
 
 lec_list_unitary = {
@@ -274,6 +272,13 @@ w120 = [
     1.6901745, 1.185236, 0.84300, 0.50011, 0.257369, 0.13852, 0.071429,
     0.038519, 0.018573, 0.0097261, 0.00561943, 0.002765, 0.00101
 ]
+
+wNew = [
+    19.5665, 11.3467, 9.47287, 3.42339, 2.2144556, 1.447413, 0.939, 0.6901745,
+    0.185236, 0.084300, 0.050011, 0.0257369, 0.013852, 0.0071429, 0.0038519,
+    0.0018573, 0.00097261, 0.000561943, 0.0002765, 0.000101
+]
+
 w12 = [
     12.95665, 5.13467, 2.947287, 1.342339, .82144556, .4447413, 2.939,
     1.6901745, 1.185236, 0.84300, 0.50011, 0.257369, 0.13852, 0.071429,
@@ -329,7 +334,7 @@ BINBDGpath = pathbase + '/src_nucl/'
 # NN: tnni=10   NN+NNN: tnni=11
 tnni = 11
 tnifac = 1.0
-twofac = 1.
+twofac = 1.0
 parall = -1
 
 # limits the number of parallel processes in a single process pool
@@ -405,8 +410,8 @@ spectralEXE_serial_pool = 'DR2END%s_pop.exe' % bin_suffix
 spectralEXE_mpi_pool = 'TDR2END%s_pop.exe' % bin_suffix
 
 # calculation of scattering matrices/amplitudes as solutions to the Kohn variational functional
-smatrixEXE = 'S-POLE_PdP.exe'
-smatrixEXE_multichann = 'S-POLE_zget.exe'
+smatrixEXE = 'S-POLE_zget.exe'  #'S-POLE_PdP.exe'
+smatrixEXE_multichann = 'S-POLE_zget.exe'  #'S-POLE_PdP.exe'  #
 
 la = ('%-4.2f' % lam)[:4]
 
@@ -420,12 +425,14 @@ else:
 channels_2 = {
     # L    J
     'np3s': ['0', '1'],
-    #'np1s': ['0', '0'],
+    'np1s': ['0', '0'],
+    'nn1s': ['0', '0'],
+    'pp1s': ['0', '0'],
 }
 
 channels_3 = {
-    'he': [['000', ['he_no1', 'he_no6']]],
     't': [['000', ['t_no1', 't_no6']]],
+    'he': [['000', ['he_no1', 'he_no6']]],
     #'boltz': ['000', ['dist_3', 'dist_3']],
 }
 
@@ -475,14 +482,25 @@ elif len(lec_set[la]) == 2:
 
 evWindow = [-30, 150]
 
-nzEN = 60
-E0 = 0.01
-D0 = 0.15
-Eps = 0.2
-Bet = 2.1
+nzEN = 100
+E0 = 0.05
+D0 = 0.18
+
+eps0 = 0.01
+eps1 = 0.03
+epsM = 0.0175
+
+Bet = 1.1
+rgh = 8.0
+anzStuez = 100
+StuezAbs = 0.3
+StuezBrei = 0.1
 
 MeVfm = 197.3161329
 
-widthSet_relative = w12
+wTest = np.abs(
+    np.geomspace(start=5.5, stop=0.001, num=10, endpoint=True, dtype=None))
+print(wTest)
+widthSet_relative = wTest
 
 eps = np.finfo(float).eps

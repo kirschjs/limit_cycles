@@ -20,13 +20,14 @@ from parameters_and_constants import *
 import multiprocessing
 from multiprocessing.pool import ThreadPool
 
-#import bridgeA2_plus
-#import bridgeA3_plus
-
 # prepare spin/orbital matrices for parallel computation
 einzel4 = 0
 findstablebas = 0
-newCal = 0
+newCal = 1
+
+#if newCal == 1:
+#    import bridgeA2_plus
+#    import bridgeA3_plus
 
 J0 = 0
 
@@ -34,7 +35,8 @@ J0 = 0
 J1J2SC = []
 channels = [
     #[['000-0'], ['nn1s_nn1s_S0'], [0, 0, 0]],  # no DSI
-    #[['000-0'], ['np1s_np1s_S0'], [0, 0, 0]],  # DSI
+    [['000-0'], ['pp1s_nn1s_S0'], [0, 0, 0]],  # DSI
+    [['000-0'], ['np1s_np1s_S0'], [0, 0, 0]],  # DSI
     [['000-0'], ['np3s_np3s_S0'], [2, 2, 0]],  # DSI
     [['000-0'], ['tp_1s0', 'tp_6s0'], [1, 1, 0]],
     [['000-0'], ['hen_1s0', 'hen_6s0'], [1, 1, 0]],
@@ -81,48 +83,67 @@ ph2d = []
 
 subprocess.call('rm -rf INQUA_N', shell=True)
 
-for sysdir2 in twodirs:
+for chan in channels:
 
-    if os.path.isfile(sysdir2 + '/bndg_out_%s' % lam) == False:
+    # check if 2-2 channel
+    if len(chan[1][0].split('_')) == 2:
+        continue
+
+    sysdir21 = sysdir2base + '/' + chan[1][0].split('_')[0]
+    sysdir22 = sysdir2base + '/' + chan[1][0].split('_')[1]
+
+    if ((os.path.isfile(sysdir21 + '/bndg_out_%s' % lam) == False) |
+        (os.path.isfile(sysdir22 + '/bndg_out_%s' % lam) == False)):
         print("2-body bound state unavailable for L = %s" % lam)
         exit()
-    ths = get_h_ev(n=1, ifi=sysdir2 + '/bndg_out_%s' % lam)
-    fragment_energies.append(ths[0])
 
-    zstrus_tmp, outs = from2to4(zwei_inq=sysdir2 + '/INQUA_N_%s' % lam,
-                                vier_dir=sysdir4,
-                                fn=nnpotstring,
-                                relw=widthSet_relative,
-                                app='True')
+    ths1 = get_h_ev(n=1, ifi=sysdir21 + '/bndg_out_%s' % lam)
+    ths2 = get_h_ev(n=1, ifi=sysdir22 + '/bndg_out_%s' % lam)
+    fragment_energies.append(ths1[0] + ths2[0])
+
+    if sysdir21 == sysdir22:
+        zstrus_tmp, outs = from2to4(zwei_inq=sysdir21 + '/INQUA_N_%s' % lam,
+                                    vier_dir=sysdir4,
+                                    fn=nnpotstring,
+                                    relw=widthSet_relative,
+                                    app='True')
+    else:
+        zstrus_tmp, outs = from22to4(zwei_inq_1=sysdir21 + '/INQUA_N_%s' % lam,
+                                     zwei_inq_2=sysdir22 + '/INQUA_N_%s' % lam,
+                                     vier_dir=sysdir4,
+                                     fn=nnpotstring,
+                                     relw=widthSet_relative,
+                                     app='True')
+
     zstrus.append(zstrus_tmp)
     qua_str.append(outs)
 
-    for ch in channels:
-        gogo = True
-        for cfg in ch[1]:
-            if sysdir2.split('/')[-1] in cfg:
-                strus.append(len(zstrus[-1]) * [ch[:2]])
-                J1J2SC.append(ch[2])
-                gogo = False
-                break
-        if gogo == False:
-            break
+    strus.append(len(zstrus[-1]) * [chan[:2]])
+    J1J2SC.append(chan[2])
 
-    sbas.append(get_bsv_rw_idx(inen=sysdir2 + '/INEN_BDG', offset=4, int4=0))
+    sbas.append(get_bsv_rw_idx(inen=sysdir21 + '/INEN_BDG', offset=4, int4=0))
+    sbas.append(get_bsv_rw_idx(inen=sysdir22 + '/INEN_BDG', offset=4, int4=0))
 
-    ddCoff = parse_ev_coeffs(mult=1,
-                             infil=sysdir2 + '/bndg_out_%s' % lam,
-                             outf='COEFF',
-                             bvnr=1)
+    if sysdir21 == sysdir22:
+        ddCoff = parse_ev_coeffs(mult=1,
+                                 infil=sysdir21 + '/bndg_out_%s' % lam,
+                                 outf='COEFF',
+                                 bvnr=1)
+    else:
+        ddCoff = parse_ev_coeffs_2(infil1=sysdir21 + '/bndg_out_%s' % lam,
+                                   infil2=sysdir22 + '/bndg_out_%s' % lam,
+                                   outf='COEFF',
+                                   bvnr=1)
 
     ddCoff = np.array(ddCoff).astype(float)
     cofli.append(ddCoff.tolist())
 
     ph2d.append(
-        read_phase(phaout=sysdir2 + '/phaout_%s' % (lam),
+        read_phase(phaout=sysdir21 + '/phaout_%s' % (lam),
                    ch=[1, 1],
                    meth=1,
                    th_shift=''))
+    print(sysdir21, '\n', sysdir22)
 
 # the order matters as we conventionally include physical channels
 # in ascending threshold energy. E.g. dd then he3n then tp;
@@ -188,6 +209,8 @@ varspacedim = sum([len(rset[1]) for rset in sbas])
 
 anzch = int(np.max([1, len(sum(cofli, [])) - 5 * len(cofli)]))
 
+anzch = 3
+
 print(
     '\n Commencing 4-body calculation with %d channels (physical + distortion).'
     % anzch)
@@ -201,9 +224,10 @@ for nbv in range(1, varspacedim):
     sb.append([nbv, sum(relws, [])])
 
 if newCal:
+
     ma = blunt_ev4(cfgs=strus,
                    bas=sb,
-                   dmaa=[0, 1, 0, 1, 0, 1, 0, 1, 0],
+                   dmaa=[1, 1, 1, 0, 0, 0, 0, 0],
                    j1j2sc=J1J2SC,
                    funcPath=sysdir4,
                    nzopt=zop,
@@ -228,12 +252,12 @@ if newCal:
 spole_2(nzen=nzEN,
         e0=E0,
         d0=D0,
-        eps=Eps,
+        eps=epsM,
         bet=Bet,
-        nzrw=100,
-        frr=0.06,
-        rhg=8.0,
-        rhf=1.0,
+        nzrw=anzStuez,
+        frr=StuezAbs,
+        rhg=rgh,
+        rhf=StuezBrei,
         pw=0)
 
 # if S-POLE terminates with a ``STOP 7'' message,
@@ -296,48 +320,49 @@ subprocess.run([BINBDGpath + spectralEXE_mpi])
 chToRead = [3, 3]
 redmass = (4. / 4.) * mn['137']
 a_of_epsi = []
-for epsi in np.linspace(0.01, 0.025, 20):
-    spole_2(nzen=nzEN,
-            e0=E0,
-            d0=D0,
-            eps=epsi,
-            bet=2.52,
-            nzrw=100,
-            frr=0.06,
-            rhg=8.0,
-            rhf=1.0,
-            pw=0)
-    subprocess.run([BINBDGpath + smatrixEXE_multichann])
-    phdd = read_phase(phaout='PHAOUT', ch=chToRead, meth=1, th_shift='')
 
-    if ((chToRead == [2, 2]) | (chToRead == [3, 3])) & cib:
-        a_dd = [
-            appC(phdd[n][2] * np.pi / 180.,
-                 np.sqrt(2 * redmass * phdd[n][0]),
-                 redmass,
-                 q1=1,
-                 q2=1) for n in range(len(phdd))
-        ]
-    else:
-        a_dd = [
-            -MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /
-            np.sqrt(2 * redmass * phdd[n][0]) for n in range(len(phdd))
-        ]
-    a_of_epsi.append([epsi, a_dd[0].real, a_dd[-1].real])
+#for epsi in np.linspace(eps0, eps1, 20):
+#    spole_2(nzen=nzEN,
+#            e0=E0,
+#            d0=D0,
+#            eps=epsi,
+#            bet=Bet,
+#            nzrw=anzStuez,
+#            frr=StuezAbs,
+#            rhg=rgh,
+#            rhf=StuezBrei,
+#            pw=0)
+#    subprocess.run([BINBDGpath + smatrixEXE_multichann])
+#    phdd = read_phase(phaout='PHAOUT', ch=chToRead, meth=1, th_shift='')
+#
+#    if ((chToRead == [2, 2]) | (chToRead == [3, 3])) & cib:
+#        a_dd = [
+#            appC(phdd[n][2] * np.pi / 180.,
+#                 np.sqrt(2 * redmass * phdd[n][0]),
+#                 redmass,
+#                 q1=1,
+#                 q2=1) for n in range(len(phdd))
+#        ]
+#    else:
+#        a_dd = [
+#            -MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /
+#            np.sqrt(2 * redmass * phdd[n][0]) for n in range(len(phdd))
+#        ]
+#    a_of_epsi.append([epsi, a_dd[0].real, a_dd[-1].real])
 
 spole_2(nzen=nzEN,
         e0=E0,
         d0=D0,
-        eps=0.015,
+        eps=epsM,
         bet=Bet,
-        nzrw=100,
-        frr=0.06,
-        rhg=8.0,
-        rhf=1.0,
+        nzrw=anzStuez,
+        frr=StuezAbs,
+        rhg=rgh,
+        rhf=StuezBrei,
         pw=0)
+
 subprocess.run([BINBDGpath + smatrixEXE_multichann])
 
-chToRead = [3, 3]
 phdd = read_phase(phaout='PHAOUT', ch=chToRead, meth=1, th_shift='')
 
 redmass = (4. / 4.) * mn['137']
@@ -362,6 +387,8 @@ print(
 
 plotphas(oufi='4_body_phases.pdf')
 
+exit()
+
 plotarray(infix=[float(a[0]) for a in a_of_epsi],
           infiy=[n[1] for n in a_of_epsi],
           ylab='$a_{dd}$ [fm]',
@@ -374,6 +401,47 @@ plotarray([float(a.real) for a in a_dd],
           ylab='$a_{dd}$ [fm]',
           xlab='$E_0$ [MeV]',
           outfi='a_dimer-dimer.pdf')
+
+phtp = read_phase(phaout='PHAOUT', ch=[1, 1], meth=1, th_shift='')
+
+phhen = read_phase(phaout='PHAOUT', ch=[2, 2], meth=1, th_shift='1-2')
+phtphen = read_phase(phaout='PHAOUT', ch=[1, 2], meth=1, th_shift='1-2')
+
+phdd = read_phase(phaout='PHAOUT', ch=[3, 3], meth=1, th_shift='1-3')
+phtpdd = read_phase(phaout='PHAOUT', ch=[1, 3], meth=1, th_shift='1-3')
+phhendd = read_phase(phaout='PHAOUT', ch=[2, 3], meth=1, th_shift='2-3')
+
+plotarray2(outfi='tmp.pdf',
+           infix=[[phdd[n][0] for n in range(len(phdd))],
+                  [float(a[0]) for a in a_of_epsi],
+                  [[phtp[n][0] for n in range(len(phtp))],
+                   [phhen[n][0] for n in range(len(phhen))],
+                   [phdd[n][1] for n in range(len(phdd))],
+                   [phtpdd[n][1] for n in range(len(phtpdd))],
+                   [phhendd[n][1] for n in range(len(phhendd))]]],
+           infiy=[
+               [float(a.real) for a in a_dd],
+               [n[1] for n in a_of_epsi],
+               [[phtp[n][2] for n in range(len(phtp))],
+                [phhen[n][2] for n in range(len(phhen))],
+                [phdd[n][2] for n in range(len(phdd))],
+                [phtpdd[n][2] for n in range(len(phtpdd))],
+                [phhendd[n][2] for n in range(len(phhendd))]],
+           ],
+           title=[
+               '$a_{dd}$ dependence on $k_0$',
+               '$a_{dd}$ dependence on $\epsilon$', '2-fragment 4-body phases'
+           ],
+           xlab=['$E_{cm}$ [MeV]', '$\epsilon$ [fm$^{-2}$]', '$E_{cm}$ [MeV]'],
+           ylab=['$a_{dd}$ [fm]', '$a_{dd}$ [fm]', '$\delta_{f_1-f_2}$ [Deg]'],
+           leg=[[], [], [
+               't-p',
+               '${}^3$He-n',
+               '$d-d$',
+               '$tp-d$',
+               '$hen-d$',
+           ]],
+           plotrange=['', 'max', ''])
 
 for channel in channels_2:
     J0 = channels_2[channel][1]

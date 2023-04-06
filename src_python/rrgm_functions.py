@@ -17,6 +17,62 @@ def output_nbr(outfi='tmpout', outval=0):
 
 def plotphas(infi='PHAOUT', oufi='tmp.pdf'):
 
+    phases = {}
+
+    method = '1'
+    tmp = np.array([
+        line.split() for line in open(infi) if (line.split()[-1] == method)
+    ]).astype(float)
+
+    for line in tmp:
+        if line[2] == line[3]:
+
+            chastr = '%d-%d' % (line[2], line[3])
+            chastrTH = chastr if int(line[2]) == 1 else '%d-%d' % (1, 1)
+            try:
+                Exx = float(line[0]) if int(
+                    line[2]) == 1 else phases[chastrTH][-1][
+                        0]  #+ float(line[1])
+                phases[chastr].append([Exx, float(line[10])])
+            except:
+                phases[chastr] = []
+                Exx = float(line[0]) if int(
+                    line[2]) == 1 else phases[chastrTH][-1][
+                        0]  #+ float(line[1])
+                phases[chastr].append([Exx, float(line[10])])
+        elif line[2] < line[3]:
+            chastrTH = '%d-%d' % (1, 1)
+            chastr = '%d-%d' % (line[2], line[3])
+            try:
+                Exx = phases[chastrTH][-1][0]  #+ float(line[1])
+                phases[chastr].append([Exx, float(line[10])])
+            except:
+                phases[chastr] = []
+                Exx = phases[chastrTH][-1][0]  #+ float(line[1])
+                phases[chastr].append([Exx, float(line[10])])
+
+    plt.cla()
+    plt.subplot(111)
+    #plt.set_title("channel: neutron-neutron")
+    #leg = ax1.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+    #    ncol=1, mode="expand", borderaxespad=0.)
+    plt.xlabel(r'$E_{cm}$ [MeV]')
+    plt.ylabel(r'$\delta$ [deg]')
+
+    endiag = []
+    for cha in phases:
+        en = np.array(phases[cha])[:, 0]
+        pha = np.array(phases[cha])[:, 1]
+
+        stylel = 'solid' if cha[0] == cha[1] else 'dashdot'
+        plt.plot(en, pha, label=''.join(cha), linestyle=stylel)
+
+    plt.legend(loc='best', numpoints=1)
+    plt.savefig(oufi)
+
+
+def plotphas_old(infi='PHAOUT', oufi='tmp.pdf'):
+
     # read entire file
     file = [line for line in open(infi)]
 
@@ -518,6 +574,66 @@ def parse_ev_coeffs(mult=0, infil='OUTPUT', outf='COEFF', bvnr=1):
     return ss.split()
 
 
+def parse_ev_coeffs_2(infil1='OUTPUT', infil2='OUTPUT', outf='COEFF', bvnr=1):
+
+    os.system('cp ' + infil1 + ' tmp')
+    out1 = [line2 for line2 in open(infil1)]
+    os.system('cp ' + infil2 + ' tmp')
+    out2 = [line2 for line2 in open(infil2)]
+
+    coef = ''
+    coeffp1 = []
+    coeffp2 = []
+    coeff_mult = []
+
+    bvc1 = 0
+    for line in range(0, len(out1) - 1):
+        if re.search('ENTWICKLUNG DES%3d TEN EIGENVEKTORS' % bvnr, out1[line]):
+            for bvl in range(line + 2, len(out1)):
+                if ((out1[bvl][:3] == ' KO') | (out1[bvl][:3] == '\n') |
+                    (out1[bvl][:3] == '0 D')):
+
+                    bvc1 = int(out1[bvl -
+                                    1].strip().split('/')[-1].split(')')[0])
+                    break
+                coeffp1 += [
+                    float(coo.split('/')[0])
+                    for coo in out1[bvl].strip().split(')')[:-1]
+                ]
+                coef += out1[bvl]
+            break
+    bvc2 = 0
+    for line in range(0, len(out2) - 1):
+        if re.search('ENTWICKLUNG DES%3d TEN EIGENVEKTORS' % bvnr, out2[line]):
+            for bvl in range(line + 2, len(out2)):
+                if ((out2[bvl][:3] == ' KO') | (out2[bvl][:3] == '\n') |
+                    (out2[bvl][:3] == '0 D')):
+
+                    bvc2 = int(out2[bvl -
+                                    1].strip().split('/')[-1].split(')')[0])
+                    break
+                coeffp2 += [
+                    float(coo.split('/')[0])
+                    for coo in out2[bvl].strip().split(')')[:-1]
+                ]
+                coef += out2[bvl]
+            break
+
+    s = ''
+
+    for n in range(len(coeffp1)):
+        for m in range(len(coeffp2)):
+            s += '%18.10g' % (coeffp1[n] * coeffp2[m]) + '\n'
+
+    ss = s.replace('e', 'E')
+    if ((bvc1 == 0) | (bvc2 == 0)):
+        print("No coefficients found in %s or %s" % (infil1, infil2))
+    with open(outf, 'w') as outfile:
+        outfile.write(ss)
+
+    return ss.split()
+
+
 def parse_ev_coeffs_normiert(mult=0,
                              infil='OUTPUT',
                              outf='COEFF_NORMAL',
@@ -564,22 +680,26 @@ def read_phase(phaout='PHAOUT', ch=[1, 1], meth=1, th_shift=''):
     phc = []
     ech = [0]
 
-    for ln in range(0, len(lines)):
-        if (lines[ln].split()[2] != lines[ln].split()[3]):
-            th[lines[ln].split()[2] + '-' + lines[ln].split()[3]] = abs(
-                float(lines[ln].split()[1]) - float(lines[ln].split()[0]))
-    ths = th[th_shift]
+    try:
+        for ln in range(0, len(lines)):
+            if (lines[ln].split()[2] != lines[ln].split()[3]):
+                th[lines[ln].split()[2] + '-' + lines[ln].split()[3]] = abs(
+                    float(lines[ln].split()[1]) - float(lines[ln].split()[0]))
+        ths = th[th_shift]
+        #print(th)
 
-    for ln in range(0, len(lines)):
-        if ((int(lines[ln].split()[2]) == ch[0]) &
-            (int(lines[ln].split()[3]) == ch[1]) &
-            (int(lines[ln].split()[11]) == meth)):
-            # energy tot -- energy th -- phase
-            phase.append([
-                float(lines[ln].split()[0]),
-                float(lines[ln].split()[1]) + ths,
-                float(lines[ln].split()[10])
-            ])
+        for ln in range(0, len(lines)):
+            if ((int(lines[ln].split()[2]) == ch[0]) &
+                (int(lines[ln].split()[3]) == ch[1]) &
+                (int(lines[ln].split()[11]) == meth)):
+                # energy tot -- energy th -- phase
+                phase.append([
+                    float(lines[ln].split()[0]),
+                    float(lines[ln].split()[1]) + ths,
+                    float(lines[ln].split()[10])
+                ])
+    except:
+        return []
 
     return phase
 

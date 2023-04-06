@@ -25,20 +25,20 @@ fitt = False
 # numerical stability
 mindi = 0.2
 
-width_bnds = [0.1, 41.15, 0.2, 32.25]
+width_bnds = [0.1, 41.15, 0.2, 22.25]
 minCond = 10**-14
 
 # genetic parameters
 anzNewBV = 6
 muta_initial = .02
-anzGen = 12
-seed_civ_size = 8
+anzGen = 6
+seed_civ_size = 10
 target_pop_size = 8
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 8
-nREL = 8
+nBV = 4
+nREL = 4
 
 J0 = 1 / 2
 
@@ -65,7 +65,7 @@ for channel in channels_3:
         elif (nn == 14):
             cf = tnifac
         else:
-            cf = 1.0
+            cf = 0.0
 
         costr += '%12.7f' % cf if (nn % 7 != 0) else '%12.7f\n' % cf
 
@@ -86,6 +86,7 @@ for channel in channels_3:
                                           ini_dims=[nBV, nREL],
                                           minC=minCond,
                                           evWin=evWindow)
+
         for cciv in new_civs:
             civs.append(cciv)
         print('>>> seed civilizations: %d/%d' % (len(civs), seed_civ_size))

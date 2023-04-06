@@ -26,14 +26,14 @@ minidi_breed = 0.1
 minidi_seed = minidi_breed
 minidi_breed_rel = minidi_breed
 denseEVinterval = [-2, 2]
-width_bnds = [0.01, 32.25]
+width_bnds = [0.01, 42.25]
 deutDim = 6
 miniE_breed = 0.1
 
 # genetic parameters
 anzNewBV = 5
 muta_initial = 0.01
-anzGen = 14
+anzGen = 8
 civ_size = 10
 target_pop_size = 12
 zop = 14 if bin_suffix == '_v18-uix' else 11
@@ -72,7 +72,7 @@ for channel in channels_2:
         phaa = read_phase()
 
         redmass = mn['137'] / 2
-        if channel[:2] == 'pp':
+        if channel[:2] == 'ppXXXXX':
             print('proton-proton channel:\n')
             a_aa = [
                 appC(phaa[n][2] * np.pi / 180.,
@@ -96,6 +96,8 @@ for channel in channels_2:
     costr = ''
     for nn in range(1, zop):
         cf = twofac if (1 <= nn <= 28) else 0.0
+        if (nn == 1):
+            cf = int(withCoul)
         costr += '%12.7f' % cf if (nn % 7 != 0) else '%12.7f\n' % cf
 
     # 1) prepare an initial set of bases ----------------------------------------------------------------------------------
@@ -311,7 +313,7 @@ for channel in channels_2:
     spole_2(nzen=nzEN,
             e0=E0,
             d0=D0,
-            eps=Eps,
+            eps=epsM,
             bet=Bet,
             nzrw=100,
             frr=0.06,
