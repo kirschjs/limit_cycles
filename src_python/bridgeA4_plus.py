@@ -21,13 +21,13 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 
 # prepare spin/orbital matrices for parallel computation
-einzel4 = 0
+einzel4 = 1
 findstablebas = 0
 newCal = 1
 
-#if newCal == 1:
-#    import bridgeA2_plus
-#    import bridgeA3_plus
+if newCal == 1:
+    import bridgeA2_plus
+    import bridgeA3_plus
 
 J0 = 0
 
@@ -209,7 +209,7 @@ varspacedim = sum([len(rset[1]) for rset in sbas])
 
 anzch = int(np.max([1, len(sum(cofli, [])) - 5 * len(cofli)]))
 
-anzch = 3
+anzch = 99
 
 print(
     '\n Commencing 4-body calculation with %d channels (physical + distortion).'
@@ -227,7 +227,7 @@ if newCal:
 
     ma = blunt_ev4(cfgs=strus,
                    bas=sb,
-                   dmaa=[1, 1, 1, 0, 0, 0, 0, 0],
+                   dmaa=[1, 1, 1, 1, 1, 1, 1, 0],
                    j1j2sc=J1J2SC,
                    funcPath=sysdir4,
                    nzopt=zop,
@@ -318,37 +318,38 @@ if findstablebas:
 subprocess.run([BINBDGpath + spectralEXE_mpi])
 
 chToRead = [3, 3]
+
 redmass = (4. / 4.) * mn['137']
 a_of_epsi = []
 
-#for epsi in np.linspace(eps0, eps1, 20):
-#    spole_2(nzen=nzEN,
-#            e0=E0,
-#            d0=D0,
-#            eps=epsi,
-#            bet=Bet,
-#            nzrw=anzStuez,
-#            frr=StuezAbs,
-#            rhg=rgh,
-#            rhf=StuezBrei,
-#            pw=0)
-#    subprocess.run([BINBDGpath + smatrixEXE_multichann])
-#    phdd = read_phase(phaout='PHAOUT', ch=chToRead, meth=1, th_shift='')
-#
-#    if ((chToRead == [2, 2]) | (chToRead == [3, 3])) & cib:
-#        a_dd = [
-#            appC(phdd[n][2] * np.pi / 180.,
-#                 np.sqrt(2 * redmass * phdd[n][0]),
-#                 redmass,
-#                 q1=1,
-#                 q2=1) for n in range(len(phdd))
-#        ]
-#    else:
-#        a_dd = [
-#            -MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /
-#            np.sqrt(2 * redmass * phdd[n][0]) for n in range(len(phdd))
-#        ]
-#    a_of_epsi.append([epsi, a_dd[0].real, a_dd[-1].real])
+for epsi in np.linspace(eps0, eps1, 20):
+    spole_2(nzen=nzEN,
+            e0=E0,
+            d0=D0,
+            eps=epsi,
+            bet=Bet,
+            nzrw=anzStuez,
+            frr=StuezAbs,
+            rhg=rgh,
+            rhf=StuezBrei,
+            pw=0)
+    subprocess.run([BINBDGpath + smatrixEXE_multichann])
+    phdd = read_phase(phaout='PHAOUT', ch=chToRead, meth=1, th_shift='')
+
+    if ((chToRead == [2, 2]) | (chToRead == [3, 3])) & cib:
+        a_dd = [
+            appC(phdd[n][2] * np.pi / 180.,
+                 np.sqrt(2 * redmass * phdd[n][0]),
+                 redmass,
+                 q1=1,
+                 q2=1) for n in range(len(phdd))
+        ]
+    else:
+        a_dd = [
+            -MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /
+            np.sqrt(2 * redmass * phdd[n][0]) for n in range(len(phdd))
+        ]
+    a_of_epsi.append([epsi, a_dd[0].real, a_dd[-1].real])
 
 spole_2(nzen=nzEN,
         e0=E0,
@@ -385,9 +386,7 @@ print(
     'l = %s fm^-1\n scattering lengths (lower/upper end of energy matching interval):\na_dd(E_min) = %4.4f fm   a_dd(E_max) = %4.4f fm'
     % (lam, a_dd[0].real, a_dd[-1].real))
 
-plotphas(oufi='4_body_phases.pdf')
-
-exit()
+plotphas(oufi='4_body_phases.pdf', diag=True)
 
 plotarray(infix=[float(a[0]) for a in a_of_epsi],
           infiy=[n[1] for n in a_of_epsi],
@@ -395,6 +394,8 @@ plotarray(infix=[float(a[0]) for a in a_of_epsi],
           xlab='$\epsilon$ [fm$^{-1}$]',
           outfi='a_of_epsilon.pdf',
           plotrange='med')
+
+exit()
 
 plotarray([float(a.real) for a in a_dd],
           [phdd[n][0] for n in range(len(phdd))],

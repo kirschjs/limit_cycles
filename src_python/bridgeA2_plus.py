@@ -59,7 +59,7 @@ for channel in channels_2:
         print('no potential structure assigned to suffix.')
         exit()
     prep_pot_file_3N(lam=la, d10=d0, ps3=nnnpot)
-
+    #continue
     os.chdir(sysdir2)
     subprocess.call('cp %s .' % nnpot, shell=True)
 

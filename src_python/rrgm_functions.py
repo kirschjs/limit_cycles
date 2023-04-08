@@ -15,7 +15,7 @@ def output_nbr(outfi='tmpout', outval=0):
         outfile.write(s)
 
 
-def plotphas(infi='PHAOUT', oufi='tmp.pdf'):
+def plotphas(infi='PHAOUT', oufi='tmp.pdf', diag=False):
 
     phases = {}
 
@@ -40,7 +40,7 @@ def plotphas(infi='PHAOUT', oufi='tmp.pdf'):
                     line[2]) == 1 else phases[chastrTH][-1][
                         0]  #+ float(line[1])
                 phases[chastr].append([Exx, float(line[10])])
-        elif line[2] < line[3]:
+        elif ((line[2] < line[3]) & (diag == False)):
             chastrTH = '%d-%d' % (1, 1)
             chastr = '%d-%d' % (line[2], line[3])
             try:
