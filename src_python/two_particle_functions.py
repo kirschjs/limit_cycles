@@ -34,29 +34,38 @@ def spole_2(nzen=20,
             frr=0.06,
             rhg=8.0,
             rhf=1.0,
-            pw=1):
+            pw=1,
+            nbrCH=5,
+            adaptweightUP=1.0,
+            adaptweightLOW=0.009,
+            adaptweightL=0.5,
+            adaptINTup=1.0,
+            adaptINTlow=1.8):
+    if nbrCH > 5:
+        print(
+            'ECCE (S-POLE): calculation for > 5 physical channels untested!\nViewer discretion is strongly advised.'
+        )
     s = ''
     s += ' 11  3  0  0  0 +0\n'
     s += '%3d  0  1\n' % int(nzen)
     s += '%12.4f%12.4f\n' % (float(e0), float(d0))
-    s += '%12.4f%12.4f%12.4f%12.4f%12.4f%12.4f\n' % (
-        float(eps), float(eps), float(eps), float(eps), float(eps), float(eps))
-    s += '%12.4f%12.4f%12.4f%12.4f%12.4f%12.4f\n' % (
-        float(bet), float(bet), float(bet), float(bet), float(bet), float(bet))
+    epsline = nbrCH * ('%12.4f' % float(eps)) + '\n'
+    betline = nbrCH * ('%12.4f' % float(bet)) + '\n'
+    s += epsline + betline
     #    OUT
     s += ' +0  0  1  0  1  0  2  0\n'
     s += '%3d\n' % int(nzrw)
     s += '%12.4f%12.4f%12.4f\n' % (float(frr), float(rhg), float(rhf))
-    s += '  1  2  3  4  5\n'
-    s += '0.0         0.0         0.0         0.0         0.0         0.0         0.0\n'
-    s += '.001        .001        .001        .001        .001        .001        .001\n'
-    if pw == 0:
-        s += '.5          .5          .5          .5          .5          .5          .5\n'
-    elif pw == 1:
-        s += '.3          .3          .3          .3          .3          .3          .3\n'
-    elif pw == 2:
-        s += '.15         .15         .15         .15         .15         .15         .15\n'
-    s += '1.          1.          0.\n'
+    channelDescriptorline = ''.join(['%3d' % n
+                                     for n in range(1, nbrCH + 1)]) + '\n'
+    s += channelDescriptorline
+    adaptIntervalWeightlineUP = nbrCH * ('%12.4f' %
+                                         float(adaptweightUP)) + '\n'
+    adaptIntervalWeightlineLOW = nbrCH * ('%12.4f' %
+                                          float(adaptweightLOW)) + '\n'
+    adaptIntervalWeightlineL = nbrCH * ('%12.4f' % float(adaptweightL)) + '\n'
+    s += adaptIntervalWeightlineUP + adaptIntervalWeightlineLOW + adaptIntervalWeightlineL
+    s += '%12.4f%12.4f0.\n' % (adaptINTup, adaptINTlow)
     with open('INPUTSPOLE', 'w') as outfile:
         outfile.write(s)
     return

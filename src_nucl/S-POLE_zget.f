@@ -1364,6 +1364,8 @@ C     G(K+1)=GAMMA((K+1)/2)
       DO 115 M=1,3
   115 READ (INPUT,1000) (SP(KL,M),KL=1,NZKB)
       READ(INPUT,1000) GEW,QD,QS
+C      write(nout,*) 
+C      STOP 666
       DO 1   KL = 1,NZKA
       NZPW2=NZP(KL)
        DO 116 KH=1,NZPW2

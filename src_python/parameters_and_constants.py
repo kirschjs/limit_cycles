@@ -12,9 +12,9 @@ lec_list_unitary3 = {
 }
 
 lec_list_unitary2 = {
-    '2.00': [-117.28, 113.8436],
-    '3.00': [-258.13, 410.2642],
-    '4.00': [-455.42, 1104.989],
+    '2.00': [-117.28, 0],
+    '3.00': [-258.13, 0],
+    '4.00': [-455.42, 464.288],
     '6.00': [-1016.9, 1833.141],  # 5253.7588],
     '8.00': [-1801.1, 5089.4129],  # 20435.5012],
     '10.0': [-2807.8, 12041.7346],  # 74179.8635]
@@ -346,10 +346,10 @@ maxParLen = 120
 cib = 0  # if set, EFTnoPi with charge independence broken by Coulomb and an acompanying
 # contact-term correction is employed (leading order)
 
-lam = 4.00  #0.50 0.75 1.00 1.50 2.00 3.00 4.00 6.00 8.00 10.0
+lam = 10.0  #0.50 0.75 1.00 1.50 2.00 3.00 4.00 6.00 8.00 10.0
 # lec_list_nucl_n  : spin-dependent LO pionless interaction: 2 2-body LECs (deuteron, a(1S0)=-23fm), 1 3-body LEC (triton)
 # lec_list_SU4     : spin-independent (SU(4) symmetric) LO pionless: 1 2-body LEC (deuteron), 1 3-body LEC (triton)
-lec_set = lec_list_cib if cib else lec_list_SU4  #lec_list_m1  #  lec_list_unitary  # lec_list_oneMEV  #  lec_list_SU4  #
+lec_set = lec_list_cib if cib else lec_list_unitary2  #lec_list_m1  #  lec_list_unitary  # lec_list_oneMEV  #  lec_list_SU4  #
 
 # list of suffices:
 # _m1       : hbar/(2m) = 1  -> modified kinetic-energy operators (available for _v18-uix operator set, only, at present)
@@ -456,6 +456,15 @@ channels_4 = {
     ],
 }
 
+channels_4_scatt = [
+    #[['000-0'], ['nn1s_nn1s_S0'], [0, 0, 0]],  # no DSI
+    [['000-0'], ['pp1s_nn1s_S0'], [0, 0, 0]],  # DSI
+    [['000-0'], ['np1s_np1s_S0'], [0, 0, 0]],  # DSI
+    [['000-0'], ['np3s_np3s_S0'], [2, 2, 0]],  # DSI
+    [['000-0'], ['tp_1s0', 'tp_6s0'], [1, 1, 0]],
+    [['000-0'], ['hen_1s0', 'hen_6s0'], [1, 1, 0]],
+]
+
 sysdir2base = pathbase + '/systems/2/%s' % la
 sysdir3base = pathbase + '/systems/3/%s' % la
 sysdir4 = pathbase + '/systems/4/%s' % la
@@ -483,25 +492,46 @@ elif len(lec_set[la]) == 2:
 
 evWindow = [-30, 150]
 
-nzEN = 100
-E0 = 0.05
-D0 = 0.1
+nzEN = 200
+E0 = 7.85
+D0 = 0.005
 
 eps0 = 0.01
-eps1 = 0.05
-epsM = 0.0175
+eps1 = 0.02
+epsM = (eps1 - eps0) / 2
+epsNBR = 20
 
-Bet = 1.1
+# parameters for the expansion of the fragment-relative function
+# (i.e., both fragments charged: Coulomb function, else sperical Bessel)
+# in Gaussians
+SPOLE_adaptweightUP = 1.0
+SPOLE_adaptweightLOW = 0.009
+SPOLE_adaptweightL = 0.5
+SPOLE_adaptINTup = 1.0  # smaller values decrease the maximal radius up to which values enter the fit
+SPOLE_adaptINTlow = 4.0  # this shifts the interval smaller values try to optimize the behavior closer to zero
+
+Bet = 1.3
 rgh = 8.0
 anzStuez = 100
-StuezAbs = 0.3
-StuezBrei = 0.1
+StuezAbs = 0.03
+StuezBrei = 1.0
 
 MeVfm = 197.3161329
 
-wTest = np.abs(
-    np.geomspace(start=10.5, stop=0.005, num=20, endpoint=True, dtype=None))
-print(wTest)
-widthSet_relative = wTest
+# generate Gaussian-width sets for each physical channel
+#widthSet_relative_geom = [
+#    np.abs(
+#        np.geomspace(start=19.5 + (np.random.random() - 0.5),
+#                     stop=0.001 * np.max([np.random.random(), 0.1]),
+#                     num=38,
+#                     endpoint=True,
+#                     dtype=None)) for nn in range(1, 1 + len(channels_4_scatt))
+#]
+
+widthSet_relative = [
+    np.abs(np.logspace(-3.2, 2.0, num=28, endpoint=True, dtype=None)[::-1])
+    for nn in range(1, 1 + len(channels_4_scatt))
+]
+#np.linspace(start=11.5, stop=0.005, num=30, endpoint=True, dtype=None))
 
 eps = np.finfo(float).eps

@@ -26,14 +26,14 @@ minidi_breed = 0.1
 minidi_seed = minidi_breed
 minidi_breed_rel = minidi_breed
 denseEVinterval = [-2, 2]
-width_bnds = [0.01, 42.25]
-deutDim = 6
+width_bnds = [0.01, 22.25]
+deutDim = 8
 miniE_breed = 0.1
 
 # genetic parameters
 anzNewBV = 5
 muta_initial = 0.01
-anzGen = 8
+anzGen = 16
 civ_size = 10
 target_pop_size = 12
 zop = 14 if bin_suffix == '_v18-uix' else 11
@@ -169,12 +169,19 @@ for channel in channels_2:
                                              minDist=minidi_breed)
                     prox_check2 = check_dist(width_array1=rw2,
                                              minDist=minidi_breed)
-                    prox_checkr1 = check_dist(width_array1=rw1,
-                                              width_array2=widthSet_relative,
-                                              minDist=minidi_breed)
-                    prox_checkr2 = check_dist(width_array1=rw2,
-                                              width_array2=widthSet_relative,
-                                              minDist=minidi_breed)
+                    prox_checkr1 = np.all([
+                        check_dist(width_array1=rw1,
+                                   width_array2=wsr,
+                                   minDist=minidi_breed)
+                        for wsr in widthSet_relative
+                    ])
+
+                    prox_checkr2 = np.all([
+                        check_dist(width_array1=rw2,
+                                   width_array2=wsr,
+                                   minDist=minidi_breed)
+                        for wsr in widthSet_relative
+                    ])
 
                     #print(prox_check1, prox_check2, prox_checkr1, prox_checkr2)
                     if prox_check1 * prox_check2 * prox_checkr1 * prox_checkr2 == True:

@@ -232,56 +232,37 @@ def read_inlu(infile='INLU'):
     return lu_stru
 
 
-def retrieve_he3_M(inqua):
+def replace_wrel(inqua, relwset):
 
-    relw = []
-    intw = []
-    frgm = []
-    inq = [line for line in open(inqua)]
+    s = ''
+    rws = []
+    for rw in range(0, len(relwset)):
+        s += '%12.6f' % float(relwset[rw])
+        if (((rw + 1) % 6 == 0) | ((rw + 1) == len(relwset))):
+            s += '\n'
+            rws.append(s)
+            s = ''
+    oldqua = [line for line in open(inqua)]
+    nl = 0
+    intsets = []
 
-    lineNR = 0
-    while lineNR < len(inq):
-        if ((re.search('Z', inq[lineNR]) != None) |
-            (re.search('z', inq[lineNR]) != None)):
-            break
-        lineNR += 1
-    if lineNR == len(inq):
-        print('no <Z> qualifier found in <INQUA>!')
-        exit()
+    while nl < len(oldqua):
+        nbrint = int(oldqua[nl])
+        fac = 2 if nbrint <= 6 else 3
 
-    while ((lineNR < len(inq)) & (inq[lineNR][0] != '/')):
-        try:
-            anziw = int(inq[lineNR].split()[0])
-        except:
-            break
+        intsets.append(
+            ['%3d\n%3d%3d\n' % (nbrint, nbrint, len(relwset))] +
+            oldqua[nl + 2:nl + 2 + nbrint] + rws +
+            oldqua[nl + 2 + nbrint +
+                   int(np.ceil(int(oldqua[nl + 1].split()[1]) / 6)):nl + 2 +
+                   nbrint + int(np.ceil(int(oldqua[nl + 1].split()[1]) / 6)) +
+                   fac * nbrint])
+        nl = nl + 2 + nbrint + int(np.ceil(
+            int(oldqua[nl + 1].split()[1]) / 6)) + fac * nbrint
 
-        anzbvLN = int(1 + np.ceil(anziw / 6)) * anziw
-        anzrw = int(inq[lineNR + 1].split()[1])
+    outs = ''
+    for intset in intsets:
+        for line in intset:
+            outs += line
 
-        frgm.append([anziw, anzrw])
-        intwtmp = []
-        relwtmp = []
-        for iws in range(0, 2 * anziw, 2):
-            intwtmp += [float(inq[lineNR + 2 + iws].strip())]
-
-            relwtmp.append(
-                [float(rrw) for rrw in inq[lineNR + 3 + iws].split()])
-        intw += [intwtmp]
-        relw += [relwtmp]
-
-        lineNR += 2 * anziw + anzbvLN + 2
-
-    iw = intw
-    rw = relw
-
-    with open('intw3he.dat', 'w') as f:
-        for ws in iw:
-            np.savetxt(f, [ws], fmt='%12.4f', delimiter=' ; ')
-    f.close()
-    with open('relw3he.dat', 'w') as f:
-        for wss in rw:
-            for ws in wss:
-                np.savetxt(f, [ws], fmt='%12.4f', delimiter=' ; ')
-    f.close()
-
-    return iw, rw, frgm
+    return outs

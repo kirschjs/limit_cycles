@@ -25,20 +25,20 @@ fitt = False
 # numerical stability
 mindi = 0.2
 
-width_bnds = [0.1, 41.15, 0.2, 22.25]
+width_bnds = [0.06, 31.15, 0.08, 22.25]
 minCond = 10**-14
 
 # genetic parameters
 anzNewBV = 6
 muta_initial = .02
-anzGen = 6
+anzGen = 16
 seed_civ_size = 10
 target_pop_size = 8
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 6
-nREL = 4
+nBV = 8
+nREL = 6
 
 J0 = 1 / 2
 
@@ -163,12 +163,16 @@ for channel in channels_3:
 
                 prox_check1 = check_dist(width_array1=wa, minDist=mindi)
                 prox_check2 = check_dist(width_array1=wb, minDist=mindi)
-                prox_checkr1 = check_dist(width_array1=wa,
-                                          width_array2=widthSet_relative,
-                                          minDist=mindi)
-                prox_checkr2 = check_dist(width_array1=wb,
-                                          width_array2=widthSet_relative,
-                                          minDist=mindi)
+                prox_checkr1 = np.all([
+                    check_dist(width_array1=wa,
+                               width_array2=wsr,
+                               minDist=mindi) for wsr in widthSet_relative
+                ])
+                prox_checkr2 = np.all([
+                    check_dist(width_array1=wb,
+                               width_array2=wsr,
+                               minDist=mindi) for wsr in widthSet_relative
+                ])
 
                 if prox_check1 * prox_check2 * prox_checkr1 * prox_checkr2 == True:
 
@@ -308,7 +312,7 @@ for channel in channels_3:
     # reformat the basis as input for the 4-body calculation
     finCiv = [civs[0][0], civs[0][1][0], civs[0][1][1], sbas]
     ob_strus, lu_strus, strus, bvwidthString = condense_basis_3to4(
-        finCiv, widthSet_relative, fn='inq_3to4_%s' % lam)
+        finCiv, widthSet_relative[-1], fn='inq_3to4_%s' % lam)
 
     expC = parse_ev_coeffs_normiert(mult=0,
                                     infil='OUTPUT',

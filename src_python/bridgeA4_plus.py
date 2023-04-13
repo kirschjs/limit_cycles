@@ -21,11 +21,13 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 
 # prepare spin/orbital matrices for parallel computation
-einzel4 = 1
+einzel4 = 0
 findstablebas = 0
-newCal = 1
 
-if newCal == 1:
+newCal = 0
+chToRead = [5, 5]
+
+if newCal == 2:
     import bridgeA2_plus
     import bridgeA3_plus
 
@@ -33,14 +35,6 @@ J0 = 0
 
 # convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
 J1J2SC = []
-channels = [
-    #[['000-0'], ['nn1s_nn1s_S0'], [0, 0, 0]],  # no DSI
-    [['000-0'], ['pp1s_nn1s_S0'], [0, 0, 0]],  # DSI
-    [['000-0'], ['np1s_np1s_S0'], [0, 0, 0]],  # DSI
-    [['000-0'], ['np3s_np3s_S0'], [2, 2, 0]],  # DSI
-    [['000-0'], ['tp_1s0', 'tp_6s0'], [1, 1, 0]],
-    [['000-0'], ['hen_1s0', 'hen_6s0'], [1, 1, 0]],
-]
 
 if os.path.isdir(sysdir4) == False:
     subprocess.check_call(['mkdir', '-p', sysdir4])
@@ -65,7 +59,7 @@ for nn in range(1, zop):
     costr += '%12.7f' % cf if (nn % 7 != 0) else '%12.7f\n' % cf
 
 if einzel4:
-    prepare_einzel4(sysdir4, BINBDGpath, channels)
+    prepare_einzel4(sysdir4, BINBDGpath, channels_4_scatt)
 
 os.chdir(sysdir4)
 
@@ -83,7 +77,15 @@ ph2d = []
 
 subprocess.call('rm -rf INQUA_N', shell=True)
 
-for chan in channels:
+if len(widthSet_relative) != len(channels_4_scatt):
+    print(
+        'ECCE: not enough relative width sets available to expand all %d asymptotic channels.'
+        % len(channels_4_scatt))
+    exit()
+
+chnbr = 0
+
+for chan in channels_4_scatt:
 
     # check if 2-2 channel
     if len(chan[1][0].split('_')) == 2:
@@ -105,14 +107,14 @@ for chan in channels:
         zstrus_tmp, outs = from2to4(zwei_inq=sysdir21 + '/INQUA_N_%s' % lam,
                                     vier_dir=sysdir4,
                                     fn=nnpotstring,
-                                    relw=widthSet_relative,
+                                    relw=widthSet_relative[chnbr],
                                     app='True')
     else:
         zstrus_tmp, outs = from22to4(zwei_inq_1=sysdir21 + '/INQUA_N_%s' % lam,
                                      zwei_inq_2=sysdir22 + '/INQUA_N_%s' % lam,
                                      vier_dir=sysdir4,
                                      fn=nnpotstring,
-                                     relw=widthSet_relative,
+                                     relw=widthSet_relative[chnbr],
                                      app='True')
 
     zstrus.append(zstrus_tmp)
@@ -143,7 +145,8 @@ for chan in channels:
                    ch=[1, 1],
                    meth=1,
                    th_shift=''))
-    print(sysdir21, '\n', sysdir22)
+    #print(sysdir21, '\n', sysdir22)
+    chnbr += 1
 
 # the order matters as we conventionally include physical channels
 # in ascending threshold energy. E.g. dd then he3n then tp;
@@ -155,7 +158,7 @@ for sysdir3 in threedirs:
 
     for line in open(sysdir3 + '/obstru_%s' % lam):
         gogo = True
-        for ch in channels:
+        for ch in channels_4_scatt:
             for cfg in ch[1]:
                 if sysdir3.split('/')[-1] in cfg:
                     J1J2SC.append(ch[2])
@@ -184,9 +187,14 @@ for sysdir3 in threedirs:
     cofli.append(threeCoff.tolist())
 
     qua_str.append(''.join(
-        [line for line in open('%s/inq_3to4_%s' % (sysdir3, lam))]))
+        replace_wrel('%s/inq_3to4_%s' % (sysdir3, lam),
+                     widthSet_relative[chnbr])))
+
+    #qua_str.append(''.join(
+    #    [line for line in open('%s/inq_3to4_%s' % (sysdir3, lam))]))
     #subprocess.call('cat %s/inq_3to4_%s >> INQUA_N' % (sysdir3, lam),
     #                shell=True)
+    chnbr += 1
 
 idx = np.array(fragment_energies).argsort()[::-1]
 
@@ -209,25 +217,31 @@ varspacedim = sum([len(rset[1]) for rset in sbas])
 
 anzch = int(np.max([1, len(sum(cofli, [])) - 5 * len(cofli)]))
 
-anzch = 99
-
 print(
     '\n Commencing 4-body calculation with %d channels (physical + distortion).'
     % anzch)
-print('>>> working directory: ', sysdir4)
+print('>>> working directory: ', sysdir4, '\n')
 
 for nbv in range(1, varspacedim):
     relws = [
         [1, 0] for n in range(int(0.5 * len(widthSet_relative)))
     ] if nbv % 2 == 0 else [[0, 1]
-                            for n in range(int(0.5 * len(widthSet_relative)))]
+                            for n in range(int(0.95 * len(widthSet_relative)))]
     sb.append([nbv, sum(relws, [])])
 
-if newCal:
+if newCal > 0:
+
+    # include only width parameters > 0.5 (reasonable choice for cutoffs of about 4fm^-1)
+    # to guarantee that distortion channels only extend the variational space in the
+    # interaction region and that they do NOT interfere with physical, asymptotic states
+    maxDistRelW = np.min(
+        [len([ww for ww in wsr if ww > 0.5]) for wsr in widthSet_relative])
+
+    relwDistCH = [(n + 1) % 2 for n in range(maxDistRelW)] + [0, 0]
 
     ma = blunt_ev4(cfgs=strus,
                    bas=sb,
-                   dmaa=[1, 1, 1, 1, 1, 1, 1, 0],
+                   dmaa=relwDistCH,
                    j1j2sc=J1J2SC,
                    funcPath=sysdir4,
                    nzopt=zop,
@@ -258,7 +272,12 @@ spole_2(nzen=nzEN,
         frr=StuezAbs,
         rhg=rgh,
         rhf=StuezBrei,
-        pw=0)
+        pw=0,
+        adaptweightUP=SPOLE_adaptweightUP,
+        adaptweightLOW=SPOLE_adaptweightLOW,
+        adaptweightL=SPOLE_adaptweightL,
+        adaptINTup=SPOLE_adaptINTup,
+        adaptINTlow=SPOLE_adaptINTlow)
 
 # if S-POLE terminates with a ``STOP 7'' message,
 # the channel ordering might not be in the correct, i.e.,
@@ -279,13 +298,13 @@ if findstablebas:
 
         line_offset = 7 if nOperators == 31 else 6
         inenLine = inen[line_offset][:4] + '%4d' % (
-            len(channels) + anzCh) + inen[line_offset][8:]
+            len(channels_4_scatt) + anzCh) + inen[line_offset][8:]
         #print(inenLine)
         repl_line('INEN', line_offset, inenLine)
         subprocess.run([BINBDGpath + spectralEXE_mpi])
         lastline = [ll for ll in open('OUTPUT')][-1]
         tmp = get_h_ev()
-        print('E_0(#Dch:%d)=%4.4f MeV' % (len(channels) + anzCh, tmp))
+        print('E_0(#Dch:%d)=%4.4f MeV' % (len(channels_4_scatt) + anzCh, tmp))
         if 'NOT CO' in lastline:
 
             if anzCh == 0:
@@ -317,12 +336,13 @@ if findstablebas:
 
 subprocess.run([BINBDGpath + spectralEXE_mpi])
 
-chToRead = [3, 3]
+suche_fehler()
 
 redmass = (4. / 4.) * mn['137']
 a_of_epsi = []
 
-for epsi in np.linspace(eps0, eps1, 20):
+neps = 0
+for epsi in np.linspace(eps0, eps1, epsNBR):
     spole_2(nzen=nzEN,
             e0=E0,
             d0=D0,
@@ -332,8 +352,15 @@ for epsi in np.linspace(eps0, eps1, 20):
             frr=StuezAbs,
             rhg=rgh,
             rhf=StuezBrei,
-            pw=0)
+            pw=0,
+            adaptweightUP=SPOLE_adaptweightUP,
+            adaptweightLOW=SPOLE_adaptweightLOW,
+            adaptweightL=SPOLE_adaptweightL,
+            adaptINTup=SPOLE_adaptINTup,
+            adaptINTlow=SPOLE_adaptINTlow)
     subprocess.run([BINBDGpath + smatrixEXE_multichann])
+    subprocess.call('cp OUTPUTSPOLE outps_%d' % neps, shell=True)
+    plotphas(oufi='4_body_phases_%d.pdf' % neps, diag=True)
     phdd = read_phase(phaout='PHAOUT', ch=chToRead, meth=1, th_shift='')
 
     if ((chToRead == [2, 2]) | (chToRead == [3, 3])) & cib:
@@ -350,6 +377,7 @@ for epsi in np.linspace(eps0, eps1, 20):
             np.sqrt(2 * redmass * phdd[n][0]) for n in range(len(phdd))
         ]
     a_of_epsi.append([epsi, a_dd[0].real, a_dd[-1].real])
+    neps += 1
 
 spole_2(nzen=nzEN,
         e0=E0,
@@ -360,7 +388,12 @@ spole_2(nzen=nzEN,
         frr=StuezAbs,
         rhg=rgh,
         rhf=StuezBrei,
-        pw=0)
+        pw=0,
+        adaptweightUP=SPOLE_adaptweightUP,
+        adaptweightLOW=SPOLE_adaptweightLOW,
+        adaptweightL=SPOLE_adaptweightL,
+        adaptINTup=SPOLE_adaptINTup,
+        adaptINTlow=SPOLE_adaptINTlow)
 
 subprocess.run([BINBDGpath + smatrixEXE_multichann])
 
@@ -383,8 +416,8 @@ else:
         np.sqrt(2 * redmass * phdd[n][0]) for n in range(len(phdd))
     ]
 print(
-    'l = %s fm^-1\n scattering lengths (lower/upper end of energy matching interval):\na_dd(E_min) = %4.4f fm   a_dd(E_max) = %4.4f fm'
-    % (lam, a_dd[0].real, a_dd[-1].real))
+    'l = %s fm^-1\n scattering lengths (lower/upper end of energy matching interval):\na_dd(E=%4.4fMeV,eps=%4.2f) = %4.4f fm'
+    % (lam, phdd[0][0], epsM, a_dd[0].real))
 
 plotphas(oufi='4_body_phases.pdf', diag=True)
 

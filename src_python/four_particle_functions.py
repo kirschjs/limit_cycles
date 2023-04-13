@@ -492,6 +492,7 @@ def inen_str_4(coeff,
     # SPIN #CHANNELS
     s += '%4d%4d   0   0%4d   1\n' % (int(2 * jay), anzch, pari)
 
+    anzch = 0
     # FRAGMENT-EXPANSION COEFFICIENTS
 
     s += '%4d\n' % len(sumuec)
@@ -527,6 +528,7 @@ def inen_str_4(coeff,
             if ((int(i) % 50 == 0) | (int(i) == nbr_relw_phys_chan)):
                 stmp += '\n'
         chanstrs.insert(0, stmp)
+        anzch += 1
 
     s += ''.join(chanstrs)
 
@@ -552,6 +554,7 @@ def inen_str_4(coeff,
             for relw in dma:
                 s += '%3d' % relw
             s += '\n'
+            anzch += 1
 
     with open(fn, 'w') as outfile:
         outfile.write(s)
@@ -639,7 +642,7 @@ def from2to4(relw, zwei_inq, vier_dir, fn, app=False):
                 bvr = bvl
         for rw in range(0, len(relw)):
             outs += '%12.6f' % float(relw[rw])
-            if ((rw + 1) % 6 == 0):
+            if (((rw + 1) % 6 == 0) & (rw + 1 != len(relw))):
                 outs += '\n'
         outs += '\n'
         for bb in range(0, zstruct[z]):
@@ -708,7 +711,7 @@ def from22to4(relw, zwei_inq_1, zwei_inq_2, vier_dir, fn, app=False):
     if anzBV % bvPerZ != 0:
         zstruct.append(anzBV % bvPerZ)
 
-    print(zstruct, len(zstruct), 'x dimer-dimer')
+    #print(zstruct, len(zstruct), 'x dimer-dimer')
     bvl = arw1 - 1
     bvr = arw2 - 1
     for z in range(0, len(zstruct)):
@@ -723,7 +726,7 @@ def from22to4(relw, zwei_inq_1, zwei_inq_2, vier_dir, fn, app=False):
                 bvr = arw2 - 1
         for rw in range(0, len(relw)):
             outs += '%12.6f' % float(relw[rw])
-            if ((rw + 1) % 6 == 0):
+            if (((rw + 1) % 6 == 0) & (rw + 1 != len(relw))):
                 outs += '\n'
         outs += '\n'
         for bb in range(0, zstruct[z]):

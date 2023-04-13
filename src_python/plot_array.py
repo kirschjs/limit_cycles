@@ -1,4 +1,6 @@
 import os
+import time
+import datetime
 import math
 import numpy as np
 import matplotlib.pyplot as plt
@@ -12,7 +14,7 @@ def plotarray(infiy,
               plotrange='max',
               xlab='$E_{cm}$ [MeV]',
               ylab='$\delta$ [deg]',
-              lab='plotarray function (<plot_array.py>)'):
+              lab=''):
 
     # read entire file
     plt.cla()
@@ -33,6 +35,11 @@ def plotarray(infiy,
         plt.ylim(np.min(infiy), np.max(infiy))
 
     stylel = 'solid' if len(infiy) > 100 else 'dashdot'
+
+    if lab == '':
+        ts = time.time()
+        lab = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+
     plt.plot(infix, infiy, label='%s' % lab, linestyle=stylel)
 
     plt.legend(loc='best', numpoints=1)
@@ -72,7 +79,9 @@ def plotarray2(outfi,
             try:
                 axs[nR, nC].set_title(title[nSet])
             except:
-                axs[nR, nC].set_title("")
+                axs[nR, nC].set_title(
+                    datetime.datetime.fromtimestamp(ts).strftime(
+                        '%Y-%m-%d %H:%M:%S'))
 
             try:
                 axs[nR, nC].set_xlabel(r'%s' % xlab[nSet])

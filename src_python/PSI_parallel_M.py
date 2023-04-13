@@ -162,9 +162,11 @@ def span_population2(anz_civ,
             #    if wp1 != wp2
             #]
             prox_check = check_dist(width_array1=lit_w_t, minDist=mindist)
-            prox_checkr = check_dist(width_array1=lit_w_t,
-                                     width_array2=widthSet_relative,
-                                     minDist=mindist)
+            prox_checkr = np.all([
+                check_dist(width_array1=lit_w_t,
+                           width_array2=wsr,
+                           minDist=mindist) for wsr in widthSet_relative
+            ])
 
             if ((prox_check * prox_checkr == False) |
                 (np.array(lit_w_t) < IRcutoff).any() == True):
@@ -377,9 +379,10 @@ def span_initial_basis2(channel,
 
         lit_w_tmp = wii + np.random.random() * (wff - wii)
         prox_check = check_dist(width_array1=lit_w, minDist=mindist)
-        prox_checkr = check_dist(width_array1=lit_w,
-                                 width_array2=widthSet_relative,
-                                 minDist=mindist)
+        prox_checkr = np.all([
+            check_dist(width_array1=lit_w, width_array2=wsr, minDist=mindist)
+            for wsr in widthSet_relative
+        ])
 
         if ((prox_check * prox_checkr) & (lit_w_tmp < iLcutoff)):
             lit_w.append(lit_w_tmp)
@@ -574,9 +577,11 @@ def span_initial_basis3(fragments,
             ]
 
             prox_check = check_dist(width_array1=lit_wi, minDist=mindist)
-            prox_checkr = check_dist(width_array1=lit_wi,
-                                     width_array2=widthSet_relative,
-                                     minDist=mindist)
+            prox_checkr = np.all([
+                check_dist(width_array1=lit_wi,
+                           width_array2=wsr,
+                           minDist=mindist) for wsr in widthSet_relative
+            ])
 
             if ((prox_check * prox_checkr) & (lit_wi < iLcutoff)):
                 lit_w_t.append(lit_wi)
@@ -926,9 +931,12 @@ def span_population3(anz_civ,
 
                 prox_check = check_dist(width_array1=lit_wi,
                                         minDist=mindist_int)
-                prox_checkr = check_dist(width_array1=lit_wi,
-                                         width_array2=widthSet_relative,
-                                         minDist=mindist_rel)
+                prox_checkr = np.all([
+                    check_dist(width_array1=lit_wi,
+                               width_array2=wsr,
+                               minDist=mindist_rel)
+                    for wsr in widthSet_relative
+                ])
 
                 if (prox_check * prox_checkr):
                     lit_w_t = lit_wi
@@ -958,9 +966,12 @@ def span_population3(anz_civ,
 
                 prox_check = check_dist(width_array1=lit_wr,
                                         minDist=mindist_int)
-                prox_checkr = check_dist(width_array1=lit_wr,
-                                         width_array2=widthSet_relative,
-                                         minDist=mindist_rel)
+                prox_checkr = np.all([
+                    check_dist(width_array1=lit_wr,
+                               width_array2=wsr,
+                               minDist=mindist_rel)
+                    for wsr in widthSet_relative
+                ])
 
                 if (prox_check * prox_checkr):
                     lit_w_t = lit_wr
@@ -1404,9 +1415,12 @@ def span_population4(anz_civ,
 
                 prox_check = check_dist(width_array1=lit_wi,
                                         minDist=mindist_int)
-                prox_checkr = check_dist(width_array1=lit_wi,
-                                         width_array2=widthSet_relative,
-                                         minDist=mindist_rel)
+                prox_checkr = np.all([
+                    check_dist(width_array1=lit_wi,
+                               width_array2=wsr,
+                               minDist=mindist_rel)
+                    for wsr in widthSet_relative
+                ])
 
                 if (prox_check * prox_checkr):
                     lit_w_t = lit_wi
@@ -1442,9 +1456,12 @@ def span_population4(anz_civ,
 
                 prox_check = check_dist(width_array1=lit_wi,
                                         minDist=mindist_int)
-                prox_checkr = check_dist(width_array1=lit_wi,
-                                         width_array2=widthSet_relative,
-                                         minDist=mindist_rel)
+                prox_checkr = np.all([
+                    check_dist(width_array1=lit_wi,
+                               width_array2=wsr,
+                               minDist=mindist_rel)
+                    for wsr in widthSet_relative
+                ])
 
                 if (prox_check * prox_checkr):
                     lit_w_r = lit_wi
@@ -1969,7 +1986,7 @@ def blunt_ev4(cfgs,
 
     inen_str_4(phys_chan=j1j2sc,
                coeff=costring,
-               wr=w120,
+               wr=widthSet_relative[-1],
                bvs=bas,
                uec=frgCoff,
                dma=dmaa,
@@ -2089,7 +2106,7 @@ def blunt_ev5(cfgs,
 
     inen_str_5(phys_chan=j1j2sc,
                coeff=costring,
-               wr=w120,
+               wr=widthSet_relative[-1],
                bvs=bas,
                uec=frgCoff,
                dma=dmaa,

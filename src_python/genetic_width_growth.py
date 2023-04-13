@@ -181,7 +181,7 @@ def condense_basis_3to4(inputBasis, rws4, fn, MaxBVsPERcfg=12):
                 bvnr += 1
             for rw in range(0, len(rws4)):
                 outs += '%12.6f' % float(rws4[rw])
-                if ((rw + 1) % 6 == 0):
+                if (((rw + 1) % 6 == 0) & (rw + 1 != len(rws4))):
                     outs += '\n'
             outs += '\n'
             for bb in range(0, zstruct[z]):
