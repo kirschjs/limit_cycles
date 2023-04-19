@@ -25,7 +25,7 @@ fitt = False
 # numerical stability
 mindi = 0.2
 
-width_bnds = [0.06, 31.15, 0.08, 22.25]
+width_bnds = [0.06, 25.15, 0.08, 22.25]
 minCond = 10**-14
 
 # genetic parameters
@@ -37,8 +37,8 @@ target_pop_size = 8
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 8
-nREL = 6
+nBV = 6
+nREL = 4
 
 J0 = 1 / 2
 

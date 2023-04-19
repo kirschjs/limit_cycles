@@ -5,7 +5,6 @@ from parameters_and_constants import *
 from sympy.physics.quantum.cg import CG
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-
 import mpmath
 
 
@@ -15,7 +14,7 @@ def output_nbr(outfi='tmpout', outval=0):
         outfile.write(s)
 
 
-def plotphas(infi='PHAOUT', oufi='tmp.pdf', diag=False):
+def plotphas(infi='PHAOUT', oufi='tmp.pdf', diag=False, titl=''):
 
     phases = {}
 
@@ -53,7 +52,8 @@ def plotphas(infi='PHAOUT', oufi='tmp.pdf', diag=False):
 
     plt.cla()
     plt.subplot(111)
-    #plt.set_title("channel: neutron-neutron")
+    if titl != '':
+        plt.title(titl)
     #leg = ax1.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
     #    ncol=1, mode="expand", borderaxespad=0.)
     plt.xlabel(r'$E_{cm}$ [MeV]')
@@ -816,3 +816,82 @@ def determine_struct(inqua='INQUA_N'):
     stru.append(bv_in_scheme)
 
     return [np.sum(stru[:n]) for n in range(1, len(stru) + 1)]
+
+
+def plotrelativewave(infi='OUTPUTSPOLE',
+                     oufi='tmp.pdf',
+                     col=1,
+                     chan=[1],
+                     titl='',
+                     nbrE=1):
+
+    data = [line for line in open(infi)]
+
+    plt.cla()
+    plt.subplot(111)
+
+    if titl != '':
+        plt.title(titl)
+    #leg = ax1.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+    #    ncol=1, mode="expand", borderaxespad=0.)
+    plt.xlabel(r'$R_{rel}$ [fm]')
+    plt.ylabel(r'$h_+(kR)$ [?]')
+
+    start = 0
+    end = 1
+    nE = 0
+    ch = 1
+
+    for nj in range(1, len(data)):
+
+        cmap = plt.get_cmap('inferno')
+
+        if (-1 not in [
+                data[nj + (ch - 1) * 4].find('DER%3d TE KANAL IST OFFEN' % ch)
+                for ch in chan
+        ]):
+            ch = 1
+            for njj in range(start, len(data)):
+                #if (data[njj].find(
+                #        'Q--                   H+                     H-') >=
+                #        0):
+                if (data[njj].find(
+                        'DARSTELLUNG DER STREUFUNKTIONEN IM%3d TEN.KANAL' % ch)
+                        >= 0):
+                    start = njj + 6
+                    for njjj in range(start + 1, len(data)):
+                        if (len(data[njjj].split()) != 10):
+                            end = njjj
+                            break
+                    nE += 1
+
+                    if nE == nbrE:
+
+                        wfdata = np.array([
+                            line.split() for line in data[start + 1:end]
+                        ]).astype(float)
+
+                        rr = np.array(wfdata)[:, 0][0::2]
+                        rrAPP = np.array(wfdata)[:, 0][1::2]
+                        wfkt = np.array(wfdata)[:, col][0::2]
+                        wfktAPP = np.array(wfdata)[:, col][1::2]
+
+                        colo = c = cmap(ch / len(chan))
+                        plt.plot(rr,
+                                 wfkt,
+                                 label='F_L(r,ch=%d)' % ch,
+                                 linestyle='solid',
+                                 color=colo)
+                        plt.plot(rrAPP,
+                                 wfktAPP,
+                                 label='F_L(r,ch=%d) APP' % ch,
+                                 linestyle='dashdot',
+                                 color=colo)
+
+                        if ch == chan[-1]:
+                            plt.legend(loc='best', numpoints=1)
+                            plt.savefig(oufi)
+                            return
+
+                        ch += 1
+                        nE -= 1

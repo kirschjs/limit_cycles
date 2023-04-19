@@ -28,7 +28,7 @@ def h2_inen_str_pdp(relw, costr, j=0, sc=0, ch=[1]):
 def spole_2(nzen=20,
             e0=0.01,
             d0=0.075,
-            eps=0.01,
+            eps=[0.01],
             bet=1.1,
             nzrw=400,
             frr=0.06,
@@ -39,21 +39,28 @@ def spole_2(nzen=20,
             adaptweightUP=1.0,
             adaptweightLOW=0.009,
             adaptweightL=0.5,
-            adaptINTup=1.0,
-            adaptINTlow=1.8):
+            GEW=1.0,
+            QD=1.8,
+            QS=0.0):
     if nbrCH > 5:
         print(
             'ECCE (S-POLE): calculation for > 5 physical channels untested!\nViewer discretion is strongly advised.'
         )
+
+    if len(eps) != nbrCH:
+        print(
+            'ECEE(INPUTSPOLE): number of channels does not match number of eps parameters!'
+        )
+
     s = ''
     s += ' 11  3  0  0  0 +0\n'
     s += '%3d  0  1\n' % int(nzen)
     s += '%12.4f%12.4f\n' % (float(e0), float(d0))
-    epsline = nbrCH * ('%12.4f' % float(eps)) + '\n'
-    betline = nbrCH * ('%12.4f' % float(bet)) + '\n'
+    epsline = ''.join(['%12.4f' % float(epsI) for epsI in eps]) + '\n'
+    betline = ''.join(['%12.4f' % float(betI) for betI in bet]) + '\n'
     s += epsline + betline
     #    OUT
-    s += ' +0  0  1  0  1  0  2  0\n'
+    s += ' +3  0  1  0  1  0  2  0\n'
     s += '%3d\n' % int(nzrw)
     s += '%12.4f%12.4f%12.4f\n' % (float(frr), float(rhg), float(rhf))
     channelDescriptorline = ''.join(['%3d' % n
@@ -65,7 +72,7 @@ def spole_2(nzen=20,
                                           float(adaptweightLOW)) + '\n'
     adaptIntervalWeightlineL = nbrCH * ('%12.4f' % float(adaptweightL)) + '\n'
     s += adaptIntervalWeightlineUP + adaptIntervalWeightlineLOW + adaptIntervalWeightlineL
-    s += '%12.4f%12.4f0.\n' % (adaptINTup, adaptINTlow)
+    s += '%12.4f%12.4f%12.4f\n' % (GEW, QD, QS)
     with open('INPUTSPOLE', 'w') as outfile:
         outfile.write(s)
     return

@@ -1021,7 +1021,7 @@ C     WRITE(NOUT, *) ' WEFNOR NEU ',WEFNOR(KL),HILF
 C      LESEN DER WERTE AUS APP FUER GESCHLOSSENE KANAELE
       DO 30   M = 1,NZPW2
       READ (NBAND3)
-       READ  (NBAND3)
+      READ  (NBAND3)
    30 VW(M+NZQ(KL))=  CNULL
       READ(NBAND3)
       READ(NBAND3)
@@ -1378,8 +1378,9 @@ C      STOP 666
       FAKT=SP(KL,1)
       B3=.0
       NN=LWL+1
+C               epsi  L+1 0  #ST  MAX
       CALL SUCH(BETAZ,NN,B3,NZRW,FR1)
-C     FESTLEGUNG DES ANPASSUNGINTERVALLES,POTENZ VON R WAERE KORREKT =1!
+C     determination of the adaptation interval, correct power of R =1!
       WRITE (NOUT,1001) KL,NZRW,FR1
 1001  FORMAT(' IM',I3,'TEN KANAL IST DAS ANPASSUNGSINTERVALL',
      1  I5,' * ',F10.3)
@@ -1388,6 +1389,7 @@ C     FESTLEGUNG DES ANPASSUNGINTERVALLES,POTENZ VON R WAERE KORREKT =1!
       CALL OMA(LWL,LGEW,BGEW,KL,NZPW2,NAD2)
       DO 140 JX=1,NZRW
 140   Q(JX,1)=DBLE(JX)*FR1
+C     the q's are the points at which the functions are evaluated
       PFAKT=SP(KL,3)
       DO 150   K = 1,NZRW
   150 Q(K,1) = Q(K,1)* ((Q(K,1)/Q(NZRW,1))**PFAKT)
@@ -1424,6 +1426,7 @@ C     GEWICHTSFAKTOR LEGT BESCHRAENKT KLEINSTE WEITE
       NN=LWL+1
       NZRW2=NZRW/2
       B3=.0
+      write(nout,*)'min(w)=',B1
       CALL SUCH(B1,NN,B3,NZRW2,FR1)
 C     FUNKTIONSWERTE SELBST NICHT ZU GROSS,KORREKTE R POTENZ=2K+2L+2
 c     B1=FR1*DBLE(NZRW2)
@@ -1434,6 +1437,7 @@ c     B1=FR1*DBLE(NZRW2)
       WRITE (NOUT,1010) B3,B4
 1010  FORMAT(' FUNKTIONSWERTE ZWISCHEN ',F10.5,' UND ',F10.5,
      1 ' WERDEN IM FUNCTIONAL BERUECKSICHTIGT')
+C      stop 678
       DO 120 K=1,NZRW2
   120 Q(K,1)=B3+DBLE(K)*FR1
       SP2=SP(KL,2)
@@ -1467,7 +1471,7 @@ C       INTERVALL FUER NUMERISCHE INTEGRATION,KORREKT R POTENZ 3L+K+1
  6110 CONTINUE
       B1=   .0
       NN= 4*LWL
-      B3= BETA0   *2.
+      B3= BETA0   * 2.
       CALL SUCH(B1,NN ,B3,NZRW,FR1)
 C       R POTENZ KORREKT
       NZPW21=NZPW2+1
@@ -2009,6 +2013,9 @@ C       ENTWICKELN DER RADIALFUNKTIONEN
       V(M,2)=.0
       IF (NAD1.GT.2 .AND. M.EQ.1) WRITE(NOUT,98)
       DO 100 K=1,NZRW
+
+      IF(ABS(Q(K,2)).LT.1E-28) Q(K,2)=0.0
+      IF(ABS(Q(K,3)).LT.1E-28) Q(K,3)=0.0
 c     zum ausgeben von hankelfkt. 
 c
 c     D1=H+, D2=H-, D3=HP-, D4=HP+
@@ -2016,17 +2023,21 @@ c
 c     CALL REG(LWL,NZRW)   
 c         
       D1=fuk(k,2)*ts(k,1)
+      IF(ABS(D1). LT.1E-28) D1=0.0
       D2=(fuk(k,2)- 2.*ci*fuk(k,1))*ts(k,1)
+      IF(ABS(D2).LT.1E-28) D2=0.0
       D3=(fuk(k,3)- 2.*ci*fuk(k,4))*ts(k,1)+
      *    (fuk(k,2)- 2.*ci*fuk(k,1))*ts(k,2)
+      IF(ABS(D3).LT.1E-28) D3=0.0
       D4=fuk(k,3)*ts(k,1)+fuk(k,2)*ts(k,2)
+      IF(ABS(D4).LT.1E-28) D4=0.0
 c
       IF(NAD1.LT.3)GOTO 95
- 98   FORMAT('   Q                     H+                     H-',
+ 98   FORMAT('   Q--                   H+                     H-',
      *       '                      HP-                    HP+')
       IF(M.EQ.1) WRITE(NOUT,99) Q(K,1),D1,D2,D3,D4,Q(K,2),
      *               Q(K,3)
- 99   FORMAT(12G12.5)
+ 99   FORMAT(12E16.5)
  95   CONTINUE
       V(M,1)=V(M,1)+(D1*Q(K,2)+D4*Q(K,3))
  100  V(M,2)=V(M,2)+(D2*Q(K,2)+D3*Q(K,3))
@@ -2164,7 +2175,7 @@ C     REAL- UND IMAGINAERTEILE WERDEN GETRENNT BETRACHTET FUER QAF
       WRITE(NOUT,7058) AB11,AB22
 7058  FORMAT(2X,7H RQAF =,E12.4,2X,7H IQAF =,E12.4, 
      *       2X,7H RQAG =,E12.4,2X,7H IQAG =,E12.4)
-1201  FORMAT(1F6.4,1X,1P17E12.4)
+1201  FORMAT(1F14.6,1X,1P17E14.4)
 9008  RETURN
       END
       SUBROUTINE REG(L,LL)
@@ -2598,7 +2609,8 @@ C       SUCH BESTIMMT XR SO DASS F(XR)=MAX(F(X))*10**-10,FR=XR/NZRW
       D2 = (C**NN) * EXP(-B1*C*C-B3*C)
       D3 = MAX(D2,D3)
       IF(D2-D1)    1,2,2
-    1 IF (D2-(1.E-9)*D3) 3,3,2
+    1 IF (D2-(1.E-17)*D3) 3,3,2
+      STOP 667
     3 FR = C/ DBLE(NZRW)
       RETURN
     2 D1 = D2

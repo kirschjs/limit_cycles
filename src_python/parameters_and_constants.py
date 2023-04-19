@@ -346,7 +346,7 @@ maxParLen = 120
 cib = 0  # if set, EFTnoPi with charge independence broken by Coulomb and an acompanying
 # contact-term correction is employed (leading order)
 
-lam = 10.0  #0.50 0.75 1.00 1.50 2.00 3.00 4.00 6.00 8.00 10.0
+lam = 4.00  #0.50 0.75 1.00 1.50 2.00 3.00 4.00 6.00 8.00 10.0
 # lec_list_nucl_n  : spin-dependent LO pionless interaction: 2 2-body LECs (deuteron, a(1S0)=-23fm), 1 3-body LEC (triton)
 # lec_list_SU4     : spin-independent (SU(4) symmetric) LO pionless: 1 2-body LEC (deuteron), 1 3-body LEC (triton)
 lec_set = lec_list_cib if cib else lec_list_unitary2  #lec_list_m1  #  lec_list_unitary  # lec_list_oneMEV  #  lec_list_SU4  #
@@ -493,27 +493,34 @@ elif len(lec_set[la]) == 2:
 evWindow = [-30, 150]
 
 nzEN = 200
-E0 = 7.85
-D0 = 0.005
 
-eps0 = 0.01
-eps1 = 0.02
-epsM = (eps1 - eps0) / 2
-epsNBR = 20
+E0 = 0.1
+D0 = 0.05
+
+E0M = 0.001
+D0M = 0.05
+
+epL = 0.001
+epU = 0.004
+eps0 = [epL * 1.0, epL, epL, epL, epL]
+eps1 = [epU * 1.0, epU, epU, epU, epU]
+epsM = (np.array(eps1) + np.array(eps0)) / 2
+epsNBR = 5
 
 # parameters for the expansion of the fragment-relative function
 # (i.e., both fragments charged: Coulomb function, else sperical Bessel)
 # in Gaussians
-SPOLE_adaptweightUP = 1.0
-SPOLE_adaptweightLOW = 0.009
+SPOLE_adaptweightUP = 1.2
+SPOLE_adaptweightLOW = 2.2
 SPOLE_adaptweightL = 0.5
-SPOLE_adaptINTup = 1.0  # smaller values decrease the maximal radius up to which values enter the fit
-SPOLE_adaptINTlow = 4.0  # this shifts the interval smaller values try to optimize the behavior closer to zero
+SPOLE_GEW = 1.2  # smaller values decrease the maximal radius up to which values enter the fit
+SPOLE_QD = 2.6  # this shifts the interval smaller values try to optimize the behavior closer to zero
+SPOLE_QS = 0.
 
-Bet = 1.3
+Bet = [1.3, 1.3, 1.3, 1.3, 1.3]
 rgh = 8.0
-anzStuez = 100
-StuezAbs = 0.03
+anzStuez = 400
+StuezAbs = 1.75
 StuezBrei = 1.0
 
 MeVfm = 197.3161329
@@ -529,9 +536,12 @@ MeVfm = 197.3161329
 #]
 
 widthSet_relative = [
-    np.abs(np.logspace(-3.2, 2.0, num=28, endpoint=True, dtype=None)[::-1])
-    for nn in range(1, 1 + len(channels_4_scatt))
+    np.append(
+        np.abs(
+            np.logspace(-4.5, 2.94, num=38, endpoint=True, dtype=None)[::-1]),
+        []) for nn in range(1, 1 + len(channels_4_scatt))
 ]
+
 #np.linspace(start=11.5, stop=0.005, num=30, endpoint=True, dtype=None))
 
 eps = np.finfo(float).eps

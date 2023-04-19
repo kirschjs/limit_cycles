@@ -24,7 +24,7 @@ from multiprocessing.pool import ThreadPool
 einzel4 = 0
 findstablebas = 0
 
-newCal = 0
+newCal = -1
 chToRead = [5, 5]
 
 if newCal == 2:
@@ -276,8 +276,9 @@ spole_2(nzen=nzEN,
         adaptweightUP=SPOLE_adaptweightUP,
         adaptweightLOW=SPOLE_adaptweightLOW,
         adaptweightL=SPOLE_adaptweightL,
-        adaptINTup=SPOLE_adaptINTup,
-        adaptINTlow=SPOLE_adaptINTlow)
+        GEW=SPOLE_GEW,
+        QD=SPOLE_QD,
+        QS=SPOLE_QS)
 
 # if S-POLE terminates with a ``STOP 7'' message,
 # the channel ordering might not be in the correct, i.e.,
@@ -334,9 +335,10 @@ if findstablebas:
         else:
             anzCh += 1
 
-subprocess.run([BINBDGpath + spectralEXE_mpi])
+if newCal >= 0:
+    subprocess.run([BINBDGpath + spectralEXE_mpi])
 
-suche_fehler()
+    suche_fehler()
 
 redmass = (4. / 4.) * mn['137']
 a_of_epsi = []
@@ -356,11 +358,28 @@ for epsi in np.linspace(eps0, eps1, epsNBR):
             adaptweightUP=SPOLE_adaptweightUP,
             adaptweightLOW=SPOLE_adaptweightLOW,
             adaptweightL=SPOLE_adaptweightL,
-            adaptINTup=SPOLE_adaptINTup,
-            adaptINTlow=SPOLE_adaptINTlow)
+            GEW=SPOLE_GEW,
+            QD=SPOLE_QD,
+            QS=SPOLE_QS)
+
     subprocess.run([BINBDGpath + smatrixEXE_multichann])
+
+    plotrelativewave(infi='OUTPUTSPOLE',
+                     oufi='relWFKT_%d.pdf' % neps,
+                     col=3,
+                     chan=[1, 2, 3, 4, 5],
+                     titl='$\epsilon=[%s]$fm$^{-2}$' %
+                     ''.join(['%4.4f--' % float(ep) for ep in epsi])[:-2],
+                     nbrE=1)
+
     subprocess.call('cp OUTPUTSPOLE outps_%d' % neps, shell=True)
-    plotphas(oufi='4_body_phases_%d.pdf' % neps, diag=True)
+    subprocess.call('grep "BERUECK" OUTPUTSPOLE', shell=True)
+
+    plotphas(oufi='4_body_phases_%d.pdf' % neps,
+             diag=True,
+             titl='$\epsilon=[%s]$fm$^{-2}$' %
+             ''.join(['%4.4f' % float(ep) for ep in epsi]))
+
     phdd = read_phase(phaout='PHAOUT', ch=chToRead, meth=1, th_shift='')
 
     if ((chToRead == [2, 2]) | (chToRead == [3, 3])) & cib:
@@ -377,11 +396,17 @@ for epsi in np.linspace(eps0, eps1, epsNBR):
             np.sqrt(2 * redmass * phdd[n][0]) for n in range(len(phdd))
         ]
     a_of_epsi.append([epsi, a_dd[0].real, a_dd[-1].real])
+
+    print(
+        'l = %s fm^-1\n scattering lengths (lower/upper end of energy matching interval):\na_dd(E=%4.4fMeV,eps=[%s]) = %4.4f fm'
+        % (lam, phdd[0][0], ''.join(['%4.4f' % float(ep)
+                                     for ep in epsi]), a_dd[0].real))
+
     neps += 1
 
 spole_2(nzen=nzEN,
-        e0=E0,
-        d0=D0,
+        e0=E0M,
+        d0=D0M,
         eps=epsM,
         bet=Bet,
         nzrw=anzStuez,
@@ -392,14 +417,14 @@ spole_2(nzen=nzEN,
         adaptweightUP=SPOLE_adaptweightUP,
         adaptweightLOW=SPOLE_adaptweightLOW,
         adaptweightL=SPOLE_adaptweightL,
-        adaptINTup=SPOLE_adaptINTup,
-        adaptINTlow=SPOLE_adaptINTlow)
+        GEW=SPOLE_GEW,
+        QD=SPOLE_QD,
+        QS=SPOLE_QS)
 
 subprocess.run([BINBDGpath + smatrixEXE_multichann])
 
 phdd = read_phase(phaout='PHAOUT', ch=chToRead, meth=1, th_shift='')
 
-redmass = (4. / 4.) * mn['137']
 if ((chToRead == [2, 2]) | (chToRead == [3, 3])) & cib:
     print('charged-fragment channel:\n')
     a_dd = [
@@ -416,12 +441,16 @@ else:
         np.sqrt(2 * redmass * phdd[n][0]) for n in range(len(phdd))
     ]
 print(
-    'l = %s fm^-1\n scattering lengths (lower/upper end of energy matching interval):\na_dd(E=%4.4fMeV,eps=%4.2f) = %4.4f fm'
-    % (lam, phdd[0][0], epsM, a_dd[0].real))
+    'l = %s fm^-1\n scattering lengths (lower/upper end of energy matching interval):\na_dd(E=%4.4fMeV,eps=[%s]) = %4.4f fm'
+    % (lam, phdd[0][0], ''.join(['%4.4f' % float(ep)
+                                 for ep in epsM]), a_dd[0].real))
 
-plotphas(oufi='4_body_phases.pdf', diag=True)
+plotphas(oufi='4_body_phases.pdf',
+         diag=True,
+         titl='$\epsilon=[%s]$fm$^{-2}$' %
+         ''.join(['%4.4f' % float(ep) for ep in epsM]))
 
-plotarray(infix=[float(a[0]) for a in a_of_epsi],
+plotarray(infix=[float(a[0][0]) for a in a_of_epsi],
           infiy=[n[1] for n in a_of_epsi],
           ylab='$a_{dd}$ [fm]',
           xlab='$\epsilon$ [fm$^{-1}$]',
