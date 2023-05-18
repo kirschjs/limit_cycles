@@ -1664,7 +1664,6 @@ def blunt_ev2(cfgs, widi, basis, nzopt, costring, binpath, potNN, jay,
     subprocess.run([binpath + NNhamilEXE_serial])
 
     inen_bdg_2(basis, j=jay, costr=costring, fn='INEN', anzo=nzopt)
-
     sc = jay
     inen_str_2(costring,
                anzrelw=len(basis[0][1]),
@@ -1677,6 +1676,7 @@ def blunt_ev2(cfgs, widi, basis, nzopt, costring, binpath, potNN, jay,
     subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
 
     subprocess.run([binpath + spectralEXE_serial])
+    print(funcPath)
 
     NormHam = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
 

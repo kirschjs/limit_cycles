@@ -26,14 +26,14 @@ minidi_breed = 0.1
 minidi_seed = minidi_breed
 minidi_breed_rel = minidi_breed
 denseEVinterval = [-2, 2]
-width_bnds = [0.01, 7.25]
-deutDim = 5
+width_bnds = [0.01, 17.25]
+deutDim = 4
 miniE_breed = 0.1
 
 # genetic parameters
-anzNewBV = 5
+anzNewBV = 6
 muta_initial = 0.01
-anzGen = 16
+anzGen = 6
 civ_size = 10
 target_pop_size = 12
 zop = 14 if bin_suffix == '_v18-uix' else 11
@@ -49,7 +49,7 @@ for channel in channels_2:
     subprocess.call('rm -rf %s/civ_*' % sysdir2, shell=True)
 
     os.chdir(sysdir2base)
-    print('>>> working directory: ', sysdir2base)
+    print('>>> working directory: ', sysdir2)
 
     if bin_suffix == '_v18-uix':
         prep_pot_file_2N(lam=lam, wiC=cloW, baC=cloB, ps2=nnpot)
@@ -61,6 +61,8 @@ for channel in channels_2:
     prep_pot_file_3N(lam=la, d10=d0, ps3=nnnpot)
     #continue
     os.chdir(sysdir2)
+    if id_chan == 0:
+        refdir = sysdir2
     subprocess.call('cp %s .' % nnpot, shell=True)
 
     prescat = False
@@ -119,6 +121,8 @@ for channel in channels_2:
         for cciv in new_civs:
             civs.append(cciv)
         print('>>> seed civilizations: %d/%d' % (len(civs), civ_size))
+        if ((id_chan == 1) & (len(civs) > 1)):
+            break
 
     civs.sort(key=lambda tup: np.abs(tup[3]))
     civs = sortprint(civs, pr=False)
@@ -134,15 +138,15 @@ for channel in channels_2:
             print(civs[0][2:])
         # 3) select a subset of basis vectors which are to be replaced -----------------------------------------------
 
-        civ_size = len(civs)
-        weights = polynomial_sum_weight(civ_size, order=2)[1::]
+        civi_size = len(civs)
+        weights = polynomial_sum_weight(civi_size, order=2)[1::]
         # 4) select a subset of basis vectors from which replacements are generated ----------------------------------
         children = 0
 
         while children < anzNewBV:
             twins = []
             while len(twins) < int(42 * anzNewBV):
-                parent_pair = np.random.choice(range(civ_size),
+                parent_pair = np.random.choice(range(civi_size),
                                                size=2,
                                                replace=False,
                                                p=weights)
@@ -206,6 +210,9 @@ for channel in channels_2:
                 ]]
                 bv += len(two_body_channels)
 
+            if id_chan == 1:
+                break
+
             ParaSets = [[
                 twins[twinID][1], sbas, nnpotstring,
                 float(J0), BINBDGpath, costr, twinID, minCond, evWindow
@@ -263,6 +270,9 @@ for channel in channels_2:
             #else:
             #    print('adding %d new children.' % children)
 
+        if id_chan == 1:
+            break
+
         civs = sortprint(civs, pr=False, ordn=2)
 
         if len(civs) > target_pop_size:
@@ -313,6 +323,13 @@ for channel in channels_2:
     os.system('cp INQUA_N INQUA_N_%s' % (lam))
     os.system('cp OUTPUT bndg_out_%s' % (lam))
     os.system('cp INEN INEN_BDG')
+
+    if id_chan == 1:
+        os.system('cp %s/INQUA_N* .' % (refdir))
+        subprocess.run([BINBDGpath + NNhamilEXE_serial])
+        subprocess.run([BINBDGpath + spectralEXE_serial])
+        os.system('cp OUTPUT bndg_out_%s' % (lam))
+
     os.system('cp INEN_STR INEN')
     subprocess.run([BINBDGpath + spectralEXE_serial])
 
@@ -333,6 +350,10 @@ for channel in channels_2:
     os.system('cp PHAOUT phaout_%s' % (lam))
     print(">>> 2-body phases calculated. End of day for channel %s\n" %
           channel)
+
+    if deg_channs:
+        id_chan = 1
+
     phaa = read_phase()
     if channel[:2] == 'pp':
         print('proton-proton channel:\n')

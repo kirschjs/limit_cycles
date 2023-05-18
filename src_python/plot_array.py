@@ -56,36 +56,50 @@ def plotarray2(outfi,
                leg=[]):
 
     nbr_panels = len(infiy)
+    ncol = 2 if nbr_panels > 1 else 1
 
     nbr_plt_rows = int(np.ceil(nbr_panels / 2))
 
-    fig, axs = plt.subplots(nbr_plt_rows, 2)
-    if nbr_panels % 2 == 1: axs[nbr_plt_rows - 1, 1].set_visible(False)
+    fig, axs = plt.subplots(nbr_plt_rows, ncol)
+    if nbr_panels > 1:
+        if nbr_panels % 2 == 1: axs[nbr_plt_rows - 1, 1].set_visible(False)
 
     nSet = 0
 
     for nR in range(nbr_plt_rows):
-        for nC in range(2):
-
+        for nC in range(ncol):
             try:
                 for nset in range(len(infiy[nSet])):
-                    axs[nR, nC].plot(infix[nSet][nset],
-                                     infiy[nSet][nset],
-                                     linestyle='solid',
-                                     label='%s' % leg[nSet][nset])
+                    if nbr_panels > 1:
+                        axs[nR, nC].plot(infix[nSet][nset],
+                                         infiy[nSet][nset],
+                                         linestyle='solid',
+                                         label='%s' % leg[nSet][nset])
+                    else:
+                        axs.plot(infix[nSet][nset],
+                                 infiy[nSet][nset],
+                                 linestyle='solid',
+                                 label='%s' % leg[nSet][nset])
             except:
                 axs[nR, nC].plot(infix[nSet], infiy[nSet])
 
             try:
-                axs[nR, nC].set_title(title[nSet])
+                if nbr_panels > 1:
+                    axs[nR, nC].set_title(title[nSet])
+                else:
+                    axs.set_title(title[nSet])
             except:
                 axs[nR, nC].set_title(
                     datetime.datetime.fromtimestamp(ts).strftime(
                         '%Y-%m-%d %H:%M:%S'))
 
             try:
-                axs[nR, nC].set_xlabel(r'%s' % xlab[nSet])
-                axs[nR, nC].set_ylabel(r'%s' % ylab[nSet])
+                if nbr_panels > 1:
+                    axs[nR, nC].set_xlabel(r'%s' % xlab[nSet])
+                    axs[nR, nC].set_ylabel(r'%s' % ylab[nSet])
+                else:
+                    axs.set_xlabel(r'%s' % xlab[nSet])
+                    axs.set_ylabel(r'%s' % ylab[nSet])
             except:
                 axs[nR, nC].set_xlabel(r'X')
                 axs[nR, nC].set_ylabel(r'Y')
@@ -94,21 +108,31 @@ def plotarray2(outfi,
 
             if plotrange[nSet] != '':
                 if ym < 0:
-                    axs[nR, nC].set_ylim(bottom=2 * ym)
+                    if nbr_panels > 1:
+                        axs[nR, nC].set_ylim(bottom=2 * ym)
+                    else:
+                        axs.set_ylim(bottom=2 * ym)
                 else:
                     axs[nR, nC].set_ylim(top=2 * ym)
 
                     if plotrange[nSet] == 'max':
-                        axs[nR, nC].set_ylim(
-                            np.min(np.array(infiy[nSet], dtype=object)),
-                            np.max(np.array(infiy[nSet], dtype=object)))
-            #exit()
+                        if nbr_panels > 1:
+                            axs[nR, nC].set_ylim(
+                                np.min(np.array(infiy[nSet], dtype=object)),
+                                np.max(np.array(infiy[nSet], dtype=object)))
+                        else:
+                            axs.set_ylim(
+                                np.min(np.array(infiy[nSet], dtype=object)),
+                                np.max(np.array(infiy[nSet], dtype=object)))
 
             #stylel = 'solid' if len(infiy) > 100 else 'dashdot'
             #plt.plot(infix, infiy, label='%s' % lab, linestyle=stylel)
 
             if leg[nSet] != []:
-                axs[nR, nC].legend(loc='best', numpoints=1)
+                if nbr_panels > 1:
+                    axs[nR, nC].legend(loc='best', numpoints=1)
+                else:
+                    axs.legend(loc='best', numpoints=1)
 
             nSet += 1
             if nSet >= nbr_panels: break

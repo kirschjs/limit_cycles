@@ -39,7 +39,7 @@ C  DAS PROGRAMM S-POLE BERECHNET DIE POLSTELLEN  DER S-MATRIX IN DER   C
 C  UNTEREN KOMPLEXEN ENERGIEHALBEBENE (UNPHYSIKALISCHES BLATT) MIT     C
 C  EINER GRADIENTENSUCHE (NOPT = 1 ODER 2)                             C
 C  UND EBENSO DIE RESIDUEN DER S-MATRIX AN DER POLSTELLE(NOPT=2 ODER 3)C
-C  ENERGIEN KÖNNEN WIE ZUVOR FÜR NOPT = 0 BERECHNET WERDEN ODER AUCH   C
+C  ENERGIEN Kï¿½NNEN WIE ZUVOR Fï¿½R NOPT = 0 BERECHNET WERDEN ODER AUCH   C
 C  IM KOMPLEXEN MIT NOPT = -1                                          C
 C                                                                      C
 C     NOPT =-1 NZAEN*NZAENI ENERGIEN WERDEN GERECHNET                  C
@@ -110,7 +110,7 @@ C                            DIE SCHRITTWEITE (RE:E2,IM:FAKT)          C
 C                            ZFAKT WIRD NICHT EINGELESEN               C
 C                    ZEILE  4 WIRD NICHT EINGELESEN                    C
 C                                                                      C
-C    - FUER NOPT= 0: BLEIBT DER INPUT UNVERÄNDERT                      C
+C    - FUER NOPT= 0: BLEIBT DER INPUT UNVERï¿½NDERT                      C
 C                    AUSSER: ZEILE 2 => NZAEN NZPWY                    C
 C                            (ZU RECHNENDE ENERGIEN UND KANAELE)       C
 C                            ZEILE 4 ENTFAELLT                         C
@@ -141,7 +141,7 @@ C                            KLEINER ALS DIESER WERT SEIN MUSS         C
 C                    ZEILE 4 SIND DIE UMGEBUNG +-DELTA, DIE            C
 C                            SCHRITTWEITE DELTADIFF UND DIE            C
 C                            ABBRUCHBEDINGUNG ABBR                     C
-C                            => DELTA WIRD SOLANGE VERGROEßERT,        C
+C                            => DELTA WIRD SOLANGE VERGROEï¿½ERT,        C
 C                               BIS DER INTERPOLIERTE WERT             C 
 C                               FUER DAS RESIDUUM KONVERGIERT          C
 C                            MIT NZAENI AUS ZEILE 2 KANN ENTSCHIEDEN   C
@@ -1066,7 +1066,7 @@ C     SQ=GL*(H-ENERGIE*NORM)*GL
       CALL WRIMATC(SP,NZKBMA,NZAOK,NTEX(1))
       CALL WRIMATC(SQ,NZKBMA,NZAOK,NTEX(3))
  2180 CONTINUE
-c     Asymptotische Beiträge
+c     Asymptotische Beitrï¿½ge
 2179   FORMAT('KANAL ',I4,' PQ0(L),PQ3(L),PQ2(L),PQ1(L) ',8F10.4)
        if(nad4.gt.0)write(nout,2179) L,PQ0(L),PQ3(L),PQ2(L),PQ1(L)
        SP(L,L) = SP(L,L)+PQ2(L) 
@@ -1140,7 +1140,7 @@ C      VW IST INTEGRAL UEBER ASYMPTOTISCHEN HAMILTONIAN
 C     BERECHNUNG DER SMATRIX
       CALL RRANDB(SMAT,IBESS)
       jxc=0
-      IF(IWEFU.LE.0) GOTO 201
+C      IF(IWEFU.LE.0) GOTO 201
       CALL DEKOF(NAD1,CDEF)
       CALL WEFU(MZAE)
 C
@@ -1879,9 +1879,9 @@ C
       IMPLICIT REAL*8(A-H,O-Z)
       COMPLEX*16 FUK,FWERT,CI
 C
-C     Vorbereitung für asomptot. Beiträge:
+C     Vorbereitung fï¿½r asomptot. Beitrï¿½ge:
 C     es werden Hankelfunktionen verwendet 
-C     es ergeben sich nun weitere Beiträge,
+C     es ergeben sich nun weitere Beitrï¿½ge,
 C     vorher:
 C     FW(K)=A**(L+1)*EXP(-A*A*PAR(K))*(2GL'*TS'+GL*TS'')
 C     FW(K2)=GL**2*TS'**2
@@ -2128,7 +2128,7 @@ C       ABWEICHUNG QAF UND QAG
       READ   (NBAND3)   ((TS(K,I),K=1,NZRW1),I=1,2)
       IF(NAD1.LT.0) GOTO 9008
       CALL COULF(LWL,NZRW1)
-      IF(NAD1.GT.1)      WRITE (NOUT,1200) KL
+      IF(NAD1.GT.-1)      WRITE (NOUT,1200) KL
  1200 FORMAT(//35H DARSTELLUNG DER STREUFUNKTIONEN IM,I3,10H TEN.KANAL//
      1 ' R (FM)       H+(KR)                  H-(KR)                 '    
      1 ,'  HP-(KR)                  HP+(KR)             T-1   ',
@@ -2165,7 +2165,7 @@ C     REAL- UND IMAGINAERTEILE WERDEN GETRENNT BETRACHTET FUER QAF
       AB22=AB22+AB2
       BB11=BB11+BB1
       BB22=BB22+BB2
-      IF(NAD1.LT.2) GOTO 27
+      IF(NAD1.LT.0) GOTO 27
       B1=TS(K,1) - 1.
       WRITE(NOUT,1201)Q(K,1),AA1,AA2,AA3,AA4,B1
       WRITE(NOUT,1201)Q(K,1),BB,C,CS,BS,B1
@@ -2850,7 +2850,8 @@ C
       SUBROUTINE DEKOF(NAD1,CDEF)
       IMPLICIT REAL*8(A-H,O-Z)
       COMPLEX*16 A,SP,SC,SR,SQ,SS,ST,ENERGI,AN,D,ZW,DD
-C   BERECHNUNG DER KOEFFIZIENTEN D FUER A-METHODE UND B-METHODE
+C  transformation coefficients from original Gaussian DISTORTION
+C  to eigenfunctions of the hamiltonian (A- and B-method)
 C
       INCLUDE 'par/verma'
 C
@@ -3018,17 +3019,20 @@ C      EXODUS HAT DIE STREUWELLE IM 'BRA', DAHER WIRD C* UEBERGEBEN
 69     CONTINUE
 70    CONTINUE
       IF(IPLO.GT.0)  CALL CWFPLO(CWF,MZAE)
-       IF(IWEFU.LE.2.AND.IPLO.LE.0) GOTO 1
+C       IF(IWEFU.LE.2.AND.IPLO.LE.0) GOTO 1
 C     DER FOLGENDE TEIL IST NOCH NICHT FUER UMGESTELLT FUER EM-UEBERGAENGE
 
       NZRW1=100
       DO 80 KK=1,NO
       REWIND NBAND3
-      IF(IWEFU.GE.3) WRITE(NOUT,1003) KK
+      IF(IWEFU.GE.0) WRITE(NOUT,1003) KK
 1003  FORMAT(3X,'R(FM)   WELLENFUNKTION IM KANAL',I3,
      */,' R(FM) W-FUNKTION, N**1/2*W-FUNK., D*Gauss, -I+S*O,'
      *,' -I+S*O +WF IM WECHSELWIRKUNGBEREICH')
       DO 40 KL=1,NZKA
+C     to minimize output, print only wafe functions for physical
+C     fragments
+      if(kl.gt.NO) goto 40 
       DO 41 I=1,4
       DO 41 II=1,NZRW1
 41    FUK(II,I)=0.
@@ -3047,7 +3051,7 @@ C     DER FOLGENDE TEIL IST NOCH NICHT FUER UMGESTELLT FUER EM-UEBERGAENGE
       READ(NBAND3)
       READ(NBAND3)(Q(K,1),K=1,NZRW1)
       READ(NBAND3) ((TS(K,I),K=1,NZRW1),I=1,2)
-58    IF(IWEFU.GE.3) WRITE(NOUT,1000) KK,KL
+58    IF(IWEFU.GE.0) WRITE(NOUT,1000) KK,KL
       IF(IPLO.LE.0) GOTO 59
       MTDLL2=10*(MTDLL1 - 1)+MTD
        WRITE(NELMA) KK,KL,NZRW1,EMOM(KL),MTDLL2,REDM(KL),NZPW,EK(KL),
@@ -3072,7 +3076,7 @@ C     DER FOLGENDE TEIL IST NOCH NICHT FUER UMGESTELLT FUER EM-UEBERGAENGE
       WF4=A(KK,KL,MTD)*FUK(K,2)*TS(K,1)
       IF(KL.EQ.KK) WF4=WF4-(FUK(K,2)-2.*CI*FUK(K,1))*TS(K,1)
 63    WF5=WF4-WF3
-      IF(IWEFU.GE.3) WRITE(NOUT,1004) Q(K,1),WF1,WF2,WF3,WF4*EIHALF,
+      IF(IWEFU.GE.0) WRITE(NOUT,1004) Q(K,1),WF1,WF2,WF3,WF4*EIHALF,
      * EIHALF* WF5
       IF(IPLO.GE.1) WRITE(NELMA) Q(K,1),WF1,WF2,WF3,WF4,WF5
 1004  FORMAT(F8.4,16E12.4)

@@ -1,7 +1,9 @@
 import os, re, itertools, math
 import numpy as np
 import random
+
 from parameters_and_constants import *
+
 from sympy.physics.quantum.cg import CG
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -858,6 +860,9 @@ def plotrelativewave(infi='OUTPUTSPOLE',
                 if (data[njj].find(
                         'DARSTELLUNG DER STREUFUNKTIONEN IM%3d TEN.KANAL' % ch)
                         >= 0):
+                    #if (data[njj].find(
+                    #        'R(FM) W-FUNKTION, N**1/2*W-FUNK., D*Gauss, -I+S*O, -I+S*O +WF IM WECHSELWIRKUNGBEREICH' % ch)
+                    #        >= 0):
                     start = njj + 6
                     for njjj in range(start + 1, len(data)):
                         if (len(data[njjj].split()) != 10):
@@ -895,3 +900,81 @@ def plotrelativewave(infi='OUTPUTSPOLE',
 
                         ch += 1
                         nE -= 1
+
+
+def plotapproxwave(infi='OUTPUTSPOLE',
+                   oufi='tmp.pdf',
+                   col=0,
+                   chan=[1],
+                   titl='',
+                   nbrE=1):
+
+    data = [line for line in open(infi)]
+
+    plt.cla()
+    plt.subplot(111)
+
+    if titl != '':
+        plt.title(titl)
+    #leg = ax1.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+    #    ncol=1, mode="expand", borderaxespad=0.)
+    plt.xlabel(r'$R_{rel}$ [fm]')
+
+    start = 0
+    end = 1
+    nE = 0
+    ch = 1
+
+    for nj in range(1, len(data)):
+
+        cmap = plt.get_cmap('inferno')
+
+        if (-1 not in [
+                data[nj + (ch - 1) * 4].find('DER%3d TE KANAL IST OFFEN' % ch)
+                for ch in chan
+        ]):
+
+            ch = 1
+
+            if nE == nbrE:
+
+                for njj in range(nj, len(data)):
+
+                    if (data[njj].find(
+                            'R(FM)   WELLENFUNKTION IM KANAL%3d' % ch) >= 0):
+
+                        ylab = data[njj + 1].split(',')[col].strip()
+
+                        for njjj in range(njj + 1, len(data)):
+
+                            if (data[njjj].split() == [str(ch), str(ch)]):
+
+                                for m in range(njjj, len(data)):
+
+                                    if len(data[m + 2].split()) != 11:
+                                        break
+                                wfdata = np.array([
+                                    line.split()
+                                    for line in data[njjj + 2:m + 2]
+                                ]).astype(float)
+
+                                rr = np.array(wfdata)[:, 0]
+                                wfkt = np.array(wfdata)[:, int(1 + 2 * col)]
+                                colo = c = cmap(ch / len(chan))
+
+                                plt.plot(rr,
+                                         wfkt,
+                                         label='F_L(r,ch=%d)' % ch,
+                                         linestyle='solid',
+                                         color=colo)
+
+                                ch += 1
+                                break
+
+                plt.ylabel(r'%s' % ylab)
+                plt.legend(loc='best', numpoints=1)
+                plt.savefig(oufi)
+                return
+
+            else:
+                nE += 1

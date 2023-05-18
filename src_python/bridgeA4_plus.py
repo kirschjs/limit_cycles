@@ -7,7 +7,9 @@ from sympy.physics.quantum.cg import CG
 from scipy.linalg import eigh
 
 from three_particle_functions import *
+
 from four_particle_functions import *
+
 from PSI_parallel_M import *
 
 from rrgm_functions import *
@@ -24,8 +26,21 @@ from multiprocessing.pool import ThreadPool
 einzel4 = 0
 findstablebas = 0
 
-newCal = -1
-chToRead = [5, 5]
+newCal = 0
+
+evalChans = [[1, 1], [2, 2], [3, 3]]  #, [4, 4], [5, 5]]  #[[3, 3]]
+
+# col = 0 :  wave function (real part)
+#       1 :  normalized wave function (real part)
+#       2   :  D*Gauss
+#       3 :  -I+S*O
+#       4 :  -I+S*O +WF IM WECHSELWIRKUNGBEREICH
+waveToPlot = 2
+
+# the wave function is ploted for the n-th energy above the channel threshold
+energyToPlot = 1
+
+nMatch = 0
 
 if newCal == 2:
     import bridgeA2_plus
@@ -177,7 +192,8 @@ for sysdir3 in threedirs:
     zstrus.append(
         [int(line.strip()) for line in open(sysdir3 + '/drei_stru_%s' % lam)])
 
-    fragment_energies.append([float(ee) for ee in open(sysdir3 + '/E0')][0])
+    fragment_energies.append(
+        get_h_ev(n=1, ifi=sysdir3 + '/bndg_out_%s' % lam)[0])
     threeCoff = parse_ev_coeffs(mult=0,
                                 infil=sysdir3 + '/bndg_out_%s' % lam,
                                 outf='COEFF',
@@ -196,7 +212,17 @@ for sysdir3 in threedirs:
     #                shell=True)
     chnbr += 1
 
-idx = np.array(fragment_energies).argsort()[::-1]
+# if the 2 trimers (t, he) and the 4 dimers (d, dq, nn, pp) which can be formed
+# with 4-flavour fermions are degenerate wrt. to their ground-state energy,
+# the ordering of physical channels as defined by "channels_4_scatt" is adopted
+if deg_channs == 1:
+    idx = list(range(len(fragment_energies)))
+# otherwise, the 5 asympttotic 2-fragment channels are ordered according to
+# descending binding energies
+else:
+    idx = np.array(fragment_energies).argsort()[::-1]
+
+asyChanLabels = sum([asy[0][1] for asy in [strus[id] for id in idx]], [])[::-1]
 
 strus = sum([strus[id] for id in idx], [])
 zstrus = sum([zstrus[id] for id in idx], [])
@@ -340,10 +366,37 @@ if newCal >= 0:
 
     suche_fehler()
 
+a_aa = ''
+for channel in channels_2:
+    J0 = channels_2[channel][1]
+
+    sysdir2 = sysdir2base + '/' + channel
+    phafile = sysdir2 + '/phaout_%s' % lam
+    if os.path.isfile(phafile) == False:
+        print("2-body phase shifts unavailable for L = %s" % lam)
+        exit()
+    phaa = read_phase(phaout=phafile, ch=[1, 1], meth=1, th_shift='')
+    a_aa += '  %.4g' % ([
+        -MeVfm * np.tan(phaa[n][2] * np.pi / 180.) /
+        np.sqrt(mn['137'] * phaa[n][0]) for n in range(len(phaa))
+    ][0])
+
+channel_thresholds = get_bind_en(n=len(evalChans))
+channel_thresholds = ' '.join(['%4.4g' % ee for ee in channel_thresholds])
+
+groundstate_4 = get_h_ev()[0]
+
 redmass = (4. / 4.) * mn['137']
 a_of_epsi = []
 
 neps = 0
+
+a_of_epsi = {}
+a_of_Ematch = {}
+for key in asyChanLabels:
+    a_of_epsi[key] = []
+    a_of_Ematch[key] = []
+
 for epsi in np.linspace(eps0, eps1, epsNBR):
     spole_2(nzen=nzEN,
             e0=E0,
@@ -364,106 +417,124 @@ for epsi in np.linspace(eps0, eps1, epsNBR):
 
     subprocess.run([BINBDGpath + smatrixEXE_multichann])
 
+    # col = 0 :  wave function (real part)
+    #       1 :  normalized wave function (real part)
+    #       2 :  D*Gauss
+    #       3 :  -I+S*O
+    #       4 :  -I+S*O +WF IM WECHSELWIRKUNGBEREICH
+
+    chans = list(range(1, 1 + len(evalChans)))
+
+    plotapproxwave(infi='OUTPUTSPOLE',
+                   oufi='expandedWFKT_%d.pdf' % neps,
+                   col=waveToPlot,
+                   chan=chans,
+                   titl='$\epsilon=[ $%s$ ]$fm$^{-2}$' %
+                   (' , '.join(['%.4g' % float(ep) for ep in epsi])),
+                   nbrE=energyToPlot)
+
     plotrelativewave(infi='OUTPUTSPOLE',
                      oufi='relWFKT_%d.pdf' % neps,
-                     col=3,
-                     chan=[1, 2, 3, 4, 5],
-                     titl='$\epsilon=[%s]$fm$^{-2}$' %
-                     ''.join(['%4.4f--' % float(ep) for ep in epsi])[:-2],
-                     nbrE=1)
+                     col=waveToPlot,
+                     chan=chans,
+                     titl='$\epsilon=[ $%s$ ]$fm$^{-2}$' %
+                     (' , '.join(['%.4g' % float(ep) for ep in epsi])),
+                     nbrE=energyToPlot)
 
     subprocess.call('cp OUTPUTSPOLE outps_%d' % neps, shell=True)
-    subprocess.call('grep "BERUECK" OUTPUTSPOLE', shell=True)
+    #subprocess.call('grep "FUNCTIONAL BERUECKSICHTIGT" OUTPUTSPOLE', shell=True)
 
-    plotphas(oufi='4_body_phases_%d.pdf' % neps,
+    plotphas(oufi='4_ph_%d_%s_%s.pdf' % (neps, lam, lecstring),
              diag=True,
-             titl='$\epsilon=[%s]$fm$^{-2}$' %
-             ''.join(['%4.4f' % float(ep) for ep in epsi]))
+             titl='$\epsilon=[ $%s$ ]$fm$^{-2}$' %
+             (' , '.join(['%.4g' % float(ep) for ep in epsi])))
 
-    phdd = read_phase(phaout='PHAOUT', ch=chToRead, meth=1, th_shift='')
+    head_str = '# lambda                       channel   a(ch)     eps                        a(2)     B(4)   B(thresh)\n'
+    print(head_str)
+    for chToRead in evalChans:
+        try:
+            phdd = read_phase(phaout='PHAOUT',
+                              ch=chToRead,
+                              meth=1,
+                              th_shift='')
 
-    if ((chToRead == [2, 2]) | (chToRead == [3, 3])) & cib:
-        a_dd = [
-            appC(phdd[n][2] * np.pi / 180.,
-                 np.sqrt(2 * redmass * phdd[n][0]),
-                 redmass,
-                 q1=1,
-                 q2=1) for n in range(len(phdd))
-        ]
-    else:
-        a_dd = [
-            -MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /
-            np.sqrt(2 * redmass * phdd[n][0]) for n in range(len(phdd))
-        ]
-    a_of_epsi.append([epsi, a_dd[0].real, a_dd[-1].real])
+            if ((chToRead == [2, 2]) | (chToRead == [3, 3])) & cib:
+                a_dd = [
+                    appC(phdd[n][2] * np.pi / 180.,
+                         np.sqrt(2 * redmass * phdd[n][0]),
+                         redmass,
+                         q1=1,
+                         q2=1) for n in range(len(phdd))
+                ]
+            else:
+                a_dd = [
+                    -MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /
+                    np.sqrt(2 * redmass * phdd[n][0]) for n in range(len(phdd))
+                ]
 
-    print(
-        'l = %s fm^-1\n scattering lengths (lower/upper end of energy matching interval):\na_dd(E=%4.4fMeV,eps=[%s]) = %4.4f fm'
-        % (lam, phdd[0][0], ''.join(['%4.4f' % float(ep)
-                                     for ep in epsi]), a_dd[0].real))
+            chanstr = asyChanLabels[int(chToRead[0]) -
+                                    1] + '--' + asyChanLabels[int(chToRead[1])
+                                                              - 1]
+
+            results_bare = '%.3f   %30s   %.4g   %.4g%s   %.4g   %s' % (
+                float(lam), chanstr, a_dd[0].real, epsi[0], a_aa,
+                groundstate_4, channel_thresholds)
+            print(results_bare)
+            rafile = 'a_result_%s.dat' % chanstr
+            with open(rafile, 'w') as outfile:
+                outfile.write(head_str + results_bare)
+
+            a_of_epsi[asyChanLabels[int(chToRead[0]) - 1]].append(
+                [epsi, a_dd[0].real, a_dd[-1].real])
+            a_of_Ematch[asyChanLabels[int(chToRead[0]) - 1]].append(
+                [np.array(phdd)[:, 0], a_dd])
+
+        except:
+            print('no phase shifts in <PHAOUT> for channel:  ', chToRead)
+            continue
 
     neps += 1
 
-spole_2(nzen=nzEN,
-        e0=E0M,
-        d0=D0M,
-        eps=epsM,
-        bet=Bet,
-        nzrw=anzStuez,
-        frr=StuezAbs,
-        rhg=rgh,
-        rhf=StuezBrei,
-        pw=0,
-        adaptweightUP=SPOLE_adaptweightUP,
-        adaptweightLOW=SPOLE_adaptweightLOW,
-        adaptweightL=SPOLE_adaptweightL,
-        GEW=SPOLE_GEW,
-        QD=SPOLE_QD,
-        QS=SPOLE_QS)
+xx = []
+yy = []
+leg = []
+for ch in a_of_epsi.keys():
+    if a_of_epsi[ch] != []:
+        xx.append([an[0][0] for an in a_of_epsi[ch]])
+        yy.append([an[1] for an in a_of_epsi[ch]])
+        leg.append(ch)
 
-subprocess.run([BINBDGpath + smatrixEXE_multichann])
+plotarray2(outfi='a_of_eps_%s_%s.pdf' % (lam, lecstring),
+           infix=[xx],
+           infiy=[yy],
+           title=['$a_{dd}$ dependence on $\epsilon$'],
+           xlab=['$\epsilon$ [fm$^{-2}$]'],
+           ylab=['$a_{dd}$ [fm]'],
+           leg=[leg],
+           plotrange=[''])
 
-phdd = read_phase(phaout='PHAOUT', ch=chToRead, meth=1, th_shift='')
+xx = []
+yy = []
+leg = []
+for ch in a_of_Ematch.keys():
+    if a_of_Ematch[ch] != []:
+        epsset = 0
+        for eps_add_set in a_of_Ematch[ch]:
+            xx.append(eps_add_set[0])
+            yy.append(eps_add_set[1])
+            leg.append(ch + '-$\epsilon_%d$' % epsset)
+            epsset += 1
 
-if ((chToRead == [2, 2]) | (chToRead == [3, 3])) & cib:
-    print('charged-fragment channel:\n')
-    a_dd = [
-        appC(phdd[n][2] * np.pi / 180.,
-             np.sqrt(2 * redmass * phdd[n][0]),
-             redmass,
-             q1=1,
-             q2=1) for n in range(len(phdd))
-    ]
-else:
-    print('uncharged-fragment channel:\n')
-    a_dd = [
-        -MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /
-        np.sqrt(2 * redmass * phdd[n][0]) for n in range(len(phdd))
-    ]
-print(
-    'l = %s fm^-1\n scattering lengths (lower/upper end of energy matching interval):\na_dd(E=%4.4fMeV,eps=[%s]) = %4.4f fm'
-    % (lam, phdd[0][0], ''.join(['%4.4f' % float(ep)
-                                 for ep in epsM]), a_dd[0].real))
-
-plotphas(oufi='4_body_phases.pdf',
-         diag=True,
-         titl='$\epsilon=[%s]$fm$^{-2}$' %
-         ''.join(['%4.4f' % float(ep) for ep in epsM]))
-
-plotarray(infix=[float(a[0][0]) for a in a_of_epsi],
-          infiy=[n[1] for n in a_of_epsi],
-          ylab='$a_{dd}$ [fm]',
-          xlab='$\epsilon$ [fm$^{-1}$]',
-          outfi='a_of_epsilon.pdf',
-          plotrange='med')
+plotarray2(outfi='a_of_Ematch_%s_%s.pdf' % (lam, lecstring),
+           infix=[xx],
+           infiy=[yy],
+           title=['$a_{dd}$ dependence on $E_{0}$'],
+           xlab=['$E_0$ [MeV]'],
+           ylab=['$a_{dd}$ [fm]'],
+           leg=[leg],
+           plotrange=[''])
 
 exit()
-
-plotarray([float(a.real) for a in a_dd],
-          [phdd[n][0] for n in range(len(phdd))],
-          ylab='$a_{dd}$ [fm]',
-          xlab='$E_0$ [MeV]',
-          outfi='a_dimer-dimer.pdf')
 
 phtp = read_phase(phaout='PHAOUT', ch=[1, 1], meth=1, th_shift='')
 
@@ -474,69 +545,17 @@ phdd = read_phase(phaout='PHAOUT', ch=[3, 3], meth=1, th_shift='1-3')
 phtpdd = read_phase(phaout='PHAOUT', ch=[1, 3], meth=1, th_shift='1-3')
 phhendd = read_phase(phaout='PHAOUT', ch=[2, 3], meth=1, th_shift='2-3')
 
-plotarray2(outfi='tmp.pdf',
-           infix=[[phdd[n][0] for n in range(len(phdd))],
-                  [float(a[0]) for a in a_of_epsi],
-                  [[phtp[n][0] for n in range(len(phtp))],
-                   [phhen[n][0] for n in range(len(phhen))],
-                   [phdd[n][1] for n in range(len(phdd))],
-                   [phtpdd[n][1] for n in range(len(phtpdd))],
-                   [phhendd[n][1] for n in range(len(phhendd))]]],
-           infiy=[
-               [float(a.real) for a in a_dd],
-               [n[1] for n in a_of_epsi],
-               [[phtp[n][2] for n in range(len(phtp))],
-                [phhen[n][2] for n in range(len(phhen))],
-                [phdd[n][2] for n in range(len(phdd))],
-                [phtpdd[n][2] for n in range(len(phtpdd))],
-                [phhendd[n][2] for n in range(len(phhendd))]],
-           ],
-           title=[
-               '$a_{dd}$ dependence on $k_0$',
-               '$a_{dd}$ dependence on $\epsilon$', '2-fragment 4-body phases'
-           ],
-           xlab=['$E_{cm}$ [MeV]', '$\epsilon$ [fm$^{-2}$]', '$E_{cm}$ [MeV]'],
-           ylab=['$a_{dd}$ [fm]', '$a_{dd}$ [fm]', '$\delta_{f_1-f_2}$ [Deg]'],
-           leg=[[], [], [
-               't-p',
-               '${}^3$He-n',
-               '$d-d$',
-               '$tp-d$',
-               '$hen-d$',
-           ]],
-           plotrange=['', 'max', ''])
-
-for channel in channels_2:
-    J0 = channels_2[channel][1]
-
-    sysdir2 = sysdir2base + '/' + channel
-    phafile = sysdir2 + '/phaout_%s' % lam
-    if os.path.isfile(phafile) == False:
-        print("2-body phase shifts unavailable for L = %s" % lam)
-        exit()
-    phaa = read_phase(phaout=phafile, ch=[1, 1], meth=1, th_shift='')
-    a_aa = [
-        -MeVfm * np.tan(phaa[n][2] * np.pi / 180.) /
-        np.sqrt(mn['137'] * phaa[n][0]) for n in range(len(phaa))
-    ]
-    print(
-        'a_aa(E_min) = %4.4f fm   a_aa(E_max) = %4.4f fm\na_dd/a_aa(E_min) = %4.4f   a_dd/a_aa(E_max) = %4.4f'
-        %
-        (a_aa[0], a_aa[-1], a_dd[0].real / a_aa[0], a_dd[-1].real / a_aa[-1]))
-
 exit()
 
-chans = [[1, 1], [2, 2], [3, 3], [4, 4]]
-
 # this ordering must match the threshold order, e.g., if B(t)>B(3He)>B(d)>B(dq),
-# phtp -> chans[0]
-# phhen -> chans[1]
-# phdd -> chans[2]
-# phdqdq -> chans[3]
-phtp = read_phase(phaout='PHAOUT', ch=chans[0], meth=1, th_shift='')
-phhen = read_phase(phaout='PHAOUT', ch=chans[1], meth=1, th_shift='1-2')
-phdqdq = read_phase(phaout='PHAOUT', ch=chans[3], meth=1, th_shift='1-4')
-#phmix = read_phase(phaout='PHAOUT', ch=chans[3], meth=1, th_shift='1-2')
+# phtp -> evalChans[0]
+# phhen -> evalChans[1]
+# phdd -> evalChans[2]
+# phdqdq -> evalChans[3]
+phtp = read_phase(phaout='PHAOUT', ch=evalChans[0], meth=1, th_shift='')
+phhen = read_phase(phaout='PHAOUT', ch=evalChans[1], meth=1, th_shift='1-2')
+phdqdq = read_phase(phaout='PHAOUT', ch=evalChans[3], meth=1, th_shift='1-4')
+#phmix = read_phase(phaout='PHAOUT', ch=evalChans[3], meth=1, th_shift='1-2')
 
 write_phases(ph2d[0],
              filename='np3s_phases_%s.dat' % lam,

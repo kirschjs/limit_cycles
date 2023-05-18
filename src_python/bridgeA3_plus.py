@@ -25,26 +25,29 @@ fitt = False
 # numerical stability
 mindi = 0.2
 
-width_bnds = [0.06, 25.15, 0.08, 22.25]
+width_bnds = [0.006, 12.15, 0.008, 12.25]
 minCond = 10**-14
 
 # genetic parameters
 anzNewBV = 6
-muta_initial = .02
-anzGen = 16
+muta_initial = .03
+anzGen = 8
 seed_civ_size = 10
 target_pop_size = 8
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 6
-nREL = 4
+nBV = 12
+nREL = 10
 
 J0 = 1 / 2
 
 for channel in channels_3:
     sysdir3 = sysdir3base + '/' + channel
     print('>>> working directory: ', sysdir3)
+
+    if id_chan == 0:
+        refdir = sysdir3
 
     if os.path.isdir(sysdir3) == False:
         subprocess.check_call(['mkdir', '-p', sysdir3])
@@ -91,9 +94,16 @@ for channel in channels_3:
             civs.append(cciv)
         print('>>> seed civilizations: %d/%d' % (len(civs), seed_civ_size))
 
+        if ((id_chan == 1) & (len(civs) > 1)):
+            break
+
     civs.sort(key=lambda tup: np.abs(tup[3]))
     civs = sortprint(civs, pr=True)
     for nGen in range(anzGen):
+
+        if id_chan == 1:
+            break
+
         tic = time.time()
 
         qualCUT, gsCUT, basCondCUT = civs[-int(len(civs) / 2)][2:]
@@ -277,7 +287,6 @@ for channel in channels_3:
     print('\n\n')
 
     civs = sortprint(civs, pr=False)
-    #plotwidths3(sysdir3)
 
     ma = blunt_ev3(
         civs[0][0],
@@ -298,6 +307,8 @@ for channel in channels_3:
         tnnii=tnni,
         jay=float(J0))
 
+    print(sysdir3)
+
     os.system('cp INQUA_N INQUA_N_%s' % lam)
     os.system('cp OUTPUT bndg_out_%s' % lam)
 
@@ -313,6 +324,18 @@ for channel in channels_3:
     finCiv = [civs[0][0], civs[0][1][0], civs[0][1][1], sbas]
     ob_strus, lu_strus, strus, bvwidthString = condense_basis_3to4(
         finCiv, widthSet_relative[-1], fn='inq_3to4_%s' % lam)
+
+    if id_chan == 1:
+        os.system('cp %s/INQUA_N* .' % (refdir))
+        os.system('cp %s/inq_3to4_%s .' % (refdir, lam))
+
+        os.system('cp INQUA_N_UIX INQUA_N')
+        subprocess.run([BINBDGpath + NNNhamilEXE_serial])
+        os.system('cp INQUA_N_V18 INQUA_N')
+        subprocess.run([BINBDGpath + NNhamilEXE_serial])
+        subprocess.run([BINBDGpath + spectralEXE_serial])
+        os.system('cp OUTPUT bndg_out_%s' % (lam))
+        #continue
 
     expC = parse_ev_coeffs_normiert(mult=0,
                                     infil='OUTPUT',
@@ -346,6 +369,8 @@ for channel in channels_3:
         outfile.write(outst)
 
     print(">>> End of 3-body day in channel %s\n" % channel)
+    if deg_channs:
+        id_chan = 1
 
     if fitt:
 

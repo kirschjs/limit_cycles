@@ -527,6 +527,8 @@ def inen_str_4(coeff,
             stmp += '%3d' % int(1)
             if ((int(i) % 50 == 0) | (int(i) == nbr_relw_phys_chan)):
                 stmp += '\n'
+
+        # channels are put in reverse order!
         chanstrs.insert(0, stmp)
         anzch += 1
 

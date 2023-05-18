@@ -3,7 +3,9 @@ from pathlib import Path
 import os, re
 import numpy as np
 import random
-import rrgm_functions, parameters_and_constants
+
+import rrgm_functions
+import parameters_and_constants
 
 NEWLINE_SIZE_IN_BYTES = -1
 
