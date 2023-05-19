@@ -25,20 +25,20 @@ fitt = False
 # numerical stability
 mindi = 0.2
 
-width_bnds = [0.006, 12.15, 0.008, 12.25]
+width_bnds = [0.6, 12.15, 0.8, 12.25]
 minCond = 10**-14
 
 # genetic parameters
 anzNewBV = 6
 muta_initial = .03
-anzGen = 8
+anzGen = 5
 seed_civ_size = 10
 target_pop_size = 8
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 12
-nREL = 10
+nBV = 8
+nREL = 6
 
 J0 = 1 / 2
 
@@ -88,7 +88,8 @@ for channel in channels_3:
                                           ini_grid_bounds=width_bnds,
                                           ini_dims=[nBV, nREL],
                                           minC=minCond,
-                                          evWin=evWindow)
+                                          evWin=evWindow,
+                                          anzOptStates=nbrStatesOpti3)
 
         for cciv in new_civs:
             civs.append(cciv)
@@ -194,7 +195,7 @@ for channel in channels_3:
                 twins[twinID][1][0], twins[twinID][1][1], sbas, nnpotstring,
                 nnnpotstring,
                 float(J0), twinID, BINBDGpath, costr, minCond, evWindow,
-                nOperators
+                nOperators, nbrStatesOpti3
             ] for twinID in range(len(twins))]
 
             # x) the parallel environment is set up in sets(chunks) of bases

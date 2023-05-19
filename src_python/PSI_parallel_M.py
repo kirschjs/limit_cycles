@@ -73,8 +73,10 @@ def end2(para, send_end):
         anzSigEV = len(
             [bvv for bvv in smartEV if para[8][0] < bvv < para[8][1]])
 
+        EnergySet = smartEV[int(-para[9]):]
         gsEnergy = smartEV[-1]
-        attractiveness = loveliness(gsEnergy, basCond, anzSigEV, minCond,
+
+        attractiveness = loveliness(EnergySet, basCond, anzSigEV, minCond,
                                     smartRAT)
 
         subprocess.call('rm -rf ./%s' % inqf, shell=True)
@@ -106,6 +108,7 @@ def end2(para, send_end):
         send_end.send([[], 0.0, 0.0, -42.7331])
 
 
+# new function used in bridgeA2_plus
 def span_population2(anz_civ,
                      fragments,
                      Jstreu,
@@ -117,7 +120,8 @@ def span_population2(anz_civ,
                      ini_grid_bounds=[0.01, 9.5],
                      ini_dims=8,
                      minC=10**(-8),
-                     evWin=[-100, 100]):
+                     evWin=[-100, 100],
+                     anzOptStates=1):
 
     os.chdir(funcPath)
 
@@ -130,7 +134,7 @@ def span_population2(anz_civ,
     rwma = 20
 
     # lower bound for width parameters '=' IR cutoff (broadest state)
-    IRcutoff = 0.001
+    IRcutoff = 0.00001
 
     # orbital-angular-momentum dependent upper bound '=' UV cutoff (narrowest state)
     UVcutoff = 951.
@@ -204,7 +208,8 @@ def span_population2(anz_civ,
 
         # [widths, sbas, nnpot, Jstreu, binPath, coefstr, civID, minCond, energInt]
         ParaSets.append([
-            widr, sbas, nnpotstring, Jstreu, binPath, coefstr, civ, minC, evWin
+            widr, sbas, nnpotstring, Jstreu, binPath, coefstr, civ, minC,
+            evWin, anzOptStates
         ])
 
     os.chdir(funcPath)
@@ -245,95 +250,7 @@ def span_population2(anz_civ,
     return cand_list, sbas
 
 
-def endmat2(para, send_end):
-
-    child_id = ''.join(str(x) for x in np.array(para[5]))
-
-    inenf = 'inen_%s' % child_id
-    outf = 'endout_%s' % child_id
-    maoutf = 'MATOUTB_%s' % child_id
-
-    #           basis
-    #           jay
-    #           costring
-    #           nzopt
-    #           tnnii
-
-    inen_bdg_2(para[0], j=para[1], costr=para[2], fn=inenf, pari=0)
-
-    cmdend = para[6] + spectralEXE_serial_pool + ' %s %s %s' % (inenf, outf,
-                                                                maoutf)
-
-    pend = subprocess.Popen(shlex.split(cmdend),
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE)
-    #cwd=workdir)
-
-    # <communicate> is needed in order to ensure the process ended before parsing its output!
-    out, err = pend.communicate()
-
-    try:
-        NormHam = np.core.records.fromfile(maoutf, formats='f8', offset=4)
-        dim = int(np.sqrt(len(NormHam) * 0.5))
-
-        # read Norm and Hamilton matrices
-        normat = np.reshape(
-            np.array(NormHam[:dim**2]).astype(float), (dim, dim))
-        hammat = np.reshape(
-            np.array(NormHam[dim**2:]).astype(float), (dim, dim))
-        # diagonalize normalized norm (using "eigh(ermitian)" to speed-up the computation)
-        ewN, evN = eigh(normat)
-        idx = ewN.argsort()[::-1]
-        ewN = [eww for eww in ewN[idx]]
-        evN = evN[:, idx]
-
-        try:
-            ewH, evH = eigh(hammat, normat)
-            idx = ewH.argsort()[::-1]
-            ewH = [eww for eww in ewH[idx]]
-            evH = evH[:, idx]
-            #print('lowest eigen values (N): ', ewN[-4:])
-            #print('lowest eigen values (H): ', ewH[-4:])
-
-        except:
-            #print(
-            #    'failed to solve generalized eigenvalue problem (norm ev\'s < 0 ?)'
-            #)
-            attractiveness = 0.
-            basCond = 0.
-            gsEnergy = 0.
-            ewH = []
-
-        if ewH != []:
-
-            anzSigEV = len(
-                [bvv for bvv in ewH if para[8][0] < bvv < para[8][1]])
-
-            gsEnergy = ewH[-1]
-
-            basCond = np.min(np.abs(ewN)) / np.max(np.abs(ewN))
-
-            minCond = para[7]
-
-            attractiveness = loveliness(gsEnergy, basCond, anzSigEV, minCond)
-
-        subprocess.call('rm -rf ./%s' % inenf, shell=True)
-        subprocess.call('rm -rf ./%s' % outf, shell=True)
-        subprocess.call('rm -rf ./%s' % maoutf, shell=True)
-
-        send_end.send([basCond, attractiveness, gsEnergy, para[5], para[0]])
-
-    except:
-
-        subprocess.call('rm -rf ./%s' % inenf, shell=True)
-        subprocess.call('rm -rf ./%s' % outf, shell=True)
-        subprocess.call('rm -rf ./%s' % maoutf, shell=True)
-
-        print(para[5], child_id)
-        print(maoutf)
-        send_end.send([0.0, 0.0, -42.7331, para[5], para[0]])
-
-
+# deprecated function used in outdated bridgeA2
 def span_initial_basis2(channel,
                         Jstreu,
                         coefstr,
@@ -504,260 +421,6 @@ def span_initial_basis2(channel,
     return matout
 
 
-def span_initial_basis3(fragments,
-                        Jstreu,
-                        coefstr,
-                        funcPath,
-                        binPath,
-                        mindists=[0.01, 0.01],
-                        ini_grid_bounds=[0.01, 9.5, 0.001, 11.5],
-                        ini_dims=[4, 4],
-                        parall=-1):
-
-    os.chdir(funcPath)
-
-    Jstreustring = '%s' % str(Jstreu)[:3]
-
-    lfrags = []
-    sfrags = []
-    lfrags2 = []
-    sfrags2 = []
-
-    for lcfg in range(len(fragments)):
-        sfrags = sfrags + fragments[lcfg][1]
-        for scfg in fragments[lcfg][1]:
-            lfrags = lfrags + [fragments[lcfg][0]]
-
-    lit_w = {}
-    lit_rw = {}
-
-    he_iw = he_rw = he_frgs = ob_stru = lu_stru = sbas = []
-
-    # minimal distance allowed for between width parameters
-    rwma = 20
-    bvma = 8
-    mindist_int = mindists[0]
-    mindist_rel = mindists[1]
-
-    # lower bound for width parameters '=' IR cutoff (broadest state)
-    rWmin = 0.0001
-
-    # orbital-angular-momentum dependent upper bound '=' UV cutoff (narrowest state)
-    iLcutoff = 492.
-    rLcutoff = 492.
-    nwint = ini_dims[0]
-    nwrel = ini_dims[1]
-    rel_scale = 1.
-
-    if nwrel >= rwma:
-        print(
-            'The set number for relative width parameters per basis vector > max!'
-        )
-        exit()
-
-    lit_rw_sparse = np.empty(len(sfrags), dtype=list)
-    for frg in range(len(lfrags)):
-
-        #  -- internal widths --------------------------------------------------
-        itera = 1
-
-        lit_w_tmp = np.abs(
-            np.geomspace(start=ini_grid_bounds[0],
-                         stop=ini_grid_bounds[1],
-                         num=nwint,
-                         endpoint=True,
-                         dtype=None))
-
-        lit_w_t = []
-        while len(lit_w_t) != nwint:
-
-            lit_wi = [
-                test_width * (1 + 0.5 * (np.random.random() - 1))
-                for test_width in lit_w_tmp
-            ]
-
-            prox_check = check_dist(width_array1=lit_wi, minDist=mindist)
-            prox_checkr = np.all([
-                check_dist(width_array1=lit_wi,
-                           width_array2=wsr,
-                           minDist=mindist) for wsr in widthSet_relative
-            ])
-
-            if ((prox_check * prox_checkr) & (lit_wi < iLcutoff)):
-                lit_w_t.append(lit_wi)
-
-            itera += 1
-            assert itera <= 180000
-
-        lit_w[frg] = np.sort(lit_w_t)[::-1]
-
-        #  -- relative widths --------------------------------------------------
-        itera = 1
-        lit_w_t = [
-            ini_grid_bounds[2] + np.random.random() *
-            (ini_grid_bounds[3] - ini_grid_bounds[2])
-        ]
-        while len(lit_w_t) != nwrel:
-
-            lit_w_tmp = ini_grid_bounds[2] + np.random.random() * (
-                ini_grid_bounds[3] - ini_grid_bounds[2])
-            dists = [np.linalg.norm(wp - lit_w_tmp) for wp in lit_w_t]
-            if ((np.min(dists) > mindist_rel) & (lit_w_tmp < rLcutoff)):
-                lit_w_t.append(lit_w_tmp)
-
-            itera += 1
-            assert itera <= 180000
-
-        lit_rw[frg] = np.sort(lit_w_t)[::-1]
-
-    widi = []
-    widr = []
-    for n in range(len(lit_w)):
-        tmp = np.sort(lit_w[n])[::-1]
-        zer_per_ws = int(np.ceil(len(tmp) / bvma))
-        bins = [0 for nmmm in range(zer_per_ws + 1)]
-        bins[0] = 0
-        for mn in range(len(tmp)):
-            bins[1 + mn % zer_per_ws] += 1
-        bnds = np.cumsum(bins)
-        tmp2 = [list(tmp[bnds[nn]:bnds[nn + 1]]) for nn in range(zer_per_ws)]
-        tmp3 = [list(lit_rw[n]) for nn in range(zer_per_ws)]
-        sfrags2 += len(tmp2) * [sfrags[n]]
-        lfrags2 += len(tmp2) * [lfrags[n]]
-        widi += tmp2
-        widr += tmp3
-
-    anzBV = sum([len(zer) for zer in widi])
-
-    sbas = []
-    bv = 1
-    for n in range(len(lfrags2)):
-        off = np.mod(n, 2)
-        for m in range(len(widi[n])):
-            sbas += [[bv, [x for x in range(1 + off, 1 + len(widr[n]), 2)]]]
-            bv += 1
-
-    os.chdir(funcPath)
-
-    inlu_3(8, fn='INLU', fr=lfrags2, indep=parall)
-    os.system(binPath + NNNorbitalEXE)
-    inlu_3(8, fn='INLUCN', fr=lfrags2, indep=parall)
-    os.system(binPath + NNorbitalEXE)
-    inob_3(sfrags2, 8, fn='INOB', indep=parall)
-    os.system(binPath + NNspinEXE)
-    inob_3(sfrags2, 15, fn='INOB', indep=parall)
-    os.system(binPath + NNNspinEXE)
-
-    inqua_3(intwi=widi, relwi=widr, potf=nnpotstring, inquaout='INQUA_N')
-
-    parallel_mod_of_3inqua(lfrags2,
-                           sfrags2,
-                           infile='INQUA_N',
-                           outfile='INQUA_N',
-                           einzel_path='')
-
-    insam(len(lfrags2))
-
-    anzproc = max(2, min(len(lfrags2), MaxProc))
-
-    inen_bdg_3(sbas, Jstreu, coefstr, fn='INEN', pari=0)
-
-    if parall == -1:
-        diskfil = disk_avail(funcPath)
-
-        if diskfil < 0.2:
-            print('more than %s of disk space is already used!' %
-                  (str(diskfil) + '%'))
-            exit()
-
-        subprocess.run([
-            MPIRUN, '--oversubscribe', '-np',
-            '%d' % anzproc, binPath + NNhamilEXE_mpi
-        ])
-        subprocess.run([binPath + NNcollect_mpi])
-        subprocess.call('rm -rf DMOUT.*', shell=True)
-
-    else:
-        subprocess.run([binPath + NNhamilEXE_serial])
-
-    subprocess.call('cp -rf INQUA_N INQUA_N_V18', shell=True)
-
-    if tnni == 11:
-        inqua_3(intwi=widi, relwi=widr, potf=nnnpotstring, inquaout='INQUA_N')
-        parallel_mod_of_3inqua(lfrags2,
-                               sfrags2,
-                               infile='INQUA_N',
-                               outfile='INQUA_N',
-                               tni=1,
-                               einzel_path='')
-        if parall == -1:
-            diskfil = disk_avail(funcPath)
-
-            if diskfil < 0.2:
-                print('more than %s of disk space is already used!' %
-                      (str(diskfil) + '%'))
-                exit()
-
-            subprocess.run([
-                MPIRUN, '--oversubscribe', '-np',
-                '%d' % anzproc, binPath + NNNhamilEXE_mpi
-            ])
-
-            subprocess.run([binPath + NNNcollect_mpi])
-            subprocess.call('rm -rf DRDMOUT.*', shell=True)
-
-            subprocess.run([binPath + spectralEXE_mpi])
-            subprocess.call('cp OUTPUT out_normal', shell=True)
-        else:
-            subprocess.run([binPath + NNNhamilEXE_serial])
-            subprocess.run([binPath + spectralEXE_serial])
-
-    elif tnni == 10:
-        if parall == -1:
-            subprocess.run([binPath + spectralEXE_mpi])
-            subprocess.call('cp OUTPUT out_normal', shell=True)
-        else:
-            subprocess.run([binPath + spectralEXE_serial])
-
-    subprocess.call('cp -rf INQUA_N INQUA_N_UIX', shell=True)
-    suche_fehler()
-
-    matout = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
-
-    # write basis structure on tape
-
-    path_frag_stru = funcPath + '/frags.dat'
-    if os.path.exists(path_frag_stru): os.remove(path_frag_stru)
-    with open(path_frag_stru, 'wb') as f:
-        np.savetxt(f,
-                   np.column_stack([sfrags2, lfrags2]),
-                   fmt='%s',
-                   delimiter=' ',
-                   newline=os.linesep)
-        f.seek(NEWLINE_SIZE_IN_BYTES, 2)
-        f.truncate()
-    f.close()
-
-    path_intw = funcPath + '/intw.dat'
-    if os.path.exists(path_intw): os.remove(path_intw)
-    with open(path_intw, 'wb') as f:
-        for ws in widi:
-            np.savetxt(f, [ws], fmt='%12.6f', delimiter=' ')
-        f.seek(NEWLINE_SIZE_IN_BYTES, 2)
-        f.f.close()
-
-    path_relw = funcPath + '/relw.dat'
-    if os.path.exists(path_relw): os.remove(path_relw)
-    with open(path_relw, 'wb') as f:
-        for ws in widr:
-            np.savetxt(f, [ws], fmt='%12.6f', delimiter=' ')
-        f.seek(NEWLINE_SIZE_IN_BYTES, 2)
-        f.truncate()
-    f.close()
-
-    return matout
-
-
 def end3(para, send_end):
 
     # [widi, widr, sbas, nnpot, nnnpot, Jstreu, civ, binPath, coefstr]
@@ -814,9 +477,10 @@ def end3(para, send_end):
         anzSigEV = len(
             [bvv for bvv in smartEV if para[10][0] < bvv < para[10][1]])
 
+        EnergySet = smartEV[int(-para[12]):]
         gsEnergy = smartEV[-1]
 
-        attractiveness = loveliness(smartEV[-1], basCond, anzSigEV, minCond,
+        attractiveness = loveliness(EnergySet, basCond, anzSigEV, minCond,
                                     smartRAT)
 
         os.system('rm -rf ./%s' % inqf)
@@ -866,7 +530,8 @@ def span_population3(anz_civ,
                      ini_grid_bounds=[0.01, 9.5, 0.001, 11.5],
                      ini_dims=[4, 4],
                      minC=10**(-8),
-                     evWin=[-100, 100]):
+                     evWin=[-100, 100],
+                     anzOptStates=1):
 
     os.chdir(funcPath)
 
@@ -886,7 +551,7 @@ def span_population3(anz_civ,
     mindist_int = mindists
     mindist_rel = mindists
     # lower bound for width parameters '=' IR cutoff (broadest state)
-    rWmin = 0.0001
+    rWmin = 0.00001
 
     # orbital-angular-momentum dependent upper bound '=' UV cutoff (narrowest state)
     iLcutoff = 492.
@@ -1015,7 +680,7 @@ def span_population3(anz_civ,
                 bv += 1
         ParaSets.append([
             widi, widr, sbas, nnpotstring, nnnpotstring, Jstreu, civ, binPath,
-            coefstr, minC, evWin, nzo
+            coefstr, minC, evWin, nzo, anzOptStates
         ])
 
     assert len(ParaSets) == anz_civ
@@ -1554,6 +1219,7 @@ def span_population4(anz_civ,
     return cand_list, sbas
 
 
+# deprecated routine used in outdated bridge3
 def endmat(para, send_end):
 
     child_id = ''.join(str(x) for x in np.array(para[5]))

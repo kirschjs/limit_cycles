@@ -288,8 +288,8 @@ lec_lists = {
         '1.50': [-86.4495, 79.22],
         '2.00': [-142.3625, 173.925],
         '3.00': [-295.93, 558.49338400],
-        '4.00': [-475.15, 1395.62624049],
-        '6.00': [-1090.548, 6293.03337496],
+        '4.00': [-465.15, 1395.62624049],
+        '6.00': [-1040.548, 6293.03337496],
         '8.00': [-1898.553, 23937.61505980],
         '10.0': [-2929.165, 85318.84107084]
     },
@@ -375,7 +375,7 @@ maxParLen = 120
 cib = 0  # if set, EFTnoPi with charge independence broken by Coulomb and an acompanying
 # contact-term correction is employed (leading order)
 
-lam = 4.00  #0.50 0.75 1.00 1.50 2.00 3.00 4.00 6.00 8.00 10.0
+lam = 6.00  #0.50 0.75 1.00 1.50 2.00 3.00 4.00 6.00 8.00 10.0
 # lec_list_nucl_n  : spin-dependent LO pionless interaction: 2 2-body LECs (deuteron, a(1S0)=-23fm), 1 3-body LEC (triton)
 # lec_list_SU4     : spin-independent (SU(4) symmetric) LO pionless: 1 2-body LEC (deuteron), 1 3-body LEC (triton)
 
@@ -395,7 +395,7 @@ lam = 4.00  #0.50 0.75 1.00 1.50 2.00 3.00 4.00 6.00 8.00 10.0
 #  12   lec_list_b2-17_b3-85
 #  13   lec_list_b2-1_b3-85
 #  14   lec_list_b2-05_b3-85
-lecidx = 10
+lecidx = 15  #10,15 SU4,SU4u
 
 lecstring = list(lec_lists.keys())[lecidx]
 
@@ -548,18 +548,20 @@ elif len(lec_set[la]) == 2:
     cloB = 0.0
     d0 = lec_set[la][1]
 
-evWindow = [-30, 150]
+evWindow = [-10, -0.001]
+nbrStatesOpti2 = 1
+nbrStatesOpti3 = 3
 
-nzEN = 100
+nzEN = 50
 
 E0 = 0.0001
 D0 = 0.1
 
-E0M = 0.001
+E0M = 0.0005
 D0M = 0.005
 
-epL = 0.001
-epU = 0.01
+epL = 0.0005
+epU = 0.009
 eps0 = [epL * 1.0, epL, epL, epL, epL]
 eps1 = [epU * 1.0, epU, epU, epU, epU]
 epsM = (np.array(eps1) + np.array(eps0)) / 2
@@ -568,14 +570,15 @@ epsNBR = 2
 # parameters for the expansion of the fragment-relative function
 # (i.e., both fragments charged: Coulomb function, else sperical Bessel)
 # in Gaussians
-SPOLE_adaptweightUP = 2.2
-SPOLE_adaptweightLOW = 2.2
+SPOLE_adaptweightUP = 1.2
+SPOLE_adaptweightLOW = 1.2
 SPOLE_adaptweightL = 0.5
-SPOLE_GEW = 1.0  # smaller values decrease the maximal radius up to which values enter the fit
+SPOLE_GEW = 1.2  # smaller values decrease the maximal radius up to which values enter the fit
 SPOLE_QD = 1.2  # this shifts the interval smaller values try to optimize the behavior closer to zero
-SPOLE_QS = 3.6
+SPOLE_QS = 0.6
 
-Bet = [1.3, 1.3, 1.3, 1.3, 1.3]
+beta0 = 0.9
+Bet = [beta0, beta0, beta0, beta0, beta0]
 rgh = 8.0
 anzStuez = 800
 StuezAbs = 0.9
@@ -596,9 +599,9 @@ MeVfm = 197.3161329
 widthSet_relative = [
     np.append(
         np.abs(
-            np.logspace(-5.1 + 0.0 * np.random.random(),
-                        1.6 + 0.0 * np.random.random(),
-                        num=25,
+            np.logspace(-3.5 + 0.0 * np.random.random(),
+                        1.1 + 0.0 * np.random.random(),
+                        num=20,
                         endpoint=True,
                         dtype=None)[::-1]), [])
     for nn in range(1, 1 + len(channels_4_scatt))

@@ -26,9 +26,10 @@ from multiprocessing.pool import ThreadPool
 einzel4 = 0
 findstablebas = 0
 
-newCal = 0
+newCal = 2
 
-evalChans = [[1, 1], [2, 2], [3, 3]]  #, [4, 4], [5, 5]]  #[[3, 3]]
+evalChans = [[1, 1], [2, 2], [3, 3], [4, 4], [5, 5]]  #[[3, 3]]
+noDistortion = True
 
 # col = 0 :  wave function (real part)
 #       1 :  normalized wave function (real part)
@@ -241,11 +242,12 @@ sb = []
 bv = 1
 varspacedim = sum([len(rset[1]) for rset in sbas])
 
-anzch = int(np.max([1, len(sum(cofli, [])) - 5 * len(cofli)]))
+anzch = len(evalChans) if noDistortion == True else int(
+    np.max([1, len(sum(cofli, [])) - 5 * len(cofli)]))
 
-print(
-    '\n Commencing 4-body calculation with %d channels (physical + distortion).'
-    % anzch)
+print('\n Commencing 4-body calculation with %d channels.' % anzch)
+if noDistortion:
+    print('NO DISTORTION CHANNELS.')
 print('>>> working directory: ', sysdir4, '\n')
 
 for nbv in range(1, varspacedim):
@@ -394,8 +396,11 @@ neps = 0
 a_of_epsi = {}
 a_of_Ematch = {}
 for key in asyChanLabels:
-    a_of_epsi[key] = []
+    #a_of_epsi[key] = []
     a_of_Ematch[key] = []
+
+for chToRead in evalChans:
+    a_of_epsi['%s--%s' % (chToRead[0], chToRead[1])] = []
 
 for epsi in np.linspace(eps0, eps1, epsNBR):
     spole_2(nzen=nzEN,
@@ -442,7 +447,8 @@ for epsi in np.linspace(eps0, eps1, epsNBR):
                      nbrE=energyToPlot)
 
     subprocess.call('cp OUTPUTSPOLE outps_%d' % neps, shell=True)
-    #subprocess.call('grep "FUNCTIONAL BERUECKSICHTIGT" OUTPUTSPOLE', shell=True)
+    subprocess.call('grep "FUNCTIONAL BERUECKSICHTIGT" OUTPUTSPOLE',
+                    shell=True)
 
     plotphas(oufi='4_ph_%d_%s_%s.pdf' % (neps, lam, lecstring),
              diag=True,
@@ -484,7 +490,9 @@ for epsi in np.linspace(eps0, eps1, epsNBR):
             with open(rafile, 'w') as outfile:
                 outfile.write(head_str + results_bare)
 
-            a_of_epsi[asyChanLabels[int(chToRead[0]) - 1]].append(
+            #a_of_epsi[asyChanLabels[int(chToRead[0]) - 1]].append(
+            #    [epsi, a_dd[0].real, a_dd[-1].real])
+            a_of_epsi['%s--%s' % (chToRead[0], chToRead[1])].append(
                 [epsi, a_dd[0].real, a_dd[-1].real])
             a_of_Ematch[asyChanLabels[int(chToRead[0]) - 1]].append(
                 [np.array(phdd)[:, 0], a_dd])

@@ -26,8 +26,8 @@ minidi_breed = 0.1
 minidi_seed = minidi_breed
 minidi_breed_rel = minidi_breed
 denseEVinterval = [-2, 2]
-width_bnds = [0.01, 17.25]
-deutDim = 4
+width_bnds = [0.0001, 7.25]
+deutDim = 6
 miniE_breed = 0.1
 
 # genetic parameters
@@ -117,7 +117,8 @@ for channel in channels_2:
                                           ini_grid_bounds=width_bnds,
                                           ini_dims=deutDim,
                                           minC=minCond,
-                                          evWin=evWindow)
+                                          evWin=evWindow,
+                                          anzOptStates=nbrStatesOpti2)
         for cciv in new_civs:
             civs.append(cciv)
         print('>>> seed civilizations: %d/%d' % (len(civs), civ_size))
@@ -215,7 +216,8 @@ for channel in channels_2:
 
             ParaSets = [[
                 twins[twinID][1], sbas, nnpotstring,
-                float(J0), BINBDGpath, costr, twinID, minCond, evWindow
+                float(J0), BINBDGpath, costr, twinID, minCond, evWindow,
+                nbrStatesOpti2
             ] for twinID in range(len(twins))]
 
             split_points = [
