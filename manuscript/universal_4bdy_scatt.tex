@@ -29,6 +29,14 @@
 %\setfnsymbol{lamportnostar}
 %\renewcommand\thefootnote{\fnsymbol{footnote}}
 %=============================================================================
+\usepackage{nicematrix}
+\NiceMatrixOptions{
+code-for-first-row = \color{blue} ,
+code-for-last-row = \color{blue} ,
+code-for-first-col = \color{blue} ,
+code-for-last-col = \color{blue}
+}
+
 \newcommand{\es}{1\text{\scriptsize s}}
 \newcommand{\zs}{2\text{\scriptsize s}}
 \newcommand*{\mprime}{^{\prime}\mkern-1.2mu}
@@ -63,8 +71,8 @@
 \newcommand{\figref}[1]{fig.~\ref{#1}}
 \newcommand{\tabref}[1]{table~\ref{#1}}
 \newcommand{\ccite}[1]{Ref.~\cite{#1}}
-%\newcommand{\bra}[1] {\left\langle~#1~\right|}
-%\newcommand{\ket}[1] {\left|~#1~\right\rangle}
+\newcommand{\dbra}[1] {\left\langle~#1~\right|}
+\newcommand{\dket}[1] {\left|~#1~\right\rangle}
 \newcommand{\bet}[1] {\left|#1\right|}
 \newcommand{\overlap}[2] {\left\langle\,#1\,\left|\,#2\,\right.\right\rangle}
 \newcommand{\me}[3] {\left\langle\,#1\,\left|\left.\,#2\,\right|\,#3\,\right.\right\rangle}
@@ -108,7 +116,7 @@ with respect to distorted, \ie, screened Coulomb repulsion between the two proto
 
 \maketitle
 
-\section{Few is more}
+\paragraph{Few is more}
 
 The fundamental question of interest is on the behaviour of 4
 identical spin-$\nicefrac{1}{2}$ particles which can occupy 2
@@ -139,12 +147,28 @@ fragmentations seems to defy the argument as an equally strong force keeps the p
 
 %--
 \begin{figure}[tb]
-\centerline{\includegraphics{/home/johannesk/kette_repo/limit_cycles/systems/4/10.0/4_body_phases_12.pdf}}
+\centerline{\includegraphics{/home/johannesk/kette_repo/limit_cycles/systems/4_lec_list_SU4/6.00/4_ph_0_6.0_lec_list_SU4.pdf}}
 \caption{\label{fig.dd-phases} Energy dependence of phase shifts which parameterize the coupled channel
 nnpp system in the ${}^1S_0$ $\alpha$ channel~\eqref{eq.sm}.
 }
 \end{figure}
 %--
+
+\paragraph{Spin-wave-function overlap}
+
+\[
+\begin{pNiceArray}{rrrr:rrr}[margin,first-row,first-col]
+& \dket{\text{t-p}_1}  & \dket{\text{t-p}_6}&\dket{\text{he-n}_1}&\dket{\text{he-n}_6}&\dket{\text{d-d}}&\dket{\text{d}_q-\text{d}_q}&\dket{\text{nn-pp}}\\
+\dbra{\text{t-p}_1}          & 6    &     & & & & & \\
+\dbra{\text{t-p}_6}          &-6    & 6   & & & & & \\
+\dbra{\text{he-n}_1}         &-2    &+2   & 0.66 & & & & \\
+\dbra{\text{he-n}_6}         &-6    &+6   &+2 & 6 & & & \\
+\hdottedline
+\dbra{\text{d-d}}            &+8.5  &-8.5 &-2.8 &-8.5 & 12 &	 & \\
+\dbra{\text{d}_q-\text{d}_q} &-4.9  &+4.9 &+1.6 &+4.9 &-6.9 & 4 & \\
+\dbra{\text{nn-pp}}          &-4.9  &+4.9 &+1.6 &+4.9 &-6.9 &+4 & 4
+\end{pNiceArray}
+\]
 
 \bibliography{refs}
 

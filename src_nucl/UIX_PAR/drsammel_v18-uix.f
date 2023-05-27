@@ -20,6 +20,7 @@ C
       DIMENSION   NUM(NZRHOM,NZFMAX),kmax(nzfmax),
      *           MZPAR(NZFMAX), NZRHO(NZFMAX),kmin(nzfmax)
       COMMON    DM(NDIM,NDIM,2,nzfmax,nzoper)
+      dimension dtmp(NDIM,NDIM,2)
       DIMENSION IOP(0:NZFMAX)
       DIMENSION LREG(NZOPER)
 C
@@ -180,8 +181,11 @@ c        print *, MTEIL,JCOUNT,INDEXR
             READ (NBAND,END=131)
             GOTO 131
          ELSE
-        read(NBAND,end=317,err=317)(((dm(i,j,k,mmfr(mteil),mop(mteil)),
+C        read(NBAND,end=317,err=317)(((dm(i,j,k,mmfr(mteil),mop(mteil)),
+C     $        i=1,ndim),j=1,ndim),k=1,2)
+        read(NBAND,ERR=317)(((dtmp(i,j,k),
      $        i=1,ndim),j=1,ndim),k=1,2)
+        dm(:,:,:,mmfr(mteil),mop(mteil))=dtmp        
            ifertig= ifertig - 1
            if(KMIN(MFL).EQ.KMAX(MFL) .AND. ifertig.eq.0) goto 318
            GOTO 131

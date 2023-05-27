@@ -66,8 +66,13 @@ def plotphas(infi='PHAOUT', oufi='tmp.pdf', diag=False, titl=''):
         en = np.array(phases[cha])[:, 0]
         pha = np.array(phases[cha])[:, 1]
 
-        stylel = 'solid' if cha[0] == cha[1] else 'dashdot'
-        plt.plot(en, pha, label=''.join(cha), linestyle=stylel)
+        stylel = 'solid' if cha.split('-')[0] == cha.split(
+            '-')[1] else 'dashdot'
+        plt.plot(en,
+                 pha,
+                 label=''.join(cha),
+                 linestyle=stylel,
+                 linewidth=int(cha.split('-')[0]) / len(phases))
 
     plt.legend(loc='best', numpoints=1)
     plt.savefig(oufi)

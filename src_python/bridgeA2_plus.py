@@ -26,8 +26,8 @@ minidi_breed = 0.1
 minidi_seed = minidi_breed
 minidi_breed_rel = minidi_breed
 denseEVinterval = [-2, 2]
-width_bnds = [0.0001, 7.25]
-deutDim = 6
+width_bnds = [0.01, 7.25]
+deutDim = 4
 miniE_breed = 0.1
 
 # genetic parameters

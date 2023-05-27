@@ -375,7 +375,7 @@ maxParLen = 120
 cib = 0  # if set, EFTnoPi with charge independence broken by Coulomb and an acompanying
 # contact-term correction is employed (leading order)
 
-lam = 6.00  #0.50 0.75 1.00 1.50 2.00 3.00 4.00 6.00 8.00 10.0
+lam = 4.00  #0.50 0.75 1.00 1.50 2.00 3.00 4.00 6.00 8.00 10.0
 # lec_list_nucl_n  : spin-dependent LO pionless interaction: 2 2-body LECs (deuteron, a(1S0)=-23fm), 1 3-body LEC (triton)
 # lec_list_SU4     : spin-independent (SU(4) symmetric) LO pionless: 1 2-body LEC (deuteron), 1 3-body LEC (triton)
 
@@ -395,9 +395,12 @@ lam = 6.00  #0.50 0.75 1.00 1.50 2.00 3.00 4.00 6.00 8.00 10.0
 #  12   lec_list_b2-17_b3-85
 #  13   lec_list_b2-1_b3-85
 #  14   lec_list_b2-05_b3-85
-lecidx = 15  #10,15 SU4,SU4u
+#  15   lec_list_SU4u
+lecidx = 10  #10,15 SU4,SU4u
 
 lecstring = list(lec_lists.keys())[lecidx]
+
+SU4 = True if 'SU4' in lecstring else False
 
 #for mm in lec_lists.keys():
 #    print(mm)
@@ -550,12 +553,12 @@ elif len(lec_set[la]) == 2:
 
 evWindow = [-10, -0.001]
 nbrStatesOpti2 = 1
-nbrStatesOpti3 = 3
+nbrStatesOpti3 = 1
 
-nzEN = 50
+nzEN = 75
 
 E0 = 0.0001
-D0 = 0.1
+D0 = 0.25
 
 E0M = 0.0005
 D0M = 0.005
@@ -599,7 +602,7 @@ MeVfm = 197.3161329
 widthSet_relative = [
     np.append(
         np.abs(
-            np.logspace(-3.5 + 0.0 * np.random.random(),
+            np.logspace(-4.5 + 0.0 * np.random.random(),
                         1.1 + 0.0 * np.random.random(),
                         num=20,
                         endpoint=True,
