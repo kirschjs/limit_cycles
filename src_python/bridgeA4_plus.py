@@ -26,7 +26,7 @@ from multiprocessing.pool import ThreadPool
 einzel4 = 0
 findstablebas = 0
 
-newCal = 1
+newCal = 0
 
 evalChans = [[1, 1], [2, 2], [3, 3], [4, 4], [5, 5]]  #[[3, 3]]
 noDistortion = True
@@ -119,7 +119,7 @@ for chan in channels_4_scatt:
     ths2 = get_h_ev(n=1, ifi=sysdir22 + '/bndg_out_%s' % lam)
     fragment_energies.append(ths1[0] + ths2[0])
 
-    if ((sysdir21 == sysdir22) | (SU4 == True)):
+    if (sysdir21 == sysdir22):
         zstrus_tmp, outs = from2to4(zwei_inq=sysdir21 + '/INQUA_N_%s' % lam,
                                     vier_dir=sysdir4,
                                     fn=nnpotstring,
@@ -142,7 +142,7 @@ for chan in channels_4_scatt:
     sbas.append(get_bsv_rw_idx(inen=sysdir21 + '/INEN_BDG', offset=4, int4=0))
     sbas.append(get_bsv_rw_idx(inen=sysdir22 + '/INEN_BDG', offset=4, int4=0))
 
-    if ((sysdir21 == sysdir22) | (SU4 == True)):
+    if (sysdir21 == sysdir22):
         ddCoff = parse_ev_coeffs(mult=1,
                                  infil=sysdir21 + '/bndg_out_%s' % lam,
                                  outf='COEFF',

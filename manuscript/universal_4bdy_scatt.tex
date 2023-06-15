@@ -170,6 +170,67 @@ nnpp system in the ${}^1S_0$ $\alpha$ channel~\eqref{eq.sm}.
 \end{pNiceArray}
 \]
 
+\paragraph{Two-fragment approximation}
+
+We expand a fragment state, $\overlap{\vcl{1}\ldots\vcl{A}}{\phi}$, which binds $A$ particles in a Gaussian basis
+whose elements, $\overlap{\vcl{1}\ldots\vcl{A}}{m}$, are parametrized by $A$ width parameters $\alpha_{1\ldots A}^m$:
+\[
+\overlap{\vcl{1}\ldots\vcl{A}}{\phi}=
+\sum_m\,c_m\cdot\overlap{\vcl{1}\ldots\vcl{A}}{m}=
+\sum_m\,c_m\cdot e^{-\sum_i^A\alpha_i^m\vcl{i}}\quad.
+\]
+
+The basis is neither orthogonal nor normalized with a {\bf norm-matrix} element given by:
+
+\begin{eqnarray}
+\overlap{m}{n}&:=&
+\underbrace{\int_{-\infty}^\infty\ldots\int_{-\infty}^\infty}_{6\times}
+d^3(\vcl{1},\vcl{2})
+e^{-\frac{1}{2}
+\begin{bNiceArray}{c}
+\vcl{1}\\\vcl{2}
+\end{bNiceArray}^T
+\cdot
+\begin{bNiceArray}{cc}
+2(\alpha_1^m+\alpha_3^m) & 2\alpha_3^m\\
+2\alpha_3^m & 2(\alpha_2^m+\alpha_3^m)
+\end{bNiceArray}
+\cdot
+\begin{bNiceArray}{c}
+\vcl{1}\\\vcl{2}
+\end{bNiceArray}
+}
+\cdot
+e^{(m\leftrightarrow n)}
+\nonumber\\
+&=&\frac{\pi^3}{8\left[(\alpha_1^m+\alpha_1^n+\alpha_3^m+\alpha_3^n)(\alpha_2^m+\alpha_2^n+\alpha_3^m+\alpha_3^n)
+-(\alpha_3^m+\alpha_3^n)^2\right]^{\nicefrac{3}{2}}}
+\quad.
+\end{eqnarray}
+
+To obtain the expansion coefficients $c_i$ via a variational principle, we need to express the Hamilton operator
+in the given basis.
+The leading-order theory comprises a kinetic energy, a 2-, and a 3-body interaction term:
+
+\[
+\hat{H}\dket{\psi}=
+\left[
+(2m)^{-1}\sum^A_{i=1}\hat{p}_i^2
++\sum_{i<j}^A\delta^\lambda_{ij}
++\sum_{i<j<k}^A\delta^\lambda_{ij}\delta^\lambda_{ik}
+\right]\dket{\psi}
+\quad.
+\]
+In coordinate representation, we obtain the kinetic-energy matrix elements in the Gaussian basis:
+
+\begin{align}
+\me{m}{\sum_i\hat{p}_i^2}{n}
+&=
+\me{m}{\sum_i\hat{p}_i\,\hat{p}_i}{n}=
+\sum_i\int d^3(\vsp{1\ldots A})\me{m}{\hat{p}_i}{\vsp{1\ldots A}}\me{\vsp{1\ldots A}}{\hat{p}_i}{n}\\
+&\stackrel{\vsp{i}\to\vcl{i}}{=}
+\end{align}
+
 \bibliography{refs}
 
 \end{document}

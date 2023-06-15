@@ -26,14 +26,14 @@ minidi_breed = 0.1
 minidi_seed = minidi_breed
 minidi_breed_rel = minidi_breed
 denseEVinterval = [-2, 2]
-width_bnds = [0.01, 7.25]
-deutDim = 4
+width_bnds = [0.001, 7.25]
+deutDim = 7
 miniE_breed = 0.1
 
 # genetic parameters
 anzNewBV = 6
 muta_initial = 0.01
-anzGen = 6
+anzGen = 10
 civ_size = 10
 target_pop_size = 12
 zop = 14 if bin_suffix == '_v18-uix' else 11
@@ -321,6 +321,14 @@ for channel in channels_2:
 
     print('\n> basType %s : C-nbr = %4.4e E0 = %4.4e   cMax/cMin = %e\n\n' %
           (channel, parCond, gsEnergy, smartRAT))
+
+    #wset = get_quaf_width_set()
+    #cof = parse_ev_coeffs()
+    #cof2 = parse_ev_coeffs_2()
+    #print('exp. coeff.   exp. coeff. (normalized)  width')
+    #for bsb in range(len(wset)):
+    #    print('{%12.6f , %12.6f , %12.6f}' %
+    #          (float(cof[bsb]), float(cof2[bsb]), float(wset[bsb])))
 
     os.system('cp INQUA_N INQUA_N_%s' % (lam))
     os.system('cp OUTPUT bndg_out_%s' % (lam))

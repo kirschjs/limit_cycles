@@ -25,13 +25,13 @@ fitt = False
 # numerical stability
 mindi = 0.2
 
-width_bnds = [0.06, 12.15, 0.08, 12.25]
+width_bnds = [0.006, 22.15, 0.008, 22.25]
 minCond = 10**-14
 
 # genetic parameters
 anzNewBV = 6
 muta_initial = .03
-anzGen = 5
+anzGen = 10
 seed_civ_size = 10
 target_pop_size = 8
 
