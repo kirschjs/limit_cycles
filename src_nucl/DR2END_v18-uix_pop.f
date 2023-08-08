@@ -1427,7 +1427,7 @@ c     FUER BINDUNGSRECHNUNGEN NUR NZZ EIGENWERTE UND VEKTOREN BERECHNEN
       IU= NZZ
       ABSTOL=0.0
       LWORK=8*NDIMD      
-      write(nout,*)'DSYEVX args: ',JOBZ,RANGE,UPLO
+C      write(nout,*)'DSYEVX args: ',JOBZ,RANGE,UPLO
       DO 352 M=1,NX
       DO 352 N=1,NX
   352 EN(N,M) =  DM(N,M,2,1)
@@ -1494,7 +1494,7 @@ C     *   FORM='UNFORMATTED')
      * ((H(N,M),N=1,MMM),M=1,MMM)
       CLOSE(UNIT=29,STATUS='KEEP')
 
-      write(nout,*)'NORM, HAMILTONIAN MATRICES WRITTEN.'
+C      write(nout,*)'NORM, HAMILTONIAN MATRICES WRITTEN.'
       STOP
 C     LAPACK-AUFRUF
       ITYPE=1

@@ -117,9 +117,8 @@ def list_product(lista, listb):
 
 # 4-body: strx \in { dd dqdq nnpp he01 he06 tp01 tp06  }
 
-chstr = ['tp01', 'tp06', 'hen01', 'hen06']
-chstr = ['dd', 'dqdq', 'nnpp']
-chstr = ['tp01', 'tp06', 'hen01', 'hen06', 'dd', 'dqdq', 'nnpp']
+#chstr = ['tp01', 'tp06', 'hen01', 'hen06', 'dd', 'dqdq', 'nnpp']
+chstr = ['123']
 
 dim = len(chstr)
 overlap = np.zeros(shape=(dim, dim))
@@ -134,8 +133,9 @@ for col in range(dim):
 
         list1 = antisymmetrize_list(listfile1, bose=0, id=1)
         list2 = antisymmetrize_list(listfile2, bose=0, id=0)
-        #print(list1)
-        #print(list2)
+        print(list1)
+        print(list2)
+        exit()
 
         prod = list_product(list1, list2)
         overlap[col][row] = '%2.4f' % prod

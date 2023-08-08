@@ -25,7 +25,7 @@ fitt = False
 # numerical stability
 mindi = 0.2
 
-width_bnds = [0.006, 22.15, 0.008, 22.25]
+width_bnds = [0.06, 20.15, 0.08, 32.25]
 minCond = 10**-14
 
 # genetic parameters
@@ -100,6 +100,7 @@ for channel in channels_3:
 
     civs.sort(key=lambda tup: np.abs(tup[3]))
     civs = sortprint(civs, pr=True)
+
     for nGen in range(anzGen):
 
         if id_chan == 1:
@@ -146,11 +147,17 @@ for channel in channels_3:
                 # 1) N-1 widths sets
                 wson = []
                 wdau = []
+
+                assert len(mother[1]) % 2 == 0
+
                 for wset in range(len(mother[1])):
                     # 2) basis-dependent nbr. of cfgs
                     wdau.append([])
                     wson.append([])
-                    for cfg in range(len(mother[0])):
+
+                    # 3) evolve only half of the parameters as the other spin cfg must use the same
+                    #    in case of SU(4) symmetry, anyway
+                    for cfg in range(int(len(mother[0]) / 2)):
 
                         daughterson = [
                             intertwining(mother[1][wset][cfg][n],
@@ -165,6 +172,11 @@ for channel in channels_3:
                         rw2.sort()
                         wdau[-1].append(list(rw1)[::-1])
                         wson[-1].append(list(rw2)[::-1])
+
+                    # 4) enforce the same width parameters for the other half of spin cfgs
+                    for cfg in range(int(len(mother[0]) / 2)):
+                        wdau[-1].append(wdau[-1][cfg])
+                        wson[-1].append(wson[-1][cfg])
 
                 daughter = [mother[0], wdau, 0, 0, 0]
                 son = [mother[0], wson, 0, 0, 0]
@@ -396,6 +408,7 @@ for channel in channels_3:
 
         # energy to fit to
         trib = 8.48
+        trib = 4.2
         # initial scaling factor from which the root-finding algorithm commences its search
         fac = 1.015
 

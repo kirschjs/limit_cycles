@@ -573,7 +573,9 @@ def span_population3(anz_civ,
         lit_rw = {}
         he_iw = he_rw = he_frgs = ob_stru = lu_stru = sbas = []
 
-        for frg in range(len(lfrags)):
+        assert len(lfrags) % 2 == 0
+
+        for frg in range(int(len(lfrags) / 2)):
 
             #  -- internal widths --------------------------------------------------
             itera = 1
@@ -646,6 +648,10 @@ def span_population3(anz_civ,
 
             lit_rw[frg] = np.sort(lit_w_t)[::-1]
 
+        for nfrag in range(int(len(lfrags) / 2)):
+            lit_w[int(len(lfrags) / 2 + nfrag)] = lit_w[nfrag]
+            lit_rw[int(len(lfrags) / 2 + nfrag)] = lit_rw[nfrag]
+
         lfrags2 = []
         sfrags2 = []
         widi = []
@@ -715,7 +721,8 @@ def span_population3(anz_civ,
 
     for cand in samp_ladder:
         if ((cand[2] < 1.0) & (cand[3] > minC)):
-            cfgg = np.transpose(np.array([sfrags2, lfrags2])).tolist()
+            cfgg = np.transpose(np.array([sfrags2, lfrags2],
+                                         dtype=object)).tolist()
 
             cand_list.append([cfgg] + cand)
 
@@ -919,12 +926,9 @@ def end4(para, send_end):
     inen_bdg_4(para[2], para[5], para[8], fn=inenf, pari=0, nzop=para[12])
 
     inqua_4(intwi=para[0], relwi=para[1], potf=para[3], inquaout=inqf)
-    inqua_4(intwi=para[0], relwi=para[1], potf=para[4], inquaout=indqf)
 
     cmdqua = para[7] + NNhamilEXE_pool + ' %s %s %s' % (inqf, outputqf,
                                                         quaf_to_end)
-    cmddrqua = para[7] + NNNhamilEXE_pool + ' %s %s %s' % (indqf, outputdrqf,
-                                                           drquaf_to_end)
 
     cmdend = para[7] + spectralEXE_serial_pool + ' %s %s %s %s %s' % (
         quaf_to_end, drquaf_to_end, inenf, outputef, maoutf)
@@ -934,11 +938,18 @@ def end4(para, send_end):
                             stderr=subprocess.PIPE)
 
     out1, err1 = pqua.communicate()
-    pdrqua = subprocess.Popen(shlex.split(cmddrqua),
-                              stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE)
 
-    out2, err2 = pdrqua.communicate()
+    if para[12] >= 14:
+        inqua_4(intwi=para[0], relwi=para[1], potf=para[4], inquaout=indqf)
+        cmddrqua = para[7] + NNNhamilEXE_pool + ' %s %s %s' % (
+            indqf, outputdrqf, drquaf_to_end)
+
+        pdrqua = subprocess.Popen(shlex.split(cmddrqua),
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.PIPE)
+
+        out2, err2 = pdrqua.communicate()
+
     pend = subprocess.Popen(shlex.split(cmdend),
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
@@ -953,9 +964,11 @@ def end4(para, send_end):
         anzSigEV = len(
             [bvv for bvv in smartEV if para[10][0] < bvv < para[10][1]])
 
+        EnergySet = smartEV[int(-para[13]):]
         gsEnergy = smartEV[-1]
-        attractiveness = loveliness(smartEV[int(-1 - nOpt)], basCond, anzSigEV,
-                                    minCond, smartRAT, maxRa)
+
+        attractiveness = loveliness(EnergySet, basCond, anzSigEV, minCond,
+                                    smartRAT)
 
         os.system('rm -rf ./%s' % inqf)
         os.system('rm -rf ./%s' % indqf)
@@ -1006,7 +1019,8 @@ def span_population4(anz_civ,
                      ini_dims=[4, 4],
                      minC=10**(-8),
                      maxR=10**5,
-                     evWin=[-100, 100]):
+                     evWin=[-100, 100],
+                     anzOptStates=1):
 
     os.chdir(funcPath)
 
@@ -1171,7 +1185,7 @@ def span_population4(anz_civ,
                 bv += 1
         ParaSets.append([
             widi, widr, sbas, nnpotstring, nnnpotstring, Jstreu, civ, binPath,
-            coefstr, minC, evWin, maxR, nzo
+            coefstr, minC, evWin, maxR, nzo, anzOptStates
         ])
 
     assert len(ParaSets) == anz_civ
@@ -1181,7 +1195,7 @@ def span_population4(anz_civ,
     os.system(binPath + NNNorbitalEXE)
     inlu_4(8, fn='INLUCN', fr=sum(lfrags2, []), indep=0)
     os.system(binPath + NNorbitalEXE)
-    #
+
     inob_4(sfrags2, 8, fn='INOB', indep=0)
     os.system(binPath + NNspinEXE)
     inob_4(sfrags2, 15, fn='INOB', indep=0)
@@ -1207,7 +1221,8 @@ def span_population4(anz_civ,
 
     for cand in samp_ladder:
         if ((cand[2] < -0) & (cand[3] > minC)):
-            cfgg = np.transpose(np.array([sfrags2, lfrags2])).tolist()
+            cfgg = np.transpose(np.array([sfrags2, lfrags2],
+                                         dtype=object)).tolist()
 
             cand_list.append([cfgg] + cand)
 
@@ -1700,6 +1715,13 @@ def blunt_ev4(cfgs,
 
             subprocess.run([bin_path + NNNcollect_mpi])
             subprocess.call('rm -rf DRDMOUT.*', shell=True)
+            if dia:
+                subprocess.run([
+                    bin_path + spectralEXE_mpi_pool, 'INEN_BDGp', 'OUTPUT_BDG',
+                    'MATOUTBNDG'
+                ],
+                               capture_output=True,
+                               text=True)
             subprocess.run(
                 [bin_path + spectralEXE_mpi_pool, 'INEN', 'OUTPUT', 'MATOUTB'],
                 capture_output=True,
@@ -1707,15 +1729,37 @@ def blunt_ev4(cfgs,
 
         else:
             subprocess.run([bin_path + NNNhamilEXE_serial])
+            if dia:
+                subprocess.call('cp -rf INEN INEN_STR', shell=True)
+                subprocess.call('cp -rf INEN_BDGp INEN', shell=True)
+                subprocess.run([bin_path + spectralEXE_serial])
+                subprocess.call('cp -rf OUTPUT OUTPUT_BDG', shell=True)
+                subprocess.call('cp -rf INEN_STR INEN', shell=True)
+
             subprocess.run([bin_path + spectralEXE_serial])
 
     elif tnnii == 10:
         if parall == -1:
+            if dia:
+                subprocess.run([
+                    bin_path + spectralEXE_mpi_pool, 'INEN_BDGp', 'OUTPUT_BDG',
+                    'MATOUTBNDG'
+                ],
+                               capture_output=True,
+                               text=True)
+
             subprocess.run(
                 [bin_path + spectralEXE_mpi_pool, 'INEN', 'OUTPUT', 'MATOUTB'],
                 capture_output=True,
                 text=True)
         else:
+            if dia:
+                subprocess.call('cp -rf INEN INEN_STR', shell=True)
+                subprocess.call('cp -rf INEN_BDGp INEN', shell=True)
+                subprocess.run([bin_path + spectralEXE_serial])
+                subprocess.call('cp -rf OUTPUT OUTPUT_BDG', shell=True)
+                subprocess.call('cp -rf INEN_STR INEN', shell=True)
+
             subprocess.run([bin_path + spectralEXE_serial])
 
     NormHam = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)

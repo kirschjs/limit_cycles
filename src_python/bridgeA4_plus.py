@@ -24,12 +24,14 @@ from multiprocessing.pool import ThreadPool
 
 # prepare spin/orbital matrices for parallel computation
 einzel4 = 0
-findstablebas = 0
+findstablebas = False
 
 newCal = 0
 
-evalChans = [[1, 1], [2, 2], [3, 3], [4, 4], [5, 5]]  #[[3, 3]]
-noDistortion = True
+evalChans = [[1, 1], [2, 2]]
+pltChans = evalChans + [[1, 2]]
+redmass = [(3. / 4.) * mn['137'], mn['137'], mn['137'], mn['137']]
+noDistortion = False
 
 # col = 0 :  wave function (real part)
 #       1 :  normalized wave function (real part)
@@ -119,12 +121,14 @@ for chan in channels_4_scatt:
     ths2 = get_h_ev(n=1, ifi=sysdir22 + '/bndg_out_%s' % lam)
     fragment_energies.append(ths1[0] + ths2[0])
 
-    if (sysdir21 == sysdir22):
+    # treat nn=pp if SU(4)
+    if ((sysdir21 == sysdir22) | SU4):
         zstrus_tmp, outs = from2to4(zwei_inq=sysdir21 + '/INQUA_N_%s' % lam,
                                     vier_dir=sysdir4,
                                     fn=nnpotstring,
                                     relw=widthSet_relative[chnbr],
                                     app='True')
+
     else:
         zstrus_tmp, outs = from22to4(zwei_inq_1=sysdir21 + '/INQUA_N_%s' % lam,
                                      zwei_inq_2=sysdir22 + '/INQUA_N_%s' % lam,
@@ -142,7 +146,7 @@ for chan in channels_4_scatt:
     sbas.append(get_bsv_rw_idx(inen=sysdir21 + '/INEN_BDG', offset=4, int4=0))
     sbas.append(get_bsv_rw_idx(inen=sysdir22 + '/INEN_BDG', offset=4, int4=0))
 
-    if (sysdir21 == sysdir22):
+    if (sysdir21 == sysdir22) | SU4:
         ddCoff = parse_ev_coeffs(mult=1,
                                  infil=sysdir21 + '/bndg_out_%s' % lam,
                                  outf='COEFF',
@@ -250,11 +254,9 @@ if noDistortion:
     print('NO DISTORTION CHANNELS.')
 print('>>> working directory: ', sysdir4, '\n')
 
-for nbv in range(1, varspacedim):
-    relws = [
-        [1, 0] for n in range(int(0.5 * len(widthSet_relative)))
-    ] if nbv % 2 == 0 else [[0, 1]
-                            for n in range(int(0.95 * len(widthSet_relative)))]
+for nbv in range(1, anzch):
+    relws = [[1, 1] for n in range(int(0.5 * anzRelw))
+             ] if nbv % 2 == 0 else [[1, 1] for n in range(int(0.5 * anzRelw))]
     sb.append([nbv, sum(relws, [])])
 
 if newCal > 0:
@@ -263,7 +265,7 @@ if newCal > 0:
     # to guarantee that distortion channels only extend the variational space in the
     # interaction region and that they do NOT interfere with physical, asymptotic states
     maxDistRelW = np.min(
-        [len([ww for ww in wsr if ww > 0.5]) for wsr in widthSet_relative])
+        [len([ww for ww in wsr if ww > 0.05]) for wsr in widthSet_relative])
 
     relwDistCH = [(n + 1) % 2 for n in range(maxDistRelW)] + [0, 0]
 
@@ -388,7 +390,6 @@ channel_thresholds = ' '.join(['%4.4g' % ee for ee in channel_thresholds])
 
 groundstate_4 = get_h_ev()[0]
 
-redmass = (4. / 4.) * mn['137']
 a_of_epsi = []
 
 neps = 0
@@ -451,13 +452,14 @@ for epsi in np.linspace(eps0, eps1, epsNBR):
                     shell=True)
 
     plotphas(oufi='4_ph_%d_%s_%s.pdf' % (neps, lam, lecstring),
-             diag=True,
+             chs=pltChans,
              titl='$\epsilon=[ $%s$ ]$fm$^{-2}$' %
              (' , '.join(['%.4g' % float(ep) for ep in epsi])))
 
     head_str = '# lambda                       channel   a(ch)     eps                        a(2)     B(4)   B(thresh)\n'
     print(head_str)
     for chToRead in evalChans:
+
         try:
             phdd = read_phase(phaout='PHAOUT',
                               ch=chToRead,
@@ -467,15 +469,16 @@ for epsi in np.linspace(eps0, eps1, epsNBR):
             if ((chToRead == [2, 2]) | (chToRead == [3, 3])) & cib:
                 a_dd = [
                     appC(phdd[n][2] * np.pi / 180.,
-                         np.sqrt(2 * redmass * phdd[n][0]),
-                         redmass,
+                         np.sqrt(2 * redmass[chToRead[0] - 1] * phdd[n][0]),
+                         redmass[chToRead[0] - 1],
                          q1=1,
                          q2=1) for n in range(len(phdd))
                 ]
             else:
                 a_dd = [
                     -MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /
-                    np.sqrt(2 * redmass * phdd[n][0]) for n in range(len(phdd))
+                    np.sqrt(2 * redmass[chToRead[0] - 1] * phdd[n][0])
+                    for n in range(len(phdd))
                 ]
 
             chanstr = asyChanLabels[int(chToRead[0]) -
@@ -542,18 +545,16 @@ plotarray2(outfi='a_of_Ematch_%s_%s.pdf' % (lam, lecstring),
            leg=[leg],
            plotrange=[''])
 
-exit()
-
 phtp = read_phase(phaout='PHAOUT', ch=[1, 1], meth=1, th_shift='')
-
 phhen = read_phase(phaout='PHAOUT', ch=[2, 2], meth=1, th_shift='1-2')
+phdd = read_phase(phaout='PHAOUT', ch=[3, 3], meth=1, th_shift='1-3')
+phdqdq = read_phase(phaout='PHAOUT', ch=[4, 4], meth=1, th_shift='1-3')
+phnnpp = read_phase(phaout='PHAOUT', ch=[5, 5], meth=1, th_shift='1-3')
+
 phtphen = read_phase(phaout='PHAOUT', ch=[1, 2], meth=1, th_shift='1-2')
 
-phdd = read_phase(phaout='PHAOUT', ch=[3, 3], meth=1, th_shift='1-3')
 phtpdd = read_phase(phaout='PHAOUT', ch=[1, 3], meth=1, th_shift='1-3')
 phhendd = read_phase(phaout='PHAOUT', ch=[2, 3], meth=1, th_shift='2-3')
-
-exit()
 
 # this ordering must match the threshold order, e.g., if B(t)>B(3He)>B(d)>B(dq),
 # phtp -> evalChans[0]
@@ -562,19 +563,15 @@ exit()
 # phdqdq -> evalChans[3]
 phtp = read_phase(phaout='PHAOUT', ch=evalChans[0], meth=1, th_shift='')
 phhen = read_phase(phaout='PHAOUT', ch=evalChans[1], meth=1, th_shift='1-2')
-phdqdq = read_phase(phaout='PHAOUT', ch=evalChans[3], meth=1, th_shift='1-4')
+#phdqdq = read_phase(phaout='PHAOUT', ch=evalChans[3], meth=1, th_shift='1-4')
 #phmix = read_phase(phaout='PHAOUT', ch=evalChans[3], meth=1, th_shift='1-2')
 
-write_phases(ph2d[0],
-             filename='np3s_phases_%s.dat' % lam,
+exit()
+write_phases(phnnpp,
+             filename='nn-pp_phases_%s.dat' % lam,
              append=0,
              comment='',
-             mu=0.5 * mn['137'])
-write_phases(ph2d[1],
-             filename='np1s_phases_%s.dat' % lam,
-             append=0,
-             comment='',
-             mu=0.5 * mn['137'])
+             mu=mn['137'])
 write_phases(phdd,
              filename='d-d_phases_%s.dat' % lam,
              append=0,
@@ -589,12 +586,23 @@ write_phases(phtp,
              filename='t-p_phases_%s.dat' % lam,
              append=0,
              comment='',
-             mu=(2. / 3.) * mn['137'])
+             mu=(3. / 4.) * mn['137'])
 write_phases(phhen,
              filename='he3-n_phases_%s.dat' % lam,
              append=0,
              comment='',
-             mu=(2. / 3.) * mn['137'])
+             mu=(3. / 4.) * mn['137'])
+
+write_phases(ph2d[0],
+             filename='np3s_phases_%s.dat' % lam,
+             append=0,
+             comment='',
+             mu=0.5 * mn['137'])
+write_phases(ph2d[1],
+             filename='np1s_phases_%s.dat' % lam,
+             append=0,
+             comment='',
+             mu=0.5 * mn['137'])
 
 a_np3s = [
     anp(ph2d[0][n][2] * np.pi / 180., np.sqrt(mn['137'] * ph2d[0][n][0]))
@@ -635,7 +643,7 @@ a_tp = [
          q2=1) for n in range(len(phtp))
 ] if withCoul == True else [
     -MeVfm * np.tan(phtp[n][2] * np.pi / 180.) / np.sqrt(
-        (2. / 3.) * mn['137'] * phtp[n][0]) for n in range(len(phtp))
+        (3. / 2.) * mn['137'] * phtp[n][0]) for n in range(len(phtp))
 ]
 
 a_hen = [

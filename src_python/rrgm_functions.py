@@ -16,9 +16,10 @@ def output_nbr(outfi='tmpout', outval=0):
         outfile.write(s)
 
 
-def plotphas(infi='PHAOUT', oufi='tmp.pdf', diag=False, titl=''):
+def plotphas(infi='PHAOUT', oufi='tmp.pdf', chs=[], titl=''):
 
     phases = {}
+    etas = {}
 
     method = '1'
     tmp = np.array([
@@ -26,55 +27,77 @@ def plotphas(infi='PHAOUT', oufi='tmp.pdf', diag=False, titl=''):
     ]).astype(float)
 
     for line in tmp:
-        if line[2] == line[3]:
+        for ch in chs:
+            if ((ch[0] == line[2]) & (ch[1] == line[3])):
 
-            chastr = '%d-%d' % (line[2], line[3])
-            chastrTH = chastr if int(line[2]) == 1 else '%d-%d' % (1, 1)
-            try:
-                Exx = float(line[0]) if int(
-                    line[2]) == 1 else phases[chastrTH][-1][
-                        0]  #+ float(line[1])
-                phases[chastr].append([Exx, float(line[10])])
-            except:
-                phases[chastr] = []
-                Exx = float(line[0]) if int(
-                    line[2]) == 1 else phases[chastrTH][-1][
-                        0]  #+ float(line[1])
-                phases[chastr].append([Exx, float(line[10])])
-        elif ((line[2] < line[3]) & (diag == False)):
-            chastrTH = '%d-%d' % (1, 1)
-            chastr = '%d-%d' % (line[2], line[3])
-            try:
-                Exx = phases[chastrTH][-1][0]  #+ float(line[1])
-                phases[chastr].append([Exx, float(line[10])])
-            except:
-                phases[chastr] = []
-                Exx = phases[chastrTH][-1][0]  #+ float(line[1])
-                phases[chastr].append([Exx, float(line[10])])
+                chastr = '%d-%d' % (line[2], line[3])
+                chastrTH = chastr if int(line[2]) == 1 else '%d-%d' % (1, 1)
+                try:
+                    Exx = float(line[0]) if int(
+                        line[2]) == 1 else phases[chastrTH][-1][
+                            0]  #+ float(line[1])
+                    tmp_phas = float(line[10])
+                    tmp_eta = float(line[9])
+                    phases[chastr].append([Exx, tmp_phas])
+                    etas[chastr].append([Exx, tmp_eta])
+                except:
+                    phases[chastr] = []
+                    etas[chastr] = []
+                    Exx = float(line[0]) if int(
+                        line[2]) == 1 else phases[chastrTH][-1][
+                            0]  #+ float(line[1])
+                    phases[chastr].append([Exx, float(line[10])])
+                    etas[chastr].append([Exx, float(line[9])])
+            #elif (line[2] < line[3]):
+            #    chastrTH = '%d-%d' % (1, 1)
+            #    chastr = '%d-%d' % (line[2], line[3])
+            #    try:
+            #        Exx = phases[chastrTH][-1][0]  #+ float(line[1])
+            #        phases[chastr].append([Exx, float(line[10])])
+            #    except:
+            #        phases[chastr] = []
+            #        Exx = phases[chastrTH][-1][0]  #+ float(line[1])
+            #        phases[chastr].append([Exx, float(line[10])])
 
     plt.cla()
-    plt.subplot(111)
-    if titl != '':
-        plt.title(titl)
+
+    fig = plt.figure()
+
+    ax1 = fig.add_axes([0.1, 0.5, 0.8, 0.4], xticklabels=[])
+    ax2 = fig.add_axes([0.1, 0.1, 0.8, 0.4], ylim=(0, 1))
+
+    #if titl != '':
+    #    plt.title(titl)
     #leg = ax1.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
     #    ncol=1, mode="expand", borderaxespad=0.)
-    plt.xlabel(r'$E_{cm}$ [MeV]')
-    plt.ylabel(r'$\delta$ [deg]')
+    ax2.set_xlabel(r'$E_{cm}$ [MeV]')
+    ax1.set_ylabel(r'$\delta$ [deg]')
+    ax2.set_ylabel(r'$\eta$')
 
     endiag = []
     for cha in phases:
         en = np.array(phases[cha])[:, 0]
         pha = np.array(phases[cha])[:, 1]
+        eta = np.array(etas[cha])[:, 1]
 
-        stylel = 'solid' if cha.split('-')[0] == cha.split(
-            '-')[1] else 'dashdot'
-        plt.plot(en,
+        if cha.split('-')[0] == cha.split('-')[1]:
+            stylel = 'solid'
+            mark = 3
+            linew = 2.5
+        else:
+            stylel = 'dashdot'
+            mark = 1
+            linew = 0.5
+
+        ax1.plot(en,
                  pha,
                  label=''.join(cha),
                  linestyle=stylel,
-                 linewidth=int(cha.split('-')[0]) / len(phases))
+                 marker=mark,
+                 linewidth=linew)
+        ax2.plot(en, eta, linestyle='solid', linewidth=linew)
 
-    plt.legend(loc='best', numpoints=1)
+    ax1.legend(loc='best', numpoints=1)
     plt.savefig(oufi)
 
 
@@ -252,7 +275,7 @@ def get_bind_en(n=1, ifi='OUTPUT'):
     out = [line for line in open(ifi)]
     for nj in range(1, len(out)):
         if (out[nj].strip() == "BINDUNGSENERGIEN IN MEV"):
-            E_0 = out[nj + 1].split()
+            E_0 = [float(out[nj + 1][10 * m:10 * (m + 1)]) for m in range(n)]
             break
     return np.array(E_0[:n]).astype(float)
 

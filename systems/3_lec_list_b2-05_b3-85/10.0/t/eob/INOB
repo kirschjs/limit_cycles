@@ -1,0 +1,311 @@
+  0  2  2  1  1
+  1  1  1  1  1  1  1  1
+  4
+ 13  3
+  3  6  1  2            No1: t=0,T=1/2;s=1,S=1/2, l=even
+  1  1  1
+  1  3  2
+  1  4  1
+  2  3  1
+  3  1  2
+  3  2  1
+  4  1  1
+  1  3
+ -1 12
+ -1 12
+ -1  3
+ +1 12
+ +1 12
+  3  6  1  1            No1: t=0,T=1/2;s=1,S=1/2, l=even
+  1  1  1
+  1  3  2
+  1  4  1
+  2  3  1
+  3  1  2
+  3  2  1
+  4  1  1
+  1  3
+ -1 12
+ -1 12
+ -1  3
+ +1 12
+ +1 12
+  3  2  1  2            No2: t=0, S=3/2, l=even
+  1  1  1
+  1  3  1
+  3  1  1
+  1  2
+ -1  2
+  3  2  1  1            No2: t=0, S=3/2, l=even
+  1  1  1
+  1  3  1
+  3  1  1
+  1  2
+ -1  2
+  3  4  1  2            No3: t=0,T=1/2;s=0,S=1/2, l=odd
+  1  1  1
+  1  4  1
+  2  3  1
+  3  2  1
+  4  1  1
+  1  4
+ -1  4
+ -1  4
+  1  4
+  3  4  1  1            No3: t=0,T=1/2;s=0,S=1/2, l=odd
+  1  1  1
+  1  4  1
+  2  3  1
+  3  2  1
+  4  1  1
+  1  4
+ -1  4
+ -1  4
+  1  4
+  3  3  1  2            No5: t=1,T=1/2 S=3/2, l=odd
+  1  1  1
+  3  1  1
+  1  3  1
+  1  1  3
+ -1  6
+ -1  6
+  2  3
+  3  3  1  2            No5: t=1,T=1/2 S=3/2, l=odd
+  1  1  1
+  3  1  1
+  1  3  1
+  1  1  3
+ -1  6
+ -1  6
+  2  3
+  3  6  1  2            No6: t=1,T=1/2;s=0,S=1/2, l=even
+  1  1  1
+  1  2  3
+  2  1  3
+  1  4  1
+  2  3  1
+  3  2  1
+  4  1  1
+  1  3
+ -1  3
+ -1 12
+  1 12
+ -1 12
+  1 12
+  3  6  1  1            No6: t=1,T=1/2;s=0,S=1/2, l=even
+  1  1  1
+  1  2  3
+  2  1  3
+  1  4  1
+  2  3  1
+  3  2  1
+  4  1  1
+  1  3
+ -1  3
+ -1 12
+  1 12
+ -1 12
+  1 12
+  3  6  1  2            No1: t=0, S=1/2, l=even
+  1  1  1
+  1  3  4
+  1  4  3
+  2  3  3
+  3  1  4
+  3  2  3
+  4  1  3
+  1  3
+ -1 12
+ -1 12
+ -1  3
+  1 12
+  1 12
+  3  2  1  2            No2: t=0, S=3/2, l=even
+  1  1  1
+  1  3  3
+  3  1  3
+  1  2
+ -1  2
+  3  6  1  2            No6: t=1, S=1/2, l=even
+  1  1  1
+  1  4  3
+  2  3  3
+  3  2  3
+  4  1  3
+  3  4  1
+  4  3  1
+  1 12
+ -1 12
+  1 12
+ -1 12
+ -1  3
+  1  3
+he_no1_he_no1
+he_no1_he_no1y
+he_no1_he_no2
+he_no1_he_no2y
+he_no1_he_no3
+he_no1_he_no3y
+he_no1_he_no5
+he_no1_he_no5y
+he_no1_he_no6
+he_no1_he_no6y
+he_no1_t_no1
+he_no1_t_no2
+he_no1_t_no6
+he_no1y_he_no1
+he_no1y_he_no1y
+he_no1y_he_no2
+he_no1y_he_no2y
+he_no1y_he_no3
+he_no1y_he_no3y
+he_no1y_he_no5
+he_no1y_he_no5y
+he_no1y_he_no6
+he_no1y_he_no6y
+he_no1y_t_no1
+he_no1y_t_no2
+he_no1y_t_no6
+he_no2_he_no1
+he_no2_he_no1y
+he_no2_he_no2
+he_no2_he_no2y
+he_no2_he_no3
+he_no2_he_no3y
+he_no2_he_no5
+he_no2_he_no5y
+he_no2_he_no6
+he_no2_he_no6y
+he_no2_t_no1
+he_no2_t_no2
+he_no2_t_no6
+he_no2y_he_no1
+he_no2y_he_no1y
+he_no2y_he_no2
+he_no2y_he_no2y
+he_no2y_he_no3
+he_no2y_he_no3y
+he_no2y_he_no5
+he_no2y_he_no5y
+he_no2y_he_no6
+he_no2y_he_no6y
+he_no2y_t_no1
+he_no2y_t_no2
+he_no2y_t_no6
+he_no3_he_no1
+he_no3_he_no1y
+he_no3_he_no2
+he_no3_he_no2y
+he_no3_he_no3
+he_no3_he_no3y
+he_no3_he_no5
+he_no3_he_no5y
+he_no3_he_no6
+he_no3_he_no6y
+he_no3_t_no1
+he_no3_t_no2
+he_no3_t_no6
+he_no3y_he_no1
+he_no3y_he_no1y
+he_no3y_he_no2
+he_no3y_he_no2y
+he_no3y_he_no3
+he_no3y_he_no3y
+he_no3y_he_no5
+he_no3y_he_no5y
+he_no3y_he_no6
+he_no3y_he_no6y
+he_no3y_t_no1
+he_no3y_t_no2
+he_no3y_t_no6
+he_no5_he_no1
+he_no5_he_no1y
+he_no5_he_no2
+he_no5_he_no2y
+he_no5_he_no3
+he_no5_he_no3y
+he_no5_he_no5
+he_no5_he_no5y
+he_no5_he_no6
+he_no5_he_no6y
+he_no5_t_no1
+he_no5_t_no2
+he_no5_t_no6
+he_no5y_he_no1
+he_no5y_he_no1y
+he_no5y_he_no2
+he_no5y_he_no2y
+he_no5y_he_no3
+he_no5y_he_no3y
+he_no5y_he_no5
+he_no5y_he_no5y
+he_no5y_he_no6
+he_no5y_he_no6y
+he_no5y_t_no1
+he_no5y_t_no2
+he_no5y_t_no6
+he_no6_he_no1
+he_no6_he_no1y
+he_no6_he_no2
+he_no6_he_no2y
+he_no6_he_no3
+he_no6_he_no3y
+he_no6_he_no5
+he_no6_he_no5y
+he_no6_he_no6
+he_no6_he_no6y
+he_no6_t_no1
+he_no6_t_no2
+he_no6_t_no6
+he_no6y_he_no1
+he_no6y_he_no1y
+he_no6y_he_no2
+he_no6y_he_no2y
+he_no6y_he_no3
+he_no6y_he_no3y
+he_no6y_he_no5
+he_no6y_he_no5y
+he_no6y_he_no6
+he_no6y_he_no6y
+he_no6y_t_no1
+he_no6y_t_no2
+he_no6y_t_no6
+t_no1_he_no1
+t_no1_he_no1y
+t_no1_he_no2
+t_no1_he_no2y
+t_no1_he_no3
+t_no1_he_no3y
+t_no1_he_no5
+t_no1_he_no5y
+t_no1_he_no6
+t_no1_he_no6y
+t_no1_t_no1
+t_no1_t_no2
+t_no1_t_no6
+t_no2_he_no1
+t_no2_he_no1y
+t_no2_he_no2
+t_no2_he_no2y
+t_no2_he_no3
+t_no2_he_no3y
+t_no2_he_no5
+t_no2_he_no5y
+t_no2_he_no6
+t_no2_he_no6y
+t_no2_t_no1
+t_no2_t_no2
+t_no2_t_no6
+t_no6_he_no1
+t_no6_he_no1y
+t_no6_he_no2
+t_no6_he_no2y
+t_no6_he_no3
+t_no6_he_no3y
+t_no6_he_no5
+t_no6_he_no5y
+t_no6_he_no6
+t_no6_he_no6y
+t_no6_t_no1
+t_no6_t_no2
+t_no6_t_no6

@@ -26,16 +26,17 @@ minidi_breed = 0.1
 minidi_seed = minidi_breed
 minidi_breed_rel = minidi_breed
 denseEVinterval = [-2, 2]
-width_bnds = [0.001, 7.25]
-deutDim = 7
+width_bnds = [0.01, 32.25]
+deutDim = 4
 miniE_breed = 0.1
 
 # genetic parameters
 anzNewBV = 6
 muta_initial = 0.01
-anzGen = 10
+anzGen = 5
 civ_size = 10
 target_pop_size = 12
+
 zop = 14 if bin_suffix == '_v18-uix' else 11
 
 for channel in channels_2:

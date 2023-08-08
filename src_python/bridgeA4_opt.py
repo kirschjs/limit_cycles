@@ -19,23 +19,23 @@ from multiprocessing.pool import ThreadPool
 
 # numerical stability
 mindi = 0.2
-width_bnds = [0.001, 158.15, 0.002, 271.25]
-minCond = 10**-16
+width_bnds = [0.001, 38.15, 0.002, 31.25]
+minCond = 10**-14
 maxRat = 10**19
 
 # genetic parameters
-anzNewBV = 4
-muta_initial = .002
+anzNewBV = 8
+muta_initial = .02
 anzGen = 8
 seed_civ_size = 10
 target_pop_size = 10
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 4
-nREL = 2
+nBV = 14
+nREL = 10
 
-einzel4 = True
+einzel4 = False
 
 J0 = 0
 
@@ -83,7 +83,9 @@ for channel in channels_4:
                                           ini_dims=[nBV, nREL],
                                           minC=minCond,
                                           maxR=maxRat,
-                                          evWin=evWindow)
+                                          evWin=evWindow,
+                                          nzo=zop,
+                                          anzOptStates=nbrStatesOpti4)
         for cciv in new_civs:
             civs.append(cciv)
         print('>>> seed civilizations: %d/%d' % (len(civs), seed_civ_size))
@@ -182,7 +184,7 @@ for channel in channels_4:
                 twins[twinID][1][0], twins[twinID][1][1], sbas, nnpotstring,
                 nnnpotstring,
                 float(J0), twinID, BINBDGpath, costr, minCond, evWindow,
-                maxRat, nOperators
+                maxRat, nOperators, nbrStatesOpti4
             ] for twinID in range(len(twins))]
 
             # x) the parallel environment is set up in sets(chunks) of bases

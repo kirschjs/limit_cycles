@@ -264,35 +264,29 @@ lec_lists = {
         '100.': [-6710.010, 6830.0766],
     },
     'lec_list_b2-17_b3-85': {
-        '4.00': [-484.87, 858.058],
-        '6.00': [-1079.3, 3374.5581],
-        '8.00': [-1859.8, 10511.0336],
-        '10.0': [-2881.7, 28627.1916]
+        '4.00': [-497.42, 1141.9648],
+        '6.00': [-1079.3, 4865.4899],
+        '8.00': [-1884.01, 16415.1],
+        '10.0': [-2911.74, 54006.0347]
     },
     'lec_list_b2-1_b3-85': {
-        '4.00': [-484.87, 858.058],
-        '6.00': [-1079.3, 3374.5581],
-        '8.00': [-1859.8, 10511.0336],
-        '10.0': [-2881.7, 28627.1916]
+        '4.00': [-484.87, 861.107],
+        '6.00': [-1061.05, 3459.5831],
+        '8.00': [-1859.8, 10791.6392],
+        '10.0': [-2881.7, 30354.6908]
     },
     'lec_list_b2-05_b3-85': {
         '4.00': [-473.2, 669.9512],
         '6.00': [-1043.6, 2602.4531],
         '8.00': [-1836.9, 7544.5741],
-        '10.0': [-2853.78, 19399.06906]
+        '10.0': [-2853.78, 19973.6765]
     },
-    'lec_list_SU4u': {  #d0GS TNI-UIX  ZENTRAL NNN   PROJ           d0ES
-        '0.50': [-16.3721, 4.436],
-        '0.75': [-28.6714, 12.936],
-        '1.00': [-44.4515, 27.245],
-        '1.50': [-86.4495, 79.22],
-        '2.00': [-142.3625, 173.925],
-        '3.00': [-295.93, 558.49338400],
-        '4.00': [-465.15, 1395.62624049],
-        '6.00': [-1040.548, 6293.03337496],
-        '8.00': [-1898.553, 23937.61505980],
-        '10.0': [-2929.165, 85318.84107084]
-    },
+    'lec_list_b2-1_b3-42': {
+        '4.00': [-484.87, 2241.5967],
+        '6.00': [-1061.05, 12727.3890],
+        '8.00': [-1859.8, 66547.9447],
+        '10.0': [-2881.7, 470251.8858]
+    }
 }
 # Gaussian width parameters optimized to scattering calculations with
 # V18/UIX interaction potentials
@@ -343,6 +337,7 @@ two_body_channels = {
 }
 
 dict_3to4 = {
+    '123': [['000-0'], ['tp_123-4']],
     't_no1': [['000-0'], ['tp_1s0']],
     't_no6': [['000-0'], ['tp_6s0']],
     'he_no1': [['000-0'], ['hen_1s0']],
@@ -367,6 +362,9 @@ tnifac = 1.0
 twofac = 1.0
 parall = -1
 
+# number of Gaussian basis functions/widths used to expand the fragment-relative wave function
+anzRelw = 10
+
 # limits the number of parallel processes in a single process pool
 # if running on my laptop, I need to set this number in order to avoid
 # too many files too be opened simulataneously
@@ -375,7 +373,6 @@ maxParLen = 120
 cib = 0  # if set, EFTnoPi with charge independence broken by Coulomb and an acompanying
 # contact-term correction is employed (leading order)
 
-lam = 4.00  #0.50 0.75 1.00 1.50 2.00 3.00 4.00 6.00 8.00 10.0
 # lec_list_nucl_n  : spin-dependent LO pionless interaction: 2 2-body LECs (deuteron, a(1S0)=-23fm), 1 3-body LEC (triton)
 # lec_list_SU4     : spin-independent (SU(4) symmetric) LO pionless: 1 2-body LEC (deuteron), 1 3-body LEC (triton)
 
@@ -395,12 +392,13 @@ lam = 4.00  #0.50 0.75 1.00 1.50 2.00 3.00 4.00 6.00 8.00 10.0
 #  12   lec_list_b2-17_b3-85
 #  13   lec_list_b2-1_b3-85
 #  14   lec_list_b2-05_b3-85
-#  15   lec_list_SU4u
-lecidx = 10  #10,15 SU4,SU4u
+#  15   lec_list_b2-1_b3-42
+lecidx = 15  #10,12,13,14 (for presentation)
+lam = 4.00  # 4,6,8,10 (for presentation)
 
 lecstring = list(lec_lists.keys())[lecidx]
 
-SU4 = True if 'SU4' in lecstring else False
+SU4 = True
 
 #for mm in lec_lists.keys():
 #    print(mm)
@@ -493,8 +491,9 @@ channels_2 = {
 }
 
 channels_3 = {
-    't': [['000', ['t_no1', 't_no6']]],
-    'he': [['000', ['he_no1', 'he_no6']]],
+    '123': [['000', ['123', '123']]],
+    #'t': [['000', ['t_no1', 't_no6']]],
+    #'he': [['000', ['he_no1', 'he_no6']]],
     #'boltz': ['000', ['dist_3', 'dist_3']],
 }
 
@@ -518,12 +517,13 @@ channels_4 = {
 }
 
 channels_4_scatt = [
-    #[['000-0'], ['nn1s_nn1s_S0'], [0, 0, 0]],  # no DSI
-    [['000-0'], ['pp1s_nn1s_S0'], [0, 0, 0]],  # DSI
-    [['000-0'], ['np1s_np1s_S0'], [0, 0, 0]],  # DSI
-    [['000-0'], ['np3s_np3s_S0'], [2, 2, 0]],  # DSI
-    [['000-0'], ['hen_1s0', 'hen_6s0'], [1, 1, 0]],
-    [['000-0'], ['tp_1s0', 'tp_6s0'], [1, 1, 0]],
+    #[['000-0'], ['nn1s_nn1s_S0'], [0, 0, 0]],  # DSI
+    #[['000-0'], ['np1s_np1s_S0'], [0, 0, 0]],  # DSI
+    #[['000-0'], ['np3s_np3s_S0'], [2, 2, 0]],  # DSI
+    #[['000-0'], ['hen_1s0', 'hen_6s0'], [1, 1, 0]],
+    #[['000-0'], ['tp_1s0', 'tp_6s0'], [1, 1, 0]],
+    [['000-0'], ['np1s_np1s_12-34'], [2, 2, 0]],
+    [['000-0'], ['tp_123-4'], [1, 1, 0]],
 ]
 
 sysdir2base = pathbase + '/systems/2_%s/%s' % (lecstring, la)
@@ -554,36 +554,37 @@ elif len(lec_set[la]) == 2:
 evWindow = [-10, -0.001]
 nbrStatesOpti2 = 1
 nbrStatesOpti3 = 1
+nbrStatesOpti4 = 1
 
-nzEN = 75
+nzEN = 100
 
 E0 = 0.0001
-D0 = 0.25
+D0 = 0.05
 
 E0M = 0.0005
-D0M = 0.005
+D0M = 0.001
 
-epL = 0.0005
-epU = 0.009
+epL = 0.0001
+epU = 0.001
 eps0 = [epL * 1.0, epL, epL, epL, epL]
 eps1 = [epU * 1.0, epU, epU, epU, epU]
 epsM = (np.array(eps1) + np.array(eps0)) / 2
-epsNBR = 2
+epsNBR = 1
 
 # parameters for the expansion of the fragment-relative function
 # (i.e., both fragments charged: Coulomb function, else sperical Bessel)
 # in Gaussians
-SPOLE_adaptweightUP = 1.2
+SPOLE_adaptweightUP = 0.2
 SPOLE_adaptweightLOW = 1.2
 SPOLE_adaptweightL = 0.5
-SPOLE_GEW = 1.2  # smaller values decrease the maximal radius up to which values enter the fit
-SPOLE_QD = 1.2  # this shifts the interval smaller values try to optimize the behavior closer to zero
-SPOLE_QS = 0.6
+SPOLE_GEW = 2.0  # smaller values decrease the maximal radius up to which values enter the fit
+SPOLE_QD = 0.75  # this shifts the interval smaller values try to optimize the behavior closer to zero
+SPOLE_QS = 1.0
 
-beta0 = 0.9
+beta0 = 1.9
 Bet = [beta0, beta0, beta0, beta0, beta0]
 rgh = 8.0
-anzStuez = 800
+anzStuez = 400
 StuezAbs = 0.9
 StuezBrei = 1.0
 
@@ -603,8 +604,8 @@ widthSet_relative = [
     np.append(
         np.abs(
             np.logspace(-4.5 + 0.0 * np.random.random(),
-                        1.1 + 0.0 * np.random.random(),
-                        num=20,
+                        1.5 + 0.0 * np.random.random(),
+                        num=anzRelw,
                         endpoint=True,
                         dtype=None)[::-1]), [])
     for nn in range(1, 1 + len(channels_4_scatt))

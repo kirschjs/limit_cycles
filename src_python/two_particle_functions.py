@@ -93,6 +93,51 @@ def inlu_2(anzo=5, anzf=1):
     return
 
 
+def inob_2exp(anzo=5, anzf=1):
+    s = ''
+    s += '  0  0\n'
+    for n in range(anzo):
+        s += '  1'
+    s += '\n  4\n'
+    s += '%3d  2\n' % anzf
+    for n in range(anzf):
+        s += '  2 15  6  1\n'
+        s += '  1  1\n'
+        s += '  1  3\n'  #  1) p-up, n-up
+        s += '  1  2\n'  #  2) NN - singlet
+        s += '  3  4\n'
+        s += '  1  4\n'
+        s += '  3  2\n'
+        s += '  4  1\n'
+        s += '  2  3\n'
+        s += '  2  1\n'
+        s += '  4  3\n'
+        s += '  4  3\n'
+        s += '  1  2\n'
+        s += '  2  1\n'
+        s += '  3  4\n'
+        s += '  4  3\n'
+        s += '  3  4\n'  #  6)  n up n down
+        s += '  1  1\n'  # p-up, p-up
+        s += '  0  1  1  2\n'
+        s += '  0  1  1  2\n'
+        s += '  0  1  1  2\n'
+        s += '  0  1  1  2\n'
+        s += '  0  1 -1  2\n'
+        s += '  0  1 -1  2\n'
+        s += '  0  1 -1  2\n'
+        s += '  0  1 -1  2\n'
+        s += '  0  1  0  1  1  4\n'
+        s += '  0  1  0  1 -1  4\n'
+        s += '  0  1  0  1  0  1  1  2\n'
+        s += '  0  1  0  1  0  1 -1  2\n'
+        s += '  0  1  0  1  0  1  0  1  1  1\n'
+        s += '  0  1  0  1  0  1  0  1  0  1  1  1\n'
+    with open('INOB', 'w') as outfile:
+        outfile.write(s)
+    return
+
+
 def inob_2(anzo=5, anzf=1):
     s = ''
     s += '  0  0\n'
@@ -103,16 +148,16 @@ def inob_2(anzo=5, anzf=1):
     for n in range(anzf):
         s += '  2  9  6  1\n'
         s += '  1  1\n'
-        s += '  1  3\n'  #  p-up, n-up
-        s += '  1  4\n'  #  ...
+        s += '  1  3\n'  #  1) p-up, n-up
+        s += '  1  4\n'  #  2) NN - singlet
         s += '  2  3\n'
+        s += '  4  3\n'
         s += '  1  2\n'
         s += '  2  1\n'
         s += '  3  4\n'
         s += '  4  3\n'
-        s += '  3  4\n'  # n-up, n-down
+        s += '  3  4\n'  #  6)  n up n down
         s += '  1  1\n'  # p-up, p-up
-        s += '  1  1\n'
         s += '  0  1  1  2\n'
         s += '  0  1 -1  2\n'
         s += '  0  1  0  1  1  4\n'
