@@ -31,7 +31,7 @@ minCond = 10**-14
 # genetic parameters
 anzNewBV = 6
 muta_initial = .03
-anzGen = 10
+anzGen = 14
 seed_civ_size = 10
 target_pop_size = 8
 

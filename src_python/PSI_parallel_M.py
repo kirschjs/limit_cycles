@@ -477,8 +477,8 @@ def end3(para, send_end):
         anzSigEV = len(
             [bvv for bvv in smartEV if para[10][0] < bvv < para[10][1]])
 
-        EnergySet = smartEV[int(-para[12]):]
-        gsEnergy = smartEV[-1]
+        EnergySet = [smartEV[ii] for ii in para[12]]
+        gsEnergy = smartEV[para[12][0]]
 
         attractiveness = loveliness(EnergySet, basCond, anzSigEV, minCond,
                                     smartRAT)
@@ -963,9 +963,10 @@ def end4(para, send_end):
         smartEV, basCond, smartRAT = smart_ev(NormHam, threshold=minCond)
         anzSigEV = len(
             [bvv for bvv in smartEV if para[10][0] < bvv < para[10][1]])
+        #print('evs in window:  ', anzSigEV)
 
-        EnergySet = smartEV[int(-para[13]):]
-        gsEnergy = smartEV[-1]
+        EnergySet = [smartEV[ii] for ii in para[13]]
+        gsEnergy = smartEV[para[13][0]]
 
         attractiveness = loveliness(EnergySet, basCond, anzSigEV, minCond,
                                     smartRAT)
@@ -1157,16 +1158,18 @@ def span_population4(anz_civ,
 
         for n in range(len(lit_w)):
             tmp = lit_w[n]  #np.sort(lit_w[n])[::-1]
-            zer_per_ws = int(np.ceil(int(0.5 * len(tmp)) / bvma))
-            bins = [0 for nmmm in range(zer_per_ws + 1)]
-            bins[0] = 0
-            for mn in range(len(tmp)):
-                bins[1 + mn % zer_per_ws] += 1
-            bnds = np.cumsum(bins)
+            assert len(tmp) % 2 == 0
+
+            modlist = [m % bvma for m in range(int(0.5 * len(tmp)))]
+
+            bnds = [2 * nn for nn in range(len(modlist)) if modlist[nn] == 0]
+
+            bnds.append(len(tmp))
             tmp2 = [
-                list(tmp[bnds[nn]:bnds[nn + 1]]) for nn in range(zer_per_ws)
+                list(tmp[bnds[nn]:bnds[nn + 1]])
+                for nn in range(len(bnds) - 1)
             ]
-            tmp3 = [list(lit_rw[n]) for nn in range(zer_per_ws)]
+            tmp3 = [list(lit_rw[n]) for nn in range(len(bnds) - 1)]
 
             sfrags2 += len(tmp2) * [sfrags[n]]
             lfrags2 += len(tmp2) * [lfrags[n]]
@@ -1491,8 +1494,8 @@ def blunt_ev4t(cfgs,
 
     #assert basisDim(basis) == len(sum(sum(relws, []), []))
 
-    lfrag = sum(np.array(cfgs)[:, 1].tolist(), [])
-    sfrag = np.array(cfgs)[:, 0].tolist()
+    lfrag = sum(np.array(cfgs, dtype=object)[:, 1].tolist(), [])
+    sfrag = np.array(cfgs, dtype=object)[:, 0].tolist()
 
     insam(len(lfrag))
 
@@ -1635,7 +1638,8 @@ def blunt_ev4(cfgs,
               anzcores=6,
               funcPath='',
               dia=True,
-              nchtot=1):
+              nchtot=1,
+              distchannels=''):
 
     #assert basisDim(basis) == len(sum(sum(relws, []), []))
 
@@ -1676,7 +1680,8 @@ def blunt_ev4(cfgs,
                pari=0,
                nzop=nzopt,
                tni=tnnii,
-               fn='INEN')
+               fn='INEN',
+               diCh=distchannels)
 
     if parall == -1:
 

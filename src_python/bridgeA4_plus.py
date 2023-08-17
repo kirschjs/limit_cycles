@@ -23,14 +23,12 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 
 # prepare spin/orbital matrices for parallel computation
-einzel4 = 0
+einzel4 = 1
 findstablebas = False
 
-newCal = 0
-
-evalChans = [[1, 1], [2, 2]]
-pltChans = evalChans + [[1, 2]]
-redmass = [(3. / 4.) * mn['137'], mn['137'], mn['137'], mn['137']]
+evalChans = [[1, 1], [2, 2], [3, 3]]
+pltChans = evalChans + [[1, 2], [1, 3], [2, 3]]
+redmass = [(3. / 4.) * mn['137'], (3. / 4.) * mn['137'], mn['137'], mn['137']]
 noDistortion = False
 
 # col = 0 :  wave function (real part)
@@ -45,9 +43,14 @@ energyToPlot = 1
 
 nMatch = 0
 
+newCal = 2
+
 if newCal == 2:
     import bridgeA2_plus
     import bridgeA3_plus
+    # optimizes a set of distortion channels which should ensure that the exited tetramers are
+    # expanded accurately;
+    import bridgeA4_opt
 
 J0 = 0
 
@@ -90,7 +93,6 @@ cofli = []
 strus = []
 zstrus = []
 qua_str = []
-sbas = []
 ph2d = []
 
 subprocess.call('rm -rf INQUA_N', shell=True)
@@ -143,9 +145,6 @@ for chan in channels_4_scatt:
     strus.append(len(zstrus[-1]) * [chan[:2]])
     J1J2SC.append(chan[2])
 
-    sbas.append(get_bsv_rw_idx(inen=sysdir21 + '/INEN_BDG', offset=4, int4=0))
-    sbas.append(get_bsv_rw_idx(inen=sysdir22 + '/INEN_BDG', offset=4, int4=0))
-
     if (sysdir21 == sysdir22) | SU4:
         ddCoff = parse_ev_coeffs(mult=1,
                                  infil=sysdir21 + '/bndg_out_%s' % lam,
@@ -181,7 +180,10 @@ for sysdir3 in threedirs:
         for ch in channels_4_scatt:
             for cfg in ch[1]:
                 if sysdir3.split('/')[-1] in cfg:
-                    J1J2SC.append(ch[2])
+                    J1J2SC_tmp = []
+                    for nn in range(nbr_of_threebody_boundstates):
+                        J1J2SC_tmp.append(ch[2])
+                    J1J2SC.append(J1J2SC_tmp)
                     gogo = False
                     break
             if gogo == False:
@@ -189,23 +191,31 @@ for sysdir3 in threedirs:
         if gogo == False:
             break
 
-    sbas.append(
-        get_bsv_rw_idx(inen=sysdir3 + '/INEN', offset=inenOffset, int4=1))
     strus.append([
         dict_3to4[line.strip()] for line in open(sysdir3 + '/obstru_%s' % lam)
     ])
     zstrus.append(
         [int(line.strip()) for line in open(sysdir3 + '/drei_stru_%s' % lam)])
 
-    fragment_energies.append(
-        get_h_ev(n=1, ifi=sysdir3 + '/bndg_out_%s' % lam)[0])
-    threeCoff = parse_ev_coeffs(mult=0,
-                                infil=sysdir3 + '/bndg_out_%s' % lam,
-                                outf='COEFF',
-                                bvnr=1)
+    fragment_energies_tmp = []
+    cofli_tmp = []
+    for nn in range(nbr_of_threebody_boundstates):
+        fragment_energies_tmp.append(
+            get_h_ev(n=1 + nn, ifi=sysdir3 + '/bndg_out_%s' % lam)[-1])
 
-    threeCoff = np.array(threeCoff).astype(float)
-    cofli.append(threeCoff.tolist())
+        threeCoff = parse_ev_coeffs(mult=0,
+                                    infil=sysdir3 + '/bndg_out_%s' % lam,
+                                    outf='COEFF',
+                                    bvnr=1 + nn)
+
+        threeCoff = np.array(threeCoff).astype(float)
+        cofli_tmp.append(threeCoff.tolist())
+
+    #print(cofli_tmp[::-1])
+    #print(fragment_energies_tmp[::-1])
+
+    cofli.append(cofli_tmp[::-1])
+    fragment_energies.append(fragment_energies_tmp[::-1])
 
     qua_str.append(''.join(
         replace_wrel('%s/inq_3to4_%s' % (sysdir3, lam),
@@ -227,15 +237,91 @@ if deg_channs == 1:
 else:
     idx = np.array(fragment_energies).argsort()[::-1]
 
-asyChanLabels = sum([asy[0][1] for asy in [strus[id] for id in idx]], [])[::-1]
+asyChanLabels = sum([1 * asy[0][1] for asy in [strus[id] for id in idx]],
+                    [])[::-1]
+asyChanLabels = list(
+    more_itertools.collapse([
+        np.ndim(J1J2SC[::-1][nn]) * [asyChanLabels[nn]]
+        for nn in range(len(asyChanLabels))
+    ]))
 
 strus = sum([strus[id] for id in idx], [])
 zstrus = sum([zstrus[id] for id in idx], [])
-sbas = sum([sbas[id] for id in idx], [])
+
+# this awkward line should take care of multiple fragments corresponding to the
+# same strucutre, i.e., an excited trimer
 cofli = [cofli[id] for id in idx]
 J1J2SC = [J1J2SC[id] for id in idx]
 
 qua_str = [qua_str[id] for id in idx]
+
+# include only width parameters > 0.5 (reasonable choice for cutoffs of about 4fm^-1)
+# to guarantee that distortion channels only extend the variational space in the
+# interaction region and that they do NOT interfere with physical, asymptotic states
+maxDistRelW = np.min(
+    [len([ww for ww in wsr if ww > 0.05]) for wsr in widthSet_relative])
+relwDistCH = [(n + 1) % 2 for n in range(maxDistRelW)] + [0, 0]
+"""
+in the `alpha' directory, an basis is expected which was optimized for the
+4-body bound-state problem; this basis is added to the variational basis in
+the form of distortion channels in order to improve the description/expansion
+of the wave function in the non-asymptotic region;
+(see, e.g., K. Wildermuth and Y.C. Tang, A Unified Theory of the Nucleus [ch.7, eq.(7.45ff)] )
+"""
+if os.path.isdir(sysdir4 + '/alpha') == True:
+    print(
+        'adding additional distortion channels based on optimized bound-state space: \'alpha\''
+    )
+    qua_alpha = [
+        line for line in open(sysdir4 + '/alpha/INQUA_N') if line[0] != 'e'
+    ][2:]
+    qua_str = qua_str + qua_alpha
+
+    lu_alpha = [
+        line for line in open(sysdir4 + '/alpha/lustru_alpha_%s' % lam)
+    ]
+    ob_alpha = [
+        line for line in open(sysdir4 + '/alpha/obstru_alpha_%s' % lam)
+    ]
+    alpha_strus = [[[lu_alpha[nn].strip()], [ob_alpha[nn].strip()]]
+                   for nn in range(len(lu_alpha))]
+
+    strus = strus + alpha_strus
+
+    zstrus_alpha = [
+        int(line.strip())
+        for line in open(sysdir4 + '/alpha/vier_stru_alpha_%s' % lam)
+    ]
+    nbr_phy_bv = sum(zstrus)
+    zstrus = zstrus + zstrus_alpha
+
+    coflist = list(more_itertools.collapse(cofli))
+    distuec = [
+        nc + 1 for nc in range(len(coflist))
+        if 10**2 > np.abs(coflist[nc]) > 0.1
+    ]
+
+    chStr = ''
+    bv = 1
+    for nn in range(len(zstrus_alpha)):
+        for ach in channels_4:
+            cfgs = -1
+            for ncfg in range(len(channels_4[ach][1])):
+                if channels_4[ach][1][ncfg] == alpha_strus[nn][1][0]:
+                    cfgs = channels_4[ach][2][ncfg]
+                    break
+            if cfgs != -1:
+                for nd in range(zstrus_alpha[nn]):
+                    chStr += '%3d%3d%3d\n' % (cfgs[0], cfgs[1], cfgs[2])
+                    chStr += '%4d%4d\n' % (1, nbr_phy_bv + bv)
+                    chStr += '%-4d\n' % (np.random.choice(distuec))
+                    #s += relwoffset
+                    for relw in relwDistCH:
+                        chStr += '%3d' % relw
+                    chStr += '\n'
+                    bv += 1
+                break
+
 outs = ' 10  8  9  3 00  0  0  0\n%s\n' % nnpotstring
 for qua_part in qua_str:
     outs += qua_part
@@ -244,10 +330,9 @@ with open('INQUA_N', 'w') as outfile:
 
 sb = []
 bv = 1
-varspacedim = sum([len(rset[1]) for rset in sbas])
 
-anzch = len(evalChans) if noDistortion == True else int(
-    np.max([1, len(sum(cofli, [])) - 5 * len(cofli)]))
+anzch = len(
+    evalChans) if noDistortion == True else sum(zstrus) - 5 * len(cofli)
 
 print('\n Commencing 4-body calculation with %d channels.' % anzch)
 if noDistortion:
@@ -260,14 +345,6 @@ for nbv in range(1, anzch):
     sb.append([nbv, sum(relws, [])])
 
 if newCal > 0:
-
-    # include only width parameters > 0.5 (reasonable choice for cutoffs of about 4fm^-1)
-    # to guarantee that distortion channels only extend the variational space in the
-    # interaction region and that they do NOT interfere with physical, asymptotic states
-    maxDistRelW = np.min(
-        [len([ww for ww in wsr if ww > 0.05]) for wsr in widthSet_relative])
-
-    relwDistCH = [(n + 1) % 2 for n in range(maxDistRelW)] + [0, 0]
 
     ma = blunt_ev4(cfgs=strus,
                    bas=sb,
@@ -285,7 +362,8 @@ if newCal > 0:
                    anzcores=max(2, min(len(strus), MaxProc)),
                    tnnii=tnni,
                    jay=J0,
-                   nchtot=anzch)
+                   nchtot=anzch,
+                   distchannels=chStr)
 
     smartEV, basCond, smartRAT = smart_ev(ma, threshold=10**-7)
     gs = smartEV[-1]
@@ -459,31 +537,26 @@ for epsi in np.linspace(eps0, eps1, epsNBR):
     head_str = '# lambda                       channel   a(ch)     eps                        a(2)     B(4)   B(thresh)\n'
     print(head_str)
     for chToRead in evalChans:
+        print(chToRead)
+        phdd = read_phase(phaout='PHAOUT', ch=chToRead, meth=1, th_shift='')
+        if ((chToRead == [2, 2]) | (chToRead == [3, 3])) & cib:
+            a_dd = [
+                appC(phdd[n][2] * np.pi / 180.,
+                     np.sqrt(2 * redmass[chToRead[0] - 1] * phdd[n][0]),
+                     redmass[chToRead[0] - 1],
+                     q1=1,
+                     q2=1) for n in range(len(phdd))
+            ]
+        else:
+            a_dd = [
+                -MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /
+                np.sqrt(2 * redmass[chToRead[0] - 1] * phdd[n][0])
+                for n in range(len(phdd))
+            ]
 
+        chanstr = asyChanLabels[int(chToRead[0]) -
+                                1] + '--' + asyChanLabels[int(chToRead[1]) - 1]
         try:
-            phdd = read_phase(phaout='PHAOUT',
-                              ch=chToRead,
-                              meth=1,
-                              th_shift='')
-
-            if ((chToRead == [2, 2]) | (chToRead == [3, 3])) & cib:
-                a_dd = [
-                    appC(phdd[n][2] * np.pi / 180.,
-                         np.sqrt(2 * redmass[chToRead[0] - 1] * phdd[n][0]),
-                         redmass[chToRead[0] - 1],
-                         q1=1,
-                         q2=1) for n in range(len(phdd))
-                ]
-            else:
-                a_dd = [
-                    -MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /
-                    np.sqrt(2 * redmass[chToRead[0] - 1] * phdd[n][0])
-                    for n in range(len(phdd))
-                ]
-
-            chanstr = asyChanLabels[int(chToRead[0]) -
-                                    1] + '--' + asyChanLabels[int(chToRead[1])
-                                                              - 1]
 
             results_bare = '%.3f   %30s   %.4g   %.4g%s   %.4g   %s' % (
                 float(lam), chanstr, a_dd[0].real, epsi[0], a_aa,

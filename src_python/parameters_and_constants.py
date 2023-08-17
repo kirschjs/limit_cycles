@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import more_itertools
 from plot_array import *
 
 # -- LEC lists
@@ -279,7 +280,12 @@ lec_lists = {
         '4.00': [-473.2, 669.9512],
         '6.00': [-1043.6, 2602.4531],
         '8.00': [-1836.9, 7544.5741],
-        '10.0': [-2853.78, 19973.6765]
+        '10.0': [-2853.78, 19973.6765],
+        '12.0': [-4090.6, 0.0],
+        '14.0': [-5551.3, 0.0],
+        '16.0': [-7234.5, 0.0],
+        '18.0': [-9140.6, 0.0],
+        '20.0': [-11269, 0.0],
     },
     'lec_list_b2-1_b3-42': {
         '4.00': [-484.87, 2241.5967],
@@ -358,12 +364,12 @@ BINBDGpath = pathbase + '/src_nucl/'
 
 # NN: tnni=10   NN+NNN: tnni=11
 tnni = 11
-tnifac = 1.0
-twofac = 1.0
+tnifac = 0.0
+twofac = 0.95
 parall = -1
 
 # number of Gaussian basis functions/widths used to expand the fragment-relative wave function
-anzRelw = 10
+anzRelw = 20
 
 # limits the number of parallel processes in a single process pool
 # if running on my laptop, I need to set this number in order to avoid
@@ -393,7 +399,7 @@ cib = 0  # if set, EFTnoPi with charge independence broken by Coulomb and an aco
 #  13   lec_list_b2-1_b3-85
 #  14   lec_list_b2-05_b3-85
 #  15   lec_list_b2-1_b3-42
-lecidx = 15  #10,12,13,14 (for presentation)
+lecidx = 14  #10,12,13,14 (for presentation)
 lam = 4.00  # 4,6,8,10 (for presentation)
 
 lecstring = list(lec_lists.keys())[lecidx]
@@ -485,9 +491,9 @@ id_chan = 0
 channels_2 = {
     # L    J
     'np3s': ['0', '1'],
-    'np1s': ['0', '0'],
-    'nn1s': ['0', '0'],
-    'pp1s': ['0', '0'],
+    #'np1s': ['0', '0'],
+    #'nn1s': ['0', '0'],
+    #'pp1s': ['0', '0'],
 }
 
 channels_3 = {
@@ -501,18 +507,16 @@ channels_4 = {
     'alpha': [
         ['000-0'],
         [
+            'np1s_np1s_12-34', 'tp_123-4'
             #'dist_4',
-            #'dist_4',
-            #'dist_4',
-            #'dist_4',
-            #'dist_4',
-            'tp_1s0',
-            'tp_6s0',
-            'hen_1s0',
-            'hen_6s0',
-            'np3s_np3s_S0',
-            'np1s_np1s_S0'
-        ]
+            #'tp_1s0',
+            #'tp_6s0',
+            #'hen_1s0',
+            #'hen_6s0',
+            #'np3s_np3s_S0',
+            #'np1s_np1s_S0'
+        ],
+        [[2, 2, 0], [1, 1, 0]]
     ],
 }
 
@@ -551,12 +555,16 @@ elif len(lec_set[la]) == 2:
     cloB = 0.0
     d0 = lec_set[la][1]
 
-evWindow = [-10, -0.001]
+evWindow = [-211.5, -1.70]
 nbrStatesOpti2 = 1
-nbrStatesOpti3 = 1
-nbrStatesOpti4 = 1
+nbrStatesOpti3 = [-2]
+nbrStatesOpti4 = [-2]
 
-nzEN = 100
+# if the 3-body spectrum contains more than 1 boundstate, those excited states
+# can be added here
+nbr_of_threebody_boundstates = 2
+
+nzEN = 200
 
 E0 = 0.0001
 D0 = 0.05
@@ -569,7 +577,7 @@ epU = 0.001
 eps0 = [epL * 1.0, epL, epL, epL, epL]
 eps1 = [epU * 1.0, epU, epU, epU, epU]
 epsM = (np.array(eps1) + np.array(eps0)) / 2
-epsNBR = 1
+epsNBR = 2
 
 # parameters for the expansion of the fragment-relative function
 # (i.e., both fragments charged: Coulomb function, else sperical Bessel)
@@ -581,7 +589,7 @@ SPOLE_GEW = 2.0  # smaller values decrease the maximal radius up to which values
 SPOLE_QD = 0.75  # this shifts the interval smaller values try to optimize the behavior closer to zero
 SPOLE_QS = 1.0
 
-beta0 = 1.9
+beta0 = 2.1
 Bet = [beta0, beta0, beta0, beta0, beta0]
 rgh = 8.0
 anzStuez = 400
@@ -603,8 +611,8 @@ MeVfm = 197.3161329
 widthSet_relative = [
     np.append(
         np.abs(
-            np.logspace(-4.5 + 0.0 * np.random.random(),
-                        1.5 + 0.0 * np.random.random(),
+            np.logspace(-4.2 + 0.0 * np.random.random(),
+                        1.4 + 0.0 * np.random.random(),
                         num=anzRelw,
                         endpoint=True,
                         dtype=None)[::-1]), [])

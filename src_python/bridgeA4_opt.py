@@ -19,25 +19,27 @@ from multiprocessing.pool import ThreadPool
 
 # numerical stability
 mindi = 0.2
-width_bnds = [0.001, 38.15, 0.002, 31.25]
+width_bnds = [0.06, 48.15, 0.008, 21.25]
 minCond = 10**-14
 maxRat = 10**19
 
 # genetic parameters
-anzNewBV = 8
-muta_initial = .02
-anzGen = 8
+anzNewBV = 6
+muta_initial = .01
+anzGen = 4
 seed_civ_size = 10
 target_pop_size = 10
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 14
+nBV = 12
 nREL = 10
 
-einzel4 = False
+einzel4 = 1
 
 J0 = 0
+
+chnbr = 0
 
 for channel in channels_4:
     sysdir4 = sysdir4 + '/' + channel
@@ -109,7 +111,8 @@ for channel in channels_4:
         children = 0
         while children < anzNewBV:
             twins = []
-            while len(twins) < int(anzNewBV):
+            print('producing offspring')
+            while len(twins) < int(5 * anzNewBV):
                 #for ntwins in range(int(5 * anzNewBV)):
                 parent_pair = np.random.choice(range(civ_size),
                                                size=2,
@@ -149,8 +152,8 @@ for channel in channels_4:
                         #rw1.sort()
                         rw2 = np.array(daughterson)[:, 1]  #.sort()
                         #rw2.sort()
-                        wdau[-1].append(list(rw1)[::-1])
-                        wson[-1].append(list(rw2)[::-1])
+                        wdau[-1].append(list(rw1))
+                        wson[-1].append(list(rw2))
 
                 daughter = [mother[0], wdau, 0, 0, 0]
                 son = [mother[0], wson, 0, 0, 0]
@@ -167,18 +170,21 @@ for channel in channels_4:
 
                 prox_check1 = check_dist(width_array1=wa, minDist=mindi)
                 prox_check2 = check_dist(width_array1=wb, minDist=mindi)
-                prox_checkr1 = check_dist(width_array1=wa,
-                                          width_array2=widthSet_relative,
-                                          minDist=mindi)
-                prox_checkr2 = check_dist(width_array1=wb,
-                                          width_array2=widthSet_relative,
-                                          minDist=mindi)
+                prox_checkr1 = check_dist(
+                    width_array1=wa,
+                    width_array2=widthSet_relative[chnbr],
+                    minDist=mindi)
+                prox_checkr2 = check_dist(
+                    width_array1=wb,
+                    width_array2=widthSet_relative[chnbr],
+                    minDist=mindi)
 
                 if prox_check1 * prox_check2 * prox_checkr1 * prox_checkr2 == True:
 
                     twins.append(daughter)
                     twins.append(son)
 
+            print('offspring created and is now rated.')
             # ---------------------------------------------------------------------
             ParaSets = [[
                 twins[twinID][1][0], twins[twinID][1][1], sbas, nnpotstring,
@@ -221,7 +227,8 @@ for channel in channels_4:
                 for proc in jobs:
                     proc.join()
 
-            #print('offspring rated.')
+            print('offspring rated.')
+
             samp_ladder = [x.recv() for x in samp_list]
 
             samp_ladder.sort(key=lambda tup: np.abs(tup[2]))
@@ -240,7 +247,7 @@ for channel in channels_4:
                     if children > anzNewBV:
                         break
 
-        civs = sortprint(civs, pr=False)
+        civs = sortprint(civs, pr=True)
 
         if len(civs) > target_pop_size:
             currentdim = len(civs)
@@ -308,7 +315,7 @@ for channel in channels_4:
     #
     finCiv = [civs[0][0], civs[0][1][0], civs[0][1][1], ttt]
     ob_strus, lu_strus, strus, bvwidthString = condense_basis_4to5(
-        finCiv, widthSet_relative, fn='inq_4to5_%s' % lam)
+        finCiv, widthSet_relative[chnbr], fn='inq_4to5_%s' % lam)
 
     expC_GS = parse_ev_coeffs_normiert(mult=0,
                                        infil='OUTPUT',
@@ -363,8 +370,28 @@ for channel in channels_4:
     with open('vier_stru_%s' % lam, 'w') as outfile:
         outfile.write(outst)
 
+    # output to improve the model space of a 4-body scattering calculation
+    # in the region where 4-body bound states might appear close to a threshold
+    outl = ''
+    outs = ''
+    outst = ''
+
+    for nn in range(len(civs[0][0])):
+        outl += civs[0][0][nn][1][0] + '\n'
+        outs += civs[0][0][nn][0] + '\n'
+        outst += str(int(len(civs[0][1][0][nn]) / 2)) + '\n'
+
+    with open('lustru_alpha_%s' % lam, 'w') as outfile:
+        outfile.write(outl)
+    with open('obstru_alpha_%s' % lam, 'w') as outfile:
+        outfile.write(outs)
+    with open('vier_stru_alpha_%s' % lam, 'w') as outfile:
+        outfile.write(outst)
+
     subprocess.call('rm -rf TQUAOUT.*', shell=True)
     subprocess.call('rm -rf TDQUAOUT.*', shell=True)
     subprocess.call('rm -rf DMOUT.*', shell=True)
     subprocess.call('rm -rf DRDMOUT.*', shell=True)
     subprocess.call('rm -rf matout_*.*', shell=True)
+
+    chnbr += 1
