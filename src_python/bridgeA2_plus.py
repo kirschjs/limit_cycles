@@ -33,7 +33,7 @@ miniE_breed = 0.1
 # genetic parameters
 anzNewBV = 6
 muta_initial = 0.01
-anzGen = 16
+anzGen = 6
 civ_size = 10
 target_pop_size = 12
 

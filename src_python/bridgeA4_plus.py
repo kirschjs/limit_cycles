@@ -46,7 +46,7 @@ nMatch = 0
 newCal = 2
 
 if newCal == 2:
-    import bridgeA2_plus
+    #import bridgeA2_plus
     import bridgeA3_plus
     # optimizes a set of distortion channels which should ensure that the exited tetramers are
     # expanded accurately;
@@ -260,7 +260,7 @@ qua_str = [qua_str[id] for id in idx]
 # interaction region and that they do NOT interfere with physical, asymptotic states
 maxDistRelW = np.min(
     [len([ww for ww in wsr if ww > 0.05]) for wsr in widthSet_relative])
-relwDistCH = [(n + 1) % 2 for n in range(maxDistRelW)] + [0, 0]
+relwDistCH = [(n + 1) % 2 for n in range(np.min([maxDistRelW, 6]))] + [0, 0]
 """
 in the `alpha' directory, an basis is expected which was optimized for the
 4-body bound-state problem; this basis is added to the variational basis in
