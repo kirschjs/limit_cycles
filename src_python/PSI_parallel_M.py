@@ -575,7 +575,9 @@ def span_population3(anz_civ,
 
         assert len(lfrags) % 2 == 0
 
-        for frg in range(int(len(lfrags) / 2)):
+        enforceSym = 2 if bin_suffix == 'expl' else 1
+
+        for frg in range(int(len(lfrags) / enforceSym)):
 
             #  -- internal widths --------------------------------------------------
             itera = 1
@@ -648,9 +650,10 @@ def span_population3(anz_civ,
 
             lit_rw[frg] = np.sort(lit_w_t)[::-1]
 
-        for nfrag in range(int(len(lfrags) / 2)):
-            lit_w[int(len(lfrags) / 2 + nfrag)] = lit_w[nfrag]
-            lit_rw[int(len(lfrags) / 2 + nfrag)] = lit_rw[nfrag]
+        if enforceSym == 2:
+            for nfrag in range(int(len(lfrags) / 2)):
+                lit_w[int(len(lfrags) / 2 + nfrag)] = lit_w[nfrag]
+                lit_rw[int(len(lfrags) / 2 + nfrag)] = lit_rw[nfrag]
 
         lfrags2 = []
         sfrags2 = []

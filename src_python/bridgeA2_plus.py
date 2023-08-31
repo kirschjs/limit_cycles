@@ -26,14 +26,14 @@ minidi_breed = 0.1
 minidi_seed = minidi_breed
 minidi_breed_rel = minidi_breed
 denseEVinterval = [-2, 2]
-width_bnds = [0.01, 12.25]
-deutDim = 8
+width_bnds = [0.01, 62.25]
+deutDim = 5
 miniE_breed = 0.1
 
 # genetic parameters
 anzNewBV = 6
 muta_initial = 0.01
-anzGen = 6
+anzGen = 10
 civ_size = 10
 target_pop_size = 12
 
@@ -53,14 +53,22 @@ for channel in channels_2:
     print('>>> working directory: ', sysdir2)
 
     if bin_suffix == '_v18-uix':
-        prep_pot_file_2N(lam=lam, wiC=cloW, baC=cloB, ps2=nnpot)
+        prep_pot_file_2N(lam=(2 * np.sqrt(float(lam))),
+                         wiC=cloW,
+                         baC=cloB,
+                         ps2=nnpot)
     elif bin_suffix == '_eft-cib':
-        prep_pot_file_2N_pp(lam=lam, wiC=cloW, baC=cloB, ppC=cpp, ps2=nnpot)
+        prep_pot_file_2N_pp(lam=2 * np.sqrt(float(lam)),
+                            wiC=cloW,
+                            baC=cloB,
+                            ppC=cpp,
+                            ps2=nnpot)
     else:
         print('no potential structure assigned to suffix.')
         exit()
-    prep_pot_file_3N(lam=la, d10=d0, ps3=nnnpot)
+    prep_pot_file_3N(lam=2 * np.sqrt(float(lam)), d10=d0, ps3=nnnpot)
     #continue
+
     os.chdir(sysdir2)
     if id_chan == 0:
         refdir = sysdir2
@@ -345,11 +353,11 @@ for channel in channels_2:
     subprocess.run([BINBDGpath + spectralEXE_serial])
 
     print(">>> calculating 2-body phases.")
-    spole_2(nzen=nzEN,
-            e0=E0,
-            d0=D0,
-            eps=epsM,
-            bet=Bet,
+    spole_2(nzen=100,
+            e0=0.0001,
+            d0=0.01,
+            eps=[0.01 for n in range(len(channels_2))],
+            bet=[2.1 for n in range(len(channels_2))],
             nzrw=100,
             frr=0.06,
             rhg=8.0,

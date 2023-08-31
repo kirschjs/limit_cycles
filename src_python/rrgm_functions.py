@@ -63,22 +63,20 @@ def plotphas(infi='PHAOUT', oufi='tmp.pdf', chs=[], titl=''):
 
     fig = plt.figure()
 
-    ax1 = fig.add_axes([0.1, 0.5, 0.8, 0.4], xticklabels=[])
-    ax2 = fig.add_axes([0.1, 0.1, 0.8, 0.4], ylim=(0, 1))
-
     #if titl != '':
     #    plt.title(titl)
+
+    ax1 = fig.add_axes([0.1, 0.5, 0.8, 0.4], xticklabels=[])
+    ax1.xaxis.set_ticks_position('top')
+
     #leg = ax1.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
     #    ncol=1, mode="expand", borderaxespad=0.)
-    ax2.set_xlabel(r'$E_{cm}$ [MeV]')
     ax1.set_ylabel(r'$\delta$ [deg]')
-    ax2.set_ylabel(r'$\eta$')
 
     endiag = []
     for cha in phases:
         en = np.array(phases[cha])[:, 0]
         pha = np.array(phases[cha])[:, 1]
-        eta = np.array(etas[cha])[:, 1]
 
         if cha.split('-')[0] == cha.split('-')[1]:
             stylel = 'solid'
@@ -95,9 +93,27 @@ def plotphas(infi='PHAOUT', oufi='tmp.pdf', chs=[], titl=''):
                  linestyle=stylel,
                  marker=mark,
                  linewidth=linew)
-        ax2.plot(en, eta, linestyle='solid', linewidth=linew)
 
     ax1.legend(loc='best', numpoints=1)
+
+    ax2 = fig.add_axes([0.1, 0.1, 0.8, 0.4], ylim=(0, 1))
+    ax2.set_xlabel(r'$E_{cm}$ [MeV]        (%s)' % titl)
+    ax2.set_ylabel(r'$\eta$')
+    for cha in phases:
+        en = np.array(phases[cha])[:, 0]
+        eta = np.array(etas[cha])[:, 1]
+
+        if cha.split('-')[0] == cha.split('-')[1]:
+            stylel = 'solid'
+            mark = 3
+            linew = 2.5
+        else:
+            stylel = 'dashdot'
+            mark = 1
+            linew = 0.5
+
+        ax2.plot(en, eta, linestyle='solid', linewidth=linew)
+
     plt.savefig(oufi)
 
 
@@ -874,7 +890,7 @@ def plotrelativewave(infi='OUTPUTSPOLE',
 
     for nj in range(1, len(data)):
 
-        cmap = plt.get_cmap('inferno')
+        cmap = plt.get_cmap('winter')
 
         if (-1 not in [
                 data[nj + (ch - 1) * 4].find('DER%3d TE KANAL IST OFFEN' % ch)
@@ -955,7 +971,7 @@ def plotapproxwave(infi='OUTPUTSPOLE',
 
     for nj in range(1, len(data)):
 
-        cmap = plt.get_cmap('inferno')
+        cmap = plt.get_cmap('winter')
 
         if (-1 not in [
                 data[nj + (ch - 1) * 4].find('DER%3d TE KANAL IST OFFEN' % ch)

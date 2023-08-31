@@ -26,7 +26,7 @@ maxRat = 10**19
 # genetic parameters
 anzNewBV = 6
 muta_initial = .01
-anzGen = 4
+anzGen = 8
 seed_civ_size = 10
 target_pop_size = 10
 

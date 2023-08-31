@@ -25,20 +25,20 @@ fitt = False
 # numerical stability
 mindi = 0.2
 
-width_bnds = [0.06, 20.15, 0.08, 32.25]
-minCond = 10**-14
+width_bnds = [0.06, 50.15, 0.08, 52.25]
+minCond = 10**-16
 
 # genetic parameters
 anzNewBV = 6
 muta_initial = .03
-anzGen = 14
+anzGen = 8
 seed_civ_size = 10
 target_pop_size = 8
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 8
-nREL = 6
+nBV = 7
+nREL = 5
 
 J0 = 1 / 2
 
@@ -157,7 +157,8 @@ for channel in channels_3:
 
                     # 3) evolve only half of the parameters as the other spin cfg must use the same
                     #    in case of SU(4) symmetry, anyway
-                    for cfg in range(int(len(mother[0]) / 2)):
+                    enforceSym = 2 if bin_suffix == 'expl' else 1
+                    for cfg in range(int(len(mother[0]) / enforceSym)):
 
                         daughterson = [
                             intertwining(mother[1][wset][cfg][n],
@@ -174,9 +175,10 @@ for channel in channels_3:
                         wson[-1].append(list(rw2)[::-1])
 
                     # 4) enforce the same width parameters for the other half of spin cfgs
-                    for cfg in range(int(len(mother[0]) / 2)):
-                        wdau[-1].append(wdau[-1][cfg])
-                        wson[-1].append(wson[-1][cfg])
+                    if enforceSym == 2:
+                        for cfg in range(int(len(mother[0]) / 2)):
+                            wdau[-1].append(wdau[-1][cfg])
+                            wson[-1].append(wson[-1][cfg])
 
                 daughter = [mother[0], wdau, 0, 0, 0]
                 son = [mother[0], wson, 0, 0, 0]
@@ -406,15 +408,17 @@ for channel in channels_3:
             print(abs(float(E_0) + fitb))
             return abs(float(E_0) + fitb)
 
+        # which eigenstate whould have the specified target value? fixi=-1 = ground-state fitting
+        fixi = -2
+
         # energy to fit to
-        trib = 8.48
-        trib = 4.2
+        trib = 8.4
         # initial scaling factor from which the root-finding algorithm commences its search
-        fac = 1.015
+        fac = 0.01
 
-        ft_lo = fmin(fitti, fac, args=(trib, -1), disp=False)
+        ft_lo = fmin(fitti, fac, args=(trib, fixi), disp=False)
 
-        res_lo = fitti(ft_lo[0], 0.0, -1)
+        res_lo = fitti(fac3=ft_lo[0], fitb=0.0, fix=fixi)
         print('L = %2.2f:  D = %12.4f => B(3)= %8.4f   ;  D_start = %12.4f' %
               (lam, d0 * ft_lo[0], res_lo, d0))
         exit()

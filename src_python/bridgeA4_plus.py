@@ -23,12 +23,19 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 
 # prepare spin/orbital matrices for parallel computation
-einzel4 = 1
+einzel4 = 0
 findstablebas = False
 
-evalChans = [[1, 1], [2, 2], [3, 3]]
-pltChans = evalChans + [[1, 2], [1, 3], [2, 3]]
-redmass = [(3. / 4.) * mn['137'], (3. / 4.) * mn['137'], mn['137'], mn['137']]
+evalChans = [[1, 1], [2, 2]]
+pltChans = evalChans  #+ [[1, 2], [1, 3], [2, 3]]
+
+chDict = {'[1, 1]': [3, 1], '[2, 2]': [2, 2]}
+
+
+def redmass(f1=1, f2=1, mpi='137'):
+    return (f1 * f2 / (f1 + f2)) * mn[mpi]
+
+
 noDistortion = False
 
 # col = 0 :  wave function (real part)
@@ -43,14 +50,14 @@ energyToPlot = 1
 
 nMatch = 0
 
-newCal = 2
+newCal = -1
 
 if newCal == 2:
-    #import bridgeA2_plus
+    import bridgeA2_plus
     import bridgeA3_plus
     # optimizes a set of distortion channels which should ensure that the exited tetramers are
     # expanded accurately;
-    import bridgeA4_opt
+    # import bridgeA4_opt
 
 J0 = 0
 
@@ -260,7 +267,7 @@ qua_str = [qua_str[id] for id in idx]
 # interaction region and that they do NOT interfere with physical, asymptotic states
 maxDistRelW = np.min(
     [len([ww for ww in wsr if ww > 0.05]) for wsr in widthSet_relative])
-relwDistCH = [(n + 1) % 2 for n in range(np.min([maxDistRelW, 6]))] + [0, 0]
+relwDistCH = [(n + 1) % 2 for n in range(np.min([maxDistRelW, 12]))] + [0, 0]
 """
 in the `alpha' directory, an basis is expected which was optimized for the
 4-body bound-state problem; this basis is added to the variational basis in
@@ -509,21 +516,24 @@ for epsi in np.linspace(eps0, eps1, epsNBR):
 
     chans = list(range(1, 1 + len(evalChans)))
 
-    plotapproxwave(infi='OUTPUTSPOLE',
-                   oufi='expandedWFKT_%d.pdf' % neps,
-                   col=waveToPlot,
-                   chan=chans,
-                   titl='$\epsilon=[ $%s$ ]$fm$^{-2}$' %
-                   (' , '.join(['%.4g' % float(ep) for ep in epsi])),
-                   nbrE=energyToPlot)
+    try:
+        plotapproxwave(infi='OUTPUTSPOLE',
+                       oufi='expandedWFKT_%d.pdf' % neps,
+                       col=waveToPlot,
+                       chan=chans,
+                       titl='$\epsilon=[ $%s$ ]$fm$^{-2}$' %
+                       (' , '.join(['%.4g' % float(ep) for ep in epsi])),
+                       nbrE=energyToPlot)
 
-    plotrelativewave(infi='OUTPUTSPOLE',
-                     oufi='relWFKT_%d.pdf' % neps,
-                     col=waveToPlot,
-                     chan=chans,
-                     titl='$\epsilon=[ $%s$ ]$fm$^{-2}$' %
-                     (' , '.join(['%.4g' % float(ep) for ep in epsi])),
-                     nbrE=energyToPlot)
+        plotrelativewave(infi='OUTPUTSPOLE',
+                         oufi='relWFKT_%d.pdf' % neps,
+                         col=waveToPlot,
+                         chan=chans,
+                         titl='$\epsilon=[ $%s$ ]$fm$^{-2}$' %
+                         (' , '.join(['%.4g' % float(ep) for ep in epsi])),
+                         nbrE=energyToPlot)
+    except:
+        print("Wave-function plotting failed!")
 
     subprocess.call('cp OUTPUTSPOLE outps_%d' % neps, shell=True)
     subprocess.call('grep "FUNCTIONAL BERUECKSICHTIGT" OUTPUTSPOLE',
@@ -542,15 +552,19 @@ for epsi in np.linspace(eps0, eps1, epsNBR):
         if ((chToRead == [2, 2]) | (chToRead == [3, 3])) & cib:
             a_dd = [
                 appC(phdd[n][2] * np.pi / 180.,
-                     np.sqrt(2 * redmass[chToRead[0] - 1] * phdd[n][0]),
-                     redmass[chToRead[0] - 1],
+                     np.sqrt(2 * redmass(chDict[str(chToRead)][0],
+                                         chDict[str(chToRead)][1]) *
+                             phdd[n][0]),
+                     redmass(chDict[str(chToRead)][0],
+                             chDict[str(chToRead)][1]),
                      q1=1,
                      q2=1) for n in range(len(phdd))
             ]
         else:
             a_dd = [
                 -MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /
-                np.sqrt(2 * redmass[chToRead[0] - 1] * phdd[n][0])
+                np.sqrt(2 * redmass(chDict[str(chToRead)][0],
+                                    chDict[str(chToRead)][1]) * phdd[n][0])
                 for n in range(len(phdd))
             ]
 
@@ -578,6 +592,22 @@ for epsi in np.linspace(eps0, eps1, epsNBR):
             continue
 
     neps += 1
+
+os.system('rm *mosaic*.pdf')
+
+os.system('pdfjam --outfile %s --nup 2x%d 4_ph_*.pdf' %
+          ('4bdy_phase-mosaic_%s_%s.pdf' %
+           (lam, lecstring), int(np.ceil(epsNBR / 2))))
+os.system('pdfjam --outfile %s --nup 2x%d expandedWFKT_*.pdf' %
+          ('4bdy_expandedWFKT-mosaic_%s_%s.pdf' %
+           (lam, lecstring), int(np.ceil(epsNBR / 2))))
+os.system('pdfjam --outfile %s --nup 2x%d relWFKT_*.pdf' %
+          ('4bdy_relWFKT-mosaic_%s_%s.pdf' %
+           (lam, lecstring), int(np.ceil(epsNBR / 2))))
+
+os.system('rm 4_ph_*.pdf')
+os.system('rm relWFKT_*.pdf')
+os.system('rm expandedWFKT_*.pdf')
 
 xx = []
 yy = []
