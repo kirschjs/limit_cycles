@@ -272,9 +272,10 @@ nbrStatesOpti2 = 1
 nbrStatesOpti3 = [-2]
 nbrStatesOpti4 = [-3]
 
-# if the 3-body spectrum contains more than 1 boundstate, those excited states
-# can be added here
-nbr_of_threebody_boundstates = 2
+# include the n-th 3-body bounstate of the 3-body spectrum as asymptotic fragments
+# in the 3-1 partition of the 4-body calculation; e.g. [0,1] includes an asymptotic
+# 4-body channel where 3 atoms are bound in the 1st excited state
+nbr_of_threebody_boundstates = [0, 1]
 
 #8.00 - 046
 #nzEN = 200
@@ -312,15 +313,15 @@ nbr_of_threebody_boundstates = 2
 #D0 = 0.01
 
 #8.00 - 84 -- delete first 3-1 channel from INEN (too deeply bound)
-nzEN = 10
+nzEN = 100
 E0 = 7.5
-D0 = 0.1
+D0 = 0.01
 
 E0M = 0.0001
 D0M = 0.04
 
 epL = 0.0001
-epU = 0.0015
+epU = 0.0005
 eps0 = [epL * 1.0, epL, epL, epL, epL]
 eps1 = [epU * 1.0, epU, epU, epU, epU]
 epsM = (np.array(eps1) + np.array(eps0)) / 2
@@ -329,18 +330,18 @@ epsNBR = 4
 # parameters for the expansion of the fragment-relative function
 # (i.e., both fragments charged: Coulomb function, else sperical Bessel)
 # in Gaussians
-SPOLE_adaptweightUP = 0.01
-SPOLE_adaptweightLOW = 0.1
+SPOLE_adaptweightUP = 0.1
+SPOLE_adaptweightLOW = 0.001
 SPOLE_adaptweightL = 0.5
-SPOLE_GEW = 0.6  # smaller values decrease the maximal radius up to which values enter the fit
-SPOLE_QD = 1.1  # this shifts the interval smaller values try to optimize the behavior closer to zero
+SPOLE_GEW = 1.0  # smaller values decrease the maximal radius up to which values enter the fit
+SPOLE_QD = 1.0  # this shifts the interval smaller values try to optimize the behavior closer to zero
 SPOLE_QS = 1.0
 
-beta0 = 1.1
+beta0 = 3.2
 Bet = [beta0, beta0, beta0, beta0, beta0]
 rgh = 8.0
 anzStuez = 200
-StuezAbs = 3.8
+StuezAbs = 1.0
 StuezBrei = 1.0
 
 MeVfm = 197.3161329
@@ -356,17 +357,18 @@ MeVfm = 197.3161329
 #]
 
 # number of Gaussian basis functions/widths used to expand the fragment-relative wave function
-anzRelw = 40
-
+anzRelw = 15
+maxRelW = 12.1
 widthSet_relative = [
     np.append(
         np.abs(
-            np.logspace(-4.2 + 0.0 * np.random.random(),
-                        1.2 + 0.0 * np.random.random(),
-                        num=anzRelw,
-                        endpoint=True,
-                        dtype=None)[::-1]), [])
-    for nn in range(1, 1 + len(channels_4_scatt))
+            np.array([
+                ww for ww in np.logspace(-4.2 + 0.0 * np.random.random(),
+                                         1.2 + 0.0 * np.random.random(),
+                                         num=anzRelw,
+                                         endpoint=True,
+                                         dtype=None)[::-1] if ww < maxRelW
+            ])), []) for nn in range(1, 1 + len(channels_4_scatt))
 ]
 
 #np.linspace(start=11.5, stop=0.005, num=30, endpoint=True, dtype=None))

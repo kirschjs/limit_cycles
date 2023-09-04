@@ -447,132 +447,99 @@ def inen_str_4(coeff,
     sumuec = list(more_itertools.collapse(uec))
 
     cumc = [0]
-    for cset in uec:
+    for cset in phys_chan[2]:
         tmp = len(cset) if np.ndim(cset) == 1 else len(cset[0])
         tmp += cumc[-1]
         cumc += [tmp]
+
     #cumc = np.insert(np.cumsum([len(cset) for cset in uec]), 0, 0)
 
     # SPIN #CHANNELS
     s += '%4d%4d   0   0%4d   1\n' % (int(2 * jay), anzch, pari)
 
     # FRAGMENT-EXPANSION COEFFICIENTS
+    s += '%4d\n' % len(list(more_itertools.collapse(phys_chan[2])))
 
-    s += '%4d\n' % len(sumuec)
-
-    for cf in sumuec:
+    for cf in list(more_itertools.collapse(phys_chan[2])):
         s += '%-20.9f\n' % cf
 
     # ------------------------------------ phys chan
     chanstrs = []
     ncof = 0
-    for nphy_chan in range(len(phys_chan)):
-        if np.ndim(phys_chan[nphy_chan]) == 1:
-            stmp = ''
-            stmp += '%3d%3d%3d\n' % (phys_chan[nphy_chan][0],
-                                     phys_chan[nphy_chan][1],
-                                     phys_chan[nphy_chan][2])
-            stmp += '%4d' % len(uec[nphy_chan])
-            di = 1
-            for i in range(len(uec[nphy_chan])):
-                di += 1
-                stmp += '%4d' % (i + 1 + cumc[nphy_chan])
-                if ((di % 20 == 0) | (int(i + 1) == len(uec[nphy_chan]))):
-                    stmp += '\n'
-                    di = 0
-            di = 1
-            for i in range(1, 1 + len(uec[nphy_chan])):
-                stmp += '%4d' % (i + cumc[nphy_chan])
-                if ((di % 20 == 0) | (di == len(uec[nphy_chan]))):
-                    stmp += '\n'
-                di += 1
-            ncof = i
-            nbr_relw_phys_chan = len(wr)
-            for i in range(1, nbr_relw_phys_chan + 1):
-                stmp += '%3d' % int(1)
-                if ((int(i) % 50 == 0) | (int(i) == nbr_relw_phys_chan)):
-                    stmp += '\n'
 
-            # channels are put in reverse order!
-            chanstrs.insert(0, stmp)
+    for nphy_chan in range(len(phys_chan[0])):
 
-        else:
-            for nexchans in range(len(phys_chan[nphy_chan])):
-                stmp = ''
-                stmp += '%3d%3d%3d\n' % (phys_chan[nphy_chan][nexchans][0],
-                                         phys_chan[nphy_chan][nexchans][1],
-                                         phys_chan[nphy_chan][nexchans][2])
-                stmp += '%4d' % len(uec[nphy_chan][nexchans])
-                di = 1
-                for i in range(len(uec[nphy_chan][nexchans])):
-                    di += 1
-                    stmp += '%4d' % (i + 1 + cumc[nphy_chan])
-                    if ((di % 20 == 0) |
-                        (int(i + 1) == len(uec[nphy_chan][nexchans]))):
-                        stmp += '\n'
-                        di = 0
-                di = 1
-                for i in range(1, 1 + len(uec[nphy_chan][nexchans])):
-                    stmp += '%4d' % (i + ncof)
-                    if ((di % 20 == 0) |
-                        (di == len(uec[nphy_chan][nexchans]))):
-                        stmp += '\n'
-                    di += 1
-                ncof += i
-
-                nbr_relw_phys_chan = len(wr)
-                for i in range(1, nbr_relw_phys_chan + 1):
-                    stmp += '%3d' % int(1)
-                    if ((int(i) % 50 == 0) | (int(i) == nbr_relw_phys_chan)):
-                        stmp += '\n'
-
-                # channels are put in reverse order!
-                chanstrs.insert(0, stmp)
+        stmp = ''
+        stmp += '%3d%3d%3d\n' % (phys_chan[0][nphy_chan][0],
+                                 phys_chan[0][nphy_chan][1],
+                                 phys_chan[0][nphy_chan][2])
+        stmp += '%4d' % len(phys_chan[2][nphy_chan])
+        di = 1
+        for i in range(phys_chan[1][nphy_chan][0], phys_chan[1][nphy_chan][1]):
+            di += 1
+            stmp += '%4d' % (i + 1)
+            if ((di % 20 == 0) | (int(i + 1) == phys_chan[1][nphy_chan][1])):
+                stmp += '\n'
+                di = 0
+        di = 1
+        ncof = cumc[nphy_chan]
+        for i in range(1, 1 + len(phys_chan[2][nphy_chan])):
+            stmp += '%4d' % (i + ncof)
+            if ((di % 20 == 0) | (di == len(phys_chan[2][nphy_chan]))):
+                stmp += '\n'
+            di += 1
+        nbr_relw_phys_chan = len(wr)
+        for i in range(1, nbr_relw_phys_chan + 1):
+            stmp += '%3d' % int(1)
+            if ((int(i) % 50 == 0) | (int(i) == nbr_relw_phys_chan)):
+                stmp += '\n'
+        # channels are put in reverse order!
+        # chanstrs.insert(0, stmp)
+        chanstrs.append(stmp)
 
     s += ''.join(chanstrs)
+
+    sumuec = list(more_itertools.collapse(phys_chan[2]))
 
     distuec = [
         nc + 1 for nc in range(len(sumuec)) if 10**2 > np.abs(sumuec[nc]) > 0.1
     ]
 
     fd = True
-    for nphy_chan in range(len(phys_chan)):
-        if np.ndim(phys_chan[nphy_chan]) == 1:
-            relwoffset = ''
-            for i in range(cumc[nphy_chan] + 1, cumc[nphy_chan + 1] - 4):
-                s += '%3d%3d%3d' % (phys_chan[nphy_chan][0],
-                                    phys_chan[nphy_chan][1],
-                                    phys_chan[nphy_chan][2])
-                if fd:
-                    s += ' -1\n'
-                    fd = False
-                else:
-                    s += '\n'
-                s += '   1%4d\n' % i
-                s += '%-4d\n' % (np.random.choice(distuec))
-                s += relwoffset
-                for relw in dma:
-                    s += '%3d' % relw
-                s += '\n'
+    unique_chs = [[phys_chan[0][0]], [phys_chan[1][0]], [phys_chan[2][0]]]
 
-        else:
-            relwoffset = ''
-            for i in range(cumc[nphy_chan] + 1, cumc[nphy_chan + 1] - 4):
-                s += '%3d%3d%3d' % (phys_chan[nphy_chan][0][0],
-                                    phys_chan[nphy_chan][0][1],
-                                    phys_chan[nphy_chan][0][2])
-                if fd:
-                    s += ' -1\n'
-                    fd = False
-                else:
-                    s += '\n'
-                s += '   1%4d\n' % i
-                s += '%-4d\n' % (np.random.choice(distuec))
-                s += relwoffset
-                for relw in dma:
-                    s += '%3d' % relw
-                s += '\n'
+    for nn in range(len(phys_chan[0])):
+        newch = True
+        for mm in range(len(unique_chs[0])):
+            if phys_chan[0][nn] == unique_chs[0][mm]:
+                newch = False
+                break
+        if newch:
+            unique_chs[0].append(phys_chan[0][nn])
+            unique_chs[1].append(phys_chan[1][nn])
+            unique_chs[2].append(phys_chan[2][nn])
 
+    for nphy_chan in range(len(unique_chs[0])):
+        relwoffset = ''
+        for i in range(unique_chs[1][nphy_chan][0],
+                       unique_chs[1][nphy_chan][1] - 4):
+            s += '%3d%3d%3d' % (unique_chs[0][nphy_chan][0],
+                                unique_chs[0][nphy_chan][1],
+                                unique_chs[0][nphy_chan][2])
+            if fd:
+                s += ' -1\n'
+                fd = False
+            else:
+                s += '\n'
+            s += '   1%4d\n' % (i + 1)
+            s += '%-4d\n' % (np.random.choice(distuec))
+            s += relwoffset
+            for relw in dma:
+                s += '%3d' % relw
+            s += '\n'
+
+    # here we attach the additional distortion channels which do not contribute
+    # to the expansion of the asymptotic ones
     s += diCh
 
     with open(fn, 'w') as outfile:

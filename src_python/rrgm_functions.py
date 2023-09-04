@@ -926,6 +926,8 @@ def plotrelativewave(infi='OUTPUTSPOLE',
                         wfktAPP = np.array(wfdata)[:, col][1::2]
 
                         colo = c = cmap(ch / len(chan))
+
+                        plt.ylim(-2, 2)
                         plt.plot(rr,
                                  wfkt,
                                  label='F_L(r,ch=%d)' % ch,
@@ -1005,6 +1007,10 @@ def plotapproxwave(infi='OUTPUTSPOLE',
                                 rr = np.array(wfdata)[:, 0]
                                 wfkt = np.array(wfdata)[:, int(1 + 2 * col)]
                                 colo = c = cmap(ch / len(chan))
+
+                                ym = np.median(wfkt)
+                                ym = 2
+                                plt.ylim(-ym, ym)
 
                                 plt.plot(rr,
                                          wfkt,

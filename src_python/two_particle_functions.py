@@ -56,23 +56,23 @@ def spole_2(nzen=20,
     s += ' 11  3  0  0  0 +0\n'
     s += '%3d  0  1\n' % int(nzen)
     s += '%12.7f%12.7f\n' % (float(e0), float(d0))
-    epsline = ''.join(['%12.4f' % float(epsI) for epsI in eps]) + '\n'
-    betline = ''.join(['%12.4f' % float(betI) for betI in bet]) + '\n'
+    epsline = ''.join(['%12.8f' % float(epsI) for epsI in eps]) + '\n'
+    betline = ''.join(['%12.8f' % float(betI) for betI in bet]) + '\n'
     s += epsline + betline
     #    OUT
     s += ' +0  0 +1  0  1  0  2  0\n'
     s += '%3d\n' % int(nzrw)
-    s += '%12.4f%12.4f%12.4f\n' % (float(frr), float(rhg), float(rhf))
+    s += '%12.8f%12.8f%12.8f\n' % (float(frr), float(rhg), float(rhf))
     channelDescriptorline = ''.join(['%3d' % n
                                      for n in range(1, nbrCH + 1)]) + '\n'
     s += channelDescriptorline
-    adaptIntervalWeightlineUP = nbrCH * ('%12.4f' %
+    adaptIntervalWeightlineUP = nbrCH * ('%12.8f' %
                                          float(adaptweightUP)) + '\n'
-    adaptIntervalWeightlineLOW = nbrCH * ('%12.4f' %
+    adaptIntervalWeightlineLOW = nbrCH * ('%12.8f' %
                                           float(adaptweightLOW)) + '\n'
-    adaptIntervalWeightlineL = nbrCH * ('%12.4f' % float(adaptweightL)) + '\n'
+    adaptIntervalWeightlineL = nbrCH * ('%12.8f' % float(adaptweightL)) + '\n'
     s += adaptIntervalWeightlineUP + adaptIntervalWeightlineLOW + adaptIntervalWeightlineL
-    s += '%12.4f%12.4f%12.4f\n' % (GEW, QD, QS)
+    s += '%12.8f%12.8f%12.8f\n' % (GEW, QD, QS)
     with open('INPUTSPOLE', 'w') as outfile:
         outfile.write(s)
     return

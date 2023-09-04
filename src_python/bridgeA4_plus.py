@@ -26,10 +26,12 @@ from multiprocessing.pool import ThreadPool
 einzel4 = 0
 findstablebas = False
 
-evalChans = [[1, 1], [2, 2]]
+# ECCE: variable whose consistency with evalChans must be given:
+# nbr_of_threebody_boundstates ,
+evalChans = [[1, 1], [2, 2]]  #, [3, 3]]
 pltChans = evalChans  #+ [[1, 2], [1, 3], [2, 3]]
 
-chDict = {'[1, 1]': [3, 1], '[2, 2]': [2, 2]}
+chDict = {'[1, 1]': [], '[2, 2]': [], '[3, 3]': []}
 
 
 def redmass(f1=1, f2=1, mpi='137'):
@@ -48,9 +50,9 @@ waveToPlot = 2
 # the wave function is ploted for the n-th energy above the channel threshold
 energyToPlot = 1
 
-nMatch = 0
+nMatch = 1
 
-newCal = -1
+newCal = 1
 
 if newCal == 2:
     import bridgeA2_plus
@@ -95,7 +97,9 @@ twodirs = []
 for ch in channels_2:
     twodirs.append(sysdir2base + '/' + ch)
 
+chFRG = []
 fragment_energies = []
+fragment_bvrange = []
 cofli = []
 strus = []
 zstrus = []
@@ -111,6 +115,13 @@ if len(widthSet_relative) != len(channels_4_scatt):
     exit()
 
 chnbr = 0
+
+bvcount = 0
+fragment_energies_tmp = []
+fragment_bvrange_tmp = []
+J1J2SC_tmp = []
+cofli_tmp = []
+chFRG_tmp = []
 
 for chan in channels_4_scatt:
 
@@ -128,7 +139,7 @@ for chan in channels_4_scatt:
 
     ths1 = get_h_ev(n=1, ifi=sysdir21 + '/bndg_out_%s' % lam)
     ths2 = get_h_ev(n=1, ifi=sysdir22 + '/bndg_out_%s' % lam)
-    fragment_energies.append(ths1[0] + ths2[0])
+    fragment_energies_tmp.append(ths1[0] + ths2[0])
 
     # treat nn=pp if SU(4)
     if ((sysdir21 == sysdir22) | SU4):
@@ -147,10 +158,12 @@ for chan in channels_4_scatt:
                                      app='True')
 
     zstrus.append(zstrus_tmp)
+    fragment_bvrange_tmp.append([bvcount, bvcount + sum(zstrus_tmp)])
     qua_str.append(outs)
 
     strus.append(len(zstrus[-1]) * [chan[:2]])
-    J1J2SC.append(chan[2])
+    J1J2SC_tmp.append(chan[2])
+    chFRG_tmp.append([2, 2])
 
     if (sysdir21 == sysdir22) | SU4:
         ddCoff = parse_ev_coeffs(mult=1,
@@ -164,7 +177,7 @@ for chan in channels_4_scatt:
                                    bvnr=1)
 
     ddCoff = np.array(ddCoff).astype(float)
-    cofli.append(ddCoff.tolist())
+    cofli_tmp.append(ddCoff.tolist())
 
     ph2d.append(
         read_phase(phaout=sysdir21 + '/phaout_%s' % (lam),
@@ -173,6 +186,14 @@ for chan in channels_4_scatt:
                    th_shift=''))
     #print(sysdir21, '\n', sysdir22)
     chnbr += 1
+    bvcount += sum(zstrus_tmp)
+
+cofli.append(cofli_tmp)
+J1J2SC.append(J1J2SC_tmp)
+chFRG.append(chFRG_tmp)
+
+fragment_energies.append(fragment_energies_tmp)
+fragment_bvrange.append(fragment_bvrange_tmp)
 
 # the order matters as we conventionally include physical channels
 # in ascending threshold energy. E.g. dd then he3n then tp;
@@ -188,7 +209,7 @@ for sysdir3 in threedirs:
             for cfg in ch[1]:
                 if sysdir3.split('/')[-1] in cfg:
                     J1J2SC_tmp = []
-                    for nn in range(nbr_of_threebody_boundstates):
+                    for nn in range(nbr_of_threebody_boundstates.count(1)):
                         J1J2SC_tmp.append(ch[2])
                     J1J2SC.append(J1J2SC_tmp)
                     gogo = False
@@ -205,10 +226,14 @@ for sysdir3 in threedirs:
         [int(line.strip()) for line in open(sysdir3 + '/drei_stru_%s' % lam)])
 
     fragment_energies_tmp = []
+    fragment_bvrange_tmp = []
     cofli_tmp = []
-    for nn in range(nbr_of_threebody_boundstates):
-        fragment_energies_tmp.append(
-            get_h_ev(n=1 + nn, ifi=sysdir3 + '/bndg_out_%s' % lam)[-1])
+    for nn in range(len(nbr_of_threebody_boundstates)):
+        if nbr_of_threebody_boundstates[nn] == 0:
+            continue
+        ew = get_h_ev(n=1 + nn, ifi=sysdir3 + '/bndg_out_%s' % lam)[nn]
+        fragment_energies_tmp.append(ew)
+        fragment_bvrange_tmp.append([bvcount, bvcount + sum(zstrus[-1])])
 
         threeCoff = parse_ev_coeffs(mult=0,
                                     infil=sysdir3 + '/bndg_out_%s' % lam,
@@ -217,12 +242,12 @@ for sysdir3 in threedirs:
 
         threeCoff = np.array(threeCoff).astype(float)
         cofli_tmp.append(threeCoff.tolist())
+        chFRG_tmp.append([3, 1])
 
-    #print(cofli_tmp[::-1])
-    #print(fragment_energies_tmp[::-1])
-
+    chFRG.append(chFRG_tmp)
     cofli.append(cofli_tmp[::-1])
     fragment_energies.append(fragment_energies_tmp[::-1])
+    fragment_bvrange.append(fragment_bvrange_tmp)
 
     qua_str.append(''.join(
         replace_wrel('%s/inq_3to4_%s' % (sysdir3, lam),
@@ -233,34 +258,51 @@ for sysdir3 in threedirs:
     #subprocess.call('cat %s/inq_3to4_%s >> INQUA_N' % (sysdir3, lam),
     #                shell=True)
     chnbr += 1
+    bvcount += sum(zstrus[-1])
 
-# if the 2 trimers (t, he) and the 4 dimers (d, dq, nn, pp) which can be formed
-# with 4-flavour fermions are degenerate wrt. to their ground-state energy,
-# the ordering of physical channels as defined by "channels_4_scatt" is adopted
-if deg_channs == 1:
-    idx = list(range(len(fragment_energies)))
-# otherwise, the 5 asympttotic 2-fragment channels are ordered according to
-# descending binding energies
-else:
-    idx = np.array(fragment_energies).argsort()[::-1]
+idx = np.array(list(more_itertools.collapse([fragment_energies]))).argsort()
+
+chFRG = [list(more_itertools.collapse([chFRG], levels=2))[id] for id in idx]
+nt = 0
+
+for nn in chDict:
+    if nt >= len(chFRG):
+        break
+    chDict[nn] = chFRG[nt]
+    nt += 1
+
+# create a threshold-ordered list of asymptotic channels
+#
+asymptCH = [
+    [list(more_itertools.collapse([J1J2SC], levels=2))[id] for id in idx],
+    [
+        list(more_itertools.collapse([fragment_bvrange], levels=2))[id]
+        for id in idx
+    ], [list(more_itertools.collapse([cofli], levels=2))[id] for id in idx]
+]
+
+idx = np.array([ee[0] for ee in fragment_energies]).argsort()[::-1]
+fragment_energies = np.array(fragment_energies, dtype=object)[idx]
 
 asyChanLabels = sum([1 * asy[0][1] for asy in [strus[id] for id in idx]],
                     [])[::-1]
+
 asyChanLabels = list(
     more_itertools.collapse([
-        np.ndim(J1J2SC[::-1][nn]) * [asyChanLabels[nn]]
+        len(J1J2SC[::-1][nn]) * [asyChanLabels[nn]]
         for nn in range(len(asyChanLabels))
     ]))
 
-strus = sum([strus[id] for id in idx], [])
-zstrus = sum([zstrus[id] for id in idx], [])
+#strus = sum([strus[id] for id in idx], [])
+#zstrus = sum([zstrus[id] for id in idx], [])
+strus = sum([strus[id] for id in range(len(strus))], [])
+zstrus = sum([zstrus[id] for id in range(len(zstrus))], [])
 
 # this awkward line should take care of multiple fragments corresponding to the
 # same strucutre, i.e., an excited trimer
 cofli = [cofli[id] for id in idx]
 J1J2SC = [J1J2SC[id] for id in idx]
-
-qua_str = [qua_str[id] for id in idx]
+#qua_str = [qua_str[id] for id in idx]
 
 # include only width parameters > 0.5 (reasonable choice for cutoffs of about 4fm^-1)
 # to guarantee that distortion channels only extend the variational space in the
@@ -356,7 +398,7 @@ if newCal > 0:
     ma = blunt_ev4(cfgs=strus,
                    bas=sb,
                    dmaa=relwDistCH,
-                   j1j2sc=J1J2SC,
+                   j1j2sc=asymptCH,
                    funcPath=sysdir4,
                    nzopt=zop,
                    frgCoff=cofli,
@@ -547,7 +589,6 @@ for epsi in np.linspace(eps0, eps1, epsNBR):
     head_str = '# lambda                       channel   a(ch)     eps                        a(2)     B(4)   B(thresh)\n'
     print(head_str)
     for chToRead in evalChans:
-        print(chToRead)
         phdd = read_phase(phaout='PHAOUT', ch=chToRead, meth=1, th_shift='')
         if ((chToRead == [2, 2]) | (chToRead == [3, 3])) & cib:
             a_dd = [
@@ -595,13 +636,13 @@ for epsi in np.linspace(eps0, eps1, epsNBR):
 
 os.system('rm *mosaic*.pdf')
 
-os.system('pdfjam --outfile %s --nup 2x%d 4_ph_*.pdf' %
+os.system('pdfjam --quiet --outfile %s --nup 2x%d 4_ph_*.pdf' %
           ('4bdy_phase-mosaic_%s_%s.pdf' %
            (lam, lecstring), int(np.ceil(epsNBR / 2))))
-os.system('pdfjam --outfile %s --nup 2x%d expandedWFKT_*.pdf' %
+os.system('pdfjam --quiet --outfile %s --nup 2x%d expandedWFKT_*.pdf' %
           ('4bdy_expandedWFKT-mosaic_%s_%s.pdf' %
            (lam, lecstring), int(np.ceil(epsNBR / 2))))
-os.system('pdfjam --outfile %s --nup 2x%d relWFKT_*.pdf' %
+os.system('pdfjam --quiet --outfile %s --nup 2x%d relWFKT_*.pdf' %
           ('4bdy_relWFKT-mosaic_%s_%s.pdf' %
            (lam, lecstring), int(np.ceil(epsNBR / 2))))
 
