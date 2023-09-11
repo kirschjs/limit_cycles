@@ -554,8 +554,8 @@ def span_population3(anz_civ,
     rWmin = 0.00001
 
     # orbital-angular-momentum dependent upper bound '=' UV cutoff (narrowest state)
-    iLcutoff = 492.
-    rLcutoff = 492.
+    iLcutoff = 92.
+    rLcutoff = 92.
     nwint = ini_dims[0]
     nwrel = ini_dims[1]
     rel_scale = 1.
@@ -630,7 +630,7 @@ def span_population3(anz_civ,
                 lit_wr = [
                     test_width * np.random.random() for test_width in lit_w_tmp
                 ]
-                if np.max(lit_wr) > iLcutoff:
+                if np.max(lit_wr) > rLcutoff:
                     continue
 
                 prox_check = check_dist(width_array1=lit_wr,

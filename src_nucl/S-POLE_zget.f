@@ -2895,7 +2895,7 @@ C
       WRITE(NOUT,1000)
 1000  FORMAT(1X,'D-KOEFFIZIENTEN')
       WRITE(NOUT,1001)((D(I,L,MTD),I=1,NZPWX),L=1,NZAOK)
-1001  FORMAT(1X,10G12.6)
+1001  FORMAT(1X,10G16.6)
 1     CONTINUE
       RETURN
       END
@@ -3030,7 +3030,7 @@ C     DER FOLGENDE TEIL IST NOCH NICHT FUER UMGESTELLT FUER EM-UEBERGAENGE
      */,' R(FM) W-FUNKTION, N**1/2*W-FUNK., D*Gauss, -I+S*O,'
      *,' -I+S*O +WF IM WECHSELWIRKUNGBEREICH')
       DO 40 KL=1,NZKA
-C     to minimize output, print only wafe functions for physical
+C     to minimize output, print only wave functions for physical
 C     fragments
       if(kl.gt.NO) goto 40 
       DO 41 I=1,4

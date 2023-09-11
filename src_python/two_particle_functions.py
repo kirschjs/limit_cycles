@@ -60,7 +60,7 @@ def spole_2(nzen=20,
     betline = ''.join(['%12.8f' % float(betI) for betI in bet]) + '\n'
     s += epsline + betline
     #    OUT
-    s += ' +0  0 +1  0  1  0  2  0\n'
+    s += ' +1  0 +1  0  1  0  2  0\n'
     s += '%3d\n' % int(nzrw)
     s += '%12.8f%12.8f%12.8f\n' % (float(frr), float(rhg), float(rhf))
     channelDescriptorline = ''.join(['%3d' % n

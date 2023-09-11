@@ -505,6 +505,9 @@ def inen_str_4(coeff,
         nc + 1 for nc in range(len(sumuec)) if 10**2 > np.abs(sumuec[nc]) > 0.1
     ]
 
+    #print(sumuec)
+    #print(distuec)
+
     fd = True
     unique_chs = [[phys_chan[0][0]], [phys_chan[1][0]], [phys_chan[2][0]]]
 
@@ -532,7 +535,9 @@ def inen_str_4(coeff,
             else:
                 s += '\n'
             s += '   1%4d\n' % (i + 1)
-            s += '%-4d\n' % (np.random.choice(distuec))
+            nc = np.random.choice(distuec)
+            s += '%-4d\n' % nc
+            assert np.abs(sumuec[nc - 1]) > 0.1
             s += relwoffset
             for relw in dma:
                 s += '%3d' % relw
@@ -544,6 +549,7 @@ def inen_str_4(coeff,
 
     with open(fn, 'w') as outfile:
         outfile.write(s)
+
     return
 
 

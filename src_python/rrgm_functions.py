@@ -922,12 +922,12 @@ def plotrelativewave(infi='OUTPUTSPOLE',
 
                         rr = np.array(wfdata)[:, 0][0::2]
                         rrAPP = np.array(wfdata)[:, 0][1::2]
-                        wfkt = np.array(wfdata)[:, col][0::2]
-                        wfktAPP = np.array(wfdata)[:, col][1::2]
+                        wfkt = np.array(wfdata)[:, int(1 + 2 * col)][0::2]
+                        wfktAPP = np.array(wfdata)[:, int(1 + 2 * col)][1::2]
 
                         colo = c = cmap(ch / len(chan))
 
-                        plt.ylim(-2, 2)
+                        #plt.ylim(-2, 2)
                         plt.plot(rr,
                                  wfkt,
                                  label='F_L(r,ch=%d)' % ch,
@@ -1008,9 +1008,9 @@ def plotapproxwave(infi='OUTPUTSPOLE',
                                 wfkt = np.array(wfdata)[:, int(1 + 2 * col)]
                                 colo = c = cmap(ch / len(chan))
 
-                                ym = np.median(wfkt)
+                                #ym = np.median(wfkt)
                                 ym = 2
-                                plt.ylim(-ym, ym)
+                                #plt.ylim(-ym, ym)
 
                                 plt.plot(rr,
                                          wfkt,
@@ -1028,3 +1028,163 @@ def plotapproxwave(infi='OUTPUTSPOLE',
 
             else:
                 nE += 1
+
+
+def plotDcoeff(infi='OUTPUTSPOLE',
+               oufi='tmp.pdf',
+               col=0,
+               chan=[1],
+               titl='',
+               nbrE=1):
+
+    data = [line for line in open(infi)]
+
+    start = 0
+    end = 1
+    nE = 0
+    ch = 1
+
+    Dcoeffs = []
+    Dcoeffs2 = []
+
+    for nj in range(1, len(data)):
+
+        cmap = plt.get_cmap('winter')
+
+        if (-1 not in [
+                data[nj + (ch - 1) * 4].find('DER%3d TE KANAL IST OFFEN' % ch)
+                for ch in chan
+        ]):
+
+            ch = 1
+
+            if nE == nbrE:
+
+                for njj in range(nj, len(data)):
+
+                    if (data[njj].find('D-KOEFFIZIENTEN') >= 0):
+
+                        for njjj in range(njj + 1, len(data)):
+
+                            if (data[njjj].find('D-KOEFFIZIENTEN') >= 0):
+                                break
+
+                            Dcoeffs += data[njjj].split()
+#                        print(np.array(Dcoeffs).astype(float))
+                        for n2 in range(njjj + 1, 2 * njjj - njj):
+                            Dcoeffs2 += data[n2].split()
+#                        print(np.array(Dcoeffs2).astype(float))
+                        break
+
+
+#                        exit()
+
+#                            for m in range(njjj, len(data)):
+#                                if len(data[m + 2].split()) != 11:
+#                                    break
+#                            wfdata = np.array([
+#                                line.split() for line in data[njjj + 2:m + 2]
+#                            ]).astype(float)
+#                            rr = np.array(wfdata)[:, 0]
+#                            wfkt = np.array(wfdata)[:, int(1 + 2 * col)]
+#                            colo = c = cmap(ch / len(chan))
+#                            ym = np.median(wfkt)
+#                            ym = 2
+#                            plt.ylim(-ym, ym)
+#                            plt.plot(rr,
+#                                     wfkt,
+#                                     label='F_L(r,ch=%d)' % ch,
+#                                     linestyle='solid',
+#                                     color=colo)
+#                            ch += 1
+#                            break
+
+                n_bins = 40
+
+                fig, ax = plt.subplots()
+
+                # We can set the number of bins with the *bins* keyword argument.
+                Dcoeffs = np.array(Dcoeffs).astype(float)
+                Dcoeffs2 = np.array(Dcoeffs2).astype(float)
+                varm = max([np.var(Dcoeffs), np.var(Dcoeffs2)])
+
+                n, bins, patches = ax.hist(Dcoeffs,
+                                           bins=n_bins,
+                                           density=True,
+                                           stacked=True,
+                                           cumulative=False,
+                                           alpha=0.5)
+                n2, bins2, patches2 = ax.hist(Dcoeffs2,
+                                              bins=n_bins,
+                                              density=True,
+                                              stacked=True,
+                                              cumulative=False,
+                                              alpha=0.5)
+
+                #print("patches: ", patches)
+                #for i in range(10):
+                #    print(patches[i])
+
+                ub = float(min(Dcoeffs))
+                ob = float(max(Dcoeffs))
+
+                tiklocs = [
+                    bins[bb] for bb in range(0, len(n), int(len(n) / 5))
+                ]
+
+                plt.xticks(tiklocs, ['%4.2f' % nn for nn in tiklocs],
+                           rotation=0)
+
+                plt.title(r'max(variance) = %f' % varm)
+                #plt.legend(loc='best', numpoints=1)
+                plt.savefig(oufi)
+                return
+
+            else:
+                nE += 1
+
+
+def readDcoeff(infi='OUTPUTSPOLE', chan=[1], nbrE=1):
+
+    data = [line for line in open(infi)]
+
+    start = 0
+    end = 1
+    nE = 0
+    ch = 1
+
+    Dcoeffs = []
+    Dcoeffs2 = []
+
+    for nj in range(1, len(data)):
+
+        if (-1 not in [
+                data[nj + (ch - 1) * 4].find('DER%3d TE KANAL IST OFFEN' % ch)
+                for ch in chan
+        ]):
+
+            ch = 1
+
+            if nE == nbrE:
+
+                for njj in range(nj, len(data)):
+
+                    if (data[njj].find('D-KOEFFIZIENTEN') >= 0):
+
+                        for njjj in range(njj + 1, len(data)):
+
+                            if (data[njjj].find('D-KOEFFIZIENTEN') >= 0):
+                                break
+
+                            Dcoeffs += data[njjj].split()
+#                        print(np.array(Dcoeffs).astype(float))
+                        for n2 in range(njjj + 1, 2 * njjj - njj):
+                            Dcoeffs2 += data[n2].split()
+
+
+#                        print(np.array(Dcoeffs2).astype(float))
+                        break
+            else:
+                nE += 1
+
+    return np.array(Dcoeffs).astype(float), np.array(Dcoeffs2).astype(float)

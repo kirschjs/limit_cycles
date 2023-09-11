@@ -25,7 +25,7 @@ fitt = False
 # numerical stability
 mindi = 0.2
 
-width_bnds = [0.06, 50.15, 0.08, 52.25]
+width_bnds = [0.06, 30.15, 0.08, 32.25]
 minCond = 10**-16
 
 # genetic parameters
@@ -199,7 +199,9 @@ for channel in channels_3:
                                minDist=mindi) for wsr in widthSet_relative
                 ])
 
-                if prox_check1 * prox_check2 * prox_checkr1 * prox_checkr2 == True:
+                if ((prox_check1 * prox_check2 * prox_checkr1 * prox_checkr2
+                     == True) & ((max(wa) <= max(width_bnds))
+                                 & (max(wb) <= max(width_bnds)))):
 
                     twins.append(daughter)
                     twins.append(son)

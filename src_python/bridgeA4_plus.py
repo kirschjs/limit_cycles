@@ -23,12 +23,13 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 
 # prepare spin/orbital matrices for parallel computation
-einzel4 = 0
-findstablebas = False
+einzel4 = 1
+findstablebas = 1  #True
+maxCofDev = 1
 
 # ECCE: variable whose consistency with evalChans must be given:
 # nbr_of_threebody_boundstates ,
-evalChans = [[1, 1], [2, 2]]  #, [3, 3]]
+evalChans = eDict[lecstring.split('-')[-1]][4]
 pltChans = evalChans  #+ [[1, 2], [1, 3], [2, 3]]
 
 chDict = {'[1, 1]': [], '[2, 2]': [], '[3, 3]': []}
@@ -42,24 +43,32 @@ noDistortion = False
 
 # col = 0 :  wave function (real part)
 #       1 :  normalized wave function (real part)
-#       2   :  D*Gauss
+#       2 :  D*Gauss
 #       3 :  -I+S*O
 #       4 :  -I+S*O +WF IM WECHSELWIRKUNGBEREICH
-waveToPlot = 2
+waveToPlot = 0
+
+# col = 0 : H+
+#       1 : H-
+#       2 : H'+
+#       3 : H'-
+#       4 : T-1
+relwaveToPlot = 1
+
+nMatch2 = 0
+nMatch = 0
 
 # the wave function is ploted for the n-th energy above the channel threshold
-energyToPlot = 1
+energyToPlot = 2
 
-nMatch = 1
-
-newCal = 1
+newCal = 2
 
 if newCal == 2:
     import bridgeA2_plus
     import bridgeA3_plus
     # optimizes a set of distortion channels which should ensure that the exited tetramers are
     # expanded accurately;
-    # import bridgeA4_opt
+    import bridgeA4_opt
 
 J0 = 0
 
@@ -182,7 +191,7 @@ for chan in channels_4_scatt:
     ph2d.append(
         read_phase(phaout=sysdir21 + '/phaout_%s' % (lam),
                    ch=[1, 1],
-                   meth=1,
+                   meth=phasCalcMethod,
                    th_shift=''))
     #print(sysdir21, '\n', sysdir22)
     chnbr += 1
@@ -271,6 +280,8 @@ for nn in chDict:
     chDict[nn] = chFRG[nt]
     nt += 1
 
+print('fragment masses in the asymptotic channels: ', chDict)
+
 # create a threshold-ordered list of asymptotic channels
 #
 asymptCH = [
@@ -308,8 +319,8 @@ J1J2SC = [J1J2SC[id] for id in idx]
 # to guarantee that distortion channels only extend the variational space in the
 # interaction region and that they do NOT interfere with physical, asymptotic states
 maxDistRelW = np.min(
-    [len([ww for ww in wsr if ww > 0.05]) for wsr in widthSet_relative])
-relwDistCH = [(n + 1) % 2 for n in range(np.min([maxDistRelW, 12]))] + [0, 0]
+    [len([ww for ww in wsr if ww > 0.005]) for wsr in widthSet_relative])
+relwDistCH = [n % 2 for n in range(np.min([maxDistRelW, 12]))] + [0, 0]
 """
 in the `alpha' directory, an basis is expected which was optimized for the
 4-body bound-state problem; this basis is added to the variational basis in
@@ -451,25 +462,33 @@ if findstablebas:
             anzDist = int((len(inen) - ll) / 4)
             break
 
-    anzCh = 0
-    for DistCh in range(anzDist):
+    anzCh = 1
+    var0 = 0.0
 
+    for DistCh in range(anzDist - 1):
         line_offset = 7 if nOperators == 31 else 6
         inenLine = inen[line_offset][:4] + '%4d' % (
-            len(channels_4_scatt) + anzCh) + inen[line_offset][8:]
-        #print(inenLine)
+            len(asymptCH[0]) + anzCh) + inen[line_offset][8:]
+
         repl_line('INEN', line_offset, inenLine)
         subprocess.run([BINBDGpath + spectralEXE_mpi])
+        subprocess.run([BINBDGpath + smatrixEXE_multichann])
+        dc, dc2 = readDcoeff()
+
+        maxVar = max(np.var(dc), np.var(dc2))
+        varDev = np.abs(maxVar - var0)
+
         lastline = [ll for ll in open('OUTPUT')][-1]
         tmp = get_h_ev()
-        print('E_0(#Dch:%d)=%4.4f MeV' % (len(channels_4_scatt) + anzCh, tmp))
-        if 'NOT CO' in lastline:
+        print('E_0(#Dch:%d) = %4.4f MeV  D-coeff variance = %4.4f' %
+              (len(channels_4_scatt) + anzCh, tmp, maxVar))
+        if (('NOT CO' in lastline) | (varDev > maxCofDev)):
 
-            if anzCh == 0:
+            if anzCh == 1:
                 print(
                     'Basis numerically unstable. Re-optimze the 2- and/or 3-body bases and/or select a different set of widths to expand the relative motion.'
                 )
-                exit()
+                break
 
             inen = [line for line in open('INEN')]
             for ll in range(len(inen)):
@@ -491,6 +510,7 @@ if findstablebas:
 
         else:
             anzCh += 1
+            var0 = maxVar
 
 if newCal >= 0:
     subprocess.run([BINBDGpath + spectralEXE_mpi])
@@ -506,11 +526,14 @@ for channel in channels_2:
     if os.path.isfile(phafile) == False:
         print("2-body phase shifts unavailable for L = %s" % lam)
         exit()
-    phaa = read_phase(phaout=phafile, ch=[1, 1], meth=1, th_shift='')
+    phaa = read_phase(phaout=phafile,
+                      ch=[1, 1],
+                      meth=phasCalcMethod,
+                      th_shift='')
     a_aa += '  %.4g' % ([
         -MeVfm * np.tan(phaa[n][2] * np.pi / 180.) /
         np.sqrt(mn['137'] * phaa[n][0]) for n in range(len(phaa))
-    ][0])
+    ][nMatch2])
 
 channel_thresholds = get_bind_en(n=len(evalChans))
 channel_thresholds = ' '.join(['%4.4g' % ee for ee in channel_thresholds])
@@ -569,11 +592,18 @@ for epsi in np.linspace(eps0, eps1, epsNBR):
 
         plotrelativewave(infi='OUTPUTSPOLE',
                          oufi='relWFKT_%d.pdf' % neps,
-                         col=waveToPlot,
+                         col=relwaveToPlot,
                          chan=chans,
                          titl='$\epsilon=[ $%s$ ]$fm$^{-2}$' %
                          (' , '.join(['%.4g' % float(ep) for ep in epsi])),
                          nbrE=energyToPlot)
+        plotDcoeff(infi='OUTPUTSPOLE',
+                   oufi='DcoffHist_%d.pdf' % neps,
+                   col=0,
+                   chan=chans,
+                   titl='$\epsilon=[ $%s$ ]$fm$^{-2}$' %
+                   (' , '.join(['%.4g' % float(ep) for ep in epsi])),
+                   nbrE=energyToPlot)
     except:
         print("Wave-function plotting failed!")
 
@@ -589,7 +619,10 @@ for epsi in np.linspace(eps0, eps1, epsNBR):
     head_str = '# lambda                       channel   a(ch)     eps                        a(2)     B(4)   B(thresh)\n'
     print(head_str)
     for chToRead in evalChans:
-        phdd = read_phase(phaout='PHAOUT', ch=chToRead, meth=1, th_shift='')
+        phdd = read_phase(phaout='PHAOUT',
+                          ch=chToRead,
+                          meth=phasCalcMethod,
+                          th_shift='')
         if ((chToRead == [2, 2]) | (chToRead == [3, 3])) & cib:
             a_dd = [
                 appC(phdd[n][2] * np.pi / 180.,
@@ -614,7 +647,7 @@ for epsi in np.linspace(eps0, eps1, epsNBR):
         try:
 
             results_bare = '%.3f   %30s   %.4g   %.4g%s   %.4g   %s' % (
-                float(lam), chanstr, a_dd[0].real, epsi[0], a_aa,
+                float(lam), chanstr, a_dd[nMatch].real, epsi[0], a_aa,
                 groundstate_4, channel_thresholds)
             print(results_bare)
             rafile = 'a_result_%s.dat' % chanstr
@@ -624,7 +657,7 @@ for epsi in np.linspace(eps0, eps1, epsNBR):
             #a_of_epsi[asyChanLabels[int(chToRead[0]) - 1]].append(
             #    [epsi, a_dd[0].real, a_dd[-1].real])
             a_of_epsi['%s--%s' % (chToRead[0], chToRead[1])].append(
-                [epsi, a_dd[0].real, a_dd[-1].real])
+                [epsi, a_dd[nMatch].real, a_dd[-1].real])
             a_of_Ematch[asyChanLabels[int(chToRead[0]) - 1]].append(
                 [np.array(phdd)[:, 0], a_dd])
 
@@ -645,10 +678,14 @@ os.system('pdfjam --quiet --outfile %s --nup 2x%d expandedWFKT_*.pdf' %
 os.system('pdfjam --quiet --outfile %s --nup 2x%d relWFKT_*.pdf' %
           ('4bdy_relWFKT-mosaic_%s_%s.pdf' %
            (lam, lecstring), int(np.ceil(epsNBR / 2))))
+os.system('pdfjam --quiet --outfile %s --nup 2x%d DcoffHist_*.pdf' %
+          ('4bdy_Dcoff-mosaic_%s_%s.pdf' %
+           (lam, lecstring), int(np.ceil(epsNBR / 2))))
 
 os.system('rm 4_ph_*.pdf')
 os.system('rm relWFKT_*.pdf')
 os.system('rm expandedWFKT_*.pdf')
+os.system('rm DcoffHist_*.pdf')
 
 xx = []
 yy = []
@@ -689,26 +726,53 @@ plotarray2(outfi='a_of_Ematch_%s_%s.pdf' % (lam, lecstring),
            leg=[leg],
            plotrange=[''])
 
-phtp = read_phase(phaout='PHAOUT', ch=[1, 1], meth=1, th_shift='')
-phhen = read_phase(phaout='PHAOUT', ch=[2, 2], meth=1, th_shift='1-2')
-phdd = read_phase(phaout='PHAOUT', ch=[3, 3], meth=1, th_shift='1-3')
-phdqdq = read_phase(phaout='PHAOUT', ch=[4, 4], meth=1, th_shift='1-3')
-phnnpp = read_phase(phaout='PHAOUT', ch=[5, 5], meth=1, th_shift='1-3')
+phtp = read_phase(phaout='PHAOUT', ch=[1, 1], meth=phasCalcMethod, th_shift='')
+phhen = read_phase(phaout='PHAOUT',
+                   ch=[2, 2],
+                   meth=phasCalcMethod,
+                   th_shift='1-2')
+phdd = read_phase(phaout='PHAOUT',
+                  ch=[3, 3],
+                  meth=phasCalcMethod,
+                  th_shift='1-3')
+phdqdq = read_phase(phaout='PHAOUT',
+                    ch=[4, 4],
+                    meth=phasCalcMethod,
+                    th_shift='1-3')
+phnnpp = read_phase(phaout='PHAOUT',
+                    ch=[5, 5],
+                    meth=phasCalcMethod,
+                    th_shift='1-3')
 
-phtphen = read_phase(phaout='PHAOUT', ch=[1, 2], meth=1, th_shift='1-2')
+phtphen = read_phase(phaout='PHAOUT',
+                     ch=[1, 2],
+                     meth=phasCalcMethod,
+                     th_shift='1-2')
 
-phtpdd = read_phase(phaout='PHAOUT', ch=[1, 3], meth=1, th_shift='1-3')
-phhendd = read_phase(phaout='PHAOUT', ch=[2, 3], meth=1, th_shift='2-3')
+phtpdd = read_phase(phaout='PHAOUT',
+                    ch=[1, 3],
+                    meth=phasCalcMethod,
+                    th_shift='1-3')
+phhendd = read_phase(phaout='PHAOUT',
+                     ch=[2, 3],
+                     meth=phasCalcMethod,
+                     th_shift='2-3')
 
 # this ordering must match the threshold order, e.g., if B(t)>B(3He)>B(d)>B(dq),
 # phtp -> evalChans[0]
 # phhen -> evalChans[1]
 # phdd -> evalChans[2]
 # phdqdq -> evalChans[3]
-phtp = read_phase(phaout='PHAOUT', ch=evalChans[0], meth=1, th_shift='')
-phhen = read_phase(phaout='PHAOUT', ch=evalChans[1], meth=1, th_shift='1-2')
-#phdqdq = read_phase(phaout='PHAOUT', ch=evalChans[3], meth=1, th_shift='1-4')
-#phmix = read_phase(phaout='PHAOUT', ch=evalChans[3], meth=1, th_shift='1-2')
+phtp = read_phase(phaout='PHAOUT',
+                  ch=evalChans[0],
+                  meth=phasCalcMethod,
+                  th_shift='')
+phhen = read_phase(phaout='PHAOUT',
+                   ch=evalChans[1],
+                   meth=phasCalcMethod,
+                   th_shift='1-2')
+#phdqdq = read_phase(phaout='PHAOUT', ch=evalChans[3], meth=phasCalcMethod, th_shift='1-4')
+#phmix = read_phase(phaout='PHAOUT', ch=evalChans[3], meth=phasCalcMethod, th_shift='1-2')
 
 exit()
 write_phases(phnnpp,
