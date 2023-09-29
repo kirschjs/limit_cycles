@@ -23,22 +23,22 @@ from four_particle_functions import from3to4
 fitt = False
 
 # numerical stability
-mindi = 0.2
+mindi = 0.3
 
-width_bnds = [0.06, 30.15, 0.08, 32.25]
-minCond = 10**-16
+width_bnds = [0.01, 10.15, 0.01, 12.25]
+minCond = 10**-12
 
 # genetic parameters
 anzNewBV = 6
 muta_initial = .03
-anzGen = 8
+anzGen = 2
 seed_civ_size = 10
 target_pop_size = 8
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 7
-nREL = 5
+nBV = 5
+nREL = 4
 
 J0 = 1 / 2
 

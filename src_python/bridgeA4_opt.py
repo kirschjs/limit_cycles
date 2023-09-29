@@ -26,14 +26,14 @@ maxRat = 10**19
 # genetic parameters
 anzNewBV = 6
 muta_initial = .01
-anzGen = 8
+anzGen = 2
 seed_civ_size = 10
 target_pop_size = 10
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 12
-nREL = 10
+nBV = 4
+nREL = anzRelw4opt
 
 einzel4 = 1
 

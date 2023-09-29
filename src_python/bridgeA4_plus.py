@@ -23,9 +23,10 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 
 # prepare spin/orbital matrices for parallel computation
-einzel4 = 1
-findstablebas = 1  #True
-maxCofDev = 1
+einzel4 = 0
+findstablebas = 0  #True
+maxCofDev = 1000.1
+newCal = 0
 
 # ECCE: variable whose consistency with evalChans must be given:
 # nbr_of_threebody_boundstates ,
@@ -61,11 +62,9 @@ nMatch = 0
 # the wave function is ploted for the n-th energy above the channel threshold
 energyToPlot = 2
 
-newCal = 2
-
 if newCal == 2:
-    import bridgeA2_plus
-    import bridgeA3_plus
+    #import bridgeA2_plus
+    #import bridgeA3_plus
     # optimizes a set of distortion channels which should ensure that the exited tetramers are
     # expanded accurately;
     import bridgeA4_opt
@@ -319,7 +318,9 @@ J1J2SC = [J1J2SC[id] for id in idx]
 # to guarantee that distortion channels only extend the variational space in the
 # interaction region and that they do NOT interfere with physical, asymptotic states
 maxDistRelW = np.min(
-    [len([ww for ww in wsr if ww > 0.005]) for wsr in widthSet_relative])
+    [len([ww for ww in wsr if ww > 0.01])
+     for wsr in widthSet_relative] + [anzRelw4opt])
+
 relwDistCH = [n % 2 for n in range(np.min([maxDistRelW, 12]))] + [0, 0]
 """
 in the `alpha' directory, an basis is expected which was optimized for the
@@ -460,41 +461,58 @@ if findstablebas:
     for ll in range(len(inen)):
         if ((inen[ll][-3:-1] == '-1') & (len(inen[ll]) == 13)):
             anzDist = int((len(inen) - ll) / 4)
+            lineoffirstDist = ll
             break
 
     anzCh = 1
     var0 = 0.0
 
+    minDistRelW = 0
+    #maxDistRelW = 5
+
     for DistCh in range(anzDist - 1):
+        # FIRST: select the structure of the distortion
         line_offset = 7 if nOperators == 31 else 6
         inenLine = inen[line_offset][:4] + '%4d' % (
             len(asymptCH[0]) + anzCh) + inen[line_offset][8:]
-
         repl_line('INEN', line_offset, inenLine)
-        subprocess.run([BINBDGpath + spectralEXE_mpi])
-        subprocess.run([BINBDGpath + smatrixEXE_multichann])
-        dc, dc2 = readDcoeff()
 
-        maxVar = max(np.var(dc), np.var(dc2))
-        varDev = np.abs(maxVar - var0)
+        # SECOND: for the selected structure, i.e., spin-/orbital-angular momentum
+        #         coupling scheme of a particular asymptotic channel, cycle through
+        #         the relative widths to be included: |Dch>=|struct,relW>
+        dist_line = np.zeros(maxDistRelW + 1)
+        for NrelW in range(minDistRelW, maxDistRelW, 1):
 
-        lastline = [ll for ll in open('OUTPUT')][-1]
-        tmp = get_h_ev()
-        print('E_0(#Dch:%d) = %4.4f MeV  D-coeff variance = %4.4f' %
-              (len(channels_4_scatt) + anzCh, tmp, maxVar))
-        if (('NOT CO' in lastline) | (varDev > maxCofDev)):
+            dist_line[NrelW] = 1
+            dist_line_str = ''.join(['%3d' % ww for ww in dist_line]) + '\n'
+
+            # at which line is this string to be inserted?
+            linenbrDistCh = int(4 * DistCh + ll + 3)
+            repl_line('INEN', linenbrDistCh, dist_line_str)
+
+            subprocess.run([BINBDGpath + spectralEXE_mpi])
+            subprocess.run([BINBDGpath + smatrixEXE_multichann])
+
+            dc, dc2 = readDcoeff()  # OUTPUTSPOLE
+
+            maxVar = max(np.var(dc), np.var(dc2))
+            varDev = np.abs(maxVar - var0)
+
+            lastline = [ll for ll in open('OUTPUT')][-1]
+            tmp = get_h_ev()
+            print('E_0(#Dch:%d) = %4.4f MeV  D-coeff variance = %4.4f' %
+                  (len(channels_4_scatt) + anzCh, tmp, maxVar))
+            if (('NOT CO' in lastline) | (varDev > maxCofDev)):
+                dist_line[NrelW] = 0
+            maxCofDev = varDev
+
+        if np.any(dist_line) == False:
 
             if anzCh == 1:
                 print(
                     'Basis numerically unstable. Re-optimze the 2- and/or 3-body bases and/or select a different set of widths to expand the relative motion.'
                 )
                 break
-
-            inen = [line for line in open('INEN')]
-            for ll in range(len(inen)):
-                if ((inen[ll][-3:-1] == '-1') & (len(inen[ll]) == 13)):
-                    anzDist = int((len(inen) - ll) / 4)
-                    break
 
             outs = ''
             for line in range(len(inen)):
@@ -504,9 +522,9 @@ if findstablebas:
                 else:
                     print(inen[line])
 
-            with open('tmp', 'w') as outfile:
-                outfile.write(outs)
-            subprocess.call('cp tmp INEN', shell=True)
+                with open('tmp', 'w') as outfile:
+                    outfile.write(outs)
+                subprocess.call('cp tmp INEN', shell=True)
 
         else:
             anzCh += 1

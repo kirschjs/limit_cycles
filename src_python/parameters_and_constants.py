@@ -88,15 +88,18 @@ maxParLen = 120
 cib = 0  # if set, EFTnoPi with charge independence broken by Coulomb and an acompanying
 # contact-term correction is employed (leading order)
 
-lam = 8.00  # 4,6,8,10 (for presentation)
+lam = 4.00  # 4,6,8,10 (for presentation)
 
-lecstring = 'a10-B3-046'
+lecstring = 'a10-B3-s2'
 """
-B(3) -- 0.46      0.66     0.71     0.84     0.9      1.1     1.9       8.4
+B(2) = 0.43(1) MeV
+B(3) -- 0.46 (10)  0.66 (30)  0.71 (34)  0.84     0.9      1.1     1.9       8.4
 D    -- 1730.4873 672.4964 572.2156 317.1505 238.5372 -4.1843 -532.5492 -1703.9865
 """
 
 Dlec = {
+    's1': -426.385,  # l=6.00: B(3,ex1)=1  B(3,0)=82.78
+    's2': 669.9512,
     '046': 1730.4873,
     '066': 672.4964,
     '071': 572.2156,
@@ -108,9 +111,9 @@ Dlec = {
 }
 
 lec_set = {
-    #'4.00': [-471.537, -13.2493],
-    #'6.00': [-699.747, 95.0966],
-    '8.00': [-927.082, Dlec[lecstring.split('-')[-1]]],
+    '4.00': [-473.2, Dlec[lecstring.split('-')[-1]]],
+    '6.00': [-702.16, Dlec[lecstring.split('-')[-1]]],
+    '8.00': [-927.0852, Dlec[lecstring.split('-')[-1]]],
     #'10.0': [-1153.86, 404.1314],
     #'12.0': [-1380.23, 438.8827],
     #'14.0': [-1606.31, 11500.0],
@@ -269,10 +272,15 @@ elif len(lec_set[la]) == 2:
 
 evWindow = [-211.5, -1.70]
 nbrStatesOpti2 = 1
-nbrStatesOpti3 = [-2]
-nbrStatesOpti4 = [-3]
+nbrStatesOpti3 = [-1]
+nbrStatesOpti4 = [-2]
 
 eDict = {
+    #8.00 - B(3)=1
+    's1': [100, 0.0, 0.05, [0, 1], [[1, 1], [2, 2]]],
+    's2': [100, 0.0, 0.05, [1, 0], [[1, 1], [2, 2]]],
+    #8.00 - 046
+    's2': [100, 0.0, 0.15, [0, 1], [[1, 1], [2, 2]]],
     #8.00 - 046
     '046': [100, 0.0, 0.15, [1, 1], [[1, 1], [2, 2], [3, 3]]],
     #8.00 - 066
@@ -282,7 +290,7 @@ eDict = {
     #8.00 - 084
     '084': [200, 54.065, 0.00025, [1, 1], [[1, 1], [2, 2], [3, 3]]],
     #8.00 - 09
-    '09': [200, 63.04, 0.0004, [0, 1], [[1, 1], [2, 2]]],
+    '09': [40, 0.0, 0.004, [0, 1], [[1, 1], [2, 2]]],
     #8.00 - 11
     '11': [200, 102.5, 0.0025, [0, 1], [[1, 1], [2, 2]]],
     #8.00 - 19
@@ -311,14 +319,14 @@ phasCalcMethod = 1
 # parameters for the expansion of the fragment-relative function
 # (i.e., both fragments charged: Coulomb function, else sperical Bessel)
 # in Gaussians
-SPOLE_adaptweightUP = 0.5
+SPOLE_adaptweightUP = 0.25
 SPOLE_adaptweightLOW = 0.01
 SPOLE_adaptweightL = 0.5
 SPOLE_GEW = 1.0  # smaller values decrease the maximal radius up to which values enter the fit
 SPOLE_QD = 1.0  # this shifts the interval smaller values try to optimize the behavior closer to zero
 SPOLE_QS = 1.0
 
-beta0 = 1.5
+beta0 = 2.1
 Bet = [beta0, beta0, beta0, beta0, beta0]
 rgh = 8.0
 anzStuez = 400
@@ -337,9 +345,13 @@ MeVfm = 197.3161329
 #                     dtype=None)) for nn in range(1, 1 + len(channels_4_scatt))
 #]
 
+# number of relative widths used for the refinement of the 4-body state
+# in the interaction region (see bridgeA4_opt.py)
+anzRelw4opt = 10
+
 # number of Gaussian basis functions/widths used to expand the fragment-relative wave function
-anzRelw = 25
-maxRelW = 8.1
+anzRelw = 28  # 10, 12, 14, 20, ....
+maxRelW = 22.1
 widthSet_relative = [
     np.append(
         np.sort(
@@ -347,17 +359,17 @@ widthSet_relative = [
                 np.concatenate([
                     np.array([
                         ww
-                        for ww in np.logspace(-3.8 + 0.0 * np.random.random(),
+                        for ww in np.logspace(-4.1 + 0.0 * np.random.random(),
                                               1.2 + 0.0 * np.random.random(),
-                                              num=anzRelw,
+                                              num=int(anzRelw / 2),
                                               endpoint=True,
                                               dtype=None)[::-1] if ww < maxRelW
                     ]),
                     np.array([
                         ww
                         for ww in np.logspace(0.2 + 0.0 * np.random.random(),
-                                              1.4 + 0.0 * np.random.random(),
-                                              num=0,
+                                              2.1 + 0.0 * np.random.random(),
+                                              num=int(anzRelw / 2),
                                               endpoint=True,
                                               dtype=None)[::-1] if ww < maxRelW
                     ])
