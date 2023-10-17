@@ -1234,8 +1234,8 @@ def span_population4(anz_civ,
 
     cand_list.sort(key=lambda tup: np.abs(tup[2]))
 
-    #for cc in samp_ladder:
-    #    print(cc[2:])
+    for cc in samp_ladder:
+        print(cc[2:])
 
     return cand_list, sbas
 

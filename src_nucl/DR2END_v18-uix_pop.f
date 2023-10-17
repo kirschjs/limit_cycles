@@ -1559,8 +1559,8 @@ C     BINGUNGSRECHNUNG MIT UND OHNE GEKOPPELTE FUNKTIONEN
 c      NZZ = MIN0(MAX0(1,NZZ),NX,NDIMD)
 C if the eigensystem is solved without sorting, all EVs have to
 C       be calculated 
-      NZZ = NX
-      NZZ = 2 
+C      NZZ = NX
+C      NZZ = 2 
       DO 800  K=1,NZZ
       KK=K
       IF (IAUW.NE.0)  READ (INPUT,1002)  KK

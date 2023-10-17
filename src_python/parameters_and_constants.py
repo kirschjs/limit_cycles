@@ -88,9 +88,9 @@ maxParLen = 120
 cib = 0  # if set, EFTnoPi with charge independence broken by Coulomb and an acompanying
 # contact-term correction is employed (leading order)
 
-lam = 4.00  # 4,6,8,10 (for presentation)
+lam = 8.00  # 4,6,8,10 (for presentation)
 
-lecstring = 'a10-B3-s2'
+lecstring = 'B2-05_B3-7'
 """
 B(2) = 0.43(1) MeV
 B(3) -- 0.46 (10)  0.66 (30)  0.71 (34)  0.84     0.9      1.1     1.9       8.4
@@ -111,11 +111,12 @@ Dlec = {
 }
 
 lec_set = {
-    '4.00': [-473.2, Dlec[lecstring.split('-')[-1]]],
-    '6.00': [-702.16, Dlec[lecstring.split('-')[-1]]],
-    '8.00': [-927.0852, Dlec[lecstring.split('-')[-1]]],
-    #'10.0': [-1153.86, 404.1314],
-    #'12.0': [-1380.23, 438.8827],
+    '4.00': [-473.27, -844.196],  # Sourav's orig. set
+    #'4.00': [-473.27, -1044.196],
+    '6.00': [-702.16, -1010.6087],
+    '8.00': [-930.2, -1439.9972],
+    '10.0': [-1157.42, -1689.9085],
+    #'12.0': [-1380.23, Dlec[lecstring.split('-')[-1]]],
     #'14.0': [-1606.31, 11500.0],
     #'16.0': [-1832.15, 12600.0],
     #'18.0': [-2057.79, 22700.0],
@@ -272,12 +273,12 @@ elif len(lec_set[la]) == 2:
 
 evWindow = [-211.5, -1.70]
 nbrStatesOpti2 = 1
-nbrStatesOpti3 = [-1]
-nbrStatesOpti4 = [-2]
+nbrStatesOpti3 = [-3]
+nbrStatesOpti4 = [-4]
 
 eDict = {
     #8.00 - B(3)=1
-    's1': [100, 0.0, 0.05, [0, 1], [[1, 1], [2, 2]]],
+    '7': [100, 0.0, 0.08, [0, 1, 1], [[1, 1], [2, 2], [3, 3]]],
     's2': [100, 0.0, 0.05, [1, 0], [[1, 1], [2, 2]]],
     #8.00 - 046
     's2': [100, 0.0, 0.15, [0, 1], [[1, 1], [2, 2]]],
@@ -351,7 +352,7 @@ anzRelw4opt = 10
 
 # number of Gaussian basis functions/widths used to expand the fragment-relative wave function
 anzRelw = 28  # 10, 12, 14, 20, ....
-maxRelW = 22.1
+maxRelW = 12.1
 widthSet_relative = [
     np.append(
         np.sort(

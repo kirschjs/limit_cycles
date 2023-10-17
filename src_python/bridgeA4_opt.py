@@ -19,23 +19,21 @@ from multiprocessing.pool import ThreadPool
 
 # numerical stability
 mindi = 0.2
-width_bnds = [0.06, 48.15, 0.008, 21.25]
-minCond = 10**-14
+width_bnds = [0.06, 48.15, 0.008, 31.25]
+minCond = 10**-16
 maxRat = 10**19
 
 # genetic parameters
 anzNewBV = 6
 muta_initial = .01
-anzGen = 2
+anzGen = 6
 seed_civ_size = 10
 target_pop_size = 10
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 4
+nBV = 12
 nREL = anzRelw4opt
-
-einzel4 = 1
 
 J0 = 0
 
@@ -47,7 +45,6 @@ for channel in channels_4:
 
     if os.path.isdir(sysdir4) == False:
         subprocess.check_call(['mkdir', '-p', sysdir4])
-    if einzel4 == True:
         prepare_einzel4(sysdir4, BINBDGpath, [channels_4[channel]])
 
     os.chdir(sysdir4)

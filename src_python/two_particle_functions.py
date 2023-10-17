@@ -217,9 +217,9 @@ def inqua_2(relw, ps2, inquaout='INQUA_N'):
     #  9   :   1  2  3D1         2
 
 
-def inen_bdg_2(bas, costr, j, ch=1, anzo=14, fn='INEN', pari=0, tni=10):
+def inen_bdg_2(bas, costr, j, ch=1, anzo=14, fn='INEN', pari=0, tni=10, nzz=2):
     s = ''
-    s += ' 10  3 11%3d  1  1  0  0  0 -1\n' % int(anzo)
+    s += ' 10  3 11%3d  1  1%3d  0  0 -1\n' % (int(anzo), int(nzz))
     #       N  T Co CD^2 LS  T
     s += '  1  1  1  1  1  1  1  1  1  1\n'
 

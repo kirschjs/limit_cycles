@@ -23,10 +23,9 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 
 # prepare spin/orbital matrices for parallel computation
-einzel4 = 0
-findstablebas = 0  #True
+findstablebas = 1  #True
 maxCofDev = 1000.1
-newCal = 0
+newCal = 1
 
 # ECCE: variable whose consistency with evalChans must be given:
 # nbr_of_threebody_boundstates ,
@@ -63,8 +62,8 @@ nMatch = 0
 energyToPlot = 2
 
 if newCal == 2:
-    #import bridgeA2_plus
-    #import bridgeA3_plus
+    import bridgeA2_plus
+    import bridgeA3_plus
     # optimizes a set of distortion channels which should ensure that the exited tetramers are
     # expanded accurately;
     import bridgeA4_opt
@@ -76,7 +75,7 @@ J1J2SC = []
 
 if os.path.isdir(sysdir4) == False:
     subprocess.check_call(['mkdir', '-p', sysdir4])
-    einzel4 = True
+    prepare_einzel4(sysdir4, BINBDGpath, channels_4_scatt)
 
 os.chdir(sysdir4)
 subprocess.call('cp %s .' % nnpot, shell=True)
@@ -95,9 +94,6 @@ for nn in range(1, zop):
         cf = 1.0
 
     costr += '%12.7f' % cf if (nn % 7 != 0) else '%12.7f\n' % cf
-
-if einzel4:
-    prepare_einzel4(sysdir4, BINBDGpath, channels_4_scatt)
 
 os.chdir(sysdir4)
 
@@ -279,7 +275,9 @@ for nn in chDict:
     chDict[nn] = chFRG[nt]
     nt += 1
 
-print('fragment masses in the asymptotic channels: ', chDict)
+print('ECCE >>> fragment masses in the asymptotic channels: ',
+      chDict,
+      end='\n\n')
 
 # create a threshold-ordered list of asymptotic channels
 #
@@ -636,6 +634,8 @@ for epsi in np.linspace(eps0, eps1, epsNBR):
 
     head_str = '# lambda                       channel   a(ch)     eps                        a(2)     B(4)   B(thresh)\n'
     print(head_str)
+
+    chCounter = 0
     for chToRead in evalChans:
         phdd = read_phase(phaout='PHAOUT',
                           ch=chToRead,
@@ -662,6 +662,8 @@ for epsi in np.linspace(eps0, eps1, epsNBR):
 
         chanstr = asyChanLabels[int(chToRead[0]) -
                                 1] + '--' + asyChanLabels[int(chToRead[1]) - 1]
+        chanstr = '(%d)-(%d)' % (int(
+            chDict[str(chToRead)][0]), int(chDict[str(chToRead)][1]))
         try:
 
             results_bare = '%.3f   %30s   %.4g   %.4g%s   %.4g   %s' % (
