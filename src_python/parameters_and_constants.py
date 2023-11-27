@@ -76,7 +76,7 @@ BINBDGpath = pathbase + '/src_nucl/'
 
 # NN: tnni=10   NN+NNN: tnni=11
 tnni = 11
-tnifac = 1.0
+tnifac = 1.65
 twofac = 1.0
 parall = -1
 

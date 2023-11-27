@@ -21,21 +21,21 @@ from multiprocessing.pool import ThreadPool
 fitt = False
 
 # numerical stability
-minCond = 10**-10
+minCond = 10**-16
 minidi_breed = 0.3
 minidi_seed = minidi_breed
 minidi_breed_rel = minidi_breed
 denseEVinterval = [-2, 2]
-width_bnds = [0.1, 7.25]
+width_bnds = [0.1, 19.25]
 
-deutDim = 6
+deutDim = 5
 
 miniE_breed = -0.1
 
 # genetic parameters
 anzNewBV = 6
 muta_initial = 0.02
-anzGen = 12
+anzGen = 10
 civ_size = 20
 target_pop_size = 15
 

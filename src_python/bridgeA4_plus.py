@@ -23,7 +23,7 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 
 # prepare spin/orbital matrices for parallel computation
-findstablebas = 1  #True
+findstablebas = 0  #True
 maxCofDev = 1000.1
 newCal = 1
 
@@ -75,7 +75,9 @@ J1J2SC = []
 
 if os.path.isdir(sysdir4) == False:
     subprocess.check_call(['mkdir', '-p', sysdir4])
-    prepare_einzel4(sysdir4, BINBDGpath, channels_4_scatt)
+
+#ECCE!!!!
+prepare_einzel4(sysdir4, BINBDGpath, channels_4_scatt)
 
 os.chdir(sysdir4)
 subprocess.call('cp %s .' % nnpot, shell=True)
