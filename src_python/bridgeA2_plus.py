@@ -28,7 +28,7 @@ minidi_breed_rel = minidi_breed
 denseEVinterval = [-2, 2]
 width_bnds = [0.1, 19.25]
 
-deutDim = 5
+deutDim = 4
 
 miniE_breed = -0.1
 

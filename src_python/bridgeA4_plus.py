@@ -23,9 +23,10 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 
 # prepare spin/orbital matrices for parallel computation
-findstablebas = 0  #True
+findstablebas = 1  #True
+normStabilityThreshold = 10**-22
 maxCofDev = 1000.1
-newCal = 1
+newCal = -1
 
 # ECCE: variable whose consistency with evalChans must be given:
 # nbr_of_threebody_boundstates ,
@@ -77,7 +78,7 @@ if os.path.isdir(sysdir4) == False:
     subprocess.check_call(['mkdir', '-p', sysdir4])
 
 #ECCE!!!!
-prepare_einzel4(sysdir4, BINBDGpath, channels_4_scatt)
+#prepare_einzel4(sysdir4, BINBDGpath, channels_4_scatt)
 
 os.chdir(sysdir4)
 subprocess.call('cp %s .' % nnpot, shell=True)
@@ -472,11 +473,11 @@ if findstablebas:
 
     for DistCh in range(anzDist - 1):
         # FIRST: select the structure of the distortion
+
         line_offset = 7 if nOperators == 31 else 6
         inenLine = inen[line_offset][:4] + '%4d' % (
             len(asymptCH[0]) + anzCh) + inen[line_offset][8:]
         repl_line('INEN', line_offset, inenLine)
-
         # SECOND: for the selected structure, i.e., spin-/orbital-angular momentum
         #         coupling scheme of a particular asymptotic channel, cycle through
         #         the relative widths to be included: |Dch>=|struct,relW>
@@ -493,18 +494,25 @@ if findstablebas:
             subprocess.run([BINBDGpath + spectralEXE_mpi])
             subprocess.run([BINBDGpath + smatrixEXE_multichann])
 
-            dc, dc2 = readDcoeff()  # OUTPUTSPOLE
+            #
+            tmp = get_n_ev(n=-1, ifi='OUTPUT')
 
-            maxVar = max(np.var(dc), np.var(dc2))
-            varDev = np.abs(maxVar - var0)
-
-            lastline = [ll for ll in open('OUTPUT')][-1]
-            tmp = get_h_ev()
-            print('E_0(#Dch:%d) = %4.4f MeV  D-coeff variance = %4.4f' %
-                  (len(channels_4_scatt) + anzCh, tmp, maxVar))
-            if (('NOT CO' in lastline) | (varDev > maxCofDev)):
+            if tmp < normStabilityThreshold:
                 dist_line[NrelW] = 0
-            maxCofDev = varDev
+                print(tmp)
+
+#             dc, dc2 = readDcoeff()  # OUTPUTSPOLE
+#
+#            maxVar = max(np.var(dc), np.var(dc2))
+#            varDev = np.abs(maxVar - var0)
+#
+#            lastline = [ll for ll in open('OUTPUT')][-1]
+#            tmp = get_h_ev()
+#            print('E_0(#Dch:%d) = %4.4f MeV  D-coeff variance = %4.4f' %
+#                  (len(channels_4_scatt) + anzCh, tmp, maxVar))
+#            if (('NOT CO' in lastline) | (varDev > maxCofDev)):
+#                dist_line[NrelW] = 0
+#            maxCofDev = varDev
 
         if np.any(dist_line) == False:
 
@@ -528,7 +536,8 @@ if findstablebas:
 
         else:
             anzCh += 1
-            var0 = maxVar
+#            var0 = maxVar
+    exit()
 
 if newCal >= 0:
     subprocess.run([BINBDGpath + spectralEXE_mpi])

@@ -270,10 +270,21 @@ def suche_fehler(ifi='OUTPUT'):
 
 def get_n_ev(n=1, ifi='OUTPUT'):
     out = [line for line in open(ifi)]
+    E_0 = []
     for nj in range(1, len(out)):
         if (out[nj].strip() == "EIGENWERTE DER NORMMATRIX"):
-            E_0 = out[nj + 3].split()
-    return np.array(E_0[:n]).astype(float)
+            for njj in range(len(out)):
+                if out[nj + 3 + njj] != '\n':
+                    E_0.append(out[nj + 3 + njj].split())
+                else:
+                    break
+            break
+    E_0 = np.array(sum(E_0, [])).astype(float)
+
+    if n > 0:
+        return E_0[:n]
+    else:
+        return E_0[0] / E_0[-1]
 
 
 def get_h_ev(n=1, ifi='OUTPUT'):
