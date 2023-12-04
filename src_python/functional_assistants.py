@@ -9,7 +9,7 @@ import shutil
 
 def check_dist(width_array1=[], width_array2=[], minDist=0.5):
     tooClose = False
-    if width_array2 == []:
+    if list(width_array2) == []:
         for m in range(1, len(width_array1)):
             for n in range(m):
                 delt = np.linalg.norm(width_array1[m] - width_array1[n])
