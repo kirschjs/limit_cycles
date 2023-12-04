@@ -467,8 +467,8 @@ if findstablebas:
     var0 = 0.0
     nbrRemoved = 0
 
-    minDistRelW = 1
-    #maxDistRelW = 5
+    minDistRelW = 3
+    maxDistRelW = 4
 
     for DistCh in range(anzDist - 1):
         inen = [line for line in open('INEN')]
@@ -491,18 +491,14 @@ if findstablebas:
             linenbrDistCh = int(lineoffirstDist + 4 * (DistCh - nbrRemoved) +
                                 3)
             repl_line('INEN', linenbrDistCh, dist_line_str)
-            print('assessing rel width: ', NrelW + 1, ' # BV structs: ',
-                  len(asymptCH[0]) + anzCh)
 
             subprocess.run([BINBDGpath + spectralEXE_mpi])
             subprocess.run([BINBDGpath + smatrixEXE_multichann])
 
             #
             tmp = get_n_ev(n=-1, ifi='OUTPUT')
-            print('NormEV_min/NormEV_max = ', tmp)
 
             if tmp < normStabilityThreshold:
-                print('excluding nrel %d' % (NrelW + 1))
                 dist_line[NrelW] = 0
                 dist_line_str = ''.join(['%3d' % ww
                                          for ww in dist_line]) + '\n'
@@ -530,14 +526,15 @@ if findstablebas:
                 )
                 break
 
-            print('BV structure %d unstable for all relative widths.' % DistCh)
             outs = ''
+            ttmp = 0
             for line in range(len(inen)):
-                if ((line < ll + (anzCh - 1) * 4) | (line >=
-                                                     (ll + anzCh * 4))):
+                if ((line < lineoffirstDist + (anzCh - 1) * 4) |
+                    (line >= (lineoffirstDist + anzCh * 4))):
                     outs += inen[line]
                 else:
-                    print(inen[line])
+                    #print(inen[line])
+                    ttmp = line if ttmp == 0 else ttmp
 
                 with open('tmp', 'w') as outfile:
                     outfile.write(outs)
@@ -550,6 +547,10 @@ if findstablebas:
                     repl_line('tmp', line_offset, inenLine)
 
                 subprocess.call('cp tmp INEN', shell=True)
+
+            if ttmp != 0:
+                print('BV structure %d unstable for all relative widths.' %
+                      int(inen[ttmp + 1][4:]))
 
         else:
             anzCh += 1
