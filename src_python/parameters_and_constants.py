@@ -88,7 +88,7 @@ maxParLen = 120
 cib = 0  # if set, EFTnoPi with charge independence broken by Coulomb and an acompanying
 # contact-term correction is employed (leading order)
 
-lam = 6.00  # 4,6,8,10 (for presentation)
+lam = 8.00  # 4,6,8,10 (for presentation)
 
 lecstring = 'B2-05_B3-7'
 """
@@ -273,12 +273,13 @@ elif len(lec_set[la]) == 2:
 
 evWindow = [-211.5, -1.70]
 nbrStatesOpti2 = 1
-nbrStatesOpti3 = [-2]
-nbrStatesOpti4 = [-4]
+nbrStatesOpti3 = [-3]
+nbrStatesOpti4 = [-5]
 
 eDict = {
+    #    [#energies, E0, dE, [3bdy GS, 3bdy ES1, 3bdy ES2, ...]]
     #8.00 - B(3)=1
-    '7': [100, 0.0, 0.08, [0, 1, 1], [[1, 1], [2, 2], [3, 3]]],
+    '7': [100, 0.0, 0.01, [0, 0, 1], [[1, 1], [2, 2]]],
     's2': [100, 0.0, 0.05, [1, 0], [[1, 1], [2, 2]]],
     #8.00 - 046
     's2': [100, 0.0, 0.15, [0, 1], [[1, 1], [2, 2]]],
@@ -352,7 +353,7 @@ anzRelw4opt = 10
 
 # number of Gaussian basis functions/widths used to expand the fragment-relative wave function
 anzRelw = 20  # 10, 12, 14, 20, ....
-maxRelW = 12.1
+maxRelW = 8.1
 widthSet_relative = [
     np.append(
         np.sort(

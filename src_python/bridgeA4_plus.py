@@ -23,10 +23,10 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 
 # prepare spin/orbital matrices for parallel computation
-findstablebas = 1  #True
-normStabilityThreshold = 10**-22
+findstablebas = 1
+normStabilityThreshold = 10**-20
 maxCofDev = 1000.1
-newCal = -1
+newCal = 1
 
 # ECCE: variable whose consistency with evalChans must be given:
 # nbr_of_threebody_boundstates ,
@@ -76,9 +76,7 @@ J1J2SC = []
 
 if os.path.isdir(sysdir4) == False:
     subprocess.check_call(['mkdir', '-p', sysdir4])
-
-#ECCE!!!!
-#prepare_einzel4(sysdir4, BINBDGpath, channels_4_scatt)
+    prepare_einzel4(sysdir4, BINBDGpath, channels_4_scatt)
 
 os.chdir(sysdir4)
 subprocess.call('cp %s .' % nnpot, shell=True)
@@ -319,7 +317,7 @@ J1J2SC = [J1J2SC[id] for id in idx]
 # to guarantee that distortion channels only extend the variational space in the
 # interaction region and that they do NOT interfere with physical, asymptotic states
 maxDistRelW = np.min(
-    [len([ww for ww in wsr if ww > 0.01])
+    [len([ww for ww in wsr if ww > 0.1])
      for wsr in widthSet_relative] + [anzRelw4opt])
 
 relwDistCH = [n % 2 for n in range(np.min([maxDistRelW, 12]))] + [0, 0]
@@ -467,11 +465,13 @@ if findstablebas:
 
     anzCh = 1
     var0 = 0.0
+    nbrRemoved = 0
 
-    minDistRelW = 0
+    minDistRelW = 1
     #maxDistRelW = 5
 
     for DistCh in range(anzDist - 1):
+        inen = [line for line in open('INEN')]
         # FIRST: select the structure of the distortion
 
         line_offset = 7 if nOperators == 31 else 6
@@ -488,18 +488,25 @@ if findstablebas:
             dist_line_str = ''.join(['%3d' % ww for ww in dist_line]) + '\n'
 
             # at which line is this string to be inserted?
-            linenbrDistCh = int(4 * DistCh + ll + 3)
+            linenbrDistCh = int(lineoffirstDist + 4 * (DistCh - nbrRemoved) +
+                                3)
             repl_line('INEN', linenbrDistCh, dist_line_str)
+            print('assessing rel width: ', NrelW + 1, ' # BV structs: ',
+                  len(asymptCH[0]) + anzCh)
 
             subprocess.run([BINBDGpath + spectralEXE_mpi])
             subprocess.run([BINBDGpath + smatrixEXE_multichann])
 
             #
             tmp = get_n_ev(n=-1, ifi='OUTPUT')
+            print('NormEV_min/NormEV_max = ', tmp)
 
             if tmp < normStabilityThreshold:
+                print('excluding nrel %d' % (NrelW + 1))
                 dist_line[NrelW] = 0
-                print(tmp)
+                dist_line_str = ''.join(['%3d' % ww
+                                         for ww in dist_line]) + '\n'
+                repl_line('INEN', linenbrDistCh, dist_line_str)
 
 #             dc, dc2 = readDcoeff()  # OUTPUTSPOLE
 #
@@ -516,12 +523,14 @@ if findstablebas:
 
         if np.any(dist_line) == False:
 
+            nbrRemoved += 1
             if anzCh == 1:
                 print(
                     'Basis numerically unstable. Re-optimze the 2- and/or 3-body bases and/or select a different set of widths to expand the relative motion.'
                 )
                 break
 
+            print('BV structure %d unstable for all relative widths.' % DistCh)
             outs = ''
             for line in range(len(inen)):
                 if ((line < ll + (anzCh - 1) * 4) | (line >=
@@ -532,12 +541,19 @@ if findstablebas:
 
                 with open('tmp', 'w') as outfile:
                     outfile.write(outs)
+
+                # we must reduce the number of channels by one in case of the
+                # unstable channel coincides with the last
+                if DistCh == (anzDist - 2):
+                    inenLine = inen[line_offset][:4] + '%4d' % (
+                        len(asymptCH[0]) + anzCh - 1) + inen[line_offset][8:]
+                    repl_line('tmp', line_offset, inenLine)
+
                 subprocess.call('cp tmp INEN', shell=True)
 
         else:
             anzCh += 1
 #            var0 = maxVar
-    exit()
 
 if newCal >= 0:
     subprocess.run([BINBDGpath + spectralEXE_mpi])
@@ -806,6 +822,7 @@ phhen = read_phase(phaout='PHAOUT',
 #phmix = read_phase(phaout='PHAOUT', ch=evalChans[3], meth=phasCalcMethod, th_shift='1-2')
 
 exit()
+
 write_phases(phnnpp,
              filename='nn-pp_phases_%s.dat' % lam,
              append=0,

@@ -40,14 +40,16 @@ J0 = 0
 chnbr = 0
 
 for channel in channels_4:
-    sysdir4 = sysdir4 + '/' + channel
-    print('>>> working directory: ', sysdir4)
+    sysdir4o = sysdir4 + '/' + channel
+    print('>>> working directory: ', sysdir4o)
 
     if os.path.isdir(sysdir4) == False:
         subprocess.check_call(['mkdir', '-p', sysdir4])
         prepare_einzel4(sysdir4, BINBDGpath, [channels_4[channel]])
+    if os.path.isdir(sysdir4o) == False:
+        subprocess.check_call(['mkdir', '-p', sysdir4o])
 
-    os.chdir(sysdir4)
+    os.chdir(sysdir4o)
 
     subprocess.call('cp %s .' % nnpot, shell=True)
     subprocess.call('cp %s .' % nnnpot, shell=True)
@@ -75,7 +77,7 @@ for channel in channels_4:
                                           fragments=[channels_4[channel]],
                                           Jstreu=float(J0),
                                           coefstr=costr,
-                                          funcPath=sysdir4,
+                                          funcPath=sysdir4o,
                                           binPath=BINBDGpath,
                                           mindists=mindi,
                                           ini_grid_bounds=width_bnds,
@@ -284,7 +286,7 @@ for channel in channels_4:
                     civs[0][1][0],
                     civs[0][1][1],
                     sbas,
-                    funcPath=sysdir4,
+                    funcPath=sysdir4o,
                     nzopt=zop,
                     costring=costr,
                     bin_path=BINBDGpath,
