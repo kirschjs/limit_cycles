@@ -24,9 +24,11 @@ from multiprocessing.pool import ThreadPool
 
 # prepare spin/orbital matrices for parallel computation
 findstablebas = 1
+smallestAllowedDistortionW = 0.1
+indexOfLargestAllowedDistW = 1
 normStabilityThreshold = 10**-20
 maxCofDev = 1000.1
-newCal = 1
+newCal = 2
 
 # ECCE: variable whose consistency with evalChans must be given:
 # nbr_of_threebody_boundstates ,
@@ -316,9 +318,10 @@ J1J2SC = [J1J2SC[id] for id in idx]
 # include only width parameters > 0.5 (reasonable choice for cutoffs of about 4fm^-1)
 # to guarantee that distortion channels only extend the variational space in the
 # interaction region and that they do NOT interfere with physical, asymptotic states
-maxDistRelW = np.min(
-    [len([ww for ww in wsr if ww > 0.1])
-     for wsr in widthSet_relative] + [anzRelw4opt])
+maxDistRelW = np.min([
+    len([ww for ww in wsr if ww > smallestAllowedDistortionW])
+    for wsr in widthSet_relative
+] + [anzRelw4opt])
 
 relwDistCH = [n % 2 for n in range(np.min([maxDistRelW, 12]))] + [0, 0]
 """
@@ -467,8 +470,8 @@ if findstablebas:
     var0 = 0.0
     nbrRemoved = 0
 
-    minDistRelW = 3
-    maxDistRelW = 4
+    #indexOfLargestAllowedDistW = 3
+    #maxDistRelW = 4
 
     for DistCh in range(anzDist - 1):
         inen = [line for line in open('INEN')]
@@ -482,7 +485,7 @@ if findstablebas:
         #         coupling scheme of a particular asymptotic channel, cycle through
         #         the relative widths to be included: |Dch>=|struct,relW>
         dist_line = np.zeros(maxDistRelW + 1)
-        for NrelW in range(minDistRelW, maxDistRelW, 1):
+        for NrelW in range(indexOfLargestAllowedDistW, maxDistRelW, 1):
 
             dist_line[NrelW] = 1
             dist_line_str = ''.join(['%3d' % ww for ww in dist_line]) + '\n'
