@@ -26,9 +26,9 @@ minidi_breed = 0.3
 minidi_seed = minidi_breed
 minidi_breed_rel = minidi_breed
 denseEVinterval = [-2, 2]
-width_bnds = [0.1, 21.25]
+width_bnds = [0.01, 45.25]
 
-deutDim = 5
+deutDim = 6
 
 miniE_breed = -0.1
 
@@ -55,16 +55,15 @@ for channel in channels_2:
     print('>>> working directory: ', sysdir2)
 
     if bin_suffix == '_v18-uix':
-        prep_pot_file_2N(lam=(2 * np.sqrt(float(lam))),
-                         wiC=cloW,
-                         baC=cloB,
-                         ps2=nnpot)
+        prep_pot_file_2N(
+            lam=(2 * np.sqrt(float(lam))), wiC=cloW, baC=cloB, ps2=nnpot)
     elif bin_suffix == '_eft-cib':
-        prep_pot_file_2N_pp(lam=2 * np.sqrt(float(lam)),
-                            wiC=cloW,
-                            baC=cloB,
-                            ppC=cpp,
-                            ps2=nnpot)
+        prep_pot_file_2N_pp(
+            lam=2 * np.sqrt(float(lam)),
+            wiC=cloW,
+            baC=cloB,
+            ppC=cpp,
+            ps2=nnpot)
     else:
         print('no potential structure assigned to suffix.')
         exit()
@@ -88,16 +87,17 @@ for channel in channels_2:
         if channel[:2] == 'ppXXXXX':
             print('proton-proton channel:\n')
             a_aa = [
-                appC(phaa[n][2] * np.pi / 180.,
-                     np.sqrt(2 * redmass * phaa[n][0]),
-                     redmass,
-                     q1=1,
-                     q2=1) for n in range(len(phaa))
+                appC(
+                    phaa[n][2] * np.pi / 180.,
+                    np.sqrt(2 * redmass * phaa[n][0]),
+                    redmass,
+                    q1=1,
+                    q2=1) for n in range(len(phaa))
             ]
         else:
             a_aa = [
-                -MeVfm * np.tan(phaa[n][2] * np.pi / 180.) /
-                np.sqrt(2 * redmass * phaa[n][0]) for n in range(len(phaa))
+                -MeVfm * np.tan(phaa[n][2] * np.pi / 180.) / np.sqrt(
+                    2 * redmass * phaa[n][0]) for n in range(len(phaa))
             ]
         print(
             'a_aa(E_min) = (%4.4f+i%4.4f) fm   a_aa(E_max) = (%4.4f+i%4.4f) fm'
@@ -117,19 +117,20 @@ for channel in channels_2:
     civs = []
     while len(civs) < civ_size:
 
-        new_civs, basi = span_population2(anz_civ=int(3 * civ_size),
-                                          fragments=channel,
-                                          Jstreu=float(J0),
-                                          coefstr=costr,
-                                          funcPath=sysdir2,
-                                          binPath=BINBDGpath,
-                                          mindist=minidi_seed,
-                                          min_seedE=miniE_breed,
-                                          ini_grid_bounds=width_bnds,
-                                          ini_dims=deutDim,
-                                          minC=minCond,
-                                          evWin=evWindow,
-                                          anzOptStates=nbrStatesOpti2)
+        new_civs, basi = span_population2(
+            anz_civ=int(3 * civ_size),
+            fragments=channel,
+            Jstreu=float(J0),
+            coefstr=costr,
+            funcPath=sysdir2,
+            binPath=BINBDGpath,
+            mindist=minidi_seed,
+            min_seedE=miniE_breed,
+            ini_grid_bounds=width_bnds,
+            ini_dims=deutDim,
+            minC=minCond,
+            evWin=evWindow,
+            anzOptStates=nbrStatesOpti2)
         for cciv in new_civs:
             civs.append(cciv)
         print('>>> seed civilizations: %d/%d' % (len(civs), civ_size))
@@ -158,10 +159,8 @@ for channel in channels_2:
         while children < anzNewBV:
             twins = []
             while len(twins) < int(42 * anzNewBV):
-                parent_pair = np.random.choice(range(civi_size),
-                                               size=2,
-                                               replace=False,
-                                               p=weights)
+                parent_pair = np.random.choice(
+                    range(civi_size), size=2, replace=False, p=weights)
 
                 mother = civs[parent_pair[0]]
                 father = civs[parent_pair[1]]
@@ -171,9 +170,10 @@ for channel in channels_2:
                 for wset in range(len(mother[1])):
                     # 2) basis-dependent nbr. of cfgs
                     daughterson = [
-                        intertwining(mother[1][wset][n],
-                                     father[1][wset][n],
-                                     mutation_rate=muta_initial)
+                        intertwining(
+                            mother[1][wset][n],
+                            father[1][wset][n],
+                            mutation_rate=muta_initial)
                         for n in range(len(mother[1][wset]))
                     ]
                     rw1 = np.array(daughterson)[:, 0]  #.sort()
@@ -181,22 +181,22 @@ for channel in channels_2:
                     rw2 = np.array(daughterson)[:, 1]  #.sort()
                     rw2.sort()
 
-                    prox_check1 = check_dist(width_array1=rw1,
-                                             minDist=minidi_breed)
-                    prox_check2 = check_dist(width_array1=rw2,
-                                             minDist=minidi_breed)
+                    prox_check1 = check_dist(
+                        width_array1=rw1, minDist=minidi_breed)
+                    prox_check2 = check_dist(
+                        width_array1=rw2, minDist=minidi_breed)
                     prox_checkr1 = np.all([
-                        check_dist(width_array1=rw1,
-                                   width_array2=wsr,
-                                   minDist=minidi_breed)
-                        for wsr in widthSet_relative
+                        check_dist(
+                            width_array1=rw1,
+                            width_array2=wsr,
+                            minDist=minidi_breed) for wsr in widthSet_relative
                     ])
 
                     prox_checkr2 = np.all([
-                        check_dist(width_array1=rw2,
-                                   width_array2=wsr,
-                                   minDist=minidi_breed)
-                        for wsr in widthSet_relative
+                        check_dist(
+                            width_array1=rw2,
+                            width_array2=wsr,
+                            minDist=minidi_breed) for wsr in widthSet_relative
                     ])
 
                     #print(prox_check1, prox_check2, prox_checkr1, prox_checkr2)
@@ -251,8 +251,8 @@ for channel in channels_2:
                 for procnbr in range(len(chunk)):
                     recv_end, send_end = multiprocessing.Pipe(False)
                     pars = chunk[procnbr]
-                    p = multiprocessing.Process(target=end2,
-                                                args=(pars, send_end))
+                    p = multiprocessing.Process(
+                        target=end2, args=(pars, send_end))
                     jobs.append(p)
 
                     # sen_end returns [ intw, relw, qualREF, gsREF, basCond ]
@@ -291,11 +291,11 @@ for channel in channels_2:
         if len(civs) > target_pop_size:
             currentdim = len(civs)
             weights = polynomial_sum_weight(currentdim, order=2)[1::]
-            individual2remove = np.random.choice(range(currentdim),
-                                                 size=currentdim -
-                                                 target_pop_size,
-                                                 replace=False,
-                                                 p=weights)
+            individual2remove = np.random.choice(
+                range(currentdim),
+                size=currentdim - target_pop_size,
+                replace=False,
+                p=weights)
 
             civs = [
                 civs[n] for n in range(len(civs))
@@ -309,23 +309,25 @@ for channel in channels_2:
         outfile = 'civ_%d.dat' % nGen
         if civs[0][2] > qualREF:
             print('%d) New optimum.' % nGen)
-            print('   opt E = %4.4f   opt cond. = %4.4e' %
-                  (civs[0][3], civs[0][4]),
-                  end='\n')
+            print(
+                '   opt E = %4.4f   opt cond. = %4.4e' % (civs[0][3],
+                                                          civs[0][4]),
+                end='\n')
 
     print('\n\n')
 
     civs = sortprint(civs, pr=False, ordn=2)
 
-    ma = blunt_ev2(cfgs=civs[0][0],
-                   widi=civs[0][1],
-                   basis=sbas,
-                   nzopt=zop,
-                   costring=costr,
-                   binpath=BINBDGpath,
-                   potNN=nnpotstring,
-                   jay=float(J0),
-                   funcPath=sysdir2)
+    ma = blunt_ev2(
+        cfgs=civs[0][0],
+        widi=civs[0][1],
+        basis=sbas,
+        nzopt=zop,
+        costring=costr,
+        binpath=BINBDGpath,
+        potNN=nnpotstring,
+        jay=float(J0),
+        funcPath=sysdir2)
 
     smartEV, parCond, smartRAT = smart_ev(ma, threshold=minCond)
     gsEnergy = smartEV[-1]
@@ -333,13 +335,19 @@ for channel in channels_2:
     print('\n> basType %s : C-nbr = %4.4e E0 = %4.4e   cMax/cMin = %e\n\n' %
           (channel, parCond, gsEnergy, smartRAT))
 
-    #wset = get_quaf_width_set()
-    #cof = parse_ev_coeffs()
-    #cof2 = parse_ev_coeffs_2()
-    #print('exp. coeff.   exp. coeff. (normalized)  width')
-    #for bsb in range(len(wset)):
-    #    print('{%12.6f , %12.6f , %12.6f}' %
-    #          (float(cof[bsb]), float(cof2[bsb]), float(wset[bsb])))
+    mmout=1
+    if mmout:
+        wset = get_quaf_width_set()
+        cof = parse_ev_coeffs()
+        cof2 = parse_ev_coeffs_2()
+        print('exp. coeff.   exp. coeff. (normalized)  width')
+        wstr='{'
+        for bsb in range(len(wset)):
+            wstr += '%12.6f ,'%float(wset[bsb])
+            print('{%12.6f , %12.6f , %12.6f}' %
+                  (float(cof[bsb]), float(cof2[bsb]), float(wset[bsb])))
+        wstr=wstr[:-2]+'}'
+        print(wstr)
 
     os.system('cp INQUA_N INQUA_N_%s' % (lam))
     os.system('cp OUTPUT bndg_out_%s' % (lam))
@@ -355,22 +363,23 @@ for channel in channels_2:
     subprocess.run([BINBDGpath + spectralEXE_serial])
 
     print(">>> calculating 2-body phases.")
-    spole_2(nzen=100,
-            e0=0.0001,
-            d0=0.01,
-            eps=[0.01 for n in range(len(channels_2))],
-            bet=[2.1 for n in range(len(channels_2))],
-            nzrw=100,
-            frr=0.06,
-            rhg=8.0,
-            rhf=1.0,
-            pw=0)
+    spole_2(
+        nzen=100,
+        e0=0.0001,
+        d0=0.01,
+        eps=[0.01 for n in range(len(channels_2))],
+        bet=[2.1 for n in range(len(channels_2))],
+        nzrw=100,
+        frr=0.06,
+        rhg=8.0,
+        rhf=1.0,
+        pw=0)
 
     subprocess.run([BINBDGpath + smatrixEXE])
 
     os.system('cp PHAOUT phaout_%s' % (lam))
-    print(">>> 2-body phases calculated. End of day for channel %s\n" %
-          channel)
+    print(
+        ">>> 2-body phases calculated. End of day for channel %s\n" % channel)
 
     if deg_channs:
         id_chan = 1
@@ -379,16 +388,17 @@ for channel in channels_2:
     if channel[:2] == 'pp':
         print('proton-proton channel:\n')
         a_aa = [
-            appC(phaa[n][2] * np.pi / 180.,
-                 np.sqrt(mn['137'] * phaa[n][0]),
-                 0.5 * mn['137'],
-                 q1=1,
-                 q2=1) for n in range(len(phaa))
+            appC(
+                phaa[n][2] * np.pi / 180.,
+                np.sqrt(mn['137'] * phaa[n][0]),
+                0.5 * mn['137'],
+                q1=1,
+                q2=1) for n in range(len(phaa))
         ]
     else:
         a_aa = [
-            -MeVfm * np.tan(phaa[n][2] * np.pi / 180.) /
-            np.sqrt(mn['137'] * phaa[n][0]) for n in range(len(phaa))
+            -MeVfm * np.tan(phaa[n][2] * np.pi / 180.) / np.sqrt(
+                mn['137'] * phaa[n][0]) for n in range(len(phaa))
         ]
     print('a_aa(E_min) = (%4.4f+i%4.4f) fm   a_aa(E_max) = (%4.4f+i%4.4f) fm' %
           (a_aa[0].real, a_aa[0].imag, a_aa[-1].real, a_aa[-1].imag))

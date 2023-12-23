@@ -885,7 +885,7 @@ def plotrelativewave(infi='OUTPUTSPOLE',
     data = [line for line in open(infi)]
 
     plt.cla()
-    plt.subplot(111)
+    plt.subplot(111,label=r'relWFKT')
 
     if titl != '':
         plt.title(titl)
@@ -969,7 +969,7 @@ def plotapproxwave(infi='OUTPUTSPOLE',
     data = [line for line in open(infi)]
 
     plt.cla()
-    plt.subplot(111)
+    ax=plt.subplot(111,label=r'approxWFKT')
 
     if titl != '':
         plt.title(titl)

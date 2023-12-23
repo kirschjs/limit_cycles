@@ -88,7 +88,7 @@ maxParLen = 120
 cib = 0  # if set, EFTnoPi with charge independence broken by Coulomb and an acompanying
 # contact-term correction is employed (leading order)
 
-lam = 8.00  # 4,6,8,10 (for presentation)
+lam = 25.0  # 4,6,8,10 (for presentation)
 
 lecstring = 'B2-05_B3-7'
 """
@@ -118,8 +118,8 @@ lec_set = {
     '10.0': [-1157.42, -1689.9085],
     #'12.0': [-1380.23, Dlec[lecstring.split('-')[-1]]],
     #'14.0': [-1606.31, 11500.0],
-    #'16.0': [-1832.15, 12600.0],
-    #'18.0': [-2057.79, 22700.0],
+    '16.0': [-1898.7, 0.0],
+    '25.0': [-2934.2, 0.0],
     #'20.0': [-2283.26, 71000.0]
 }
 
@@ -315,7 +315,7 @@ epU = 0.03
 eps0 = [epL * 1.0, epL, epL, epL, epL]
 eps1 = [epU * 1.0, epU, epU, epU, epU]
 epsM = (np.array(eps1) + np.array(eps0)) / 2
-epsNBR = 10
+epsNBR = 2
 
 phasCalcMethod = 1
 # parameters for the expansion of the fragment-relative function
