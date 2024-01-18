@@ -15,7 +15,7 @@ from rrgm_functions import *
 from scipy.linalg import eigh
 from genetic_width_growth import *
 
-MaxProc = int(len(os.sched_getaffinity(0)) / 1)
+MaxProc = int(len(os.sched_getaffinity(0)) / 2)
 print('requesting N = %d computing cores.' % MaxProc)
 MPIRUN = subprocess.getoutput("which mpirun")
 tnni = 11
@@ -1039,7 +1039,7 @@ def span_population4(anz_civ,
             lfrags = lfrags + [fragments[lcfg][0]]
 
     # minimal distance allowed for between width parameters
-    rwma = 20
+    rwma = 30
     bvma = 8
     mindist_int = mindists
     mindist_rel = mindists

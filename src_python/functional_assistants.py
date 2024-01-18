@@ -79,7 +79,8 @@ def smart_ev(matout, threshold=10**-7):
     idx = ew.argsort()[::-1]
     ew = [eww for eww in ew[idx]]
 
-    normCond = np.abs(ew[-1] / ew[0])
+    normCond = np.abs(ew[-1] /
+                      ew[0]) if np.any(np.array(ew) < 0) == False else 10**-21
 
     # project onto subspace with ev > threshold
     ew = [eww for eww in ew if np.real(eww) > threshold]

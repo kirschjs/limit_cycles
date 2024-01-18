@@ -23,12 +23,12 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 
 # prepare spin/orbital matrices for parallel computation
-findstablebas = 1
+findstablebas = 0
 smallestAllowedDistortionW = 0.1
-indexOfLargestAllowedDistW = 1
-normStabilityThreshold = 10**-20
+indexOfLargestAllowedDistW = 2
+normStabilityThreshold = 10**-16
 maxCofDev = 1000.1
-newCal = 0
+newCal = 1
 
 # ECCE: variable whose consistency with evalChans must be given:
 # nbr_of_threebody_boundstates ,
@@ -69,7 +69,10 @@ if newCal == 2:
     #import bridgeA3_plus
     # optimizes a set of distortion channels which should ensure that the exited tetramers are
     # expanded accurately;
-    import bridgeA4_opt
+    #import bridgeA4_opt
+    print(
+        'ECCE: all fragment optimization codes are expected to have been run separately.'
+    )
 
 J0 = 0
 
@@ -150,21 +153,19 @@ for chan in channels_4_scatt:
 
     # treat nn=pp if SU(4)
     if ((sysdir21 == sysdir22) | SU4):
-        zstrus_tmp, outs = from2to4(
-            zwei_inq=sysdir21 + '/INQUA_N_%s' % lam,
-            vier_dir=sysdir4,
-            fn=nnpotstring,
-            relw=widthSet_relative[chnbr],
-            app='True')
+        zstrus_tmp, outs = from2to4(zwei_inq=sysdir21 + '/INQUA_N_%s' % lam,
+                                    vier_dir=sysdir4,
+                                    fn=nnpotstring,
+                                    relw=widthSet_relative[chnbr],
+                                    app='True')
 
     else:
-        zstrus_tmp, outs = from22to4(
-            zwei_inq_1=sysdir21 + '/INQUA_N_%s' % lam,
-            zwei_inq_2=sysdir22 + '/INQUA_N_%s' % lam,
-            vier_dir=sysdir4,
-            fn=nnpotstring,
-            relw=widthSet_relative[chnbr],
-            app='True')
+        zstrus_tmp, outs = from22to4(zwei_inq_1=sysdir21 + '/INQUA_N_%s' % lam,
+                                     zwei_inq_2=sysdir22 + '/INQUA_N_%s' % lam,
+                                     vier_dir=sysdir4,
+                                     fn=nnpotstring,
+                                     relw=widthSet_relative[chnbr],
+                                     app='True')
 
     zstrus.append(zstrus_tmp)
     fragment_bvrange_tmp.append([bvcount, bvcount + sum(zstrus_tmp)])
@@ -175,27 +176,24 @@ for chan in channels_4_scatt:
     chFRG_tmp.append([2, 2])
 
     if (sysdir21 == sysdir22) | SU4:
-        ddCoff = parse_ev_coeffs(
-            mult=1,
-            infil=sysdir21 + '/bndg_out_%s' % lam,
-            outf='COEFF',
-            bvnr=1)
+        ddCoff = parse_ev_coeffs(mult=1,
+                                 infil=sysdir21 + '/bndg_out_%s' % lam,
+                                 outf='COEFF',
+                                 bvnr=1)
     else:
-        ddCoff = parse_ev_coeffs_2(
-            infil1=sysdir21 + '/bndg_out_%s' % lam,
-            infil2=sysdir22 + '/bndg_out_%s' % lam,
-            outf='COEFF',
-            bvnr=1)
+        ddCoff = parse_ev_coeffs_2(infil1=sysdir21 + '/bndg_out_%s' % lam,
+                                   infil2=sysdir22 + '/bndg_out_%s' % lam,
+                                   outf='COEFF',
+                                   bvnr=1)
 
     ddCoff = np.array(ddCoff).astype(float)
     cofli_tmp.append(ddCoff.tolist())
 
     ph2d.append(
-        read_phase(
-            phaout=sysdir21 + '/phaout_%s' % (lam),
-            ch=[1, 1],
-            meth=phasCalcMethod,
-            th_shift=''))
+        read_phase(phaout=sysdir21 + '/phaout_%s' % (lam),
+                   ch=[1, 1],
+                   meth=phasCalcMethod,
+                   th_shift=''))
     #print(sysdir21, '\n', sysdir22)
     chnbr += 1
     bvcount += sum(zstrus_tmp)
@@ -247,11 +245,10 @@ for sysdir3 in threedirs:
         fragment_energies_tmp.append(ew)
         fragment_bvrange_tmp.append([bvcount, bvcount + sum(zstrus[-1])])
 
-        threeCoff = parse_ev_coeffs(
-            mult=0,
-            infil=sysdir3 + '/bndg_out_%s' % lam,
-            outf='COEFF',
-            bvnr=1 + nn)
+        threeCoff = parse_ev_coeffs(mult=0,
+                                    infil=sysdir3 + '/bndg_out_%s' % lam,
+                                    outf='COEFF',
+                                    bvnr=1 + nn)
 
         threeCoff = np.array(threeCoff).astype(float)
         cofli_tmp.append(threeCoff.tolist())
@@ -284,19 +281,19 @@ for nn in chDict:
     chDict[nn] = chFRG[nt]
     nt += 1
 
-print(
-    'ECCE >>> fragment masses in the asymptotic channels: ',
-    chDict,
-    end='\n\n')
+print('ECCE >>> fragment masses in the asymptotic channels: ',
+      chDict,
+      end='\n\n')
 
 # create a threshold-ordered list of asymptotic channels
 #
-asymptCH = [[
-    list(more_itertools.collapse([J1J2SC], levels=2))[id] for id in idx
-], [
-    list(more_itertools.collapse([fragment_bvrange], levels=2))[id]
-    for id in idx
-], [list(more_itertools.collapse([cofli], levels=2))[id] for id in idx]]
+asymptCH = [
+    [list(more_itertools.collapse([J1J2SC], levels=2))[id] for id in idx],
+    [
+        list(more_itertools.collapse([fragment_bvrange], levels=2))[id]
+        for id in idx
+    ], [list(more_itertools.collapse([cofli], levels=2))[id] for id in idx]
+]
 
 idx = np.array([ee[0] for ee in fragment_energies]).argsort()[::-1]
 fragment_energies = np.array(fragment_energies, dtype=object)[idx]
@@ -415,25 +412,24 @@ for nbv in range(1, anzch):
 
 if newCal > 0:
 
-    ma = blunt_ev4(
-        cfgs=strus,
-        bas=sb,
-        dmaa=relwDistCH,
-        j1j2sc=asymptCH,
-        funcPath=sysdir4,
-        nzopt=zop,
-        frgCoff=cofli,
-        costring=costr,
-        bin_path=BINBDGpath,
-        mpipath=MPIRUN,
-        potNN='%s' % nnpotstring,
-        potNNN='%s' % nnnpotstring,
-        parall=parall,
-        anzcores=max(2, min(len(strus), MaxProc)),
-        tnnii=tnni,
-        jay=J0,
-        nchtot=anzch,
-        distchannels=chStr)
+    ma = blunt_ev4(cfgs=strus,
+                   bas=sb,
+                   dmaa=relwDistCH,
+                   j1j2sc=asymptCH,
+                   funcPath=sysdir4,
+                   nzopt=zop,
+                   frgCoff=cofli,
+                   costring=costr,
+                   bin_path=BINBDGpath,
+                   mpipath=MPIRUN,
+                   potNN='%s' % nnpotstring,
+                   potNNN='%s' % nnnpotstring,
+                   parall=parall,
+                   anzcores=max(2, min(len(strus), MaxProc)),
+                   tnnii=tnni,
+                   jay=J0,
+                   nchtot=anzch,
+                   distchannels=chStr)
 
     smartEV, basCond, smartRAT = smart_ev(ma, threshold=10**-7)
     gs = smartEV[-1]
@@ -441,23 +437,22 @@ if newCal > 0:
         'jj-coupled hamiltonian yields:\n E_0 = %f MeV\ncondition number = %E\n|coeff_max/coeff_min| = %E'
         % (gs, basCond, smartRAT))
 
-spole_2(
-    nzen=nzEN,
-    e0=E0,
-    d0=D0,
-    eps=epsM,
-    bet=Bet,
-    nzrw=anzStuez,
-    frr=StuezAbs,
-    rhg=rgh,
-    rhf=StuezBrei,
-    pw=0,
-    adaptweightUP=SPOLE_adaptweightUP,
-    adaptweightLOW=SPOLE_adaptweightLOW,
-    adaptweightL=SPOLE_adaptweightL,
-    GEW=SPOLE_GEW,
-    QD=SPOLE_QD,
-    QS=SPOLE_QS)
+spole_2(nzen=nzEN,
+        e0=E0,
+        d0=D0,
+        eps=epsM,
+        bet=Bet,
+        nzrw=anzStuez,
+        frr=StuezAbs,
+        rhg=rgh,
+        rhf=StuezBrei,
+        pw=0,
+        adaptweightUP=SPOLE_adaptweightUP,
+        adaptweightLOW=SPOLE_adaptweightLOW,
+        adaptweightL=SPOLE_adaptweightL,
+        GEW=SPOLE_GEW,
+        QD=SPOLE_QD,
+        QS=SPOLE_QS)
 
 # if S-POLE terminates with a ``STOP 7'' message,
 # the channel ordering might not be in the correct, i.e.,
@@ -467,6 +462,9 @@ spole_2(
 # => the order in the <phys_chan> argument of ``inen_str_4'' (called in PSI_parallel_M)
 
 if findstablebas:
+
+    subprocess.call('cp INEN INEN_bkp', shell=True)
+
     inen = [line for line in open('INEN')]
     for ll in range(len(inen)):
         if ((inen[ll][-3:-1] == '-1') & (len(inen[ll]) == 13)):
@@ -499,8 +497,8 @@ if findstablebas:
             dist_line_str = ''.join(['%3d' % ww for ww in dist_line]) + '\n'
 
             # at which line is this string to be inserted?
-            linenbrDistCh = int(lineoffirstDist + 4 *
-                                (DistCh - nbrRemoved) + 3)
+            linenbrDistCh = int(lineoffirstDist + 4 * (DistCh - nbrRemoved) +
+                                3)
             repl_line('INEN', linenbrDistCh, dist_line_str)
 
             subprocess.run([BINBDGpath + spectralEXE_mpi])
@@ -540,9 +538,8 @@ if findstablebas:
             outs = ''
             ttmp = 0
             for line in range(len(inen)):
-                if ((line < lineoffirstDist +
-                     (anzCh - 1) * 4) | (line >=
-                                         (lineoffirstDist + anzCh * 4))):
+                if ((line < lineoffirstDist + (anzCh - 1) * 4) |
+                    (line >= (lineoffirstDist + anzCh * 4))):
                     outs += inen[line]
                 else:
                     #print(inen[line])
@@ -582,12 +579,13 @@ for channel in channels_2:
     if os.path.isfile(phafile) == False:
         print("2-body phase shifts unavailable for L = %s" % lam)
         exit()
-    phaa = read_phase(
-        phaout=phafile, ch=[1, 1], meth=phasCalcMethod, th_shift='')
+    phaa = read_phase(phaout=phafile,
+                      ch=[1, 1],
+                      meth=phasCalcMethod,
+                      th_shift='')
     a_aa += '  %.4g' % ([
-        -MeVfm * np.tan(phaa[n][2] * np.pi / 180.
-                        ) / np.sqrt(mn['137'] * phaa[n][0])
-        for n in range(len(phaa))
+        -MeVfm * np.tan(phaa[n][2] * np.pi / 180.) /
+        np.sqrt(mn['137'] * phaa[n][0]) for n in range(len(phaa))
     ][nMatch2])
 
 channel_thresholds = get_bind_en(n=len(evalChans))
@@ -609,23 +607,22 @@ for chToRead in evalChans:
     a_of_epsi['%s--%s' % (chToRead[0], chToRead[1])] = []
 
 for epsi in np.linspace(eps0, eps1, epsNBR):
-    spole_2(
-        nzen=nzEN,
-        e0=E0,
-        d0=D0,
-        eps=epsi,
-        bet=Bet,
-        nzrw=anzStuez,
-        frr=StuezAbs,
-        rhg=rgh,
-        rhf=StuezBrei,
-        pw=0,
-        adaptweightUP=SPOLE_adaptweightUP,
-        adaptweightLOW=SPOLE_adaptweightLOW,
-        adaptweightL=SPOLE_adaptweightL,
-        GEW=SPOLE_GEW,
-        QD=SPOLE_QD,
-        QS=SPOLE_QS)
+    spole_2(nzen=nzEN,
+            e0=E0,
+            d0=D0,
+            eps=epsi,
+            bet=Bet,
+            nzrw=anzStuez,
+            frr=StuezAbs,
+            rhg=rgh,
+            rhf=StuezBrei,
+            pw=0,
+            adaptweightUP=SPOLE_adaptweightUP,
+            adaptweightLOW=SPOLE_adaptweightLOW,
+            adaptweightL=SPOLE_adaptweightL,
+            GEW=SPOLE_GEW,
+            QD=SPOLE_QD,
+            QS=SPOLE_QS)
 
     subprocess.run([BINBDGpath + smatrixEXE_multichann])
 
@@ -638,74 +635,72 @@ for epsi in np.linspace(eps0, eps1, epsNBR):
     chans = list(range(1, 1 + len(evalChans)))
 
     try:
-        plotapproxwave(
-            infi='OUTPUTSPOLE',
-            oufi='expandedWFKT_%d.pdf' % neps,
-            col=waveToPlot,
-            chan=chans,
-            titl='$\epsilon=[ $%s$ ]$fm$^{-2}$' %
-            (' , '.join(['%.4g' % float(ep) for ep in epsi])),
-            nbrE=energyToPlot)
+        plotapproxwave(infi='OUTPUTSPOLE',
+                       oufi='expandedWFKT_%d.pdf' % neps,
+                       col=waveToPlot,
+                       chan=chans,
+                       titl='$\epsilon=[ $%s$ ]$fm$^{-2}$' %
+                       (' , '.join(['%.4g' % float(ep) for ep in epsi])),
+                       nbrE=energyToPlot)
 
-        plotrelativewave(
-            infi='OUTPUTSPOLE',
-            oufi='relWFKT_%d.pdf' % neps,
-            col=relwaveToPlot,
-            chan=chans,
-            titl='$\epsilon=[ $%s$ ]$fm$^{-2}$' %
-            (' , '.join(['%.4g' % float(ep) for ep in epsi])),
-            nbrE=energyToPlot)
-        plotDcoeff(
-            infi='OUTPUTSPOLE',
-            oufi='DcoffHist_%d.pdf' % neps,
-            col=0,
-            chan=chans,
-            titl='$\epsilon=[ $%s$ ]$fm$^{-2}$' %
-            (' , '.join(['%.4g' % float(ep) for ep in epsi])),
-            nbrE=energyToPlot)
+        plotrelativewave(infi='OUTPUTSPOLE',
+                         oufi='relWFKT_%d.pdf' % neps,
+                         col=relwaveToPlot,
+                         chan=chans,
+                         titl='$\epsilon=[ $%s$ ]$fm$^{-2}$' %
+                         (' , '.join(['%.4g' % float(ep) for ep in epsi])),
+                         nbrE=energyToPlot)
+        plotDcoeff(infi='OUTPUTSPOLE',
+                   oufi='DcoffHist_%d.pdf' % neps,
+                   col=0,
+                   chan=chans,
+                   titl='$\epsilon=[ $%s$ ]$fm$^{-2}$' %
+                   (' , '.join(['%.4g' % float(ep) for ep in epsi])),
+                   nbrE=energyToPlot)
     except:
         print("Wave-function plotting failed!")
 
     subprocess.call('cp OUTPUTSPOLE outps_%d' % neps, shell=True)
-    subprocess.call(
-        'grep "FUNCTIONAL BERUECKSICHTIGT" OUTPUTSPOLE', shell=True)
+    subprocess.call('grep "FUNCTIONAL BERUECKSICHTIGT" OUTPUTSPOLE',
+                    shell=True)
 
-    plotphas(
-        oufi='4_ph_%d_%s_%s.pdf' % (neps, lam, lecstring),
-        chs=pltChans,
-        titl='$\epsilon=[ $%s$ ]$fm$^{-2}$' %
-        (' , '.join(['%.4g' % float(ep) for ep in epsi])))
+    plotphas(oufi='4_ph_%d_%s_%s.pdf' % (neps, lam, lecstring),
+             chs=pltChans,
+             titl='$\epsilon=[ $%s$ ]$fm$^{-2}$' %
+             (' , '.join(['%.4g' % float(ep) for ep in epsi])))
 
     head_str = '# lambda                       channel   a(ch)     eps                        a(2)     B(4)   B(thresh)\n'
     print(head_str)
 
     chCounter = 0
     for chToRead in evalChans:
-        phdd = read_phase(
-            phaout='PHAOUT', ch=chToRead, meth=phasCalcMethod, th_shift='')
+        phdd = read_phase(phaout='PHAOUT',
+                          ch=chToRead,
+                          meth=phasCalcMethod,
+                          th_shift='')
         if ((chToRead == [2, 2]) | (chToRead == [3, 3])) & cib:
             a_dd = [
-                appC(
-                    phdd[n][2] * np.pi / 180.,
-                    np.sqrt(
-                        2 * redmass(chDict[str(chToRead)][0],
-                                    chDict[str(chToRead)][1]) * phdd[n][0]),
-                    redmass(chDict[str(chToRead)][0],
-                            chDict[str(chToRead)][1]),
-                    q1=1,
-                    q2=1) for n in range(len(phdd))
+                appC(phdd[n][2] * np.pi / 180.,
+                     np.sqrt(2 * redmass(chDict[str(chToRead)][0],
+                                         chDict[str(chToRead)][1]) *
+                             phdd[n][0]),
+                     redmass(chDict[str(chToRead)][0],
+                             chDict[str(chToRead)][1]),
+                     q1=1,
+                     q2=1) for n in range(len(phdd))
             ]
         else:
             a_dd = [
-                -MeVfm * np.tan(phdd[n][2] * np.pi / 180.) / np.sqrt(
-                    2 * redmass(chDict[str(chToRead)][0], chDict[str(chToRead)]
-                                [1]) * phdd[n][0]) for n in range(len(phdd))
+                -MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /
+                np.sqrt(2 * redmass(chDict[str(chToRead)][0],
+                                    chDict[str(chToRead)][1]) * phdd[n][0])
+                for n in range(len(phdd))
             ]
 
         chanstr = asyChanLabels[int(chToRead[0]) -
                                 1] + '--' + asyChanLabels[int(chToRead[1]) - 1]
-        chanstr = '(%d)-(%d)' % (int(chDict[str(chToRead)][0]),
-                                 int(chDict[str(chToRead)][1]))
+        chanstr = '(%d)-(%d)' % (int(
+            chDict[str(chToRead)][0]), int(chDict[str(chToRead)][1]))
         try:
 
             results_bare = '%.3f   %30s   %.4g   %.4g%s   %.4g   %s' % (
@@ -732,17 +727,17 @@ for epsi in np.linspace(eps0, eps1, epsNBR):
 os.system('rm *mosaic*.pdf')
 
 os.system('pdfjam --quiet --outfile %s --nup 2x%d 4_ph_*.pdf' %
-          ('4bdy_phase-mosaic_%s_%s.pdf' % (lam, lecstring),
-           int(np.ceil(epsNBR / 2))))
+          ('4bdy_phase-mosaic_%s_%s.pdf' %
+           (lam, lecstring), int(np.ceil(epsNBR / 2))))
 os.system('pdfjam --quiet --outfile %s --nup 2x%d expandedWFKT_*.pdf' %
-          ('4bdy_expandedWFKT-mosaic_%s_%s.pdf' % (lam, lecstring),
-           int(np.ceil(epsNBR / 2))))
+          ('4bdy_expandedWFKT-mosaic_%s_%s.pdf' %
+           (lam, lecstring), int(np.ceil(epsNBR / 2))))
 os.system('pdfjam --quiet --outfile %s --nup 2x%d relWFKT_*.pdf' %
-          ('4bdy_relWFKT-mosaic_%s_%s.pdf' % (lam, lecstring),
-           int(np.ceil(epsNBR / 2))))
+          ('4bdy_relWFKT-mosaic_%s_%s.pdf' %
+           (lam, lecstring), int(np.ceil(epsNBR / 2))))
 os.system('pdfjam --quiet --outfile %s --nup 2x%d DcoffHist_*.pdf' %
-          ('4bdy_Dcoff-mosaic_%s_%s.pdf' % (lam, lecstring),
-           int(np.ceil(epsNBR / 2))))
+          ('4bdy_Dcoff-mosaic_%s_%s.pdf' %
+           (lam, lecstring), int(np.ceil(epsNBR / 2))))
 
 os.system('rm 4_ph_*.pdf')
 os.system('rm relWFKT_*.pdf')
@@ -758,15 +753,14 @@ for ch in a_of_epsi.keys():
         yy.append([an[1] for an in a_of_epsi[ch]])
         leg.append(ch)
 
-plotarray2(
-    outfi='a_of_eps_%s_%s.pdf' % (lam, lecstring),
-    infix=[xx],
-    infiy=[yy],
-    title=['$a_{dd}$ dependence on $\epsilon$'],
-    xlab=['$\epsilon$ [fm$^{-2}$]'],
-    ylab=['$a_{dd}$ [fm]'],
-    leg=[leg],
-    plotrange=[''])
+plotarray2(outfi='a_of_eps_%s_%s.pdf' % (lam, lecstring),
+           infix=[xx],
+           infiy=[yy],
+           title=['$a_{dd}$ dependence on $\epsilon$'],
+           xlab=['$\epsilon$ [fm$^{-2}$]'],
+           ylab=['$a_{dd}$ [fm]'],
+           leg=[leg],
+           plotrange=[''])
 
 xx = []
 yy = []
@@ -780,91 +774,101 @@ for ch in a_of_Ematch.keys():
             leg.append(ch + '-$\epsilon_%d$' % epsset)
             epsset += 1
 
-plotarray2(
-    outfi='a_of_Ematch_%s_%s.pdf' % (lam, lecstring),
-    infix=[xx],
-    infiy=[yy],
-    title=['$a_{dd}$ dependence on $E_{0}$'],
-    xlab=['$E_0$ [MeV]'],
-    ylab=['$a_{dd}$ [fm]'],
-    leg=[leg],
-    plotrange=[''])
+plotarray2(outfi='a_of_Ematch_%s_%s.pdf' % (lam, lecstring),
+           infix=[xx],
+           infiy=[yy],
+           title=['$a_{dd}$ dependence on $E_{0}$'],
+           xlab=['$E_0$ [MeV]'],
+           ylab=['$a_{dd}$ [fm]'],
+           leg=[leg],
+           plotrange=[''])
 
 phtp = read_phase(phaout='PHAOUT', ch=[1, 1], meth=phasCalcMethod, th_shift='')
-phhen = read_phase(
-    phaout='PHAOUT', ch=[2, 2], meth=phasCalcMethod, th_shift='1-2')
-phdd = read_phase(
-    phaout='PHAOUT', ch=[3, 3], meth=phasCalcMethod, th_shift='1-3')
-phdqdq = read_phase(
-    phaout='PHAOUT', ch=[4, 4], meth=phasCalcMethod, th_shift='1-3')
-phnnpp = read_phase(
-    phaout='PHAOUT', ch=[5, 5], meth=phasCalcMethod, th_shift='1-3')
+phhen = read_phase(phaout='PHAOUT',
+                   ch=[2, 2],
+                   meth=phasCalcMethod,
+                   th_shift='1-2')
+phdd = read_phase(phaout='PHAOUT',
+                  ch=[3, 3],
+                  meth=phasCalcMethod,
+                  th_shift='1-3')
+phdqdq = read_phase(phaout='PHAOUT',
+                    ch=[4, 4],
+                    meth=phasCalcMethod,
+                    th_shift='1-3')
+phnnpp = read_phase(phaout='PHAOUT',
+                    ch=[5, 5],
+                    meth=phasCalcMethod,
+                    th_shift='1-3')
 
-phtphen = read_phase(
-    phaout='PHAOUT', ch=[1, 2], meth=phasCalcMethod, th_shift='1-2')
+phtphen = read_phase(phaout='PHAOUT',
+                     ch=[1, 2],
+                     meth=phasCalcMethod,
+                     th_shift='1-2')
 
-phtpdd = read_phase(
-    phaout='PHAOUT', ch=[1, 3], meth=phasCalcMethod, th_shift='1-3')
-phhendd = read_phase(
-    phaout='PHAOUT', ch=[2, 3], meth=phasCalcMethod, th_shift='2-3')
+phtpdd = read_phase(phaout='PHAOUT',
+                    ch=[1, 3],
+                    meth=phasCalcMethod,
+                    th_shift='1-3')
+phhendd = read_phase(phaout='PHAOUT',
+                     ch=[2, 3],
+                     meth=phasCalcMethod,
+                     th_shift='2-3')
 
 # this ordering must match the threshold order, e.g., if B(t)>B(3He)>B(d)>B(dq),
 # phtp -> evalChans[0]
 # phhen -> evalChans[1]
 # phdd -> evalChans[2]
 # phdqdq -> evalChans[3]
-phtp = read_phase(
-    phaout='PHAOUT', ch=evalChans[0], meth=phasCalcMethod, th_shift='')
-phhen = read_phase(
-    phaout='PHAOUT', ch=evalChans[1], meth=phasCalcMethod, th_shift='1-2')
+phtp = read_phase(phaout='PHAOUT',
+                  ch=evalChans[0],
+                  meth=phasCalcMethod,
+                  th_shift='')
+phhen = read_phase(phaout='PHAOUT',
+                   ch=evalChans[1],
+                   meth=phasCalcMethod,
+                   th_shift='1-2')
 #phdqdq = read_phase(phaout='PHAOUT', ch=evalChans[3], meth=phasCalcMethod, th_shift='1-4')
 #phmix = read_phase(phaout='PHAOUT', ch=evalChans[3], meth=phasCalcMethod, th_shift='1-2')
 
 exit()
 
-write_phases(
-    phnnpp,
-    filename='nn-pp_phases_%s.dat' % lam,
-    append=0,
-    comment='',
-    mu=mn['137'])
-write_phases(
-    phdd,
-    filename='d-d_phases_%s.dat' % lam,
-    append=0,
-    comment='',
-    mu=mn['137'])
-write_phases(
-    phdqdq,
-    filename='dq-dq_phases_%s.dat' % lam,
-    append=0,
-    comment='',
-    mu=mn['137'])
-write_phases(
-    phtp,
-    filename='t-p_phases_%s.dat' % lam,
-    append=0,
-    comment='',
-    mu=(3. / 4.) * mn['137'])
-write_phases(
-    phhen,
-    filename='he3-n_phases_%s.dat' % lam,
-    append=0,
-    comment='',
-    mu=(3. / 4.) * mn['137'])
+write_phases(phnnpp,
+             filename='nn-pp_phases_%s.dat' % lam,
+             append=0,
+             comment='',
+             mu=mn['137'])
+write_phases(phdd,
+             filename='d-d_phases_%s.dat' % lam,
+             append=0,
+             comment='',
+             mu=mn['137'])
+write_phases(phdqdq,
+             filename='dq-dq_phases_%s.dat' % lam,
+             append=0,
+             comment='',
+             mu=mn['137'])
+write_phases(phtp,
+             filename='t-p_phases_%s.dat' % lam,
+             append=0,
+             comment='',
+             mu=(3. / 4.) * mn['137'])
+write_phases(phhen,
+             filename='he3-n_phases_%s.dat' % lam,
+             append=0,
+             comment='',
+             mu=(3. / 4.) * mn['137'])
 
-write_phases(
-    ph2d[0],
-    filename='np3s_phases_%s.dat' % lam,
-    append=0,
-    comment='',
-    mu=0.5 * mn['137'])
-write_phases(
-    ph2d[1],
-    filename='np1s_phases_%s.dat' % lam,
-    append=0,
-    comment='',
-    mu=0.5 * mn['137'])
+write_phases(ph2d[0],
+             filename='np3s_phases_%s.dat' % lam,
+             append=0,
+             comment='',
+             mu=0.5 * mn['137'])
+write_phases(ph2d[1],
+             filename='np1s_phases_%s.dat' % lam,
+             append=0,
+             comment='',
+             mu=0.5 * mn['137'])
 
 a_np3s = [
     anp(ph2d[0][n][2] * np.pi / 180., np.sqrt(mn['137'] * ph2d[0][n][0]))
@@ -877,35 +881,32 @@ a_np1s = [
 ]
 
 a_dd = [
-    appC(
-        phdd[n][2] * np.pi / 180.,
-        np.sqrt(2 * mn['137'] * phdd[n][0]),
-        mn['137'],
-        q1=1,
-        q2=1) for n in range(len(phdd))
+    appC(phdd[n][2] * np.pi / 180.,
+         np.sqrt(2 * mn['137'] * phdd[n][0]),
+         mn['137'],
+         q1=1,
+         q2=1) for n in range(len(phdd))
 ] if withCoul == True else [
-    -MeVfm * np.tan(phdd[n][2] * np.pi / 180.) / np.sqrt(
-        2 * mn['137'] * phdd[n][0]) for n in range(len(phdd))
+    -MeVfm * np.tan(phdd[n][2] * np.pi / 180.) /
+    np.sqrt(2 * mn['137'] * phdd[n][0]) for n in range(len(phdd))
 ]
 
 a_dqdq = [
-    appC(
-        phdqdq[n][2] * np.pi / 180.,
-        np.sqrt(2 * mn['137'] * phdqdq[n][0]),
-        mn['137'],
-        q1=1,
-        q2=1) for n in range(len(phdqdq))
+    appC(phdqdq[n][2] * np.pi / 180.,
+         np.sqrt(2 * mn['137'] * phdqdq[n][0]),
+         mn['137'],
+         q1=1,
+         q2=1) for n in range(len(phdqdq))
 ] if withCoul == True else [
-    -MeVfm * np.tan(phdqdq[n][2] * np.pi / 180.) / np.sqrt(
-        2 * mn['137'] * phdqdq[n][0]) for n in range(len(phdqdq))
+    -MeVfm * np.tan(phdqdq[n][2] * np.pi / 180.) /
+    np.sqrt(2 * mn['137'] * phdqdq[n][0]) for n in range(len(phdqdq))
 ]
 
 a_tp = [
-    appC(
-        phtp[n][2] * np.pi / 180.,
-        np.sqrt((3. / 2.) * mn['137'] * phtp[n][0]), (3. / 4.) * mn['137'],
-        q1=1,
-        q2=1) for n in range(len(phtp))
+    appC(phtp[n][2] * np.pi / 180.,
+         np.sqrt((3. / 2.) * mn['137'] * phtp[n][0]), (3. / 4.) * mn['137'],
+         q1=1,
+         q2=1) for n in range(len(phtp))
 ] if withCoul == True else [
     -MeVfm * np.tan(phtp[n][2] * np.pi / 180.) / np.sqrt(
         (3. / 2.) * mn['137'] * phtp[n][0]) for n in range(len(phtp))

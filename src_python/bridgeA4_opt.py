@@ -18,9 +18,9 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 
 # numerical stability
-mindi = 0.2
-width_bnds = [0.06, 48.15, 0.008, 31.25]
-minCond = 10**-16
+mindi = 0.5
+width_bnds = [0.006, 18.15, 0.008, 21.25]
+minCond = 10**-18
 maxRat = 10**19
 
 # genetic parameters
@@ -32,7 +32,7 @@ target_pop_size = 10
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 8
+nBV = 16
 nREL = anzRelw4opt
 
 J0 = 0
@@ -148,11 +148,11 @@ for channel in channels_4:
                         ]
 
                         rw1 = np.array(daughterson)[:, 0]  #.sort()
-                        #rw1.sort()
+                        rw1.sort()
                         rw2 = np.array(daughterson)[:, 1]  #.sort()
-                        #rw2.sort()
-                        wdau[-1].append(list(rw1))
-                        wson[-1].append(list(rw2))
+                        rw2.sort()
+                        wdau[-1].append(list(rw1)[::-1])
+                        wson[-1].append(list(rw2)[::-1])
 
                 daughter = [mother[0], wdau, 0, 0, 0]
                 son = [mother[0], wson, 0, 0, 0]
