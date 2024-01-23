@@ -1,6 +1,6 @@
 # hexpresso
 F77     =      mpifort 
-FFLAGS  =       -Ofast -ffpe-summary='none' -fallow-argument-mismatch -mcmodel=medium 
+FFLAGS  =       -Ofast -ffpe-summary='none' -mcmodel=large #-fallow-argument-mismatch 
 LIBS    = -L -lgfortran -L/usr/lib/x86_64-linux-gnu/lapack -llapack -lblas
 #LIBS    = -L${MKLROOT} -llapack -lblas  -lm -ldl
 

@@ -972,7 +972,7 @@ def end4(para, send_end):
         gsEnergy = smartEV[para[13][0]]
 
         attractiveness = loveliness(EnergySet, basCond, anzSigEV, minCond,
-                                    smartRAT)
+                                    smartRAT, maxRa)
 
         os.system('rm -rf ./%s' % inqf)
         os.system('rm -rf ./%s' % indqf)

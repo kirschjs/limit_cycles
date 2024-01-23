@@ -7,7 +7,7 @@ def loveliness(groundstateEnergy,
                HeigenvaluesbelowX,
                minimalConditionnumber,
                coefRAT,
-               maxRat=10**15):
+               maxRat=10**4):
 
     energySum = sum(groundstateEnergy)
 

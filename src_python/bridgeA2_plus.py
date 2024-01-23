@@ -26,7 +26,7 @@ minidi_breed = 0.3
 minidi_seed = minidi_breed
 minidi_breed_rel = minidi_breed
 denseEVinterval = [-2, 2]
-width_bnds = [0.01, 15.25]
+width_bnds = [0.1, 16.25]
 
 deutDim = 5
 
@@ -34,7 +34,7 @@ miniE_breed = -0.1
 
 # genetic parameters
 anzNewBV = 6
-muta_initial = 0.01
+muta_initial = 0.015
 anzGen = 20
 civ_size = 20
 target_pop_size = 15

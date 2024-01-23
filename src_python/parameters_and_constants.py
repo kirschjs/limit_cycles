@@ -88,9 +88,9 @@ maxParLen = 120
 cib = 0  # if set, EFTnoPi with charge independence broken by Coulomb and an acompanying
 # contact-term correction is employed (leading order)
 
-lam = 4.00  # 4,6,8,10 (for presentation)
+lam = 8.00  # 4,6,8,10 (for presentation)
 
-lecstring = 'B2-05_B3-89'
+lecstring = 'B2-05_B3-10'
 """
 B(2) = 0.43(1) MeV
 B(3) -- 0.46 (10)  0.66 (30)  0.71 (34)  0.84     0.9      1.1     1.9       8.4
@@ -105,7 +105,7 @@ Dlec = {
     '071': 572.2156,
     '084': 317.1505,
     '09': 238.5372,
-    '10': -787.8583,
+    '10': -990.6972,
     '11': -4.1843,
     '13': -601.7702,
     '19': -532.5492,
@@ -117,7 +117,7 @@ lec_set = {
     '4.00': [-473.27, -548.2502],  # Sourav's orig. set
     #'4.00': [-473.27, -1044.196],
     '6.00': [-702.16, -787.8583],
-    '8.00': [-930.2, -1439.9972],
+    '8.00': [-930.2, -990.6972],
     #'12.0': [-1380.23, Dlec[lecstring.split('-')[-1]]],
     #'14.0': [-1606.31, 11500.0],
     '16.0': [-1898.7, 0.0],
@@ -360,8 +360,8 @@ MeVfm = 197.3161329
 anzRelw4opt = 10
 
 # number of Gaussian basis functions/widths used to expand the fragment-relative wave function
-anzRelw = 10  # 10, 12, 14, 20, ....
-maxRelW = 10.1
+anzRelw = 20  # 10, 12, 14, 20, ....
+maxRelW = 16.1
 widthSet_relative = [
     np.append(
         np.sort(
