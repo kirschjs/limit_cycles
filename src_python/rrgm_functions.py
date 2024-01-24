@@ -885,7 +885,7 @@ def plotrelativewave(infi='OUTPUTSPOLE',
     data = [line for line in open(infi)]
 
     plt.cla()
-    plt.subplot(111,label=r'relWFKT')
+    plt.subplot(111, label=r'relWFKT')
 
     if titl != '':
         plt.title(titl)
@@ -969,7 +969,7 @@ def plotapproxwave(infi='OUTPUTSPOLE',
     data = [line for line in open(infi)]
 
     plt.cla()
-    ax=plt.subplot(111,label=r'approxWFKT')
+    ax = plt.subplot(111, label=r'approxWFKT')
 
     if titl != '':
         plt.title(titl)
@@ -1199,3 +1199,42 @@ def readDcoeff(infi='OUTPUTSPOLE', chan=[1], nbrE=1):
                 nE += 1
 
     return np.array(Dcoeffs).astype(float), np.array(Dcoeffs2).astype(float)
+
+
+def shuffle_distchanns(fin='INEN', fout='INEN'):
+
+    # 1) read the sequentially-ordered file
+
+    inen = [line for line in open(fin)]
+    for ll in range(len(inen)):
+        if ((inen[ll][-3:-1] == '-1') & (len(inen[ll]) == 13)):
+            anzDist = int((len(inen) - ll) / 4)
+            lineoffirstDist = ll
+            break
+
+    # remove dist-chan marker
+    inen[lineoffirstDist] = inen[lineoffirstDist].strip()[:-3] + '\n'
+
+    # 2) redistribute the ordered sequence of channels
+
+    nbrCh = int((len(inen) - lineoffirstDist) / 4)
+    rndorder = np.arange(nbrCh)
+    np.random.shuffle(rndorder)
+
+    outstr = ''.join(inen[:lineoffirstDist])
+
+    nc = 0
+    for nch in rndorder:
+        if nc == 0:
+            inen[lineoffirstDist +
+                 4 * rndorder[nch]] = inen[lineoffirstDist +
+                                           4 * rndorder[nch]].strip() + ' -1\n'
+
+        outstr += ''.join(
+            inen[lineoffirstDist + 4 * rndorder[nch]:lineoffirstDist +
+                 4 * rndorder[nch] + 4])
+
+        nc += 1
+
+    with open(fout, 'w') as outfile:
+        outfile.write(outstr)

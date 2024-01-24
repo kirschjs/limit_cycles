@@ -23,12 +23,12 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 
 # prepare spin/orbital matrices for parallel computation
-findstablebas = 0
+findstablebas = 1
 smallestAllowedDistortionW = 0.1
 indexOfLargestAllowedDistW = 2
 normStabilityThreshold = 10**-16
 maxCofDev = 1000.1
-newCal = 1
+newCal = -1
 
 # ECCE: variable whose consistency with evalChans must be given:
 # nbr_of_threebody_boundstates ,
@@ -464,6 +464,9 @@ spole_2(nzen=nzEN,
 if findstablebas:
 
     subprocess.call('cp INEN INEN_bkp', shell=True)
+
+    shuffle_distchanns(fin='INEN_bkp', fout='tmp')
+    exit()
 
     inen = [line for line in open('INEN')]
     for ll in range(len(inen)):
