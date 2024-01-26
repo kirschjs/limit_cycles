@@ -1207,13 +1207,13 @@ def shuffle_distchanns(fin='INEN', fout='INEN'):
 
     inen = [line for line in open(fin)]
     for ll in range(len(inen)):
-        if ((inen[ll][-3:-1] == '-1') & (len(inen[ll]) == 13)):
+        if ((inen[ll][-3:-1] == '-1') & (len(inen[ll].strip()) == 10)):
             anzDist = int((len(inen) - ll) / 4)
             lineoffirstDist = ll
             break
 
     # remove dist-chan marker
-    inen[lineoffirstDist] = inen[lineoffirstDist].strip()[:-3] + '\n'
+    inen[lineoffirstDist] = '  ' + inen[lineoffirstDist].strip()[:-3] + '\n'
 
     # 2) redistribute the ordered sequence of channels
 
@@ -1224,11 +1224,11 @@ def shuffle_distchanns(fin='INEN', fout='INEN'):
     outstr = ''.join(inen[:lineoffirstDist])
 
     nc = 0
+
     for nch in rndorder:
         if nc == 0:
-            inen[lineoffirstDist +
-                 4 * rndorder[nch]] = inen[lineoffirstDist +
-                                           4 * rndorder[nch]].strip() + ' -1\n'
+            inen[lineoffirstDist + 4 * rndorder[nch]] = '  ' + inen[
+                lineoffirstDist + 4 * rndorder[nch]].strip() + ' -1\n'
 
         outstr += ''.join(
             inen[lineoffirstDist + 4 * rndorder[nch]:lineoffirstDist +
