@@ -18,14 +18,14 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 
 # numerical stability
-mindi = 0.5
-width_bnds = [0.006, 18.15, 0.008, 21.25]
-minCond = 10**-18
-maxRat = 10**19
+mindi = 0.2
+width_bnds = [0.06, 8.15, 0.08, 11.25]
+minCond = 10**-28
+maxRat = 10**29
 
 # genetic parameters
 anzNewBV = 6
-muta_initial = .01
+muta_initial = .02
 anzGen = 6
 seed_civ_size = 10
 target_pop_size = 10
@@ -232,8 +232,8 @@ for channel in channels_4:
 
             samp_ladder.sort(key=lambda tup: np.abs(tup[2]))
 
-            #for el in samp_ladder:
-            #    print(el[1:])
+            for el in samp_ladder:
+                print(el[1:])
 
             for cand in samp_ladder[::-1]:
                 if ((cand[1] > qualCUT) & (cand[3] > minCond)):

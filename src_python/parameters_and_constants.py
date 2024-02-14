@@ -88,41 +88,28 @@ maxParLen = 120
 cib = 0  # if set, EFTnoPi with charge independence broken by Coulomb and an acompanying
 # contact-term correction is employed (leading order)
 
-lam = 8.00  # 4,6,8,10 (for presentation)
+lam = 6.00  # 4,6,8,10 (for presentation)
+b3 = 13.0
+la = ('%-4.2f' % lam)[:4]
+tb = ('%-4.2f' % b3)[:4]
 
-lecstring = 'B2-05_B3-10'
+lecstring = 'B2-05_B3-' + tb
 """
 B(2) = 0.43(1) MeV
 B(3) -- 0.46 (10)  0.66 (30)  0.71 (34)  0.84     0.9      1.1     1.9       8.4
 D    -- 1730.4873 672.4964 572.2156 317.1505 238.5372 -4.1843 -532.5492 -1703.9865
 """
 
-Dlec = {
-    's1': -426.385,  # l=6.00: B(3,ex1)=1  B(3,0)=82.78
-    's2': 669.9512,
-    '046': 1730.4873,
-    '066': 672.4964,
-    '071': 572.2156,
-    '084': 317.1505,
-    '09': 238.5372,
-    '10': -990.6972,
-    '11': -4.1843,
-    '13': -601.7702,
-    '19': -532.5492,
-    '84': -1569.7843,
-    '89': -548.2502,
-}
-
+# LEC dictionary [cutoff][B(3)] [2-body LEC, 3-body LEC] for B(2)=0.5MeV
 lec_set = {
-    '4.00': [-473.27, -548.2502],  # Sourav's orig. set
-    #'4.00': [-473.27, -1044.196],
-    '6.00': [-702.16, -787.8583],
-    '8.00': [-930.2, -990.6972],
-    #'12.0': [-1380.23, Dlec[lecstring.split('-')[-1]]],
-    #'14.0': [-1606.31, 11500.0],
-    '16.0': [-1898.7, 0.0],
-    '25.0': [-2934.2, 0.0],
-    #'20.0': [-2283.26, 71000.0]
+    '6.00': {
+        '10.0': [-702.16, -787.8583],
+        '13.0': [-702.16, -845.1583],
+        '20.0': [-702.16, -946.4991],
+    },
+    '4.00': {
+        '13.0': [-473.27, -601.7702],
+    },
 }
 
 SU4 = True
@@ -193,10 +180,11 @@ spectralEXE_mpi_pool = 'TDR2END%s_pop.exe' % bin_suffix
 smatrixEXE = 'S-POLE_zget.exe'  #'S-POLE_PdP.exe'
 smatrixEXE_multichann = 'S-POLE_zget.exe'  #'S-POLE_PdP.exe'  #
 
-la = ('%-4.2f' % lam)[:4]
+pas = False
 if la in lec_set.keys():
-    pass
-else:
+    if tb in lec_set[la].keys():
+        pas = True
+if pas == False:
     print('LECs unavailable for chosen cutoff! Available cutoffs:\n',
           lec_set.keys())
     exit()
@@ -259,82 +247,57 @@ nnnpotstring = 'nnn_pot'
 nnpot = sysdir2base + '/' + nnpotstring
 nnnpot = sysdir2base + '/' + nnnpotstring
 
-if len(lec_set[la]) >= 4:
-    cloW = 0.5 * (lec_set[la][0] + lec_set[la][1])
-    cloB = 0.5 * (lec_set[la][0] - lec_set[la][1])
-    d0 = lec_set[la][2]
-    cpp = lec_set[la][3]
-elif len(lec_set[la]) == 3:
-    cloW = 0.5 * (lec_set[la][0] + lec_set[la][1])
-    cloB = 0.5 * (lec_set[la][0] - lec_set[la][1])
-    d0 = lec_set[la][2]
-elif len(lec_set[la]) == 2:
-    cloW = lec_set[la][0]
+if len(lec_set[la][tb]) >= 4:
+    cloW = 0.5 * (lec_set[la][tb][0] + lec_set[la][tb][1])
+    cloB = 0.5 * (lec_set[la][tb][0] - lec_set[la][tb][1])
+    d0 = lec_set[la][tb][2]
+    cpp = lec_set[la][tb][3]
+elif len(lec_set[la][tb]) == 3:
+    cloW = 0.5 * (lec_set[la][tb][0] + lec_set[la][tb][1])
+    cloB = 0.5 * (lec_set[la][tb][0] - lec_set[la][tb][1])
+    d0 = lec_set[la][tb][2]
+elif len(lec_set[la][tb]) == 2:
+    cloW = lec_set[la][tb][0]
     cloB = 0.0
-    d0 = lec_set[la][1]
+    d0 = lec_set[la][tb][1]
 
 evWindow = [-211.5, -1.70]
 nbrStatesOpti2 = 1
-nbrStatesOpti3 = [-2]
+nbrStatesOpti3 = [-3]
 nbrStatesOpti4 = [-4]
 
 eDict = {
     #    [#energies, E0, dE, [3bdy GS, 3bdy ES1, 3bdy ES2, ...]]
-    #8.00 - 10
-    '89': [200, 0.0, 0.065, [0, 1], [[1, 1], [2, 2]]],
-    #8.00 - 10
-    '10': [200, 0.0, 0.065, [0, 1], [[1, 1], [2, 2]]],
-    #8.00 - 10
-    '13': [200, 0.0, 0.065, [0, 1], [[1, 1], [2, 2]]],
-    #8.00 - B(3)=1
-    '7': [100, 0.0, 0.01, [0, 0, 1], [[1, 1], [2, 2]]],
-    's2': [100, 0.0, 0.05, [1, 0], [[1, 1], [2, 2]]],
-    #8.00 - 046
-    's2': [100, 0.0, 0.15, [0, 1], [[1, 1], [2, 2]]],
-    #8.00 - 046
-    '046': [100, 0.0, 0.15, [1, 1], [[1, 1], [2, 2], [3, 3]]],
-    #8.00 - 066
-    '066': [200, 28.7, 0.0015, [1, 1], [[1, 1], [2, 2], [3, 3]]],
-    #8.00 - 071
-    '071': [200, 33.9, 0.002, [1, 1], [[1, 1], [2, 2], [3, 3]]],
-    #8.00 - 084
-    '084': [200, 54.065, 0.00025, [1, 1], [[1, 1], [2, 2], [3, 3]]],
-    #8.00 - 09
-    '09': [40, 0.0, 0.004, [0, 1], [[1, 1], [2, 2]]],
-    #8.00 - 11
-    '11': [200, 102.5, 0.0025, [0, 1], [[1, 1], [2, 2]]],
-    #8.00 - 19
-    '19': [200, 277.95, 0.01, [0, 1], [[1, 1], [2, 2]]],
-    #8.00 - 84 -- delete first 3-1 channel from INEN (too deeply bound)
-    '84': [200, 0.0, 0.05, [0, 1], [[1, 1], [2, 2]]]
+    '10.0': [100, 0.0, 0.03, [0, 1], [[1, 1], [2, 2]]],
+    '13.0': [100, 0.0, 0.2, [0, 1, 1], [[1, 1], [2, 2], [3, 3]]],
 }
 
 # include the n-th 3-body bounstate of the 3-body spectrum as asymptotic fragments
 # in the 3-1 partition of the 4-body calculation; e.g. [0,1] includes an asymptotic
 # 4-body channel where 3 atoms are bound in the 1st excited state
-nbr_of_threebody_boundstates = eDict[lecstring.split('-')[-1]][3]
+nbr_of_threebody_boundstates = eDict[tb][3]
 
-nzEN = eDict[lecstring.split('-')[-1]][0]
-E0 = eDict[lecstring.split('-')[-1]][1]
-D0 = eDict[lecstring.split('-')[-1]][2]
+nzEN = eDict[tb][0]
+E0 = eDict[tb][1]
+D0 = eDict[tb][2]
 
-epL = 0.0005
-epU = 0.005
+epL = 0.0001
+epU = 0.2
 eps0 = [epL * 1.0, epL, epL, epL, epL]
 eps1 = [epU * 1.0, epU, epU, epU, epU]
 epsM = (np.array(eps1) + np.array(eps0)) / 2
-epsNBR = 2
+epsNBR = 40
 
 phasCalcMethod = 1
 # parameters for the expansion of the fragment-relative function
 # (i.e., both fragments charged: Coulomb function, else sperical Bessel)
 # in Gaussians
 SPOLE_adaptweightUP = 0.15
-SPOLE_adaptweightLOW = 0.04
+SPOLE_adaptweightLOW = 0.0
 SPOLE_adaptweightL = 0.5
-SPOLE_GEW = 1.0  # smaller values decrease the maximal radius up to which values enter the fit
-SPOLE_QD = 2.0  # this shifts the interval smaller values try to optimize the behavior closer to zero
-SPOLE_QS = 1.2
+SPOLE_GEW = 0.8  # smaller values decrease the maximal radius up to which values enter the fit
+SPOLE_QD = 1.0  # this shifts the interval smaller values try to optimize the behavior closer to zero
+SPOLE_QS = 3.2
 
 beta0 = 2.1
 Bet = [beta0, beta0, beta0, beta0, beta0]
@@ -361,7 +324,7 @@ anzRelw4opt = 10
 
 # number of Gaussian basis functions/widths used to expand the fragment-relative wave function
 anzRelw = 20  # 10, 12, 14, 20, ....
-maxRelW = 16.1
+maxRelW = 10.1
 widthSet_relative = [
     np.append(
         np.sort(
@@ -369,7 +332,7 @@ widthSet_relative = [
                 np.concatenate([
                     np.array([
                         ww
-                        for ww in np.logspace(-4.4 + 0.0 * np.random.random(),
+                        for ww in np.logspace(-3.2 + 0.0 * np.random.random(),
                                               1.2 + 0.0 * np.random.random(),
                                               num=int(anzRelw / 2),
                                               endpoint=True,

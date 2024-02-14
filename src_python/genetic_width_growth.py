@@ -7,15 +7,16 @@ def loveliness(groundstateEnergy,
                HeigenvaluesbelowX,
                minimalConditionnumber,
                coefRAT,
-               maxRat=10**4):
+               maxRat=10**29):
 
     energySum = sum(groundstateEnergy)
 
-    if ((np.abs(energySum) < 1e5) & (coefRAT < maxRat)):
+    if ((np.abs(energySum) < 1e6) & (coefRAT < maxRat)):
         #pulchritude = np.exp((-1) * groundstateEnergy)
         pulchritude = np.power(1.1,
                                (-1) * energySum)  #* (1 + HeigenvaluesbelowX))
     else:
+        #print(np.abs(energySum), coefRAT)
         pulchritude = 0.0
 
     return pulchritude

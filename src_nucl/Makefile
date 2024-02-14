@@ -1,8 +1,8 @@
 # hexpresso
-F77     =      mpifort 
-FFLAGS  =       -Ofast -ffpe-summary='none' -mcmodel=large #-fallow-argument-mismatch 
-LIBS    = -L -lgfortran -L/usr/lib/x86_64-linux-gnu/lapack -llapack -lblas
-#LIBS    = -L${MKLROOT} -llapack -lblas  -lm -ldl
+F77     =      ifx
+FFLAGS  =       -Ofast -mcmodel=large -I${MKLROOT}/include/mkl/intel64/lp64 -qmkl=parallel #-ffpe-summary='none' -fallow-argument-mismatch 
+#LIBS    = -L -lgfortran -L/usr/lib/x86_64-linux-gnu/lapack -llapack -lblas
+LIBS    = -L${MKLROOT}/lib/libmkl_blas95_lp64.a
 
 #theogate
 #F77     =       ifort

@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import os, re
+import shutil
 import numpy as np
 import random
 import rrgm_functions, parameters_and_constants
@@ -555,6 +556,8 @@ def inen_str_4(coeff,
     # to the expansion of the asymptotic ones
     s += diCh
 
+    if os.path.exists(fn):
+        shutil.copy(fn, 'inen.bkp')
     with open(fn, 'w') as outfile:
         outfile.write(s)
 

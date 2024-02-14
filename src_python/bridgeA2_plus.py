@@ -22,11 +22,11 @@ fitt = False
 
 # numerical stability
 minCond = 10**-16
-minidi_breed = 0.3
+minidi_breed = 0.1
 minidi_seed = minidi_breed
 minidi_breed_rel = minidi_breed
 denseEVinterval = [-2, 2]
-width_bnds = [0.1, 16.25]
+width_bnds = [0.1, 6.25]
 
 deutDim = 5
 

@@ -9,34 +9,39 @@ import shutil
 
 def check_dist(width_array1=[], width_array2=[], minDist=0.5):
     tooClose = False
-    if list(width_array2) == []:
-        for m in range(1, len(width_array1)):
+    # the number of decimals should be consistent with the precission
+    # used to write these widths in the fortran input file INQUA_N
+
+    rounded_array1 = np.round(width_array1, decimals=6)
+    rounded_array2 = np.round(width_array2, decimals=6)
+    if list(rounded_array2) == []:
+        for m in range(1, len(rounded_array1)):
             for n in range(m):
-                delt = np.linalg.norm(width_array1[m] - width_array1[n])
+                delt = np.linalg.norm(rounded_array1[m] - rounded_array1[n])
 
                 if delt == 0:
-                    print('identical widths in ws:\n', width_array1)
+                    print('identical widths in ws:\n', rounded_array1)
                     tooClose = True
                     return tooClose
 
                 nm = np.max([
-                    np.linalg.norm(width_array1[m]) / delt,
-                    +np.linalg.norm(width_array1[n]) / delt
+                    np.linalg.norm(rounded_array1[m]) / delt,
+                    +np.linalg.norm(rounded_array1[n]) / delt
                 ])
 
                 if (nm > minDist):
                     tooClose = True
                     return tooClose
     else:
-        for m in range(1, len(width_array1)):
-            for n in range(1, len(width_array2)):
-                delt = np.linalg.norm(width_array1[m] - width_array2[n])
+        for m in range(1, len(rounded_array1)):
+            for n in range(1, len(rounded_array2)):
+                delt = np.linalg.norm(rounded_array1[m] - rounded_array2[n])
                 if delt == 0:
                     tooClose = True
                     return tooClose
                 nm = np.max([
-                    np.linalg.norm(width_array1[m]) / delt,
-                    +np.linalg.norm(width_array2[n]) / delt
+                    np.linalg.norm(rounded_array1[m]) / delt,
+                    +np.linalg.norm(rounded_array2[n]) / delt
                 ])
                 if (nm > minDist):
                     tooClose = True
@@ -58,9 +63,16 @@ def smart_ev(matout, threshold=10**-7):
     # quality measure for the basis
     gsCoeffRatio = 42.1
     try:
+        ewn, evn = eigh(normat)
+        idxn = ewn.argsort()[::-1]
+        ewn = [eww for eww in ewn[idxn]]
+        normCond = np.abs(ewn[-1] / ewn[0]) if np.any(
+            np.array(ewn) < 0) == False else 0.0
+
         ewt, evt = eigh(hammat, normat)
         idxt = ewt.argsort()[::-1]
         ewt = [eww for eww in ewt[idxt]]
+
         evt = evt[:, idxt]
         gsC = np.abs(evt[:, -1])
         gsCoeffRatio = np.max(gsC) / np.min(gsC)
@@ -78,9 +90,6 @@ def smart_ev(matout, threshold=10**-7):
     #ew, ev = LA.eigh(nm)
     idx = ew.argsort()[::-1]
     ew = [eww for eww in ew[idx]]
-
-    normCond = np.abs(ew[-1] /
-                      ew[0]) if np.any(np.array(ew) < 0) == False else 10**-21
 
     # project onto subspace with ev > threshold
     ew = [eww for eww in ew if np.real(eww) > threshold]

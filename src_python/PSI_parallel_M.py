@@ -423,6 +423,7 @@ def span_initial_basis2(channel,
 
 def end3(para, send_end):
 
+    maxirat = 10**10
     # [widi, widr, sbas, nnpot, nnnpot, Jstreu, civ, binPath, coefstr]
 
     child_id = ''.join(str(x) for x in np.array([para[6]]))
@@ -481,7 +482,7 @@ def end3(para, send_end):
         gsEnergy = smartEV[para[12][0]]
 
         attractiveness = loveliness(EnergySet, basCond, anzSigEV, minCond,
-                                    smartRAT)
+                                    smartRAT, maxirat)
 
         os.system('rm -rf ./%s' % inqf)
         os.system('rm -rf ./%s' % indqf)
@@ -1417,10 +1418,9 @@ def blunt_ev3(cfgs,
                   (str(diskfil) + '%'))
             exit()
 
-        subprocess.run([
-            mpipath, '--oversubscribe', '-np',
-            '%d' % anzcores, bin_path + NNhamilEXE_mpi
-        ])
+        subprocess.run(
+            [mpipath, '-np',
+             '%d' % anzcores, bin_path + NNhamilEXE_mpi])
         subprocess.run([bin_path + NNcollect_mpi])
         subprocess.call('rm -rf DMOUT.*', shell=True)
     else:
@@ -1449,10 +1449,9 @@ def blunt_ev3(cfgs,
                       (str(diskfil) + '%'))
                 exit()
 
-            subprocess.run([
-                mpipath, '--oversubscribe', '-np',
-                '%d' % anzcores, bin_path + NNNhamilEXE_mpi
-            ])
+            subprocess.run(
+                [mpipath, '-np',
+                 '%d' % anzcores, bin_path + NNNhamilEXE_mpi])
             subprocess.run([bin_path + NNNcollect_mpi])
             subprocess.call('rm -rf DRDMOUT.*', shell=True)
             subprocess.run(
@@ -1524,10 +1523,9 @@ def blunt_ev4t(cfgs,
                   (str(diskfil) + '%'))
             exit()
 
-        subprocess.run([
-            mpipath, '--oversubscribe', '-np',
-            '%d' % anzcores, bin_path + NNhamilEXE_mpi
-        ])
+        subprocess.run(
+            [mpipath, '-np',
+             '%d' % anzcores, bin_path + NNhamilEXE_mpi])
         subprocess.run([bin_path + NNcollect_mpi])
         subprocess.call('rm -rf DMOUT.*', shell=True)
     else:
@@ -1556,10 +1554,9 @@ def blunt_ev4t(cfgs,
                       (str(diskfil) + '%'))
                 exit()
 
-            subprocess.run([
-                mpipath, '--oversubscribe', '-np',
-                '%d' % anzcores, bin_path + NNNhamilEXE_mpi
-            ])
+            subprocess.run(
+                [mpipath, '-np',
+                 '%d' % anzcores, bin_path + NNNhamilEXE_mpi])
             subprocess.run([bin_path + NNNcollect_mpi])
             subprocess.call('rm -rf DRDMOUT.*', shell=True)
             subprocess.run([
@@ -1688,10 +1685,9 @@ def blunt_ev4(cfgs,
 
     if parall == -1:
 
-        subprocess.run([
-            mpipath, '--oversubscribe', '-np',
-            '%d' % anzcores, bin_path + NNhamilEXE_mpi
-        ])
+        subprocess.run(
+            [mpipath, '-np',
+             '%d' % anzcores, bin_path + NNhamilEXE_mpi])
         subprocess.run([bin_path + NNcollect_mpi])
         subprocess.call('rm -rf DMOUT.*', shell=True)
     else:
@@ -1716,10 +1712,9 @@ def blunt_ev4(cfgs,
         subprocess.call('cp -rf INQUA_N INQUA_N_UIX', shell=True)
 
         if parall == -1:
-            subprocess.run([
-                mpipath, '--oversubscribe', '-np',
-                '%d' % anzcores, bin_path + NNNhamilEXE_mpi
-            ])
+            subprocess.run(
+                [mpipath, '-np',
+                 '%d' % anzcores, bin_path + NNNhamilEXE_mpi])
 
             subprocess.run([bin_path + NNNcollect_mpi])
             subprocess.call('rm -rf DRDMOUT.*', shell=True)
@@ -1837,10 +1832,9 @@ def blunt_ev5(cfgs,
 
     if parall == -1:
 
-        subprocess.run([
-            mpipath, '--oversubscribe', '-np',
-            '%d' % anzcores, bin_path + NNhamilEXE_mpi
-        ])
+        subprocess.run(
+            [mpipath, '-np',
+             '%d' % anzcores, bin_path + NNhamilEXE_mpi])
         subprocess.run([bin_path + NNcollect_mpi])
         subprocess.call('rm -rf DMOUT.*', shell=True)
     else:
@@ -1866,10 +1860,9 @@ def blunt_ev5(cfgs,
         subprocess.call('cp -rf INQUA_N INQUA_N_UIX', shell=True)
 
         if parall == -1:
-            subprocess.run([
-                mpipath, '--oversubscribe', '-np',
-                '%d' % anzcores, bin_path + NNNhamilEXE_mpi
-            ])
+            subprocess.run(
+                [mpipath, '-np',
+                 '%d' % anzcores, bin_path + NNNhamilEXE_mpi])
 
             subprocess.run([bin_path + NNNcollect_mpi])
             subprocess.call('rm -rf DRDMOUT.*', shell=True)

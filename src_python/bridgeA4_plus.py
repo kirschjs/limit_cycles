@@ -5,6 +5,7 @@ import sympy as sy
 # CG(j1, m1, j2, m2, j3, m3)
 from sympy.physics.quantum.cg import CG
 from scipy.linalg import eigh
+from datetime import datetime
 
 from three_particle_functions import *
 
@@ -23,10 +24,10 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 
 # prepare spin/orbital matrices for parallel computation
-findstablebas = 1
+findstablebas = 0
 smallestAllowedDistortionW = 0.1
 indexOfLargestAllowedDistW = 2
-normStabilityThreshold = 10**-18
+normStabilityThreshold = 10**-30
 maxCofDev = 1000.1
 newCal = -1
 
@@ -65,11 +66,11 @@ nMatch = 0
 energyToPlot = 2
 
 if newCal == 2:
-    import bridgeA2_plus
-    import bridgeA3_plus
+    #import bridgeA2_plus
+    #import bridgeA3_plus
     # optimizes a set of distortion channels which should ensure that the exited tetramers are
     # expanded accurately;
-    import bridgeA4_opt
+    #import bridgeA4_opt
     print(
         'ECCE: all fragment optimization codes are expected to have been run separately.'
     )
@@ -361,7 +362,7 @@ if os.path.isdir(sysdir4 + '/alpha') == True:
     nbr_phy_bv = sum(zstrus)
     zstrus = zstrus + zstrus_alpha
 
-    coflist = list(more_itertools.collapse(cofli))
+    coflist = list(more_itertools.collapse(asymptCH[2]))
     distuec = [
         nc + 1 for nc in range(len(coflist))
         if 10**2 > np.abs(coflist[nc]) > 0.1
@@ -483,6 +484,7 @@ if findstablebas:
     #maxDistRelW = 4
 
     for DistCh in range(anzDist - 1):
+
         inen = [line for line in open('INEN')]
         # FIRST: select the structure of the distortion
 
@@ -502,23 +504,26 @@ if findstablebas:
             % int(inen[linenbrDistCh - 2].split()[1]))
         for NrelW in range(indexOfLargestAllowedDistW, maxDistRelW, 1):
 
+            start_time = datetime.datetime.now()
+
             dist_line[NrelW] = 1
             dist_line_str = ''.join(['%3d' % ww for ww in dist_line]) + '\n'
 
             repl_line('INEN', linenbrDistCh, dist_line_str)
 
             subprocess.run([BINBDGpath + spectralEXE_mpi])
-            subprocess.run([BINBDGpath + smatrixEXE_multichann])
 
             #
             tmp = get_n_ev(n=-1, ifi='OUTPUT')
 
             if tmp < normStabilityThreshold:
                 dist_line[NrelW] = 0
+                print('EV_normm_in = ', tmp)
                 dist_line_str = ''.join(['%3d' % ww
                                          for ww in dist_line]) + '\n'
                 repl_line('INEN', linenbrDistCh, dist_line_str)
 
+#            subprocess.run([BINBDGpath + smatrixEXE_multichann])
 #             dc, dc2 = readDcoeff()  # OUTPUTSPOLE
 #
 #            maxVar = max(np.var(dc), np.var(dc2))
@@ -531,6 +536,10 @@ if findstablebas:
 #            if (('NOT CO' in lastline) | (varDev > maxCofDev)):
 #                dist_line[NrelW] = 0
 #            maxCofDev = varDev
+
+            end_time = datetime.datetime.now()
+            print('Basis-vector-assessment time: {}'.format(end_time -
+                                                            start_time))
 
         if np.any(dist_line) == False:
 
@@ -571,6 +580,7 @@ if findstablebas:
 
         else:
             anzCh += 1
+    subprocess.call('cp INEN inen.stbl', shell=True)
 #            var0 = maxVar
 
 if newCal >= 0:
