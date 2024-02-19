@@ -352,15 +352,25 @@ def inqua_4(intwi=[], relwi=[], potf='', inquaout='INQUA_M'):
 
         zerl_counter += 1
         nrel = len(relwi[n])
+
+        # construct a 2-column list ordered wrt. the first one
+        thh = intwi[n]
+        th2 = np.reshape(thh, (2, -1))
+
+        idxt = th2[0].argsort()[::-1]
+        col1 = [eww for eww in th2[0][idxt]]
+        col2 = [eww for eww in th2[1][idxt]]
+        iiw = np.array([col1, col2])
+
         nb = int(len(intwi[n]) / 2)
         s += '%3d%60s%s\n%3d%3d\n' % (
             nb, '', 'Z%d  BVs %d - %d' %
             (zerl_counter, bv_counter, bv_counter - 1 + nb), nb, nrel)
 
         bv_counter += nb
-        for bv in range(nb):
+        for bv in range(int(nb / 2)):
             s += '%48s%-12.6f%-12.6f\n' % ('', float(
-                intwi[n][2 * bv]), float(intwi[n][1 + 2 * bv]))
+                iiw[0][bv]), float(iiw[1][bv]))
 
         for rw in range(0, len(relwi[n])):
             s += '%12.6f' % float(relwi[n][rw])

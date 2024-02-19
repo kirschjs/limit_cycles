@@ -320,7 +320,7 @@ MeVfm = 197.3161329
 
 # number of relative widths used for the refinement of the 4-body state
 # in the interaction region (see bridgeA4_opt.py)
-anzRelw4opt = 10
+anzRelw4opt = 30
 
 # number of Gaussian basis functions/widths used to expand the fragment-relative wave function
 anzRelw = 20  # 10, 12, 14, 20, ....

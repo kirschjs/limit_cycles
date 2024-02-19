@@ -19,8 +19,8 @@ from multiprocessing.pool import ThreadPool
 
 # numerical stability
 mindi = 0.2
-width_bnds = [0.06, 8.15, 0.08, 11.25]
-minCond = 10**-28
+width_bnds = [0.006, 18.15, 0.008, 16.25]
+minCond = 10**-26
 maxRat = 10**29
 
 # genetic parameters
@@ -32,7 +32,7 @@ target_pop_size = 10
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 16
+nBV = 32
 nREL = anzRelw4opt
 
 J0 = 0
@@ -53,7 +53,6 @@ for channel in channels_4:
 
     subprocess.call('cp %s .' % nnpot, shell=True)
     subprocess.call('cp %s .' % nnnpot, shell=True)
-
     subprocess.call('rm -rf *.dat', shell=True)
 
     costr = ''
@@ -92,6 +91,7 @@ for channel in channels_4:
         print('>>> seed civilizations: %d/%d' % (len(civs), seed_civ_size))
 
         # tup[3] = pulchritude tup[4] = Energy EV tup[5] = condition number
+    exit()
     civs.sort(key=lambda tup: np.abs(tup[3]))
     civs = sortprint(civs, pr=True)
 

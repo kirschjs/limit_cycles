@@ -958,7 +958,7 @@ def end4(para, send_end):
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
     out3, err3 = pend.communicate()
-    #cwd=workdir)
+
     # <communicate> is needed in order to ensure the process ended before parsing its output!
     try:
         NormHam = np.core.records.fromfile(maoutf, formats='f8', offset=4)
@@ -975,6 +975,7 @@ def end4(para, send_end):
         attractiveness = loveliness(EnergySet, basCond, anzSigEV, minCond,
                                     smartRAT, maxRa)
 
+        exit()
         os.system('rm -rf ./%s' % inqf)
         os.system('rm -rf ./%s' % indqf)
         os.system('rm -rf ./%s' % inenf)
@@ -996,8 +997,8 @@ def end4(para, send_end):
 
     except:
 
-        os.system('rm -rf ./%s' % inqf)
-        os.system('rm -rf ./%s' % indqf)
+        #os.system('rm -rf ./%s' % inqf)
+        #os.system('rm -rf ./%s' % indqf)
         os.system('rm -rf ./%s' % inenf)
         os.system('rm -rf ./%s' % outputef)
         os.system('rm -rf ./%s' % outputqf)
@@ -1059,7 +1060,6 @@ def span_population4(anz_civ,
             'The set number for relative width parameters per basis vector > max!'
         )
         exit()
-
     ParaSets = []
 
     for civ in range(anz_civ):
@@ -1132,7 +1132,7 @@ def span_population4(anz_civ,
             while lit_w_r == []:
 
                 lit_wi = [
-                    test_width * (0.15 + 0.86 * (1 - np.random.random()))
+                    test_width * (1 - np.random.random())
                     for test_width in lit_w_tmp
                 ]
                 if np.max(lit_wi) > rLcutoff:
@@ -1173,6 +1173,7 @@ def span_population4(anz_civ,
                 list(tmp[bnds[nn]:bnds[nn + 1]])
                 for nn in range(len(bnds) - 1)
             ]
+
             tmp3 = [list(lit_rw[n]) for nn in range(len(bnds) - 1)]
 
             sfrags2 += len(tmp2) * [sfrags[n]]
@@ -1211,6 +1212,7 @@ def span_population4(anz_civ,
     samp_list = []
     cand_list = []
     pool = ThreadPool(max(min(MaxProc, len(ParaSets)), 2))
+
     jobs = []
     for procnbr in range(len(ParaSets)):
         recv_end, send_end = multiprocessing.Pipe(False)
