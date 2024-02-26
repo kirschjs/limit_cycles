@@ -601,6 +601,7 @@ def span_population3(anz_civ,
 
                 prox_check = check_dist(width_array1=lit_wi,
                                         minDist=mindist_int)
+
                 prox_checkr = np.all([
                     check_dist(width_array1=lit_wi,
                                width_array2=wsr,
@@ -724,7 +725,7 @@ def span_population3(anz_civ,
     samp_ladder = [x.recv() for x in samp_list]
 
     for cand in samp_ladder:
-        if ((cand[2] < 1.0) & (cand[3] > minC)):
+        if ((cand[2] < -1.0) & (cand[3] > minC)):
             cfgg = np.transpose(np.array([sfrags2, lfrags2],
                                          dtype=object)).tolist()
 
@@ -951,7 +952,6 @@ def end4(para, send_end):
         pdrqua = subprocess.Popen(shlex.split(cmddrqua),
                                   stdout=subprocess.PIPE,
                                   stderr=subprocess.PIPE)
-
         out2, err2 = pdrqua.communicate()
 
     pend = subprocess.Popen(shlex.split(cmdend),
@@ -975,7 +975,6 @@ def end4(para, send_end):
         attractiveness = loveliness(EnergySet, basCond, anzSigEV, minCond,
                                     smartRAT, maxRa)
 
-        exit()
         os.system('rm -rf ./%s' % inqf)
         os.system('rm -rf ./%s' % indqf)
         os.system('rm -rf ./%s' % inenf)
@@ -987,7 +986,7 @@ def end4(para, send_end):
         os.system('rm -rf ./%s' % maoutf)
 
         #  [ [intw, relw], qualREF, gsREF, basCond ]
-        #  print('%12.4e%12.4f%12.4e' % (attractiveness, gsEnergy, basCond))
+        #print('%12.4e%12.4f%12.4e' % (attractiveness, gsEnergy, basCond))
         send_end.send([
             [para[0], para[1]],
             attractiveness,
@@ -997,8 +996,8 @@ def end4(para, send_end):
 
     except:
 
-        #os.system('rm -rf ./%s' % inqf)
-        #os.system('rm -rf ./%s' % indqf)
+        os.system('rm -rf ./%s' % inqf)
+        os.system('rm -rf ./%s' % indqf)
         os.system('rm -rf ./%s' % inenf)
         os.system('rm -rf ./%s' % outputef)
         os.system('rm -rf ./%s' % outputqf)
@@ -1070,7 +1069,6 @@ def span_population4(anz_civ,
         for frg in range(len(lfrags)):
 
             #  -- internal widths --------------------------------------------------
-            itera = 1
 
             lit_w_tmp = np.abs(
                 np.geomspace(start=ini_grid_bounds[0],
@@ -1083,6 +1081,7 @@ def span_population4(anz_civ,
             #    ini_grid_bounds[1] - ini_grid_bounds[0]) * np.random.rand(
             #        int(2 * nwint))
 
+            itera = 1
             lit_w_t = []
             while lit_w_t == []:
 
@@ -1237,8 +1236,8 @@ def span_population4(anz_civ,
 
     cand_list.sort(key=lambda tup: np.abs(tup[2]))
 
-    for cc in samp_ladder:
-        print(cc[2:])
+    #for cc in samp_ladder:
+    #    print(cc[2:])
 
     return cand_list, sbas
 
