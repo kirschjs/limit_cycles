@@ -967,7 +967,6 @@ def end4(para, send_end):
         smartEV, basCond, smartRAT = smart_ev(NormHam, threshold=minCond)
         anzSigEV = len(
             [bvv for bvv in smartEV if para[10][0] < bvv < para[10][1]])
-        #print('evs in window:  ', anzSigEV)
 
         EnergySet = [smartEV[ii] for ii in para[13]]
         gsEnergy = smartEV[para[13][0]]
@@ -990,7 +989,7 @@ def end4(para, send_end):
         send_end.send([
             [para[0], para[1]],
             attractiveness,
-            gsEnergy,
+            EnergySet,
             basCond,
         ])
 
@@ -1009,7 +1008,7 @@ def end4(para, send_end):
         print(para[6], child_id)
         print(maoutf)
         #  [ intw, relw, qual, gsE, basCond ]
-        send_end.send([[[], []], 0.0, 0.0, -42.7331])
+        send_end.send([[[], []], 0.0, [0.0], -42.7331])
 
 
 def span_population4(anz_civ,
@@ -1048,8 +1047,8 @@ def span_population4(anz_civ,
     rWmin = 0.0001
 
     # orbital-angular-momentum dependent upper bound '=' UV cutoff (narrowest state)
-    iLcutoff = 492.
-    rLcutoff = 492.
+    iLcutoff = 192.
+    rLcutoff = 192.
     nwint = ini_dims[0]
     nwrel = ini_dims[1]
     rel_scale = 1.
@@ -1098,12 +1097,13 @@ def span_population4(anz_civ,
 
                 prox_check = check_dist(width_array1=lit_wi,
                                         minDist=mindist_int)
-                prox_checkr = np.all([
-                    check_dist(width_array1=lit_wi,
-                               width_array2=wsr,
-                               minDist=mindist_rel)
-                    for wsr in widthSet_relative
-                ])
+                prox_checkr = 1
+                #                prox_checkr = np.all([
+                #                    check_dist(width_array1=lit_wi,
+                #                               width_array2=wsr,
+                #                               minDist=mindist_rel)
+                #                    for wsr in widthSet_relative
+                #                ])
 
                 if (prox_check * prox_checkr):
                     lit_w_t = lit_wi
@@ -1139,12 +1139,13 @@ def span_population4(anz_civ,
 
                 prox_check = check_dist(width_array1=lit_wi,
                                         minDist=mindist_int)
-                prox_checkr = np.all([
-                    check_dist(width_array1=lit_wi,
-                               width_array2=wsr,
-                               minDist=mindist_rel)
-                    for wsr in widthSet_relative
-                ])
+                prox_checkr = 1
+                #                prox_checkr = np.all([
+                #                    check_dist(width_array1=lit_wi,
+                #                               width_array2=wsr,
+                #                               minDist=mindist_rel)
+                #                    for wsr in widthSet_relative
+                #                ])
 
                 if (prox_check * prox_checkr):
                     lit_w_r = lit_wi
@@ -1228,16 +1229,17 @@ def span_population4(anz_civ,
     samp_ladder = [x.recv() for x in samp_list]
 
     for cand in samp_ladder:
-        if ((cand[2] < -0) & (cand[3] > minC)):
+        if (np.all(np.less(cand[2], np.zeros(len(cand[2])))) &
+            (cand[3] > minC)):
             cfgg = np.transpose(np.array([sfrags2, lfrags2],
                                          dtype=object)).tolist()
 
             cand_list.append([cfgg] + cand)
 
-    cand_list.sort(key=lambda tup: np.abs(tup[2]))
+    cand_list.sort(key=lambda tup: np.linalg.norm(tup[2]))
 
-    #for cc in samp_ladder:
-    #    print(cc[2:])
+    for cc in samp_ladder:
+        print(cc[1:])
 
     return cand_list, sbas
 

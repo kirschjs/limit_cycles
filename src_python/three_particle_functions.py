@@ -70,8 +70,8 @@ def insam(anz, fn='INSAM'):
 
 def inlu_3(anzO, fn='INLU', fr=[], indep=0):
     out = '  0  0  0  0  0%3d\n' % indep
-    for n in range(anzO):
-        out += '  1'
+
+    out += '  1  1'
     out += '\n%d\n' % len(fr)
     for n in range(0, len(fr)):
         out += '  1  3\n'
@@ -90,8 +90,7 @@ def inlu_3(anzO, fn='INLU', fr=[], indep=0):
 def inob_3(fr, anzO, fn='INOB', indep=0):
     #                IBOUND => ISOSPIN coupling allowed
     out = '  0  2  2  1%3d\n' % indep
-    for n in range(anzO):
-        out += '  1'
+    out += '  1  1  1'
     out += '\n  4\n%3d  3\n' % len(fr)
 
     for n in fr:

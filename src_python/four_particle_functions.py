@@ -285,8 +285,7 @@ def from3to4(stru3,
 
 def inlu_4(anzO, fn='INLU', fr=[], indep=0):
     out = '  0  0  0  0  0%3d\n' % indep
-    for n in range(anzO):
-        out += '  1'
+    out += '  1  1'  # at LO no other operators need to be calculated
     out += '\n%d\n' % len(fr)
     for n in range(0, len(fr)):
         out += '  1  4\n'
@@ -327,8 +326,7 @@ def inlu_4(anzO, fn='INLU', fr=[], indep=0):
 def inob_4(fr, anzO, fn='INOB', indep=0):
     #                IBOUND => ISOSPIN coupling allowed
     out = '  0  2  2  1%3d\n' % indep
-    for n in range(anzO):
-        out += '  1'
+    out += '  1  1  1'  # this considers only that subset of the (iso)spin operators which are needed at LO
     out += '\n  4\n%3d  4\n' % len(fr)
 
     for n in fr:

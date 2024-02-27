@@ -51,14 +51,14 @@ os.chdir(sysdir3)
 subprocess.call('cp %s .' % nnpot, shell=True)
 subprocess.call('cp %s .' % nnnpot, shell=True)
 
-DRange = np.linspace(start=10.95, stop=1.05, num=20, endpoint=True, dtype=None)
+DRange = np.linspace(start=1.05, stop=0.5, num=2, endpoint=True, dtype=None)
 
 # [LECD,[ev0,ev1,...]]
 results = []
 dbg = False
 for tnifac in DRange:
 
-    nbrStatesOpti3 = [-2]
+    nbrStatesOpti3 = [-3]
     costr = ''
     zop = nOperators if tnni == 11 else 14
     for nn in range(1, zop):

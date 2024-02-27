@@ -88,8 +88,8 @@ maxParLen = 120
 cib = 0  # if set, EFTnoPi with charge independence broken by Coulomb and an acompanying
 # contact-term correction is employed (leading order)
 
-lam = 6.00  # 4,6,8,10 (for presentation)
-b3 = 13.0
+lam = 4.00  # 4,6,8,10 (for presentation)
+b3 = 8.00
 la = ('%-4.2f' % lam)[:4]
 tb = ('%-4.2f' % b3)[:4]
 

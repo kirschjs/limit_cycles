@@ -1,22 +1,38 @@
 import numpy as np
 import struct
+"""
+
+the loveliness function steers the basis optimization
+optimal basis:
+1) converged values for a selected number of eigenvalues *within*
+   the model space limited by the chusen dimension
+2) numerically stable => condition number > numerical accuracy (at least)
+                         norm must be positive definite
+3) (optional=relevance unclear) basis comprises mostly states which have
+   significant overlap with the states of interest (see (1))
+
+"""
 
 
-def loveliness(groundstateEnergy,
+def loveliness(relEnergyVals,
                conditionNumber,
                HeigenvaluesbelowX,
                minimalConditionnumber,
                coefRAT,
                maxRat=10**29):
 
-    energySum = sum(groundstateEnergy)
+    maxEsum = 1e5
+    energySum = sum(relEnergyVals)
 
-    if (np.abs(energySum) < 1e16):
-        #pulchritude = np.exp((-1) * groundstateEnergy)
-        pulchritude = np.power(1.1, (-0.1) *
-                               energySum)  #* (1 + HeigenvaluesbelowX))
+    if ((np.abs(energySum) < maxEsum) &
+        (conditionNumber > minimalConditionnumber)):
+
+        # "normalize" quantities
+        cF = minimalConditionnumber / conditionNumber  # the smaller the better
+        eF = energySum / maxEsum  # the closer to -1 the better
+        pulchritude = -np.tan(2 * eF) * np.exp(-5 * cF**2)
     else:
-        #print(np.abs(energySum), coefRAT)
+
         pulchritude = 0.0
 
     return pulchritude

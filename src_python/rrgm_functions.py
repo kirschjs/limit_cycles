@@ -538,7 +538,7 @@ def repl_line(fn, lnr, rstr):
 
 def prep_pot_file_2N(lam, wiC, baC, ps2):
     s = ''
-    s += '  1  1  1  1  1  1  1  1  1\n'
+    s += '  1  1  0  1\n'
     # pdp:       c p2 r2 LS  T Tp
     s += '  0\n%3d  0  0  0  0  0  0\n' % (int((wiC != 0) | (baC != 0)))
     # central LO Cs and Ct and LOp p*p' C_1-4
@@ -569,7 +569,7 @@ def prep_pot_file_2N_pp(lam, wiC, baC, ppC, ps2):
 
 def prep_pot_file_3N(lam, ps3='', d10=0.0):
     s = ''
-    s += '  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1\n  1  1\n'
+    s += '  1  1\n  1  1\n'
     # pure central, no (iso)spin dependence
     s += '%-20.4f%-20.4f%-20.4f%-20.4f\n' % (
         d10, float(lam)**2 / 4.0, float(lam)**2 / 4.0, float(lam)**2 / 4.0)
@@ -997,8 +997,8 @@ def plotapproxwave(infi='OUTPUTSPOLE',
 
                 for njj in range(nj, len(data)):
 
-                    if (data[njj].find(
-                            'R(FM)   WELLENFUNKTION IM KANAL%3d' % ch) >= 0):
+                    if (data[njj].find('R(FM)   WELLENFUNKTION IM KANAL%3d' %
+                                       ch) >= 0):
 
                         ylab = data[njj + 1].split(',')[col].strip()
 
