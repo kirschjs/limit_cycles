@@ -264,7 +264,7 @@ elif len(lec_set[la][tb]) == 2:
 
 evWindow = [-211.5, -1.70]
 nbrStatesOpti2 = 1
-nbrStatesOpti3 = [-3]
+nbrStatesOpti3 = list(range(-6, 0))
 nbrStatesOpti4 = [-4]
 
 eDict = {

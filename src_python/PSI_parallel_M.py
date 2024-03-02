@@ -479,7 +479,7 @@ def end3(para, send_end):
             [bvv for bvv in smartEV if para[10][0] < bvv < para[10][1]])
 
         EnergySet = [smartEV[ii] for ii in para[12]]
-        gsEnergy = smartEV[para[12][0]]
+        gsEnergy = smartEV[-1]
 
         attractiveness = loveliness(EnergySet, basCond, anzSigEV, minCond,
                                     smartRAT, maxirat)
@@ -582,13 +582,17 @@ def span_population3(anz_civ,
 
             #  -- internal widths --------------------------------------------------
             itera = 1
-
+            wi, wf, lbase = ini_grid_bounds[0], ini_grid_bounds[1], (
+                0.01 + 9.98 * np.random.random())
+            sta = np.log(wi) / np.log(lbase)
+            sto = np.log(wf) / np.log(lbase)
             lit_w_tmp = np.abs(
-                np.geomspace(start=ini_grid_bounds[0],
-                             stop=ini_grid_bounds[1],
-                             num=nwint,
-                             endpoint=True,
-                             dtype=None))
+                np.logspace(start=sta,
+                            stop=sto,
+                            base=lbase,
+                            num=nwint,
+                            endpoint=True,
+                            dtype=None))
 
             lit_w_t = []
             while len(lit_w_t) != nwint:
@@ -618,12 +622,17 @@ def span_population3(anz_civ,
             lit_w[frg] = np.sort(lit_w_t)[::-1]
 
             #  -- relative widths --------------------------------------------------
+            wi, wf, lbase = ini_grid_bounds[2], ini_grid_bounds[3], (
+                0.01 + 9.98 * np.random.random())
+            sta = np.log(wi) / np.log(lbase)
+            sto = np.log(wf) / np.log(lbase)
             lit_w_tmp = np.abs(
-                np.geomspace(start=ini_grid_bounds[2],
-                             stop=ini_grid_bounds[3],
-                             num=nwrel,
-                             endpoint=True,
-                             dtype=None))
+                np.logspace(start=sta,
+                            stop=sto,
+                            base=lbase,
+                            num=nwrel,
+                            endpoint=True,
+                            dtype=None))
 
             lit_w_t = []
 
@@ -725,7 +734,7 @@ def span_population3(anz_civ,
     samp_ladder = [x.recv() for x in samp_list]
 
     for cand in samp_ladder:
-        if ((cand[2] < -1.0) & (cand[3] > minC)):
+        if ((cand[2] < -0.0) & (cand[3] > minC)):
             cfgg = np.transpose(np.array([sfrags2, lfrags2],
                                          dtype=object)).tolist()
 
@@ -972,7 +981,7 @@ def end4(para, send_end):
         gsEnergy = smartEV[para[13][0]]
 
         attractiveness = loveliness(EnergySet, basCond, anzSigEV, minCond,
-                                    smartRAT, maxRa)
+                                    smartRAT, maxRa) if basCond > 0 else -2.0
 
         os.system('rm -rf ./%s' % inqf)
         os.system('rm -rf ./%s' % indqf)
@@ -995,15 +1004,15 @@ def end4(para, send_end):
 
     except:
 
-        os.system('rm -rf ./%s' % inqf)
-        os.system('rm -rf ./%s' % indqf)
-        os.system('rm -rf ./%s' % inenf)
-        os.system('rm -rf ./%s' % outputef)
-        os.system('rm -rf ./%s' % outputqf)
-        os.system('rm -rf ./%s' % outputdrqf)
-        os.system('rm -rf ./%s' % quaf_to_end)
-        os.system('rm -rf ./%s' % drquaf_to_end)
-        os.system('rm -rf ./%s' % maoutf)
+        #os.system('rm -rf ./%s' % inqf)
+        #os.system('rm -rf ./%s' % indqf)
+        #os.system('rm -rf ./%s' % inenf)
+        #os.system('rm -rf ./%s' % outputef)
+        #os.system('rm -rf ./%s' % outputqf)
+        #os.system('rm -rf ./%s' % outputdrqf)
+        #os.system('rm -rf ./%s' % quaf_to_end)
+        #os.system('rm -rf ./%s' % drquaf_to_end)
+        #os.system('rm -rf ./%s' % maoutf)
 
         print(para[6], child_id)
         print(maoutf)
@@ -1068,13 +1077,17 @@ def span_population4(anz_civ,
         for frg in range(len(lfrags)):
 
             #  -- internal widths --------------------------------------------------
-
+            wi, wf, lbase = ini_grid_bounds[0], ini_grid_bounds[1], (
+                0.01 + 3.98 * np.random.random())
+            sta = np.log(wi) / np.log(lbase)
+            sto = np.log(wf) / np.log(lbase)
             lit_w_tmp = np.abs(
-                np.geomspace(start=ini_grid_bounds[0],
-                             stop=ini_grid_bounds[1],
-                             num=int(2 * nwint),
-                             endpoint=True,
-                             dtype=None))
+                np.logspace(start=sta,
+                            stop=sto,
+                            base=lbase,
+                            num=int(2 * nwint),
+                            endpoint=True,
+                            dtype=None))
 
             #lit_w_tmp = ini_grid_bounds[0] + (
             #    ini_grid_bounds[1] - ini_grid_bounds[0]) * np.random.rand(
@@ -1085,7 +1098,7 @@ def span_population4(anz_civ,
             while lit_w_t == []:
 
                 lit_wi = [
-                    test_width * (0.15 + 0.86 * (1 - np.random.random()))
+                    test_width  #* (0.15 + 0.86 * (1 - np.random.random()))
                     for test_width in lit_w_tmp
                 ]
                 #print(lit_w_tmp)
@@ -1116,12 +1129,17 @@ def span_population4(anz_civ,
             np.random.shuffle(lit_w_t)
             lit_w[frg] = lit_w_t
             #  -- relative widths --------------------------------------------------
+            wi, wf, lbase = ini_grid_bounds[2], ini_grid_bounds[3], (
+                0.01 + 8.98 * np.random.random())
+            sta = np.log(wi) / np.log(lbase)
+            sto = np.log(wf) / np.log(lbase)
             lit_w_tmp = np.abs(
-                np.geomspace(start=ini_grid_bounds[2],
-                             stop=ini_grid_bounds[3],
-                             num=nwrel,
-                             endpoint=True,
-                             dtype=None))
+                np.logspace(start=sta,
+                            stop=sto,
+                            base=lbase,
+                            num=nwrel,
+                            endpoint=True,
+                            dtype=None))
 
             #lit_w_tmp = ini_grid_bounds[2] + (
             #    ini_grid_bounds[3] - ini_grid_bounds[2]) * np.random.rand(
@@ -1131,7 +1149,7 @@ def span_population4(anz_civ,
             while lit_w_r == []:
 
                 lit_wi = [
-                    test_width * (1 - np.random.random())
+                    test_width  #* (1 - np.random.random())
                     for test_width in lit_w_tmp
                 ]
                 if np.max(lit_wi) > rLcutoff:
@@ -1189,7 +1207,9 @@ def span_population4(anz_civ,
             off = np.mod(n, 2)
             assert len(widi[n]) % 2 == 0
             for m in range(int(len(widi[n]) / 2)):
-                sbas += [[bv, [1 for x in range(len(widr[n]))]]]
+                sbas += [[
+                    bv, [np.mod(off + x, 2) for x in range(len(widr[n]))]
+                ]]
                 bv += 1
         ParaSets.append([
             widi, widr, sbas, nnpotstring, nnnpotstring, Jstreu, civ, binPath,

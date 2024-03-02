@@ -62,22 +62,23 @@ def smart_ev(matout, threshold=10**-7):
     # coefficient in the expansion of the ground state; use this as an additional
     # quality measure for the basis
     gsCoeffRatio = 42.1
-    try:
-        ewn, evn = eigh(normat)
-        idxn = ewn.argsort()[::-1]
-        ewn = [eww for eww in ewn[idxn]]
-        normCond = np.abs(ewn[-1] / ewn[0]) if np.any(
-            np.array(ewn) < 0) == False else 0.0
+    #    try:
 
-        ewt, evt = eigh(hammat, normat)
-        idxt = ewt.argsort()[::-1]
-        ewt = [eww for eww in ewt[idxt]]
+    ewn, evn = eigh(normat)
+    idxn = ewn.argsort()[::-1]
+    ewn = [eww for eww in ewn[idxn]]
+    normCond = np.abs(ewn[-1] /
+                      ewn[0]) if np.any(np.array(ewn) < 0) == False else -1.0
+    ewt, evt = eigh(hammat, normat)
+    idxt = ewt.argsort()[::-1]
+    ewt = [eww for eww in ewt[idxt]]
+    evt = evt[:, idxt]
+    gsC = np.abs(evt[:, -1])
+    gsCoeffRatio = np.max(gsC) / np.min(gsC)
 
-        evt = evt[:, idxt]
-        gsC = np.abs(evt[:, -1])
-        gsCoeffRatio = np.max(gsC) / np.min(gsC)
-    except:
-        gsCoeffRatio = 10**8
+    #    except:
+    #        gsCoeffRatio = 10**8
+    #        normCond = -1.0
 
     # normalize the matrices with the Norm's diagonal
     normdiag = [normat[n, n] for n in range(dim)]

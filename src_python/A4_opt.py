@@ -18,21 +18,21 @@ from multiprocessing.pool import ThreadPool
 
 # numerical stability
 mindi = 0.02
-width_bnds = [0.06, 18.15, 0.08, 26.25]
+width_bnds = [0.06, 28.15, 0.08, 26.25]
 minCond = 10**-24
 maxRat = 10**29
 
 # genetic parameters
 anzNewBV = 6
 muta_initial = .02
-anzGen = 10
-seed_civ_size = 10
-target_pop_size = 10
+anzGen = 2
+seed_civ_size = 32
+target_pop_size = 16
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 25
-nREL = 20
+nBV = 36
+nREL = 12
 
 J0 = 0
 
@@ -106,8 +106,6 @@ for tnifac in DRange:
 
     civs.sort(key=lambda tup: np.linalg.norm(tup[3]))
     civs = sortprint(civs, pr=dbg)
-
-    exit()
 
     for nGen in range(anzGen):
         tic = time.time()
