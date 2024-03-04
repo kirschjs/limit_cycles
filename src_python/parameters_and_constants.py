@@ -2,6 +2,7 @@ import os
 import numpy as np
 import more_itertools
 from plot_array import *
+from functional_assistants import *
 
 # -- LEC lists
 # see lec_sets.py
@@ -327,29 +328,45 @@ anzRelw4opt = 10
 # number of Gaussian basis functions/widths used to expand the fragment-relative wave function
 anzRelw = 20  # 10, 12, 14, 20, ....
 maxRelW = 30.1
-widthSet_relative = [
-    np.append(
-        np.sort(
-            np.abs(
-                np.concatenate([
-                    np.array([
-                        ww
-                        for ww in np.logspace(-3.2 + 0.0 * np.random.random(),
-                                              1.2 + 0.0 * np.random.random(),
-                                              num=int(anzRelw / 2),
-                                              endpoint=True,
-                                              dtype=None)[::-1] if ww < maxRelW
-                    ]),
-                    np.array([
-                        ww
-                        for ww in np.logspace(-1.2 + 0.0 * np.random.random(),
-                                              1.1 + 0.0 * np.random.random(),
-                                              num=int(anzRelw / 2),
-                                              endpoint=True,
-                                              dtype=None)[::-1] if ww < maxRelW
-                    ])
-                ])))[::-1], []) for nn in range(1, 1 + len(channels_4_scatt))
-]
+
+unStable = True
+ite = 0
+while unStable == True:
+    ite += 1
+    widthSet_relative = [
+        np.append(
+            np.sort(
+                np.abs(
+                    np.concatenate([
+                        np.array([
+                            ww for ww in np.logspace(-4.2 +
+                                                     0.1 * np.random.random(),
+                                                     1.2 +
+                                                     0.3 * np.random.random(),
+                                                     num=int(anzRelw / 2),
+                                                     endpoint=True,
+                                                     dtype=None)[::-1]
+                            if ww < maxRelW
+                        ]),
+                        np.array([
+                            ww for ww in np.logspace(-1.2 +
+                                                     0.2 * np.random.random(),
+                                                     1.1 +
+                                                     0.2 * np.random.random(),
+                                                     num=int(anzRelw / 2),
+                                                     endpoint=True,
+                                                     dtype=None)[::-1]
+                            if ww < maxRelW
+                        ])
+                    ])))[::-1], [])
+        for nn in range(1, 1 + len(channels_4_scatt))
+    ]
+    unStable = check_dist(width_array1=widthSet_relative[0], minDist=10)
+    assert ite <= 1000
+
+dbg = False
+if dbg:
+    print('rel. Widths (after %d iterations):\n' % ite, widthSet_relative)
 
 #np.linspace(start=11.5, stop=0.005, num=30, endpoint=True, dtype=None))
 

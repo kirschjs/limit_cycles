@@ -96,7 +96,7 @@ def end2(para, send_end):
 
     except:
 
-        subprocess.call('rm -rf ./%s' % inqf, shell=True)
+        #subprocess.call('rm -rf ./%s' % inqf, shell=True)
         subprocess.call('rm -rf ./%s' % inenf, shell=True)
         subprocess.call('rm -rf ./%s' % outputef, shell=True)
         subprocess.call('rm -rf ./%s' % quaf_to_end, shell=True)
@@ -148,36 +148,42 @@ def span_population2(anz_civ,
         he_rw = he_frgs = ob_stru = lu_stru = sbas = []
 
         #  -- relative widths --------------------------------------------------
-        lit_w_tmp = np.abs(
-            np.geomspace(start=ini_grid_bounds[0],
-                         stop=ini_grid_bounds[1],
-                         num=nwrel,
-                         endpoint=True,
-                         dtype=None))
-        lit_w_t = []
+        #        lit_w_tmp = np.abs(
+        #            np.geomspace(start=ini_grid_bounds[0],
+        #                         stop=ini_grid_bounds[1],
+        #                         num=nwrel,
+        #                         endpoint=True,
+        #                         dtype=None))
+        lit_w_t, mindist = expspaceS(start=ini_grid_bounds[0],
+                                     stop=ini_grid_bounds[1],
+                                     num=nwrel,
+                                     scal=0.1 + 1.9 * np.random.random())
+
         itera = 1
-        while len(lit_w_t) != nwrel:
-            lit_w_t = [
-                test_width * np.random.random() for test_width in lit_w_tmp
-            ]
 
-            #dists = [
-            #    np.linalg.norm(wp1 - wp2) for wp1 in lit_w_t for wp2 in lit_w_t
-            #    if wp1 != wp2
-            #]
-            prox_check = check_dist(width_array1=lit_w_t, minDist=mindist)
-            prox_checkr = np.all([
-                check_dist(width_array1=lit_w_t,
-                           width_array2=wsr,
-                           minDist=mindist) for wsr in widthSet_relative
-            ])
-
-            if ((prox_check * prox_checkr == False) |
-                (np.array(lit_w_t) < IRcutoff).any() == True):
-                lit_w_t = []
-
-            itera += 1
-            assert itera <= 180000
+        #        while len(lit_w_t) != nwrel:
+        #            lit_w_t = [
+        #                test_width * np.random.random() for test_width in lit_w_tmp
+        #            ]
+        #
+        #            #dists = [
+        #            #    np.linalg.norm(wp1 - wp2) for wp1 in lit_w_t for wp2 in lit_w_t
+        #            #    if wp1 != wp2
+        #            #]
+        #            prox_checkr = False
+        #            prox_check = check_dist(width_array1=lit_w_t, minDist=mindist)
+        #            #prox_checkr = np.all([
+        #            #    check_dist(width_array1=lit_w_t,
+        #            #               width_array2=wsr,
+        #            #               minDist=mindist) for wsr in widthSet_relative
+        #            #])
+        #
+        #            if ((prox_check * prox_checkr == False) |
+        #                (np.array(lit_w_t) < IRcutoff).any() == True):
+        #                lit_w_t = []
+        #
+        #            itera += 1
+        #            assert itera <= 180000
 
         lit_w = np.sort(lit_w_t)[::-1]
 
@@ -983,7 +989,7 @@ def end4(para, send_end):
         attractiveness = loveliness(EnergySet, basCond, anzSigEV, minCond,
                                     smartRAT, maxRa) if basCond > 0 else -2.0
 
-        os.system('rm -rf ./%s' % inqf)
+        #os.system('rm -rf ./%s' % inqf)
         os.system('rm -rf ./%s' % indqf)
         os.system('rm -rf ./%s' % inenf)
         os.system('rm -rf ./%s' % outputef)
@@ -1030,6 +1036,7 @@ def span_population4(anz_civ,
                      mindists=0.001,
                      ini_grid_bounds=[0.01, 9.5, 0.001, 11.5],
                      ini_dims=[4, 4],
+                     gridType='log',
                      minC=10**(-8),
                      maxR=10**5,
                      evWin=[-100, 100],
@@ -1077,49 +1084,53 @@ def span_population4(anz_civ,
         for frg in range(len(lfrags)):
 
             #  -- internal widths --------------------------------------------------
-            wi, wf, lbase = ini_grid_bounds[0], ini_grid_bounds[1], (
-                0.01 + 3.98 * np.random.random())
-            sta = np.log(wi) / np.log(lbase)
-            sto = np.log(wf) / np.log(lbase)
-            lit_w_tmp = np.abs(
-                np.logspace(start=sta,
-                            stop=sto,
-                            base=lbase,
-                            num=int(2 * nwint),
-                            endpoint=True,
-                            dtype=None))
 
-            #lit_w_tmp = ini_grid_bounds[0] + (
-            #    ini_grid_bounds[1] - ini_grid_bounds[0]) * np.random.rand(
-            #        int(2 * nwint))
+            if gridType == 'log':
+                wi, wf, lbase = ini_grid_bounds[0], ini_grid_bounds[1], (
+                    0.01 + 3.98 * np.random.random())
+                sta = np.log(wi) / np.log(lbase)
+                sto = np.log(wf) / np.log(lbase)
+                lit_w_tmp = np.abs(
+                    np.logspace(start=sta,
+                                stop=sto,
+                                base=lbase,
+                                num=int(2 * nwint),
+                                endpoint=True,
+                                dtype=None))
+
+            elif gridType == 'exp':
+                wi, wf, scale = ini_grid_bounds[0], ini_grid_bounds[1], (
+                    0.01 + 0.9 * np.random.random())
+                lit_w_tmp, mindist_int = expspaceS(start=wi,
+                                                   stop=wf,
+                                                   scal=scale,
+                                                   num=int(2 * nwint),
+                                                   deltam=mindist_int)
+                print(wi, wf, scale)
+                print(lit_w_tmp)
+                exit()
+
+            else:
+                print('\n>>> unspecified grid type.')
+                exit()
 
             itera = 1
             lit_w_t = []
             while lit_w_t == []:
 
                 lit_wi = [
-                    test_width  #* (0.15 + 0.86 * (1 - np.random.random()))
+                    test_width * (0.15 + 0.86 * (1 - np.random.random()))
                     for test_width in lit_w_tmp
                 ]
-                #print(lit_w_tmp)
-                #print('civ %d' % civ)
-                #print(lit_wi)
-                #exit()
                 if np.max(lit_wi) > iLcutoff:
                     continue
 
-                prox_check = check_dist(width_array1=lit_wi,
-                                        minDist=mindist_int)
-                prox_checkr = 1
-                #                prox_checkr = np.all([
-                #                    check_dist(width_array1=lit_wi,
-                #                               width_array2=wsr,
-                #                               minDist=mindist_rel)
-                #                    for wsr in widthSet_relative
-                #                ])
-
-                if (prox_check * prox_checkr):
+                tooCloseInternal = check_dist(width_array1=lit_wi,
+                                              minDist=mindist_int)
+                if tooCloseInternal == False:
                     lit_w_t = lit_wi
+                #print(lit_wi, '\nNotSoClose = ', tooCloseInternal)
+                #exit()
 
                 itera += 1
                 assert itera <= 180
@@ -1129,43 +1140,47 @@ def span_population4(anz_civ,
             np.random.shuffle(lit_w_t)
             lit_w[frg] = lit_w_t
             #  -- relative widths --------------------------------------------------
-            wi, wf, lbase = ini_grid_bounds[2], ini_grid_bounds[3], (
-                0.01 + 8.98 * np.random.random())
-            sta = np.log(wi) / np.log(lbase)
-            sto = np.log(wf) / np.log(lbase)
-            lit_w_tmp = np.abs(
-                np.logspace(start=sta,
-                            stop=sto,
-                            base=lbase,
-                            num=nwrel,
-                            endpoint=True,
-                            dtype=None))
 
-            #lit_w_tmp = ini_grid_bounds[2] + (
-            #    ini_grid_bounds[3] - ini_grid_bounds[2]) * np.random.rand(
-            #        int(2 * nwrel))
+            if gridType == 'log':
+                wi, wf, lbase = ini_grid_bounds[2], ini_grid_bounds[3], (
+                    0.01 + 3.98 * np.random.random())
+                sta = np.log(wi) / np.log(lbase)
+                sto = np.log(wf) / np.log(lbase)
+                lit_w_tmp = abs(
+                    np.logspace(start=sta,
+                                stop=sto,
+                                base=lbase,
+                                num=nwrel,
+                                endpoint=True,
+                                dtype=None))
+
+            elif gridType == 'exp':
+                wi, wf, scale = ini_grid_bounds[2], ini_grid_bounds[3], (
+                    0.01 + 0.9 * np.random.random())
+                lit_w_tmp, mindist_rel = expspaceS(start=wi,
+                                                   stop=wf,
+                                                   scal=scale,
+                                                   num=nwrel,
+                                                   deltam=mindist_rel)
+
+            else:
+                print('\n>>> unspecified grid type.')
+                exit()
 
             lit_w_r = []
             while lit_w_r == []:
 
                 lit_wi = [
-                    test_width  #* (1 - np.random.random())
+                    test_width * (1 - np.random.random())
                     for test_width in lit_w_tmp
                 ]
                 if np.max(lit_wi) > rLcutoff:
                     continue
 
-                prox_check = check_dist(width_array1=lit_wi,
-                                        minDist=mindist_int)
-                prox_checkr = 1
-                #                prox_checkr = np.all([
-                #                    check_dist(width_array1=lit_wi,
-                #                               width_array2=wsr,
-                #                               minDist=mindist_rel)
-                #                    for wsr in widthSet_relative
-                #                ])
+                tooCloseRelative = check_dist(width_array1=lit_wi,
+                                              minDist=mindist_rel)
 
-                if (prox_check * prox_checkr):
+                if tooCloseRelative == False:
                     lit_w_r = lit_wi
 
                 itera += 1

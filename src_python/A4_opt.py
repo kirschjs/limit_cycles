@@ -17,21 +17,21 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 
 # numerical stability
-mindi = 0.02
-width_bnds = [0.06, 28.15, 0.08, 26.25]
+mindi = 100.0
+width_bnds = [0.06, 31.15, 0.08, 26.25]
 minCond = 10**-24
 maxRat = 10**29
 
 # genetic parameters
 anzNewBV = 6
-muta_initial = .02
+muta_initial = .012
 anzGen = 2
-seed_civ_size = 32
+seed_civ_size = 24
 target_pop_size = 16
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 36
+nBV = 24
 nREL = 12
 
 J0 = 0
@@ -49,7 +49,7 @@ dbg = False
 for tnifac in DRange:
 
     # states to be considered in the loveliness/fitness function
-    nbrStatesOpti4 = list(range(-4, 0))
+    nbrStatesOpti4 = list(range(-2, 0))
 
     sysdir4o = sysdir4 + '/' + channel
     print('>>> working directory: ', sysdir4o)
@@ -82,7 +82,6 @@ for tnifac in DRange:
 
     # 1) prepare an initial set of bases ----------------------------------------------------------------------------------
     civs = []
-
     while len(civs) < seed_civ_size:
         new_civs, basi = span_population4(anz_civ=int(seed_civ_size),
                                           fragments=[channels_4[channel]],
@@ -93,6 +92,7 @@ for tnifac in DRange:
                                           mindists=mindi,
                                           ini_grid_bounds=width_bnds,
                                           ini_dims=[nBV, nREL],
+                                          gridType='log',
                                           minC=minCond,
                                           maxR=maxRat,
                                           evWin=evWindow,
@@ -102,7 +102,7 @@ for tnifac in DRange:
             civs.append(cciv)
         print('>>> seed civilizations: %d/%d' % (len(civs), seed_civ_size))
 
-        # tup[2] = pulchritude tup[3] = Energy EV tup[4] = condition number
+    # tup[2] = pulchritude tup[3] = Energy EV tup[4] = condition number
 
     civs.sort(key=lambda tup: np.linalg.norm(tup[3]))
     civs = sortprint(civs, pr=dbg)
@@ -151,20 +151,24 @@ for tnifac in DRange:
                     wdau.append([])
                     wson.append([])
                     for cfg in range(len(mother[0])):
-
+                        #print(mother[1][wset][cfg])
+                        #print(father[1][wset][cfg])
                         daughterson = [
                             intertwining(mother[1][wset][cfg][n],
                                          father[1][wset][cfg][n],
                                          mutation_rate=muta_initial)
                             for n in range(len(mother[1][wset][cfg]))
                         ]
-
+                        #print(daughterson)
                         rw1 = np.array(daughterson)[:, 0]  #.sort()
                         rw1.sort()
                         rw2 = np.array(daughterson)[:, 1]  #.sort()
                         rw2.sort()
                         wdau[-1].append(list(rw1)[::-1])
                         wson[-1].append(list(rw2)[::-1])
+                        #print(rw1)
+                        #print(rw2)
+                        #exit()
 
                 daughter = [mother[0], wdau, 0, 0, 0]
                 son = [mother[0], wson, 0, 0, 0]
@@ -172,28 +176,29 @@ for tnifac in DRange:
                 #print(mother)
                 #print(father)
 
-                wa = sum(daughter[1][0] + daughter[1][1], [])
-                wb = sum(son[1][0] + son[1][1], [])
+                #wa = sum(daughter[1][0] + daughter[1][1], [])
+                #wb = sum(son[1][0] + son[1][1], [])
+
+                wai = sum(daughter[1][0], [])
+                wbi = sum(son[1][0], [])
 
                 #print(wa)
-                #print(wb)
+                #print(daughter)
+                #print(len(wa))
                 #exit()
 
-                prox_check1 = check_dist(width_array1=wa, minDist=mindi)
-                prox_check2 = check_dist(width_array1=wb, minDist=mindi)
-                prox_checkr1 = check_dist(
-                    width_array1=wa,
-                    width_array2=widthSet_relative[chnbr],
-                    minDist=mindi)
-                prox_checkr2 = check_dist(
-                    width_array1=wb,
-                    width_array2=widthSet_relative[chnbr],
-                    minDist=mindi)
+                # check whether all widths are dufficiently distant
+                # (ecce) in most cases, this condition always fails
+                #        except for relatively small bases => the seemingly
+                prox_check1 = check_dist(width_array1=wai, minDist=mindi * 100)
+                prox_check2 = check_dist(width_array1=wbi, minDist=mindi * 100)
 
-                if prox_check1 * prox_check2 * prox_checkr1 * prox_checkr2 == True:
+                if prox_check1 == prox_check2 == False:
 
                     twins.append(daughter)
                     twins.append(son)
+                #else:
+                #    print('children too close...', end='')
 
             print('Gen %d) offspring created and is now rated.' % nGen)
             # ---------------------------------------------------------------------
@@ -334,28 +339,28 @@ for tnifac in DRange:
                                        infil='OUTPUT',
                                        outf='COEFF_NORMAL',
                                        nbv=2)
-    #    expC = parse_ev_coeffs(mult=0, infil='OUTPUT', outf='COEFF', bvnr=1)
 
-    for wn in range(len(bvwidthString.split('\n'))):
-        if bvwidthString.split('\n')[wn] != '':
-            #print('%+12.8f    %s' %
-            #      (float(expC[wn]), bvwidthString.split('\n')[wn]))
-            print('{%12.8f , %12.8f , %12.8f , %12.8f },' %
-                  (float(expC_GS[wn]),
-                   float(bvwidthString.split('\n')[wn].split()[0]),
-                   float(bvwidthString.split('\n')[wn].split()[1]),
-                   float(bvwidthString.split('\n')[wn].split()[2])))
+    if dbg:
+        for wn in range(len(bvwidthString.split('\n'))):
+            if bvwidthString.split('\n')[wn] != '':
+                #print('%+12.8f    %s' %
+                #      (float(expC[wn]), bvwidthString.split('\n')[wn]))
+                print('{%12.8f , %12.8f , %12.8f , %12.8f },' %
+                      (float(expC_GS[wn]),
+                       float(bvwidthString.split('\n')[wn].split()[0]),
+                       float(bvwidthString.split('\n')[wn].split()[1]),
+                       float(bvwidthString.split('\n')[wn].split()[2])))
 
-    print('\n')
-    for wn in range(len(bvwidthString.split('\n'))):
-        if bvwidthString.split('\n')[wn] != '':
-            #print('%+12.8f    %s' %
-            #      (float(expC[wn]), bvwidthString.split('\n')[wn]))
-            print('{%12.8f , %12.8f , %12.8f , %12.8f },' %
-                  (float(expC_ES[wn]),
-                   float(bvwidthString.split('\n')[wn].split()[0]),
-                   float(bvwidthString.split('\n')[wn].split()[1]),
-                   float(bvwidthString.split('\n')[wn].split()[2])))
+        print('\n')
+        for wn in range(len(bvwidthString.split('\n'))):
+            if bvwidthString.split('\n')[wn] != '':
+                #print('%+12.8f    %s' %
+                #      (float(expC[wn]), bvwidthString.split('\n')[wn]))
+                print('{%12.8f , %12.8f , %12.8f , %12.8f },' %
+                      (float(expC_ES[wn]),
+                       float(bvwidthString.split('\n')[wn].split()[0]),
+                       float(bvwidthString.split('\n')[wn].split()[1]),
+                       float(bvwidthString.split('\n')[wn].split()[2])))
     #    print(ob_strus, lu_strus, strus)
     #    # reformat the basis as input for the 5-body calculation
     #

@@ -22,22 +22,22 @@ fitt = False
 
 # numerical stability
 minCond = 10**-16
-minidi_breed = 0.1
+minidi_breed = 290
 minidi_seed = minidi_breed
 minidi_breed_rel = minidi_breed
 denseEVinterval = [-2, 2]
-width_bnds = [0.1, 6.25]
+width_bnds = [0.01, 26.25]
 
-deutDim = 5
+deutDim = 8
 
 miniE_breed = -0.1
 
 # genetic parameters
-anzNewBV = 6
-muta_initial = 0.015
+anzNewBV = 8
+muta_initial = 0.01
 anzGen = 20
-civ_size = 20
-target_pop_size = 15
+civ_size = 50
+target_pop_size = 35
 
 zop = 14 if bin_suffix == '_v18-uix' else 11
 
@@ -68,6 +68,7 @@ for channel in channels_2:
     else:
         print('no potential structure assigned to suffix.')
         exit()
+
     prep_pot_file_3N(lam=2 * np.sqrt(float(lam)), d10=d0, ps3=nnnpot)
     #continue
 
@@ -181,6 +182,9 @@ for channel in channels_2:
                     rw2 = np.array(daughterson)[:, 1]  #.sort()
                     rw2.sort()
 
+                    #print(rw1, rw1, rw2, rw2)
+                    #exit()
+
                     prox_check1 = check_dist(width_array1=rw1,
                                              minDist=minidi_breed)
                     prox_check2 = check_dist(width_array1=rw2,
@@ -200,7 +204,7 @@ for channel in channels_2:
                     ])
 
                     #print(prox_check1, prox_check2, prox_checkr1, prox_checkr2)
-                    if prox_check1 * prox_check2 * prox_checkr1 * prox_checkr2 == True:
+                    if prox_check1 == prox_check2 == prox_checkr1 == prox_checkr2 == False:
 
                         wdau.append(list(rw1)[::-1])
                         wson.append(list(rw2)[::-1])
@@ -209,8 +213,10 @@ for channel in channels_2:
                         son = [mother[0], wson, 0, 0, 0]
                         twins.append(daughter)
                         twins.append(son)
-                        #print('new')
                         #exit()
+                    else:
+                        #print('sibblings too close!')
+                        continue
 
             sbas = []
             bv = two_body_channels[channel]
@@ -360,7 +366,7 @@ for channel in channels_2:
     os.system('cp INEN_STR INEN')
     subprocess.run([BINBDGpath + spectralEXE_serial])
 
-    print(">>> calculating 2-body phases.")
+    print("\n>>> calculating 2-body phases.")
     spole_2(nzen=100,
             e0=0.0001,
             d0=0.01,
