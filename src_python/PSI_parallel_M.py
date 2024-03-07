@@ -117,6 +117,7 @@ def span_population2(anz_civ,
                      binPath,
                      min_seedE=0.0,
                      mindist=0.1,
+                     gridType='log',
                      ini_grid_bounds=[0.01, 9.5],
                      ini_dims=8,
                      minC=10**(-8),
@@ -148,42 +149,25 @@ def span_population2(anz_civ,
         he_rw = he_frgs = ob_stru = lu_stru = sbas = []
 
         #  -- relative widths --------------------------------------------------
-        #        lit_w_tmp = np.abs(
-        #            np.geomspace(start=ini_grid_bounds[0],
-        #                         stop=ini_grid_bounds[1],
-        #                         num=nwrel,
-        #                         endpoint=True,
-        #                         dtype=None))
-        lit_w_t, mindist = expspaceS(start=ini_grid_bounds[0],
-                                     stop=ini_grid_bounds[1],
-                                     num=nwrel,
-                                     scal=0.1 + 1.9 * np.random.random())
+        if gridType == 'log':
+            lit_w_tmp = np.abs(
+                np.geomspace(start=ini_grid_bounds[0],
+                             stop=ini_grid_bounds[1],
+                             num=nwrel,
+                             endpoint=True,
+                             dtype=None))
+            lit_w_t = [
+                test_width * np.random.random() for test_width in lit_w_tmp
+            ]
 
-        itera = 1
-
-        #        while len(lit_w_t) != nwrel:
-        #            lit_w_t = [
-        #                test_width * np.random.random() for test_width in lit_w_tmp
-        #            ]
-        #
-        #            #dists = [
-        #            #    np.linalg.norm(wp1 - wp2) for wp1 in lit_w_t for wp2 in lit_w_t
-        #            #    if wp1 != wp2
-        #            #]
-        #            prox_checkr = False
-        #            prox_check = check_dist(width_array1=lit_w_t, minDist=mindist)
-        #            #prox_checkr = np.all([
-        #            #    check_dist(width_array1=lit_w_t,
-        #            #               width_array2=wsr,
-        #            #               minDist=mindist) for wsr in widthSet_relative
-        #            #])
-        #
-        #            if ((prox_check * prox_checkr == False) |
-        #                (np.array(lit_w_t) < IRcutoff).any() == True):
-        #                lit_w_t = []
-        #
-        #            itera += 1
-        #            assert itera <= 180000
+        elif gridType == 'exp':
+            lit_w_t, mindist = expspaceS(start=ini_grid_bounds[0],
+                                         stop=ini_grid_bounds[1],
+                                         num=nwrel,
+                                         scal=0.1 + 1.9 * np.random.random())
+        else:
+            print('\n>>> unspecified grid type.')
+            exit()
 
         lit_w = np.sort(lit_w_t)[::-1]
 

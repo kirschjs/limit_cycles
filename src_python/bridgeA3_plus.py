@@ -85,6 +85,7 @@ for channel in channels_3:
                                           funcPath=sysdir3,
                                           binPath=BINBDGpath,
                                           mindists=mindi,
+                                          gridType='log',
                                           ini_grid_bounds=width_bnds,
                                           ini_dims=[nBV, nREL],
                                           minC=minCond,

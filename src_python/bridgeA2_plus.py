@@ -126,6 +126,7 @@ for channel in channels_2:
                                           binPath=BINBDGpath,
                                           mindist=minidi_seed,
                                           min_seedE=miniE_breed,
+                                          gridType='log',
                                           ini_grid_bounds=width_bnds,
                                           ini_dims=deutDim,
                                           minC=minCond,

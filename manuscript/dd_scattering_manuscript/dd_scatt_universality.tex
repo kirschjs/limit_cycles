@@ -1,0 +1,227 @@
+\documentclass[preprint,aps,onecolumn,preprintnumbers,amsmath,amssymb,nofootinbib,superscriptaddress]{revtex4-1}
+
+\vspace{5mm}
+
+%=========================================================================
+\usepackage{slashed}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{bbold}
+\usepackage{amssymb,latexsym}
+\usepackage{amsmath,amsbsy,bbm}
+\usepackage{multirow}
+\usepackage[vcentermath]{youngtab}
+\usepackage{nicefrac}
+\usepackage[perpage]{footmisc}
+\usepackage{wrapfig,lipsum,booktabs}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{graphicx}
+\usepackage{cjhebrew}
+\usepackage{cleveref}
+\usepackage[utf8]{inputenc}
+\usepackage{soul}
+
+\usepackage{booktabs}
+
+%\usepackage{nicematrix}
+\usepackage{floatrow}
+%\usepackage[dvipsnames]{xcolor} 
+\usepackage{tikz}
+\usetikzlibrary{fit}
+
+\tikzset{highlight/.style={rectangle,
+fill=black!25,
+rounded corners = 0.5 mm,
+inner xsep=3.1pt,
+fit=#1}}
+
+\tikzset{highlighted/.style={rectangle,
+fill=black!5,
+rounded corners = 0.5 mm,
+inner xsep=3.1pt,
+fit=#1}}
+
+%=========================================================================
+\newfloatcommand{capbtabbox}{table}[][0.45\textwidth]
+%=========================================================================
+\newcommand{\es}{1\text{\scriptsize s}}
+\newcommand{\zs}{2\text{\scriptsize s}}
+\newcommand*{\mprime}{^{\prime}\mkern-1.2mu}
+\newcommand{\largescale}{\ensuremath{\Lambda_\text{Hi}}}
+\newcommand{\lc}{\ensuremath{\Lambda_c}}
+\newcommand{\fm}{\ensuremath{\,\text{fm}^{-1}}}
+\newcommand{\abb}{\mbox{\ensuremath{A\oplus 1}}}
+\newcommand{\red}[1]{\textcolor{red}{#1}} 
+\newcommand{\green}[1]{\textcolor{green}{#1}} 
+\newcommand{\blue}[1]{\textcolor{blue}{#1}} 
+\newcommand{\lec}{C^\Lambda}
+\newcommand{\led}{D^\Lambda}
+\newcommand{\ddrei}[1]{\delta_{\tiny \Lambda}^{(3)}\!\big(#1\big)}
+\newcommand{\wrt}{\textit{w.r.t.}}
+\newcommand{\etc}{\textit{etc.}}
+\newcommand{\eg}{\textit{e.g.}}
+\newcommand{\ie}{\textit{i.e.}}
+\newcommand{\cf}{\textit{cf.}}
+\newcommand{\viz}{\textit{viz.}}
+\newcommand{\eftnopi}{\mbox{EFT$(\not \! \pi)$}}
+\newcommand{\ve}[1]{\ensuremath{\boldsymbol{#1}}}
+\newcommand{\rms}[1]{\ensuremath{\langle r(#1)\rangle}}
+\newcommand{\ls}{\ve{L}\cdot\ve{S}}
+\newcommand{\be}{\begin{equation}}
+\newcommand{\ee}{\end{equation}}
+\newcommand{\bra}{\big\langle}
+\newcommand{\ket}{\big\rangle}
+\newcommand{\vcl}[1]{\ensuremath{\bar{\boldsymbol{r}}_\text{\tiny #1}}}
+\newcommand{\vsp}[1]{\ensuremath{\boldsymbol{r}}_\text{\tiny #1}}
+\newcommand{\la}{\label}
+\newcommand{\Pe}{\text{\cjRL{p|}}}
+\newcommand{\figref}[1]{fig.~(\ref{#1})}
+\newcommand{\tabref}[1]{table~(\ref{#1})}
+\newcommand{\ccite}[1]{\cite{#1}}
+\newcommand{\eref}[1]{\cref{#1}}
+\newcommand{\pd}[1]{\frac{\partial}{\partial#1}}
+\newcommand{\abcd}{\ensuremath{a_\text{\tiny (abcd)}}}
+\newcommand{\abcc}{\ensuremath{a_\text{\tiny (acbc)}}}
+\newcommand{\add}{\ensuremath{a_\text{\tiny (abab)}}}
+\newcommand{\bd}{\ensuremath{B_2}}
+\newcommand{\bt}{\ensuremath{B_3}}
+
+
+
+%\definecolor{blue}{HTML}{4169E1}
+%\definecolor{red}{HTML}{DC143C}
+%\definecolor{green}{HTML}{2E8B57}
+%\definecolor{mandarin}{HTML}{FF9933}
+
+%\newcommand{\mpv}[1]{\textcolor{purple}{#1}}
+
+%\newcommand{\corr}[1]{\textcolor{blue}{#1}}
+
+%\newcommand{\LC}[1]{\textcolor{mandarin}{#1}}
+%\newcommand{\JK}[1]{\textcolor{green}{#1}}
+%\newcommand{\note}[1]{\textbf{\textcolor{gray}{#1}}}
+
+%\newcommand{\remove}[1] {\textcolor{red}{\sout{#1}}}
+%\newcommand{\comment}[2] {\textcolor{green}{[\textbf{comment - #1}: {#2}]}}
+%\newcommand{\remark}[2] {\textcolor{orange}{[\textbf{\textsf{remark - #1}}: {\textsf{#2}}]}}
+%\newcommand{\highlight}[1] {\textcolor{red}{{#1}}}
+%\newcommand{\repl}[2] {\textcolor{red}{\st{#1}}\textcolor{blue}{#2}}
+%\newcommand{\place}[1] {\textcolor{blue}{{#1}}}
+%\newcommand{\cmm}[1] {\textcolor{green}{{#1}}}
+
+%=========================================================================
+\usepackage[normalem]{ulem}
+
+
+
+\begin{document}
+
+\title{On the effect of particle identity on inter-cluster interactions:\\
+dimer-dimer}
+
+\author{Rakshanda Goswami}
+\author{Udit Raha}
+\address{Department of Physics, Indian Institute of Technology Guwahati, Guwahati 781039, India}
+\author{Johannes Kirscher}
+\address{Department of Physics, SRM University - AP, Amaravati 522502, Andhra Pradesh, India}
+\date{\today}
+
+\date{\today}
+
+\begin{abstract}
+The effects of particle statistics, proximity to the two-particle unitary limit,
+and the short-distance structure of the particle-particle interaction on
+elastic scattering between two composite dimers is analyzed. Specifically, we
+obtain relative $S$-wave scattering lengths for four distinguishable particles of $\abcd=xx()()$.
+If three of four fermions are distinguishable and the fourth is identical to one of them,
+$\abcc=xx()()$. For two-component fermions, we recover the well-known universal ratio between
+dimer-dimer and particle-particle scattering length
+$s\add\approx0.6\,a$.
+The dependence of all dimer-dimer scattering lengths on short-distance interactions (two- and three-body contacts)
+for which the employed one-channel resonating-group technique is appropriate is finite and unaffected by a
+change in the number of four-body bound states as induced by the renormalization-group transformation.
+We provide an intuitive interpretation of the increasing attraction/repulsion between the dimers as an
+effect of particle statistics by visualizing the ensuing effective local and non-local energy-dependent
+dimer-dimer potentials in coordinate space.
+\end{abstract}
+
+\maketitle
+%=============================================================================
+
+\section{Introduction}
+This is the first in a series of four articles in which we employ the resonating-group 
+technique -- also referred to as folding-model\footnote{Refs.~\cite{SINHA19751,Satchler:1979ni}~review the
+original ideas and the relation to the optical model. Refs.~\cite{Naidon_2016,Kanada-Enyo:2020zzf,Rokash:2016tqh}
+~are recent refinements/applications of the methodology to other than nuclear systems.} -- in order
+to parametrize effective interactions between composites which are bound in a minimal
+theory for two- and three-body systems with the parameters of the latter.
+In this first part of the series, we introduce the technique as it yields an interaction
+between the centers of mass of two composites (henceforth referred to as dimers), each of which
+forming a state of two assumed-fundamental particles with identical binding energy $\bd$.
+We will justify the seemingly drastic assumption of dimers being unaffected in the course of
+a low-energy scattering event described by this effective potential through a comparison with
+numerical solutions of the full four-body problem~\cite{Petrov_2004}
+\footnote{The problem was analyzed in Refs.~\cite{Elhatisari_2017,Schafer:2022hzo,Deltuva_2022}~(each of which represents a
+particular numerical approach) in a regime of }.
+In the second and third parts we will apply
+the method to the trimer-trimer and tetramer-tetramer systems, respectively.
+In the fourth article, we treat the number of particles as a parameter and present the dependence
+of an effective ($A$-body)-($B$-body) potential on the two- and three-body coupling strengths, and we
+extend the framework to include three-fragment channels.
+
+With this work, we attempt to contribute to all earlier and ongoing efforts to analyze the features
+of few- and many-body quantum systems in terms of a small set of fundamental parameters.
+A set of (effective) field theories (EFTs) -- crudely understood as the description of a system by an appropriate set
+of degrees of freedom (DoF), symmetries, interaction structure, and with a defined, so-called breakdown
+scale beyond which typically other DoFs are resolved -- replacing a single theory from which everything can
+be derived has been successful especially in identifying universal behavior.
+In principle, the EFT framework
+prescribes how to express the parameters of one theory in terms of its underlying one,
+e.g. the nuclear coupling strengths in terms of Standard-model parameters, or the strength of the attraction
+between $\alpha$ clusters in terms of nuclear masses and couplings. In practice, the change from one set of Dofs to another
+precludes a rigorous derivation of such relations.
+
+Here, we advance the folding/resonating-group potentials to provide such relations when dimer, trimer, tetramer, \&c DoFs
+are composites of a certain class of point fermions/bosons whose pair interaction is vanishingly small compared with the
+two-body scale it produces. Nucleons, helium-isotope atoms, and a set of trapped cold atoms fall into this category. For nucleons,
+in particular, the application of such zero-range interactions to few-body systems in combination with renormalization-group techniques
+allowed to discriminate between universal and characteristic properties of larger-in-number systems; prominently, the 
+sheer existence of an excited, resonant state and a deeper ground state of the $J^\pi=0^+$ $\alpha$ nucleus are universal
+consequences of a large nucleon-nucleon scattering length compared with the nuclear force range ($\approx$ inverse $\pi$-meson mass).
+The magnitude of the binding energy and the location of the resonance relative to the 3-helium-neutron and 3-hydrogen-proton thresholds
+is a characteristic of the nuclear substructure with is encoded in the binding energy of the nuclear trimers (with~\bt, we denote the
+ground-state energy of the generic trimer and not a specific datum).
+To classify observables involving more than four nucleons -- in general, systems comprised of more particles than accessible internal
+degrees of freedom -- analogously as universal or characteristic is desirable in order to, first, understand features like mass gaps
+and shell structure from a minimal set of underlying parameters, and subsequently, to employ this insight for a reliable, model-independent
+prediction of unknown and hard-to-measure quantities like, e.g., few-neutron states.
+
+While keeping these features of nuclei in mind, we analyze the essence of the problem: the effect of particle statistics on the effective
+composite-composite interaction with the bound composites being universally correlated to an approximately scale-free two-body system and
+, for systems with more than three distinguishable particles, a finite three-body scale. A pioneering study~\cite{Petrov_2004}~found a weakening
+of the attraction between two dimers whose amount induces a ratio of dimer-dimer and atom-atom scattering lengths of $0.6$ in the absence of
+a low-energy three-atom scale. If the internal space accessible to the fermions equals three or four, bosonic behavior enters in form of a finite
+scale that is characteristic of the system under consideration. The de- or independence of cluster-cluster scattering on this scale and how its
+existence weakens or strengthens the dimer-dimer interaction compared with the two-component-fermion system is the main result of this article
+besides the introduction of the folding technique as part of the EFT framework to obtain model-independent inter-cluster interactions.
+From the latter, we derive analytically a potential which depends solely on the separation of the centers of mass of the two dimers, their binding
+energy~\bd, and a regularization parameter (henceforth denoted as $\lambda$) that is introduced when the EFT is renormalized using~\bd~(and~\bt~when
+appropriate) as {\it the} constraint(s). The need for 
+
+\section{contact EFT $\to$ inter-cluster EFT}
+
+\section{leading-order description of the dimer-dimer interaction}
+
+\subsection{(abab)}
+\subsection{(abcd)}
+\subsection{(abcc)}
+
+\section{summary}
+
+\section{Appendix: folding contact potentials}
+
+\bibliographystyle{apsrev}
+\bibliography{dd_scatt_universality.bib}
+\end{document}
