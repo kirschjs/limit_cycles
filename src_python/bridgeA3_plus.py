@@ -23,7 +23,7 @@ from four_particle_functions import from3to4
 fitt = False
 
 # numerical stability
-mindi = 0.3
+mindi = 10.3
 
 width_bnds = [0.01, 38.15, 0.001, 34.25]
 minCond = 10**-17

@@ -603,7 +603,7 @@ def span_population3(anz_civ,
                     for wsr in widthSet_relative
                 ])
 
-                if (prox_check * prox_checkr):
+                if (prox_check == prox_checkr == False):
                     lit_w_t = lit_wi
 
                 itera += 1
@@ -1123,6 +1123,7 @@ def span_population4(anz_civ,
             #lit_w[frg] = np.sort(lit_w_t)[::-1]
             np.random.shuffle(lit_w_t)
             lit_w[frg] = lit_w_t
+
             #  -- relative widths --------------------------------------------------
 
             if gridType == 'log':
