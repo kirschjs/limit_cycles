@@ -31,7 +31,7 @@ minCond = 10**-17
 # genetic parameters
 anzNewBV = 5
 muta_initial = .035
-anzGen = 14
+anzGen = 4
 seed_civ_size = 50
 target_pop_size = 25
 
@@ -42,6 +42,7 @@ nREL = 6
 
 J0 = 1 / 2
 
+dbg = False
 for channel in channels_3:
     sysdir3 = sysdir3base + '/' + channel
     print('>>> working directory: ', sysdir3)
@@ -98,9 +99,8 @@ for channel in channels_3:
 
         if ((id_chan == 1) & (len(civs) > 1)):
             break
-
-    civs.sort(key=lambda tup: np.abs(tup[3]))
-    civs = sortprint(civs, pr=True)
+    civs.sort(key=lambda tup: np.linalg.norm(tup[3]))
+    civs = sortprint(civs, pr=dbg)
 
     for nGen in range(anzGen):
 
@@ -187,22 +187,22 @@ for channel in channels_3:
                 wa = sum(daughter[1][0] + daughter[1][1], [])
                 wb = sum(son[1][0] + son[1][1], [])
 
-                prox_check1 = check_dist(width_array1=wa, minDist=mindi)
-                prox_check2 = check_dist(width_array1=wb, minDist=mindi)
-                prox_checkr1 = np.all([
-                    check_dist(width_array1=wa,
-                               width_array2=wsr,
-                               minDist=mindi) for wsr in widthSet_relative
-                ])
-                prox_checkr2 = np.all([
-                    check_dist(width_array1=wb,
-                               width_array2=wsr,
-                               minDist=mindi) for wsr in widthSet_relative
-                ])
+                prox_check1 = check_dist(width_array1=wa, minDist=mindi * 100)
+                prox_check2 = check_dist(width_array1=wb, minDist=mindi * 100)
+                #                prox_checkr1 = np.all([
+                #                    check_dist(width_array1=wa,
+                #                               width_array2=wsr,
+                #                               minDist=mindi) for wsr in widthSet_relative
+                #                ])
+                #                prox_checkr2 = np.all([
+                #                    check_dist(width_array1=wb,
+                #                               width_array2=wsr,
+                #                               minDist=mindi) for wsr in widthSet_relative
+                #                ])
 
-                if ((prox_check1 * prox_check2 * prox_checkr1 * prox_checkr2
-                     == True) & ((max(wa) <= max(width_bnds))
-                                 & (max(wb) <= max(width_bnds)))):
+                if ((prox_check1 == prox_check2 == False) &
+                    ((max(wa) <= max(width_bnds))
+                     & (max(wb) <= max(width_bnds)))):
 
                     twins.append(daughter)
                     twins.append(son)
@@ -270,7 +270,7 @@ for channel in channels_3:
             else:
                 print('adding %d new children.' % children)
 
-        civs = sortprint(civs, pr=False)
+        civs = sortprint(civs, pr=dbg)
 
         if len(civs) > target_pop_size:
             currentdim = len(civs)
@@ -288,7 +288,7 @@ for channel in channels_3:
             ]
         toc = time.time() - tic
         print('>>> generation %d/%d (dt=%f)' % (nGen, anzGen, toc))
-        civs = sortprint(civs, pr=False)
+        civs = sortprint(civs, pr=dbg)
 
         nGen += 1
 
@@ -298,13 +298,12 @@ for channel in channels_3:
             # wave-function printout (ECCE: in order to work, in addition to the civs[0] argument,
             # I need to hand over the superposition coeffs of the wfkt)
             #write_indiv3(civs[0], outfile)
-            print('   opt E = %4.4f   opt cond. = %4.4e' %
-                  (civs[0][3], civs[0][4]),
-                  end='\n')
+            print('Opt cond. = %4.4e' % civs[0][4] + '\nOpt lowest EVs:\n',
+                  civs[0][3])
 
     print('\n\n')
 
-    civs = sortprint(civs, pr=False)
+    civs = sortprint(civs, pr=dbg)
 
     ma = blunt_ev3(
         civs[0][0],
@@ -359,14 +358,15 @@ for channel in channels_3:
                                     infil='OUTPUT',
                                     outf='COEFF_NORMAL')
 
-    for wn in range(len(bvwidthString.split('\n'))):
+    if dbg:
+        for wn in range(len(bvwidthString.split('\n'))):
 
-        if bvwidthString.split('\n')[wn] != '':
+            if bvwidthString.split('\n')[wn] != '':
 
-            print('{%12.8f , %12.8f , %12.8f },' %
-                  (float(expC[wn]),
-                   float(bvwidthString.split('\n')[wn].split()[0]),
-                   float(bvwidthString.split('\n')[wn].split()[1])))
+                print('{%12.8f , %12.8f , %12.8f },' %
+                      (float(expC[wn]),
+                       float(bvwidthString.split('\n')[wn].split()[0]),
+                       float(bvwidthString.split('\n')[wn].split()[1])))
 
     assert len(lu_strus) == len(ob_strus)
 

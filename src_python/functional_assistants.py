@@ -37,6 +37,37 @@ def expspace(start=0.0, stop=1.0, scal=1.0, num=10):
     return np.sort(ws[:num])
 
 
+def log_with_density_enhancement(wi, wf, lbase, numb, num_additional_points,
+                                 std_dev):
+    sta = np.log(wi) / np.log(lbase)
+    sto = np.log(wf) / np.log(lbase)
+    init_points = np.abs(
+        np.logspace(start=sta,
+                    stop=sto,
+                    base=lbase,
+                    num=numb,
+                    endpoint=True,
+                    dtype=None))
+
+    # Calculate density of points in the logspace grid
+    # density = np.diff(np.log(lit_w_tmp))
+
+    # Identify points with lower density
+    # low_density_points = lit_w_tmp[:-1][density < np.median(density)]
+
+    # Generate additional points around low-density regions using Gaussian distribution
+    out_grid = []
+    for point in init_points:
+        additional_point = np.random.normal(loc=point, scale=std_dev, size=1)
+        out_grid.append(additional_point)
+
+    # Sort the final array
+    #lit_w_tmp = [ww for ww in np.sort(out_grid) if ww > 0.0]
+    lit_w_tmp = np.sort(np.abs(out_grid))
+
+    return np.array(lit_w_tmp)
+
+
 def expspaceS(start=0.0, stop=1.0, scal=1.0, num=10, deltam=20):
     ws = []
     ite = 0
@@ -102,7 +133,7 @@ def check_dist(width_array1=[], width_array2=[], minDist=10.0):
                     #    'identical widths (%d,%d)=(%f,%f) in ws!\n' %
                     #    (m, n, rounded_array1[m], rounded_array1[n]),
                     #    rounded_array1)
-                    print('id close', end='')
+                    #print('id close ', end='')
                     tooClose = True
                     closeSet.append([m, n])
                     continue

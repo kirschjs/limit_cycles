@@ -28,14 +28,14 @@ minidi_breed_rel = minidi_breed
 denseEVinterval = [-2, 2]
 width_bnds = [0.01, 26.25]
 
-deutDim = 8
+deutDim = 7
 
 miniE_breed = -0.1
 
 # genetic parameters
 anzNewBV = 8
 muta_initial = 0.01
-anzGen = 20
+anzGen = 5
 civ_size = 50
 target_pop_size = 35
 
@@ -118,20 +118,21 @@ for channel in channels_2:
     civs = []
     while len(civs) < civ_size:
 
-        new_civs, basi = span_population2(anz_civ=int(3 * civ_size),
-                                          fragments=channel,
-                                          Jstreu=float(J0),
-                                          coefstr=costr,
-                                          funcPath=sysdir2,
-                                          binPath=BINBDGpath,
-                                          mindist=minidi_seed,
-                                          min_seedE=miniE_breed,
-                                          gridType='log',
-                                          ini_grid_bounds=width_bnds,
-                                          ini_dims=deutDim,
-                                          minC=minCond,
-                                          evWin=evWindow,
-                                          anzOptStates=nbrStatesOpti2)
+        new_civs, basi = span_population2(
+            anz_civ=int(3 * civ_size),
+            fragments=channel,
+            Jstreu=float(J0),
+            coefstr=costr,
+            funcPath=sysdir2,
+            binPath=BINBDGpath,
+            mindist=minidi_seed,
+            min_seedE=miniE_breed,
+            gridType='log_with_density_enhancement',
+            ini_grid_bounds=width_bnds,
+            ini_dims=deutDim,
+            minC=minCond,
+            evWin=evWindow,
+            optRange=nbrStatesOpti2)
         for cciv in new_civs:
             civs.append(cciv)
         print('>>> seed civilizations: %d/%d' % (len(civs), civ_size))

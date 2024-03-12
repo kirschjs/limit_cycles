@@ -30,7 +30,7 @@ def loveliness(relEnergyVals,
         # "normalize" quantities
         cF = minimalConditionnumber / conditionNumber  # the smaller the better
         eF = energySum / maxEsum  # the closer to -1 the better
-        pulchritude = -np.tan(15 * eF) * np.exp(-3 * cF**2)
+        pulchritude = -np.tan(15 * eF)  #* np.exp(-0.003 * cF**2)
     else:
 
         pulchritude = 0.0

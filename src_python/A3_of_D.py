@@ -21,17 +21,17 @@ from four_particle_functions import from3to4
 fitt = False
 
 # numerical stability
-mindi = 0.3
+mindi = 10.3
 
 width_bnds = [0.01, 18.15, 0.001, 24.25]
 minCond = 10**-17
 
 # genetic parameters
 anzNewBV = 5
-muta_initial = .035
-anzGen = 8
-seed_civ_size = 50
-target_pop_size = 25
+muta_initial = .025
+anzGen = 5
+seed_civ_size = 23
+target_pop_size = 15
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
@@ -51,14 +51,14 @@ os.chdir(sysdir3)
 subprocess.call('cp %s .' % nnpot, shell=True)
 subprocess.call('cp %s .' % nnnpot, shell=True)
 
-DRange = np.linspace(start=1.05, stop=0.5, num=2, endpoint=True, dtype=None)
+DRange = np.linspace(start=1.0, stop=-1.5, num=25, endpoint=True, dtype=None)
 
 # [LECD,[ev0,ev1,...]]
 results = []
 dbg = False
 for tnifac in DRange:
+    LastEx2opt = 1
 
-    nbrStatesOpti3 = [-3]
     costr = ''
     zop = nOperators if tnni == 11 else 14
     for nn in range(1, zop):
@@ -78,6 +78,7 @@ for tnifac in DRange:
     # 1) prepare an initial set of bases ----------------------------------------------------------------------------------
     civs = []
     while len(civs) < seed_civ_size:
+        nbrStatesOpti3 = list(range(-LastEx2opt, 0))
         new_civs, basi = span_population3(anz_civ=int(3 * seed_civ_size),
                                           fragments=channels_3[channel],
                                           Jstreu=float(J0),
@@ -87,20 +88,34 @@ for tnifac in DRange:
                                           binPath=BINBDGpath,
                                           mindists=mindi,
                                           ini_grid_bounds=width_bnds,
+                                          gridType='log',
                                           ini_dims=[nBV, nREL],
                                           minC=minCond,
                                           evWin=evWindow,
-                                          anzOptStates=nbrStatesOpti3)
+                                          optRange=nbrStatesOpti3)
 
         for cciv in new_civs:
             civs.append(cciv)
-        print('>>> seed civilizations: %d/%d' % (len(civs), seed_civ_size))
+        print('>>> seed civilizations: %d/%d' % (len(civs), seed_civ_size),
+              '   EV range: ', nbrStatesOpti3)
 
         if ((id_chan == 1) & (len(civs) > 1)):
             break
 
-    civs.sort(key=lambda tup: np.abs(tup[3]))
-    civs = sortprint(civs, pr=False)
+        civs.sort(key=lambda tup: np.linalg.norm(tup[3]))
+
+        oo = np.array([civs[n][3][0] for n in range(seed_civ_size)])
+
+        # if the random bases set has at least one element close to the
+        # lowest threshold, restart the seeding process and see if also
+        # the next smallest value turns out negative; in this way we
+        # will not miss to optimize an excited state below a threshold.
+        thEV = -2.0
+        if np.any(np.less(oo, thEV * np.ones(len(oo)))):
+            LastEx2opt += 1
+            civs = []
+
+    civs = sortprint(civs, pr=dbg)
 
     for nGen in range(anzGen):
 
@@ -187,22 +202,22 @@ for tnifac in DRange:
                 wa = sum(daughter[1][0] + daughter[1][1], [])
                 wb = sum(son[1][0] + son[1][1], [])
 
-                prox_check1 = check_dist(width_array1=wa, minDist=mindi)
-                prox_check2 = check_dist(width_array1=wb, minDist=mindi)
-                prox_checkr1 = np.all([
-                    check_dist(width_array1=wa,
-                               width_array2=wsr,
-                               minDist=mindi) for wsr in widthSet_relative
-                ])
-                prox_checkr2 = np.all([
-                    check_dist(width_array1=wb,
-                               width_array2=wsr,
-                               minDist=mindi) for wsr in widthSet_relative
-                ])
+                prox_check1 = check_dist(width_array1=wa, minDist=mindi * 100)
+                prox_check2 = check_dist(width_array1=wb, minDist=mindi * 100)
+                #                prox_checkr1 = np.all([
+                #                    check_dist(width_array1=wa,
+                #                               width_array2=wsr,
+                #                               minDist=mindi) for wsr in widthSet_relative
+                #                ])
+                #                prox_checkr2 = np.all([
+                #                    check_dist(width_array1=wb,
+                #                               width_array2=wsr,
+                #                               minDist=mindi) for wsr in widthSet_relative
+                #                ])
 
-                if ((prox_check1 * prox_check2 * prox_checkr1 * prox_checkr2
-                     == True) & ((max(wa) <= max(width_bnds))
-                                 & (max(wb) <= max(width_bnds)))):
+                if ((prox_check1 == prox_check2 == False) &
+                    ((max(wa) <= max(width_bnds))
+                     & (max(wb) <= max(width_bnds)))):
 
                     twins.append(daughter)
                     twins.append(son)
@@ -296,9 +311,13 @@ for tnifac in DRange:
 
         outfile = 'civ_%d.dat' % nGen
         if civs[0][2] > qualREF:
+            print('gen %d) New optimum.' % nGen)
+            # wave-function printout (ECCE: in order to work, in addition to the civs[0] argument,
+            # I need to hand over the superposition coeffs of the wfkt)
+            #write_indiv3(civs[0], outfile)
             print(
-                'Gen %d) New optimum with opt E = %4.4f   opt cond. = %4.4e' %
-                (nGen, civs[0][3], civs[0][4]))
+                '   Opt cond. = %4.4e' % civs[0][4] + '\n   Opt lowest EVs:  ',
+                civs[0][3])
 
     civs = sortprint(civs, pr=dbg)
 
@@ -328,15 +347,20 @@ for tnifac in DRange:
 #prepare output string
 outs = ''
 for res in results:
-    outs += '%-f20.12' % res[0]
+    outs += '%-20.12f' % res[0]
     outs += '  '
     for ev in res[1]:
-        outs += '%-f20.12' % ev
+        outs += '%-20.12f' % ev
         outs += '  '
     outs += '\n'
 
-with open('Spect3_of_D.dat', 'w') as outfile:
-    outfile.write(outs)
+if os.path.exists('Spect3_of_D.dat'):
+    with open('Spect3_of_D.dat', 'a') as outfile:
+        outfile.write(outs)
+else:
+    with open('Spect3_D-%2.2f-%2.2f.dat' % (DRange[0], DRange[-1]),
+              'w') as outfile:
+        outfile.write(outs)
 
 subprocess.call('rm -rf TQUAOUT.*', shell=True)
 subprocess.call('rm -rf TDQUAOUT.*', shell=True)

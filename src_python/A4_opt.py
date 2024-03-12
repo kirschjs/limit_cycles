@@ -17,8 +17,8 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 
 # numerical stability
-mindi = 100.0
-width_bnds = [0.06, 31.15, 0.08, 26.25]
+mindi = 1000.0
+width_bnds = [0.06, 71.15, 0.08, 65.25]
 minCond = 10**-24
 maxRat = 10**29
 
@@ -31,8 +31,8 @@ target_pop_size = 16
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 24
-nREL = 12
+nBV = 27
+nREL = 13
 
 J0 = 0
 
@@ -49,7 +49,7 @@ dbg = False
 for tnifac in DRange:
 
     # states to be considered in the loveliness/fitness function
-    nbrStatesOpti4 = list(range(-2, 0))
+    nbrStatesOpti4 = list(range(-1, 0))
 
     sysdir4o = sysdir4 + '/' + channel
     print('>>> working directory: ', sysdir4o)
@@ -83,21 +83,22 @@ for tnifac in DRange:
     # 1) prepare an initial set of bases ----------------------------------------------------------------------------------
     civs = []
     while len(civs) < seed_civ_size:
-        new_civs, basi = span_population4(anz_civ=int(seed_civ_size),
-                                          fragments=[channels_4[channel]],
-                                          Jstreu=float(J0),
-                                          coefstr=costr,
-                                          funcPath=sysdir4o,
-                                          binPath=BINBDGpath,
-                                          mindists=mindi,
-                                          ini_grid_bounds=width_bnds,
-                                          ini_dims=[nBV, nREL],
-                                          gridType='log',
-                                          minC=minCond,
-                                          maxR=maxRat,
-                                          evWin=evWindow,
-                                          nzo=zop,
-                                          anzOptStates=nbrStatesOpti4)
+        new_civs, basi = span_population4(
+            anz_civ=int(seed_civ_size),
+            fragments=[channels_4[channel]],
+            Jstreu=float(J0),
+            coefstr=costr,
+            funcPath=sysdir4o,
+            binPath=BINBDGpath,
+            mindists=mindi,
+            ini_grid_bounds=width_bnds,
+            ini_dims=[nBV, nREL],
+            gridType='log_with_density_enhancement',
+            minC=minCond,
+            maxR=maxRat,
+            evWin=evWindow,
+            nzo=zop,
+            optRange=nbrStatesOpti4)
         for cciv in new_civs:
             civs.append(cciv)
         print('>>> seed civilizations: %d/%d' % (len(civs), seed_civ_size))
@@ -176,14 +177,13 @@ for tnifac in DRange:
                 #print(mother)
                 #print(father)
 
-                #wa = sum(daughter[1][0] + daughter[1][1], [])
-                #wb = sum(son[1][0] + son[1][1], [])
+                wa = sum(daughter[1][0] + daughter[1][1], [])
+                wb = sum(son[1][0] + son[1][1], [])
 
                 wai = sum(daughter[1][0], [])
                 wbi = sum(son[1][0], [])
 
-                #print(wa)
-                #print(daughter)
+                #np.max(wa + wb)
                 #print(len(wa))
                 #exit()
 
@@ -193,7 +193,9 @@ for tnifac in DRange:
                 prox_check1 = check_dist(width_array1=wai, minDist=mindi * 100)
                 prox_check2 = check_dist(width_array1=wbi, minDist=mindi * 100)
 
-                if prox_check1 == prox_check2 == False:
+                if ((prox_check1 == prox_check2 == False) &
+                    (np.max(wa + wb) < np.max([width_bnds[1], width_bnds[3]
+                                               ]))):
 
                     twins.append(daughter)
                     twins.append(son)

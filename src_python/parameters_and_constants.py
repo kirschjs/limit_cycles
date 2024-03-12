@@ -77,7 +77,7 @@ BINBDGpath = pathbase + '/src_nucl/'
 
 # NN: tnni=10   NN+NNN: tnni=11
 tnni = 11
-tnifac = 1.65
+tnifac = 1.0
 twofac = 1.0
 parall = -1
 
@@ -110,7 +110,7 @@ lec_set = {
     },
     '4.00': {
         '13.0': [-473.27, -601.7702],
-        '8.00': [-505.15, 100.0],
+        '8.00': [-505.15, 1395.62624049],
     },
 }
 
@@ -265,7 +265,7 @@ elif len(lec_set[la][tb]) == 2:
 
 evWindow = [-211.5, -1.70]
 nbrStatesOpti2 = 1
-nbrStatesOpti3 = list(range(-6, 0))
+nbrStatesOpti3 = list(range(-1, 0))
 nbrStatesOpti4 = [-4]
 
 eDict = {

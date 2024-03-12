@@ -122,7 +122,7 @@ def span_population2(anz_civ,
                      ini_dims=8,
                      minC=10**(-8),
                      evWin=[-100, 100],
-                     anzOptStates=1):
+                     optRange=[-1]):
 
     os.chdir(funcPath)
 
@@ -165,6 +165,16 @@ def span_population2(anz_civ,
                                          stop=ini_grid_bounds[1],
                                          num=nwrel,
                                          scal=0.1 + 1.9 * np.random.random())
+
+        elif gridType == 'log_with_density_enhancement':
+            wi, wf, lbase = ini_grid_bounds[0], ini_grid_bounds[
+                1], 0.01 + 3.98 * np.random.random()
+            num_additional_points = 10
+            std_dev = 0.1
+            lit_w_t = log_with_density_enhancement(wi, wf, lbase, nwrel,
+                                                   num_additional_points,
+                                                   std_dev)
+
         else:
             print('\n>>> unspecified grid type.')
             exit()
@@ -199,7 +209,7 @@ def span_population2(anz_civ,
         # [widths, sbas, nnpot, Jstreu, binPath, coefstr, civID, minCond, energInt]
         ParaSets.append([
             widr, sbas, nnpotstring, Jstreu, binPath, coefstr, civ, minC,
-            evWin, anzOptStates
+            evWin, optRange
         ])
 
     os.chdir(funcPath)
@@ -488,7 +498,7 @@ def end3(para, send_end):
         send_end.send([
             [para[0], para[1]],
             attractiveness,
-            gsEnergy,
+            EnergySet,
             basCond,
         ])
 
@@ -507,7 +517,7 @@ def end3(para, send_end):
         print(para[6], child_id)
         print(maoutf)
         #  [ intw, relw, qual, gsE, basCond ]
-        send_end.send([[[], []], 0.0, 0.0, -42.7331])
+        send_end.send([[[], []], 0.0, [0.0], -42.7331])
 
 
 def span_population3(anz_civ,
@@ -520,9 +530,10 @@ def span_population3(anz_civ,
                      mindists=1.0,
                      ini_grid_bounds=[0.01, 9.5, 0.001, 11.5],
                      ini_dims=[4, 4],
+                     gridType='log',
                      minC=10**(-8),
                      evWin=[-100, 100],
-                     anzOptStates=1):
+                     optRange=[-1]):
 
     os.chdir(funcPath)
 
@@ -570,21 +581,28 @@ def span_population3(anz_civ,
 
         for frg in range(int(len(lfrags) / enforceSym)):
 
-            #  -- internal widths --------------------------------------------------
             itera = 1
-            wi, wf, lbase = ini_grid_bounds[0], ini_grid_bounds[1], (
-                0.01 + 9.98 * np.random.random())
-            sta = np.log(wi) / np.log(lbase)
-            sto = np.log(wf) / np.log(lbase)
-            lit_w_tmp = np.abs(
-                np.logspace(start=sta,
-                            stop=sto,
-                            base=lbase,
-                            num=nwint,
-                            endpoint=True,
-                            dtype=None))
+            #  -- internal widths --------------------------------------------------
+            if gridType == 'log':
+                lit_w_tmp = np.abs(
+                    np.geomspace(start=ini_grid_bounds[0],
+                                 stop=ini_grid_bounds[1],
+                                 num=nwint,
+                                 endpoint=True,
+                                 dtype=None))
+
+            elif gridType == 'exp':
+                lit_w_tmp, mindist = expspaceS(start=ini_grid_bounds[0],
+                                               stop=ini_grid_bounds[1],
+                                               num=nwint,
+                                               scal=0.1 +
+                                               1.9 * np.random.random())
+            else:
+                print('\n>>> unspecified grid type.')
+                exit()
 
             lit_w_t = []
+
             while len(lit_w_t) != nwint:
 
                 lit_wi = [
@@ -612,17 +630,23 @@ def span_population3(anz_civ,
             lit_w[frg] = np.sort(lit_w_t)[::-1]
 
             #  -- relative widths --------------------------------------------------
-            wi, wf, lbase = ini_grid_bounds[2], ini_grid_bounds[3], (
-                0.01 + 9.98 * np.random.random())
-            sta = np.log(wi) / np.log(lbase)
-            sto = np.log(wf) / np.log(lbase)
-            lit_w_tmp = np.abs(
-                np.logspace(start=sta,
-                            stop=sto,
-                            base=lbase,
-                            num=nwrel,
-                            endpoint=True,
-                            dtype=None))
+            if gridType == 'log':
+                lit_w_tmp = np.abs(
+                    np.geomspace(start=ini_grid_bounds[2],
+                                 stop=ini_grid_bounds[3],
+                                 num=nwrel,
+                                 endpoint=True,
+                                 dtype=None))
+
+            elif gridType == 'exp':
+                lit_w_tmp, mindist = expspaceS(start=ini_grid_bounds[2],
+                                               stop=ini_grid_bounds[3],
+                                               num=nwrel,
+                                               scal=0.1 +
+                                               1.9 * np.random.random())
+            else:
+                print('\n>>> unspecified grid type.')
+                exit()
 
             lit_w_t = []
 
@@ -643,7 +667,7 @@ def span_population3(anz_civ,
                     for wsr in widthSet_relative
                 ])
 
-                if (prox_check * prox_checkr):
+                if (prox_check == prox_checkr == False):
                     lit_w_t = lit_wr
 
                 itera += 1
@@ -690,7 +714,7 @@ def span_population3(anz_civ,
                 bv += 1
         ParaSets.append([
             widi, widr, sbas, nnpotstring, nnnpotstring, Jstreu, civ, binPath,
-            coefstr, minC, evWin, nzo, anzOptStates
+            coefstr, minC, evWin, nzo, optRange
         ])
 
     assert len(ParaSets) == anz_civ
@@ -724,7 +748,11 @@ def span_population3(anz_civ,
     samp_ladder = [x.recv() for x in samp_list]
 
     for cand in samp_ladder:
-        if ((cand[2] < -0.0) & (cand[3] > minC)):
+        # admit candidate basis as soon as the smallest EV is <0
+        if ((cand[2][-1] < 0) &
+                # admit the basis only if the smallest N EVs (as def. by optRange) are <0
+                #if ((np.all(np.less(cand[2], np.zeros(len(cand[2]))))) &
+            (cand[3] > minC)):
             cfgg = np.transpose(np.array([sfrags2, lfrags2],
                                          dtype=object)).tolist()
 
@@ -1024,7 +1052,7 @@ def span_population4(anz_civ,
                      minC=10**(-8),
                      maxR=10**5,
                      evWin=[-100, 100],
-                     anzOptStates=1):
+                     optRange=[-1]):
 
     os.chdir(funcPath)
 
@@ -1090,9 +1118,18 @@ def span_population4(anz_civ,
                                                    scal=scale,
                                                    num=int(2 * nwint),
                                                    deltam=mindist_int)
-                print(wi, wf, scale)
-                print(lit_w_tmp)
-                exit()
+                #print(wi, wf, scale)
+                #print(lit_w_tmp)
+                #exit()
+
+            elif gridType == 'log_with_density_enhancement':
+                wi, wf, lbase = ini_grid_bounds[0], ini_grid_bounds[
+                    1], 0.01 + 3.98 * np.random.random()
+                num_additional_points = 10
+                std_dev = 0.1
+                lit_w_tmp = log_with_density_enhancement(
+                    wi, wf, lbase, int(2 * nwint), num_additional_points,
+                    std_dev)
 
             else:
                 print('\n>>> unspecified grid type.')
@@ -1109,8 +1146,7 @@ def span_population4(anz_civ,
                 if np.max(lit_wi) > iLcutoff:
                     continue
 
-                tooCloseInternal = check_dist(width_array1=lit_wi,
-                                              minDist=mindist_int)
+                tooCloseInternal = False  #check_dist(width_array1=lit_wi,minDist=mindist_int)
                 if tooCloseInternal == False:
                     lit_w_t = lit_wi
                 #print(lit_wi, '\nNotSoClose = ', tooCloseInternal)
@@ -1147,6 +1183,14 @@ def span_population4(anz_civ,
                                                    scal=scale,
                                                    num=nwrel,
                                                    deltam=mindist_rel)
+
+            elif gridType == 'log_with_density_enhancement':
+                wi, wf, lbase = ini_grid_bounds[0], ini_grid_bounds[
+                    1], 0.01 + 3.98 * np.random.random()
+                num_additional_points = 10
+                std_dev = 0.1
+                lit_w_tmp = log_with_density_enhancement(
+                    wi, wf, lbase, nwrel, num_additional_points, std_dev)
 
             else:
                 print('\n>>> unspecified grid type.')
@@ -1213,7 +1257,7 @@ def span_population4(anz_civ,
                 bv += 1
         ParaSets.append([
             widi, widr, sbas, nnpotstring, nnnpotstring, Jstreu, civ, binPath,
-            coefstr, minC, evWin, maxR, nzo, anzOptStates
+            coefstr, minC, evWin, maxR, nzo, optRange
         ])
 
     assert len(ParaSets) == anz_civ
