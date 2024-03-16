@@ -103,8 +103,8 @@ def plotarray2(outfi,
             except:
                 axs[nR, nC].set_xlabel(r'X')
                 axs[nR, nC].set_ylabel(r'Y')
-            
-            ym = np.median(np.array(sum(infiy[nSet],[])))
+
+            ym = np.median(np.array(sum(infiy[nSet], [])))
 
             if plotrange[nSet] != '':
                 if ym < 0:

@@ -73,7 +73,7 @@ def end2(para, send_end):
         anzSigEV = len(
             [bvv for bvv in smartEV if para[8][0] < bvv < para[8][1]])
 
-        EnergySet = smartEV[int(-para[9]):]
+        EnergySet = [smartEV[ii] for ii in para[9]]
         gsEnergy = smartEV[-1]
 
         attractiveness = loveliness(EnergySet, basCond, anzSigEV, minCond,
@@ -90,13 +90,13 @@ def end2(para, send_end):
         send_end.send([
             para[0],
             attractiveness,
-            gsEnergy,
+            EnergySet,
             basCond,
         ])
 
     except:
 
-        #subprocess.call('rm -rf ./%s' % inqf, shell=True)
+        subprocess.call('rm -rf ./%s' % inqf, shell=True)
         subprocess.call('rm -rf ./%s' % inenf, shell=True)
         subprocess.call('rm -rf ./%s' % outputef, shell=True)
         subprocess.call('rm -rf ./%s' % quaf_to_end, shell=True)
@@ -105,7 +105,7 @@ def end2(para, send_end):
         print(para[6], child_id)
         print(maoutf)
         #  [ intw,  qual, gsE, basCond ]
-        send_end.send([[], 0.0, 0.0, -42.7331])
+        send_end.send([[], 0.0, [0.0], -42.7331])
 
 
 # new function used in bridgeA2_plus
@@ -125,7 +125,6 @@ def span_population2(anz_civ,
                      optRange=[-1]):
 
     os.chdir(funcPath)
-
     Jstreustring = '%s' % str(Jstreu)[:3]
 
     lfrags = channels_2[fragments][0]
@@ -169,11 +168,10 @@ def span_population2(anz_civ,
         elif gridType == 'log_with_density_enhancement':
             wi, wf, lbase = ini_grid_bounds[0], ini_grid_bounds[
                 1], 0.01 + 3.98 * np.random.random()
-            num_additional_points = 10
-            std_dev = 0.1
+            numpoints = 10
+            std_dev = 0.005
             lit_w_t = log_with_density_enhancement(wi, wf, lbase, nwrel,
-                                                   num_additional_points,
-                                                   std_dev)
+                                                   numpoints, std_dev)
 
         else:
             print('\n>>> unspecified grid type.')
@@ -236,16 +234,16 @@ def span_population2(anz_civ,
 
     samp_ladder = [x.recv() for x in samp_list]
 
+    #for cc in samp_ladder:
+    #    print(cc[2:])
+
     for cand in samp_ladder:
-        if ((cand[2] < min_seedE) & (cand[3] > minC)):
+        if ((cand[2][-1] < min_seedE) & (cand[3] > minC)):
             cfgg = np.transpose(np.array([sfrags2, lfrags2])).tolist()
 
             cand_list.append([cfgg] + cand)
 
     cand_list.sort(key=lambda tup: np.abs(tup[2]))
-
-    #for cc in cand_list:
-    #    print(cc[2:])
 
     return cand_list, sbas
 
@@ -1001,7 +999,7 @@ def end4(para, send_end):
         attractiveness = loveliness(EnergySet, basCond, anzSigEV, minCond,
                                     smartRAT, maxRa) if basCond > 0 else -2.0
 
-        #os.system('rm -rf ./%s' % inqf)
+        os.system('rm -rf ./%s' % inqf)
         os.system('rm -rf ./%s' % indqf)
         os.system('rm -rf ./%s' % inenf)
         os.system('rm -rf ./%s' % outputef)
@@ -1022,15 +1020,15 @@ def end4(para, send_end):
 
     except:
 
-        #os.system('rm -rf ./%s' % inqf)
-        #os.system('rm -rf ./%s' % indqf)
-        #os.system('rm -rf ./%s' % inenf)
-        #os.system('rm -rf ./%s' % outputef)
-        #os.system('rm -rf ./%s' % outputqf)
-        #os.system('rm -rf ./%s' % outputdrqf)
-        #os.system('rm -rf ./%s' % quaf_to_end)
-        #os.system('rm -rf ./%s' % drquaf_to_end)
-        #os.system('rm -rf ./%s' % maoutf)
+        os.system('rm -rf ./%s' % inqf)
+        os.system('rm -rf ./%s' % indqf)
+        os.system('rm -rf ./%s' % inenf)
+        os.system('rm -rf ./%s' % outputef)
+        os.system('rm -rf ./%s' % outputqf)
+        os.system('rm -rf ./%s' % outputdrqf)
+        os.system('rm -rf ./%s' % quaf_to_end)
+        os.system('rm -rf ./%s' % drquaf_to_end)
+        os.system('rm -rf ./%s' % maoutf)
 
         print(para[6], child_id)
         print(maoutf)
@@ -1126,7 +1124,7 @@ def span_population4(anz_civ,
                 wi, wf, lbase = ini_grid_bounds[0], ini_grid_bounds[
                     1], 0.01 + 3.98 * np.random.random()
                 num_additional_points = 10
-                std_dev = 0.1
+                std_dev = 0.05
                 lit_w_tmp = log_with_density_enhancement(
                     wi, wf, lbase, int(2 * nwint), num_additional_points,
                     std_dev)
@@ -1157,7 +1155,10 @@ def span_population4(anz_civ,
 
             # do not sort in order to allow for narrow/broad width combinations
             #lit_w[frg] = np.sort(lit_w_t)[::-1]
+            #print(lit_w_t)
             np.random.shuffle(lit_w_t)
+            #print(lit_w_t)
+            #exit()
             lit_w[frg] = lit_w_t
 
             #  -- relative widths --------------------------------------------------
@@ -1188,7 +1189,7 @@ def span_population4(anz_civ,
                 wi, wf, lbase = ini_grid_bounds[0], ini_grid_bounds[
                     1], 0.01 + 3.98 * np.random.random()
                 num_additional_points = 10
-                std_dev = 0.1
+                std_dev = 0.005
                 lit_w_tmp = log_with_density_enhancement(
                     wi, wf, lbase, nwrel, num_additional_points, std_dev)
 

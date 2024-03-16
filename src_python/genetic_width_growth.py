@@ -30,9 +30,9 @@ def loveliness(relEnergyVals,
         # "normalize" quantities
         cF = minimalConditionnumber / conditionNumber  # the smaller the better
         eF = energySum / maxEsum  # the closer to -1 the better
-        pulchritude = -np.tan(15 * eF)  #* np.exp(-0.003 * cF**2)
-    else:
+        pulchritude = -energySum  #np.tan(np.exp(-0.2 * eF))  #* np.exp(-0.03 * cF**2)
 
+    else:
         pulchritude = 0.0
 
     return pulchritude
@@ -449,6 +449,7 @@ def bin_to_float(binary):
     return struct.unpack('!f', struct.pack('!I', int(binary, 2)))[0]
 
 
+# uniform crossover
 def intertwining(p1,
                  p2,
                  mutation_rate=0.0,

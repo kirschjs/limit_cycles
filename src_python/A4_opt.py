@@ -18,21 +18,21 @@ from multiprocessing.pool import ThreadPool
 
 # numerical stability
 mindi = 1000.0
-width_bnds = [0.06, 71.15, 0.08, 65.25]
+width_bnds = [0.06, 21.15, 0.08, 15.25]
 minCond = 10**-24
 maxRat = 10**29
 
 # genetic parameters
 anzNewBV = 6
-muta_initial = .012
+muta_initial = .1
 anzGen = 2
-seed_civ_size = 24
-target_pop_size = 16
+seed_civ_size = 10
+target_pop_size = 6
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 27
-nREL = 13
+nBV = 14
+nREL = 18
 
 J0 = 0
 
@@ -136,11 +136,15 @@ for tnifac in DRange:
 
                 sbas = []
                 bv = 1
-                for n in range(int(len(mother[0]) / 2)):
+                for n in range(int(len(mother[0]))):
                     off = np.mod(n, 2)
-                    for m in range(len(mother[1][0][n])):
+                    for m in range(int(len(mother[1][0][n]) / 2)):
                         sbas += [[
-                            bv, [1 for x in range(len(mother[1][1][n]))]
+                            bv,
+                            [
+                                np.mod(x + off, 2)
+                                for x in range(len(mother[1][1][n]))
+                            ]
                         ]]
                         bv += 1
 
@@ -202,7 +206,7 @@ for tnifac in DRange:
                 #else:
                 #    print('children too close...', end='')
 
-            print('Gen %d) offspring created and is now rated.' % nGen)
+            #print('Gen %d) offspring created and is now rated.' % nGen)
             # ---------------------------------------------------------------------
             ParaSets = [[
                 twins[twinID][1][0], twins[twinID][1][1], sbas, nnpotstring,
@@ -245,7 +249,7 @@ for tnifac in DRange:
                 for proc in jobs:
                     proc.join()
 
-            print('Gen %d) offspring rated.' % nGen)
+            #print('Gen %d) offspring rated.' % nGen)
 
             samp_ladder = [x.recv() for x in samp_list]
 
@@ -289,12 +293,12 @@ for tnifac in DRange:
 
         outfile = 'civ_%d.dat' % nGen
         if civs[0][2] > qualREF:
-            print('%d) New optimum.' % nGen)
             # wave-function printout (ECCE: in order to work, in addition to the civs[0] argument,
             # I need to hand over the superposition coeffs of the wfkt)
             #write_indiv3(civs[0], outfile)
-            print('Opt cond. = %4.4e' % civs[0][4] + '\nOpt lowest EVs:\n',
-                  civs[0][3])
+            print(
+                '(Gen., Opt cond., Opt lowest EVs) = %d , %4.4e' %
+                (nGen, civs[0][4]), civs[0][3])
 
     print('\n\n')
 

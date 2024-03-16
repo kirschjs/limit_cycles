@@ -34,8 +34,8 @@ miniE_breed = -0.1
 
 # genetic parameters
 anzNewBV = 8
-muta_initial = 0.01
-anzGen = 5
+muta_initial = 0.001
+anzGen = 21
 civ_size = 50
 target_pop_size = 35
 
@@ -160,7 +160,7 @@ for channel in channels_2:
 
         while children < anzNewBV:
             twins = []
-            while len(twins) < int(42 * anzNewBV):
+            while len(twins) < int(2 * anzNewBV):
                 parent_pair = np.random.choice(range(civi_size),
                                                size=2,
                                                replace=False,
@@ -275,6 +275,7 @@ for channel in channels_2:
 
             #for el in samp_ladder:
             #    print(el[1:])
+            #exit()
 
             fitchildren = 0
             for cand in samp_ladder[::-1]:
@@ -316,10 +317,13 @@ for channel in channels_2:
 
         outfile = 'civ_%d.dat' % nGen
         if civs[0][2] > qualREF:
-            print('%d) New optimum.' % nGen)
-            print('   opt E = %4.4f   opt cond. = %4.4e' %
-                  (civs[0][3], civs[0][4]),
-                  end='\n')
+            #print('%d) New optimum.' % nGen)
+            # wave-function printout (ECCE: in order to work, in addition to the civs[0] argument,
+            # I need to hand over the superposition coeffs of the wfkt)
+            #write_indiv3(civs[0], outfile)
+            print(
+                '(Gen., Opt cond., Opt lowest EVs) = %d , %4.4e' %
+                (nGen, civs[0][4]), civs[0][3])
 
     print('\n\n')
 
