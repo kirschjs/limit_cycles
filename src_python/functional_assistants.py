@@ -37,8 +37,7 @@ def expspace(start=0.0, stop=1.0, scal=1.0, num=10):
     return np.sort(ws[:num])
 
 
-def log_with_density_enhancement(wi, wf, lbase, numb, num_additional_points,
-                                 std_dev):
+def log_with_density_enhancement(wi, wf, lbase, numb, std_dev):
     sta = np.log(wi) / np.log(lbase)
     sto = np.log(wf) / np.log(lbase)
     init_points = np.abs(

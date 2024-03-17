@@ -25,10 +25,11 @@ mindi = 10.3
 
 width_bnds = [0.01, 18.15, 0.001, 24.25]
 minCond = 10**-17
+grdTy = ['log_with_density_enhancement', 0.01, 0.004]
 
 # genetic parameters
 anzNewBV = 5
-muta_initial = .025
+muta_initial = .005
 anzGen = 5
 seed_civ_size = 23
 target_pop_size = 15
@@ -88,7 +89,7 @@ for tnifac in DRange:
                                           binPath=BINBDGpath,
                                           mindists=mindi,
                                           ini_grid_bounds=width_bnds,
-                                          gridType='log',
+                                          gridType=grdTy,
                                           ini_dims=[nBV, nREL],
                                           minC=minCond,
                                           evWin=evWindow,
@@ -311,13 +312,12 @@ for tnifac in DRange:
 
         outfile = 'civ_%d.dat' % nGen
         if civs[0][2] > qualREF:
-            print('gen %d) New optimum.' % nGen)
             # wave-function printout (ECCE: in order to work, in addition to the civs[0] argument,
             # I need to hand over the superposition coeffs of the wfkt)
             #write_indiv3(civs[0], outfile)
             print(
-                '   Opt cond. = %4.4e' % civs[0][4] + '\n   Opt lowest EVs:  ',
-                civs[0][3])
+                '(Gen., Opt cond., Opt lowest EVs) = %d , %4.4e' %
+                (nGen, civs[0][4]), civs[0][3])
 
     civs = sortprint(civs, pr=dbg)
 

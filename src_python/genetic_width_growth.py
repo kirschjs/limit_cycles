@@ -30,7 +30,8 @@ def loveliness(relEnergyVals,
         # "normalize" quantities
         cF = minimalConditionnumber / conditionNumber  # the smaller the better
         eF = energySum / maxEsum  # the closer to -1 the better
-        pulchritude = -energySum  #np.tan(np.exp(-0.2 * eF))  #* np.exp(-0.03 * cF**2)
+        #print('(ECCE) mind the lovely!')
+        pulchritude = np.tan(np.exp(-0.2 * eF))  #* np.exp(-0.03 * cF**2)
 
     else:
         pulchritude = 0.0
@@ -455,7 +456,8 @@ def intertwining(p1,
                  mutation_rate=0.0,
                  wMin=0.00001,
                  wMax=920.,
-                 dbg=False):
+                 dbg=False,
+                 method='1point'):
 
     Bp1 = float_to_bin(p1)
     Bp2 = float_to_bin(p2)
@@ -467,23 +469,118 @@ def intertwining(p1,
                                     p=[1 - mutation_rate, mutation_rate],
                                     size=len(Bp1))
 
-    pivot = np.random.randint(0, len(Bp1))
+    if method == '1point':
 
-    Bchild1 = Bp1[:pivot] + Bp2[pivot:]
-    Bchild2 = Bp2[:pivot] + Bp1[pivot:]
+        pivot = np.random.randint(0, len(Bp1))
 
-    Bchild2mutated = ''.join(
-        (mutationMask | np.array(list(Bchild2)).astype(int)).astype(str))
-    Bchild1mutated = ''.join(
-        (mutationMask | np.array(list(Bchild1)).astype(int)).astype(str))
+        Bchild1 = Bp1[:pivot] + Bp2[pivot:]
+        Bchild2 = Bp2[:pivot] + Bp1[pivot:]
 
-    Fc1 = np.abs(bin_to_float(Bchild1mutated))
-    Fc2 = np.abs(bin_to_float(Bchild2mutated))
+        Bchild2mutated = ''.join(
+            (mutationMask | np.array(list(Bchild2)).astype(int)).astype(str))
+        Bchild1mutated = ''.join(
+            (mutationMask | np.array(list(Bchild1)).astype(int)).astype(str))
 
-    if (np.isnan(Fc1) | np.isnan(Fc2) | (Fc1 < wMin) | (Fc1 > wMax) |
-        (Fc2 < wMin) | (Fc2 > wMax)):
-        Fc1 = np.random.random() * 12.1
-        Fc2 = np.random.random() * 10.1
+        Fc1 = np.abs(bin_to_float(Bchild1mutated))
+        Fc2 = np.abs(bin_to_float(Bchild2mutated))
+
+        if (np.isnan(Fc1) | np.isnan(Fc2) | (Fc1 < wMin) | (Fc1 > wMax) |
+            (Fc2 < wMin) | (Fc2 > wMax)):
+            Fc1 = np.random.random() * 12.1
+            Fc2 = np.random.random() * 10.1
+
+    elif method == '2point':
+
+        # Determine two pivot points for the multi-point crossover
+        pivot1 = np.random.randint(0, int(len(Bp1) / 2))
+        pivot2 = np.random.randint(pivot1 + 1, len(Bp1))
+
+        # Swap pivot points if pivot2 is less than pivot1
+        if pivot2 < pivot1:
+            pivot1, pivot2 = pivot2, pivot1
+
+        # Perform crossover using the multi-point method
+        Bchild1 = Bp1[:pivot1] + Bp2[pivot1:pivot2] + Bp1[pivot2:]
+        Bchild2 = Bp2[:pivot1] + Bp1[pivot1:pivot2] + Bp2[pivot2:]
+
+        # Apply mutation
+        Bchild1mutated = ''.join(
+            (mutationMask | np.array(list(Bchild1)).astype(int)).astype(str))
+        Bchild2mutated = ''.join(
+            (mutationMask | np.array(list(Bchild2)).astype(int)).astype(str))
+
+        # Convert binary strings to floating-point values
+        Fc1 = np.abs(bin_to_float(Bchild1mutated))
+        Fc2 = np.abs(bin_to_float(Bchild2mutated))
+
+        # Check for out-of-range or NaN values
+        if np.isnan(Fc1) or Fc1 < wMin or Fc1 > wMax:
+            Fc1 = np.random.random() * 12.1
+        if np.isnan(Fc2) or Fc2 < wMin or Fc2 > wMax:
+            Fc2 = np.random.random() * 10.1
+
+    elif method == '4point':
+
+        # Determine four pivot points for the four-point crossover
+        pivot1 = np.random.randint(0, len(Bp1))
+        pivot2 = np.random.randint(pivot1 + 1, len(Bp1))
+        pivot3 = np.random.randint(pivot2 + 1, len(Bp1))
+        pivot4 = np.random.randint(pivot3 + 1, len(Bp1))
+
+        # Perform crossover using the four-point method
+        Bchild1 = Bp1[:pivot1] + Bp2[pivot1:pivot2] + Bp1[pivot2:pivot3] + Bp2[
+            pivot3:pivot4] + Bp1[pivot4:]
+        Bchild2 = Bp2[:pivot1] + Bp1[pivot1:pivot2] + Bp2[pivot2:pivot3] + Bp1[
+            pivot3:pivot4] + Bp2[pivot4:]
+
+        # Apply mutation
+        Bchild1mutated = ''.join(
+            (mutationMask | np.array(list(Bchild1)).astype(int)).astype(str))
+        Bchild2mutated = ''.join(
+            (mutationMask | np.array(list(Bchild2)).astype(int)).astype(str))
+
+        # Convert binary strings to floating-point values
+        Fc1 = np.abs(bin_to_float(Bchild1mutated))
+        Fc2 = np.abs(bin_to_float(Bchild2mutated))
+
+        # Check for out-of-range or NaN values
+        if np.isnan(Fc1) or Fc1 < wMin or Fc1 > wMax:
+            Fc1 = np.random.random() * 12.1
+        if np.isnan(Fc2) or Fc2 < wMin or Fc2 > wMax:
+            Fc2 = np.random.random() * 10.1
+
+    elif method == 'uniform':
+
+        # Perform uniform crossover
+        Bchild1 = ''
+        Bchild2 = ''
+        for i in range(len(Bp1)):
+            if np.random.rand() < 0.5:
+                Bchild1 += Bp1[i]
+                Bchild2 += Bp2[i]
+            else:
+                Bchild1 += Bp2[i]
+                Bchild2 += Bp1[i]
+
+        # Apply mutation
+        Bchild1mutated = ''.join(
+            (mutationMask | np.array(list(Bchild1)).astype(int)).astype(str))
+        Bchild2mutated = ''.join(
+            (mutationMask | np.array(list(Bchild2)).astype(int)).astype(str))
+
+        # Convert binary strings to floating-point values
+        Fc1 = np.abs(bin_to_float(Bchild1mutated))
+        Fc2 = np.abs(bin_to_float(Bchild2mutated))
+
+        # Check for out-of-range or NaN values
+        if np.isnan(Fc1) or Fc1 < wMin or Fc1 > wMax:
+            Fc1 = np.random.random() * 12.1
+        if np.isnan(Fc2) or Fc2 < wMin or Fc2 > wMax:
+            Fc2 = np.random.random() * 10.1
+
+    else:
+        print('unspecified intertwining method.')
+        exit()
 
     if (dbg | np.isnan(Fc1) | np.isnan(Fc2)):
         print('parents (binary)        :%12.4f%12.4f' % (p1, p2))

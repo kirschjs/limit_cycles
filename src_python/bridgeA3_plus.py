@@ -23,22 +23,23 @@ from four_particle_functions import from3to4
 fitt = False
 
 # numerical stability
-mindi = 10.3
+mindi = 1000.3
 
-width_bnds = [0.01, 38.15, 0.001, 34.25]
+width_bnds = [0.001, 28.15, 0.001, 24.25]
 minCond = 10**-17
+grdTy = ['log', 0.003, 0.004]  #['log_with_density_enhancement', 0.003, 0.004]
 
 # genetic parameters
 anzNewBV = 5
-muta_initial = .035
+muta_initial = .004
 anzGen = 4
-seed_civ_size = 50
-target_pop_size = 25
+seed_civ_size = 20
+target_pop_size = 20
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 7
-nREL = 6
+nBV = 8
+nREL = 7
 
 J0 = 1 / 2
 
@@ -78,7 +79,7 @@ for channel in channels_3:
     # 1) prepare an initial set of bases ----------------------------------------------------------------------------------
     civs = []
     while len(civs) < seed_civ_size:
-        new_civs, basi = span_population3(anz_civ=int(3 * seed_civ_size),
+        new_civs, basi = span_population3(anz_civ=int(seed_civ_size),
                                           fragments=channels_3[channel],
                                           Jstreu=float(J0),
                                           coefstr=costr,
@@ -86,12 +87,12 @@ for channel in channels_3:
                                           funcPath=sysdir3,
                                           binPath=BINBDGpath,
                                           mindists=mindi,
-                                          gridType='log',
+                                          gridType=grdTy,
                                           ini_grid_bounds=width_bnds,
                                           ini_dims=[nBV, nREL],
                                           minC=minCond,
                                           evWin=evWindow,
-                                          anzOptStates=nbrStatesOpti3)
+                                          optRange=nbrStatesOpti3)
 
         for cciv in new_civs:
             civs.append(cciv)
@@ -164,7 +165,11 @@ for channel in channels_3:
                         daughterson = [
                             intertwining(mother[1][wset][cfg][n],
                                          father[1][wset][cfg][n],
-                                         mutation_rate=muta_initial)
+                                         mutation_rate=muta_initial,
+                                         wMin=0.0001,
+                                         wMax=220.,
+                                         dbg=False,
+                                         method='2point')
                             for n in range(len(mother[1][wset][cfg]))
                         ]
 
@@ -200,9 +205,7 @@ for channel in channels_3:
                 #                               minDist=mindi) for wsr in widthSet_relative
                 #                ])
 
-                if ((prox_check1 == prox_check2 == False) &
-                    ((max(wa) <= max(width_bnds))
-                     & (max(wb) <= max(width_bnds)))):
+                if (prox_check1 == prox_check2 == False):
 
                     twins.append(daughter)
                     twins.append(son)
@@ -265,10 +268,10 @@ for channel in channels_3:
                     if fitchildren + children > anzNewBV:
                         break
             children += fitchildren
-            if fitchildren == 0:
-                print('%d ' % children, end='')
-            else:
-                print('adding %d new children.' % children)
+            #if fitchildren == 0:
+            #    print('%d ' % children, end='')
+            #else:
+            #    print('adding %d new children.' % children)
 
         civs = sortprint(civs, pr=dbg)
 
@@ -287,19 +290,18 @@ for channel in channels_3:
                 if (n in individual2remove) == False
             ]
         toc = time.time() - tic
-        print('>>> generation %d/%d (dt=%f)' % (nGen, anzGen, toc))
+        #print('>>> generation %d/%d (dt=%f)' % (nGen, anzGen, toc))
         civs = sortprint(civs, pr=dbg)
 
         nGen += 1
 
         outfile = 'civ_%d.dat' % nGen
         if civs[0][2] > qualREF:
-            print('%d) New optimum.' % nGen)
             # wave-function printout (ECCE: in order to work, in addition to the civs[0] argument,
             # I need to hand over the superposition coeffs of the wfkt)
-            #write_indiv3(civs[0], outfile)
-            print('Opt cond. = %4.4e' % civs[0][4] + '\nOpt lowest EVs:\n',
-                  civs[0][3])
+            print(
+                '(Gen., Opt cond., Opt lowest EVs) = %d , %4.4e' %
+                (nGen, civs[0][4]), civs[0][3])
 
     print('\n\n')
 

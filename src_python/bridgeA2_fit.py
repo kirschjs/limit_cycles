@@ -26,7 +26,7 @@ fixi = -1
 # energy to fit to
 deub = 2.22
 
-gTy = 'log_with_density_enhancement'  #'log',  #
+gTy = ['log_with_density_enhancement', 0.005]  #'log',  #
 
 lecFile = '/home/kirscher/kette_repo/limit_cycles/src_mathematica/Ganesh/PlotLECs.dat'
 lec_set = np.array([line.split() for line in open(lecFile)]).astype(float)
@@ -199,7 +199,11 @@ for nlam in [min(30, len(las))]:
                     daughterson = [
                         intertwining(mother[1][wset][n],
                                      father[1][wset][n],
-                                     mutation_rate=muta_initial)
+                                     mutation_rate=muta_initial,
+                                     wMin=0.0001,
+                                     wMax=220.,
+                                     dbg=False,
+                                     method='2point')
                         for n in range(len(mother[1][wset]))
                     ]
                     rw1 = np.array(daughterson)[:, 0]  #.sort()

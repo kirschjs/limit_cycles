@@ -26,18 +26,20 @@ minidi_breed = 210.1
 minidi_seed = minidi_breed
 minidi_breed_rel = minidi_breed
 denseEVinterval = [-2, 2]
-width_bnds = [0.01, 26.25]
+width_bnds = [0.01, 6.25]
 
-deutDim = 7
+grdTy = ['log_with_density_enhancement', 0.005, 0.004]  #'log',  #
+
+deutDim = 8
 
 miniE_breed = -0.1
 
 # genetic parameters
-anzNewBV = 8
-muta_initial = 0.001
-anzGen = 21
-civ_size = 50
-target_pop_size = 35
+anzNewBV = 5
+muta_initial = 0.005
+anzGen = 10
+civ_size = 25
+target_pop_size = 25
 
 zop = 14 if bin_suffix == '_v18-uix' else 11
 
@@ -118,21 +120,20 @@ for channel in channels_2:
     civs = []
     while len(civs) < civ_size:
 
-        new_civs, basi = span_population2(
-            anz_civ=int(3 * civ_size),
-            fragments=channel,
-            Jstreu=float(J0),
-            coefstr=costr,
-            funcPath=sysdir2,
-            binPath=BINBDGpath,
-            mindist=minidi_seed,
-            min_seedE=miniE_breed,
-            gridType='log_with_density_enhancement',
-            ini_grid_bounds=width_bnds,
-            ini_dims=deutDim,
-            minC=minCond,
-            evWin=evWindow,
-            optRange=nbrStatesOpti2)
+        new_civs, basi = span_population2(anz_civ=int(civ_size),
+                                          fragments=channel,
+                                          Jstreu=float(J0),
+                                          coefstr=costr,
+                                          funcPath=sysdir2,
+                                          binPath=BINBDGpath,
+                                          mindist=minidi_seed,
+                                          min_seedE=miniE_breed,
+                                          gridType=grdTy,
+                                          ini_grid_bounds=width_bnds,
+                                          ini_dims=deutDim,
+                                          minC=minCond,
+                                          evWin=evWindow,
+                                          optRange=nbrStatesOpti2)
         for cciv in new_civs:
             civs.append(cciv)
         print('>>> seed civilizations: %d/%d' % (len(civs), civ_size))
@@ -176,7 +177,11 @@ for channel in channels_2:
                     daughterson = [
                         intertwining(mother[1][wset][n],
                                      father[1][wset][n],
-                                     mutation_rate=muta_initial)
+                                     mutation_rate=muta_initial,
+                                     wMin=0.0001,
+                                     wMax=220.,
+                                     dbg=False,
+                                     method='2point')
                         for n in range(len(mother[1][wset]))
                     ]
                     rw1 = np.array(daughterson)[:, 0]  #.sort()

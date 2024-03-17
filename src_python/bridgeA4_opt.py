@@ -23,6 +23,8 @@ width_bnds = [0.006, 18.15, 0.008, 26.25]
 minCond = 10**-26
 maxRat = 10**29
 
+grdTy = ['log_with_density_enhancement', 0.005, 0.001]
+
 # genetic parameters
 anzNewBV = 6
 muta_initial = .02
@@ -38,6 +40,7 @@ nREL = anzRelw4opt
 J0 = 0
 
 chnbr = 0
+dbg = False
 
 for channel in channels_4:
     sysdir4o = sysdir4 + '/' + channel
@@ -83,6 +86,7 @@ for channel in channels_4:
                                           ini_dims=[nBV, nREL],
                                           minC=minCond,
                                           maxR=maxRat,
+                                          gridType=grdTy,
                                           evWin=evWindow,
                                           nzo=zop,
                                           anzOptStates=nbrStatesOpti4)
@@ -92,8 +96,8 @@ for channel in channels_4:
 
         # tup[3] = pulchritude tup[4] = Energy EV tup[5] = condition number
 
-    civs.sort(key=lambda tup: np.abs(tup[3]))
-    civs = sortprint(civs, pr=True)
+    civs.sort(key=lambda tup: np.linalg.norm(tup[3]))
+    civs = sortprint(civs, pr=dbg)
 
     for nGen in range(anzGen):
         tic = time.time()
@@ -143,7 +147,11 @@ for channel in channels_4:
                         daughterson = [
                             intertwining(mother[1][wset][cfg][n],
                                          father[1][wset][cfg][n],
-                                         mutation_rate=muta_initial)
+                                         mutation_rate=muta_initial,
+                                         wMin=0.0001,
+                                         wMax=140.,
+                                         dbg=False,
+                                         method='2point')
                             for n in range(len(mother[1][wset][cfg]))
                         ]
 
@@ -163,22 +171,20 @@ for channel in channels_4:
                 wa = sum(daughter[1][0] + daughter[1][1], [])
                 wb = sum(son[1][0] + son[1][1], [])
 
-                #print(wa)
-                #print(wb)
+                wai = sum(daughter[1][0], [])
+                wbi = sum(son[1][0], [])
+
+                #np.max(wa + wb)
+                #print(len(wa))
                 #exit()
 
-                prox_check1 = check_dist(width_array1=wa, minDist=mindi)
-                prox_check2 = check_dist(width_array1=wb, minDist=mindi)
-                prox_checkr1 = check_dist(
-                    width_array1=wa,
-                    width_array2=widthSet_relative[chnbr],
-                    minDist=mindi)
-                prox_checkr2 = check_dist(
-                    width_array1=wb,
-                    width_array2=widthSet_relative[chnbr],
-                    minDist=mindi)
+                # check whether all widths are dufficiently distant
+                # (ecce) in most cases, this condition always fails
+                #        except for relatively small bases => the seemingly
+                prox_check1 = check_dist(width_array1=wai, minDist=mindi * 100)
+                prox_check2 = check_dist(width_array1=wbi, minDist=mindi * 100)
 
-                if prox_check1 * prox_check2 * prox_checkr1 * prox_checkr2 == True:
+                if (prox_check1 == prox_check2 == False):
 
                     twins.append(daughter)
                     twins.append(son)
@@ -230,7 +236,7 @@ for channel in channels_4:
 
             samp_ladder = [x.recv() for x in samp_list]
 
-            samp_ladder.sort(key=lambda tup: np.abs(tup[2]))
+            samp_ladder.sort(key=lambda tup: np.linalg.norm(tup[2]))
 
             #for el in samp_ladder:
             #    print(el[1:])
@@ -246,7 +252,7 @@ for channel in channels_4:
                         break
             print('number of prodigies/target ', children, '/', anzNewBV)
 
-        civs = sortprint(civs, pr=True)
+        civs = sortprint(civs, pr=dbg)
 
         if len(civs) > target_pop_size:
             currentdim = len(civs)
@@ -264,7 +270,7 @@ for channel in channels_4:
             ]
         toc = time.time() - tic
         print('>>> generation %d/%d (dt=%f)' % (nGen, anzGen, toc))
-        civs = sortprint(civs, pr=False)
+        civs = sortprint(civs, pr=dbg)
 
         nGen += 1
 
@@ -280,7 +286,7 @@ for channel in channels_4:
 
     print('\n\n')
 
-    civs = sortprint(civs, pr=True)
+    civs = sortprint(civs, pr=dbg)
 
     ma = blunt_ev4t(civs[0][0],
                     civs[0][1][0],

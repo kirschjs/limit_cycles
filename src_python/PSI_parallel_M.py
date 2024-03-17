@@ -117,7 +117,7 @@ def span_population2(anz_civ,
                      binPath,
                      min_seedE=0.0,
                      mindist=0.1,
-                     gridType='log',
+                     gridType=['log', 0.005, 0.001],
                      ini_grid_bounds=[0.01, 9.5],
                      ini_dims=8,
                      minC=10**(-8),
@@ -148,7 +148,7 @@ def span_population2(anz_civ,
         he_rw = he_frgs = ob_stru = lu_stru = sbas = []
 
         #  -- relative widths --------------------------------------------------
-        if gridType == 'log':
+        if gridType[0] == 'log':
             lit_w_tmp = np.abs(
                 np.geomspace(start=ini_grid_bounds[0],
                              stop=ini_grid_bounds[1],
@@ -159,19 +159,18 @@ def span_population2(anz_civ,
                 test_width * np.random.random() for test_width in lit_w_tmp
             ]
 
-        elif gridType == 'exp':
+        elif gridType[0] == 'exp':
             lit_w_t, mindist = expspaceS(start=ini_grid_bounds[0],
                                          stop=ini_grid_bounds[1],
                                          num=nwrel,
                                          scal=0.1 + 1.9 * np.random.random())
 
-        elif gridType == 'log_with_density_enhancement':
+        elif gridType[0] == 'log_with_density_enhancement':
             wi, wf, lbase = ini_grid_bounds[0], ini_grid_bounds[
                 1], 0.01 + 3.98 * np.random.random()
-            numpoints = 10
-            std_dev = 0.005
+            std_dev = gridType[1]
             lit_w_t = log_with_density_enhancement(wi, wf, lbase, nwrel,
-                                                   numpoints, std_dev)
+                                                   std_dev)
 
         else:
             print('\n>>> unspecified grid type.')
@@ -528,7 +527,7 @@ def span_population3(anz_civ,
                      mindists=1.0,
                      ini_grid_bounds=[0.01, 9.5, 0.001, 11.5],
                      ini_dims=[4, 4],
-                     gridType='log',
+                     gridType=['log', 0.005, 0.005],
                      minC=10**(-8),
                      evWin=[-100, 100],
                      optRange=[-1]):
@@ -581,7 +580,7 @@ def span_population3(anz_civ,
 
             itera = 1
             #  -- internal widths --------------------------------------------------
-            if gridType == 'log':
+            if gridType[0] == 'log':
                 lit_w_tmp = np.abs(
                     np.geomspace(start=ini_grid_bounds[0],
                                  stop=ini_grid_bounds[1],
@@ -589,12 +588,20 @@ def span_population3(anz_civ,
                                  endpoint=True,
                                  dtype=None))
 
-            elif gridType == 'exp':
+            elif gridType[0] == 'exp':
                 lit_w_tmp, mindist = expspaceS(start=ini_grid_bounds[0],
                                                stop=ini_grid_bounds[1],
                                                num=nwint,
                                                scal=0.1 +
                                                1.9 * np.random.random())
+
+            elif gridType[0] == 'log_with_density_enhancement':
+                wi, wf, lbase = ini_grid_bounds[0], ini_grid_bounds[
+                    1], 0.01 + 3.98 * np.random.random()
+                std_dev = gridType[1]
+                lit_w_tmp = log_with_density_enhancement(
+                    wi, wf, lbase, nwint, std_dev)
+
             else:
                 print('\n>>> unspecified grid type.')
                 exit()
@@ -628,7 +635,7 @@ def span_population3(anz_civ,
             lit_w[frg] = np.sort(lit_w_t)[::-1]
 
             #  -- relative widths --------------------------------------------------
-            if gridType == 'log':
+            if gridType[0] == 'log':
                 lit_w_tmp = np.abs(
                     np.geomspace(start=ini_grid_bounds[2],
                                  stop=ini_grid_bounds[3],
@@ -636,12 +643,20 @@ def span_population3(anz_civ,
                                  endpoint=True,
                                  dtype=None))
 
-            elif gridType == 'exp':
+            elif gridType[0] == 'exp':
                 lit_w_tmp, mindist = expspaceS(start=ini_grid_bounds[2],
                                                stop=ini_grid_bounds[3],
                                                num=nwrel,
                                                scal=0.1 +
                                                1.9 * np.random.random())
+
+            elif gridType[0] == 'log_with_density_enhancement':
+                wi, wf, lbase = ini_grid_bounds[2], ini_grid_bounds[
+                    3], 0.01 + 3.98 * np.random.random()
+                std_dev = gridType[2]
+                lit_w_tmp = log_with_density_enhancement(
+                    wi, wf, lbase, nwrel, std_dev)
+
             else:
                 print('\n>>> unspecified grid type.')
                 exit()
@@ -1046,7 +1061,7 @@ def span_population4(anz_civ,
                      mindists=0.001,
                      ini_grid_bounds=[0.01, 9.5, 0.001, 11.5],
                      ini_dims=[4, 4],
-                     gridType='log',
+                     gridType=['log', 0.005, 0.005],
                      minC=10**(-8),
                      maxR=10**5,
                      evWin=[-100, 100],
@@ -1095,7 +1110,7 @@ def span_population4(anz_civ,
 
             #  -- internal widths --------------------------------------------------
 
-            if gridType == 'log':
+            if gridType[0] == 'log':
                 wi, wf, lbase = ini_grid_bounds[0], ini_grid_bounds[1], (
                     0.01 + 3.98 * np.random.random())
                 sta = np.log(wi) / np.log(lbase)
@@ -1108,7 +1123,7 @@ def span_population4(anz_civ,
                                 endpoint=True,
                                 dtype=None))
 
-            elif gridType == 'exp':
+            elif gridType[0] == 'exp':
                 wi, wf, scale = ini_grid_bounds[0], ini_grid_bounds[1], (
                     0.01 + 0.9 * np.random.random())
                 lit_w_tmp, mindist_int = expspaceS(start=wi,
@@ -1120,14 +1135,12 @@ def span_population4(anz_civ,
                 #print(lit_w_tmp)
                 #exit()
 
-            elif gridType == 'log_with_density_enhancement':
+            elif gridType[0] == 'log_with_density_enhancement':
                 wi, wf, lbase = ini_grid_bounds[0], ini_grid_bounds[
                     1], 0.01 + 3.98 * np.random.random()
-                num_additional_points = 10
-                std_dev = 0.05
+                std_dev = gridType[1]
                 lit_w_tmp = log_with_density_enhancement(
-                    wi, wf, lbase, int(2 * nwint), num_additional_points,
-                    std_dev)
+                    wi, wf, lbase, int(2 * nwint), std_dev)
 
             else:
                 print('\n>>> unspecified grid type.')
@@ -1163,7 +1176,7 @@ def span_population4(anz_civ,
 
             #  -- relative widths --------------------------------------------------
 
-            if gridType == 'log':
+            if gridType[0] == 'log':
                 wi, wf, lbase = ini_grid_bounds[2], ini_grid_bounds[3], (
                     0.01 + 3.98 * np.random.random())
                 sta = np.log(wi) / np.log(lbase)
@@ -1176,7 +1189,7 @@ def span_population4(anz_civ,
                                 endpoint=True,
                                 dtype=None))
 
-            elif gridType == 'exp':
+            elif gridType[0] == 'exp':
                 wi, wf, scale = ini_grid_bounds[2], ini_grid_bounds[3], (
                     0.01 + 0.9 * np.random.random())
                 lit_w_tmp, mindist_rel = expspaceS(start=wi,
@@ -1185,13 +1198,12 @@ def span_population4(anz_civ,
                                                    num=nwrel,
                                                    deltam=mindist_rel)
 
-            elif gridType == 'log_with_density_enhancement':
+            elif gridType[0] == 'log_with_density_enhancement':
                 wi, wf, lbase = ini_grid_bounds[0], ini_grid_bounds[
                     1], 0.01 + 3.98 * np.random.random()
-                num_additional_points = 10
-                std_dev = 0.005
+                std_dev = gridType[2]
                 lit_w_tmp = log_with_density_enhancement(
-                    wi, wf, lbase, nwrel, num_additional_points, std_dev)
+                    wi, wf, lbase, nwrel, std_dev)
 
             else:
                 print('\n>>> unspecified grid type.')

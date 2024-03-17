@@ -89,8 +89,8 @@ maxParLen = 120
 cib = 0  # if set, EFTnoPi with charge independence broken by Coulomb and an acompanying
 # contact-term correction is employed (leading order)
 
-lam = 6.00  # 4,6,8,10 (for presentation)
-b3 = 10.0
+lam = 4.00  # 4,6,8,10 (for presentation)
+b3 = 8.00
 la = ('%-4.2f' % lam)[:4]
 tb = ('%-4.2f' % b3)[:4]
 
@@ -265,7 +265,7 @@ elif len(lec_set[la][tb]) == 2:
 
 evWindow = [-211.5, -1.70]
 nbrStatesOpti2 = list(range(-1, 0))
-nbrStatesOpti3 = list(range(-1, 0))
+nbrStatesOpti3 = list(range(-2, -1))
 nbrStatesOpti4 = [-4]
 
 eDict = {
