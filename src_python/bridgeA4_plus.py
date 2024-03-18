@@ -29,7 +29,7 @@ smallestAllowedDistortionW = 0.1
 indexOfLargestAllowedDistW = 2
 normStabilityThreshold = 10**-30
 maxCofDev = 1000.1
-newCal = -1
+newCal = 1
 
 # ECCE: variable whose consistency with evalChans must be given:
 # nbr_of_threebody_boundstates ,
@@ -368,6 +368,10 @@ if os.path.isdir(sysdir4 + '/alpha') == True:
         if 10**2 > np.abs(coflist[nc]) > 0.1
     ]
 
+    sbasAlphaDist = np.array([
+        ll.split() for ll in open(sysdir4 + '/alpha/alpha_dist_ch.sbas')
+    ]).astype(int)
+
     chStr = ''
     bv = 1
     for nn in range(len(zstrus_alpha)):
@@ -383,7 +387,7 @@ if os.path.isdir(sysdir4 + '/alpha') == True:
                     chStr += '%4d%4d\n' % (1, nbr_phy_bv + bv)
                     chStr += '%-4d\n' % (np.random.choice(distuec))
                     #s += relwoffset
-                    for relw in relwDistCH:
+                    for relw in sbasAlphaDist[bv - 1]:
                         chStr += '%3d' % relw
                     chStr += '\n'
                     bv += 1

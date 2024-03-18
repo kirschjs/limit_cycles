@@ -90,7 +90,7 @@ cib = 0  # if set, EFTnoPi with charge independence broken by Coulomb and an aco
 # contact-term correction is employed (leading order)
 
 lam = 4.00  # 4,6,8,10 (for presentation)
-b3 = 8.00
+b3 = 13.0
 la = ('%-4.2f' % lam)[:4]
 tb = ('%-4.2f' % b3)[:4]
 
@@ -109,7 +109,7 @@ lec_set = {
         '20.0': [-702.16, -946.4991],
     },
     '4.00': {
-        '13.0': [-473.27, -601.7702],
+        '13.0': [-473.27, -995.7702],
         '8.00': [-505.15, 1395.62624049],
     },
 }
@@ -266,7 +266,7 @@ elif len(lec_set[la][tb]) == 2:
 evWindow = [-211.5, -1.70]
 nbrStatesOpti2 = list(range(-1, 0))
 nbrStatesOpti3 = list(range(-2, -1))
-nbrStatesOpti4 = [-4]
+nbrStatesOpti4 = list(range(-3, -0))
 
 eDict = {
     #    [#energies, E0, dE, [3bdy GS, 3bdy ES1, 3bdy ES2, ...]]

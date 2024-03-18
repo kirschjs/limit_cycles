@@ -10,7 +10,6 @@ from four_particle_functions import *
 from PSI_parallel_M import *
 from rrgm_functions import *
 from genetic_width_growth import *
-from plot_dist import *
 from parameters_and_constants import *
 from reduce_model_space_4 import redmod
 
@@ -19,30 +18,55 @@ from multiprocessing.pool import ThreadPool
 
 # numerical stability
 mindi = 1000.0
-width_bnds = [0.006, 18.15, 0.008, 26.25]
-minCond = 10**-26
+width_bnds = [0.06, 21.15, 0.08, 15.25]
+minCond = 10**-24
 maxRat = 10**29
 
 grdTy = ['log_with_density_enhancement', 0.005, 0.001]
 
 # genetic parameters
 anzNewBV = 6
-muta_initial = .002
-anzGen = 2
-seed_civ_size = 10
-target_pop_size = 10
+muta_initial = 0.004
+anzGen = 5
+seed_civ_size = 12
+target_pop_size = 12
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 8
-nREL = anzRelw4opt
+nBV = 12
+nREL = 10
 
 J0 = 0
 
-chnbr = 0
 dbg = False
+channel = 'alpha'
 
-for channel in channels_4:
+DRange = np.linspace(start=1.0, stop=-1.5, num=25, endpoint=True, dtype=None)
+
+# read file with 3-body ground-state energies for this LEC range
+threeBodyTHs = np.array([
+    line.split() for line in open(
+        '/home/kirscher/kette_repo/limit_cycles/systems/3_B2-05_B3-8.00/4.00/123/spect/Spect3_D-1.00--1.50.dat'
+    )
+]).astype(float)[:, [0, -1]]
+
+# [LECD,[ev0,ev1,...]]
+results = []
+dbg = False
+for tnifac in DRange:
+    LastEx2opt = 1
+
+    thEV = [
+        three[1] for three in threeBodyTHs
+        if np.abs(lec_set[la][tb][1] * tnifac - three[0]) < 1e-4
+    ]
+    if thEV == []:
+        thEV = -float(tb)
+        print('no 3-body threshold found for specific LEC, defaulting to: ',
+              thEV)
+    else:
+        thEV = thEV[0]
+
     sysdir4o = sysdir4 + '/' + channel
     print('>>> working directory: ', sysdir4o)
 
@@ -75,7 +99,7 @@ for channel in channels_4:
     # 1) prepare an initial set of bases ----------------------------------------------------------------------------------
     civs = []
     while len(civs) < seed_civ_size:
-
+        nbrStatesOpti4 = list(range(-LastEx2opt, 0))
         new_civs, basi = span_population4(anz_civ=int(seed_civ_size),
                                           fragments=[channels_4[channel]],
                                           Jstreu=float(J0),
@@ -85,9 +109,9 @@ for channel in channels_4:
                                           mindists=mindi,
                                           ini_grid_bounds=width_bnds,
                                           ini_dims=[nBV, nREL],
+                                          gridType=grdTy,
                                           minC=minCond,
                                           maxR=maxRat,
-                                          gridType=grdTy,
                                           evWin=evWindow,
                                           nzo=zop,
                                           optRange=nbrStatesOpti4)
@@ -95,9 +119,21 @@ for channel in channels_4:
             civs.append(cciv)
         print('>>> seed civilizations: %d/%d' % (len(civs), seed_civ_size))
 
-        # tup[3] = pulchritude tup[4] = Energy EV tup[5] = condition number
+        # tup[2] = pulchritude tup[3] = Energy EV tup[4] = condition number
 
-    civs.sort(key=lambda tup: np.linalg.norm(tup[3]))
+        civs.sort(key=lambda tup: np.linalg.norm(tup[3]))
+
+        oo = np.array([civs[n][3][0] for n in range(seed_civ_size)])
+
+        # if the random bases set has at least one element close to the
+        # lowest threshold, restart the seeding process and see if also
+        # the next smallest value turns out negative; in this way we
+        # will not miss to optimize an excited state below a threshold.
+
+        if np.any(np.less(oo, thEV * np.ones(len(oo)))):
+            LastEx2opt += 1
+            civs = []
+
     civs = sortprint(civs, pr=dbg)
 
     for nGen in range(anzGen):
@@ -148,7 +184,8 @@ for channel in channels_4:
                     wdau.append([])
                     wson.append([])
                     for cfg in range(len(mother[0])):
-
+                        #print(mother[1][wset][cfg])
+                        #print(father[1][wset][cfg])
                         daughterson = [
                             intertwining(mother[1][wset][cfg][n],
                                          father[1][wset][cfg][n],
@@ -159,13 +196,16 @@ for channel in channels_4:
                                          method='2point')
                             for n in range(len(mother[1][wset][cfg]))
                         ]
-
+                        #print(daughterson)
                         rw1 = np.array(daughterson)[:, 0]  #.sort()
                         rw1.sort()
                         rw2 = np.array(daughterson)[:, 1]  #.sort()
                         rw2.sort()
                         wdau[-1].append(list(rw1)[::-1])
                         wson[-1].append(list(rw2)[::-1])
+                        #print(rw1)
+                        #print(rw2)
+                        #exit()
 
                 daughter = [mother[0], wdau, 0, 0, 0]
                 son = [mother[0], wson, 0, 0, 0]
@@ -193,8 +233,10 @@ for channel in channels_4:
 
                     twins.append(daughter)
                     twins.append(son)
+                #else:
+                #    print('children too close...', end='')
 
-            print('Gen %d) offspring created and is now rated.' % nGen)
+            #print('Gen %d) offspring created and is now rated.' % nGen)
             # ---------------------------------------------------------------------
             ParaSets = [[
                 twins[twinID][1][0], twins[twinID][1][1], sbas, nnpotstring,
@@ -237,7 +279,7 @@ for channel in channels_4:
                 for proc in jobs:
                     proc.join()
 
-            print('Gen %d) offspring rated.' % nGen)
+            #print('Gen %d) offspring rated.' % nGen)
 
             samp_ladder = [x.recv() for x in samp_list]
 
@@ -274,20 +316,20 @@ for channel in channels_4:
                 if (n in individual2remove) == False
             ]
         toc = time.time() - tic
-        print('>>> generation %d/%d (dt=%f)' % (nGen, anzGen, toc))
+        if dbg:
+            print('>>> generation %d/%d (dt=%f)' % (nGen, anzGen, toc))
         civs = sortprint(civs, pr=dbg)
 
         nGen += 1
 
         outfile = 'civ_%d.dat' % nGen
         if civs[0][2] > qualREF:
-            print('%d) New optimum.' % nGen)
             # wave-function printout (ECCE: in order to work, in addition to the civs[0] argument,
             # I need to hand over the superposition coeffs of the wfkt)
             #write_indiv3(civs[0], outfile)
-            print('   opt E = %4.4f   opt cond. = %4.4e' %
-                  (civs[0][3], civs[0][4]),
-                  end='\n')
+            print(
+                '(Gen., Opt cond., Opt lowest EVs) = %d , %4.4e' %
+                (nGen, civs[0][4]), civs[0][3])
 
     print('\n\n')
 
@@ -310,98 +352,7 @@ for channel in channels_4:
                     jay=float(J0))
 
     smartEV, parCond, gsRatio = smart_ev(ma, threshold=10**-9)
-    gsEnergy = smartEV[-1]
-
-    print('\n> basType %s : C-nbr = %4.4e E0 = %4.4e\n\n' %
-          (channels_4[channel], parCond, gsEnergy))
-
-    #    print(civs[0])
-    #
-    #    redmod(BINBDGpath)
-    #
-    tt = get_bas()
-    ttt = get_bsv_rw_idx()
-    sbas = np.array([bv[1] for bv in tt])
-
-    with open('alpha_dist_ch.sbas', 'w') as outf:
-        np.savetxt(outf, sbas, delimiter=' ', fmt='%d')
-
-    #    # reformat the basis as input for the 5-body calculation
-    #
-    finCiv = [civs[0][0], civs[0][1][0], civs[0][1][1], ttt]
-    ob_strus, lu_strus, strus, bvwidthString = condense_basis_4to5(
-        finCiv, widthSet_relative[chnbr], fn='inq_4to5_%s' % lam)
-
-    expC_GS = parse_ev_coeffs_normiert(mult=0,
-                                       infil='OUTPUT',
-                                       outf='COEFF_NORMAL')
-    expC_ES = parse_ev_coeffs_normiert(mult=0,
-                                       infil='OUTPUT',
-                                       outf='COEFF_NORMAL',
-                                       nbv=2)
-    #    expC = parse_ev_coeffs(mult=0, infil='OUTPUT', outf='COEFF', bvnr=1)
-
-    for wn in range(len(bvwidthString.split('\n'))):
-        if bvwidthString.split('\n')[wn] != '':
-            #print('%+12.8f    %s' %
-            #      (float(expC[wn]), bvwidthString.split('\n')[wn]))
-            print('{%12.8f , %12.8f , %12.8f , %12.8f },' %
-                  (float(expC_GS[wn]),
-                   float(bvwidthString.split('\n')[wn].split()[0]),
-                   float(bvwidthString.split('\n')[wn].split()[1]),
-                   float(bvwidthString.split('\n')[wn].split()[2])))
-
-    print('\n')
-    for wn in range(len(bvwidthString.split('\n'))):
-        if bvwidthString.split('\n')[wn] != '':
-            #print('%+12.8f    %s' %
-            #      (float(expC[wn]), bvwidthString.split('\n')[wn]))
-            print('{%12.8f , %12.8f , %12.8f , %12.8f },' %
-                  (float(expC_ES[wn]),
-                   float(bvwidthString.split('\n')[wn].split()[0]),
-                   float(bvwidthString.split('\n')[wn].split()[1]),
-                   float(bvwidthString.split('\n')[wn].split()[2])))
-    #    print(ob_strus, lu_strus, strus)
-    #    # reformat the basis as input for the 5-body calculation
-    #
-    #    assert len(lu_strus) == len(ob_strus)
-
-    os.system('cp INQUA_N INQUA_N_%s' % lam)
-    os.system('cp OUTPUT bndg_out_%s' % lam)
-
-    outl = ''
-    outs = ''
-    outst = ''
-
-    for st in range(len(lu_strus)):
-        outl += lu_strus[st] + '\n'
-        outs += ob_strus[st] + '\n'
-        outst += str(strus[st]) + '\n'
-
-    with open('lustru_%s' % lam, 'w') as outfile:
-        outfile.write(outl)
-    with open('obstru_%s' % lam, 'w') as outfile:
-        outfile.write(outs)
-    with open('vier_stru_%s' % lam, 'w') as outfile:
-        outfile.write(outst)
-
-    # output to improve the model space of a 4-body scattering calculation
-    # in the region where 4-body bound states might appear close to a threshold
-    outl = ''
-    outs = ''
-    outst = ''
-
-    for nn in range(len(civs[0][0])):
-        outl += civs[0][0][nn][1][0] + '\n'
-        outs += civs[0][0][nn][0] + '\n'
-        outst += str(int(len(civs[0][1][0][nn]) / 2)) + '\n'
-
-    with open('lustru_alpha_%s' % lam, 'w') as outfile:
-        outfile.write(outl)
-    with open('obstru_alpha_%s' % lam, 'w') as outfile:
-        outfile.write(outs)
-    with open('vier_stru_alpha_%s' % lam, 'w') as outfile:
-        outfile.write(outst)
+    results.append([tnifac * d0, smartEV[-LastEx2opt::]])
 
     subprocess.call('rm -rf TQUAOUT.*', shell=True)
     subprocess.call('rm -rf TDQUAOUT.*', shell=True)
@@ -409,4 +360,24 @@ for channel in channels_4:
     subprocess.call('rm -rf DRDMOUT.*', shell=True)
     subprocess.call('rm -rf matout_*.*', shell=True)
 
-    chnbr += 1
+#prepare output string
+outs = ''
+for res in results:
+    outs += '%-20.12f' % res[0]
+    outs += '  '
+    for ev in res[1]:
+        outs += '%-20.12f' % ev
+        outs += '  '
+    outs += '\n'
+
+outf = 'Spect4_of_D.dat'
+
+if os.path.exists(outf):
+    with open(outf, 'a') as outfile:
+        outfile.write(outs)
+    print('results appended to: ', outf)
+else:
+    outf = 'Spect4_D-%2.2f-%2.2f.dat' % (DRange[0], DRange[-1])
+    with open(outf, 'w') as outfile:
+        outfile.write(outs)
+    print('results written in: ', outf)

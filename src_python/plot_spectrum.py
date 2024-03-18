@@ -5,7 +5,9 @@ import numpy as np
 #plt.style.use('bmh')
 
 offs = 3
-infile = '/home/kirscher/kette_repo/limit_cycles/systems/3_B2-05_B3-8.00/4.00/123/spect/Spect3_of_D.dat'
+infolder = '/home/kirscher/kette_repo/limit_cycles/systems/3_B2-05_B3-8.00/4.00/123/spect/'
+os.chdir(infolder)
+infile = 'Spect3_D-1.00--1.50.dat'
 
 data = np.array(
     [np.array(line.split()).astype(float) for line in open(infile)])

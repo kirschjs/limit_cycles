@@ -354,13 +354,17 @@ for res in results:
         outs += '  '
     outs += '\n'
 
-if os.path.exists('Spect3_of_D.dat'):
-    with open('Spect3_of_D.dat', 'a') as outfile:
+outf = 'Spect3_of_D.dat'
+
+if os.path.exists(outf):
+    with open(outf, 'a') as outfile:
         outfile.write(outs)
+    print('results appended to: ', outf)
 else:
-    with open('Spect3_D-%2.2f-%2.2f.dat' % (DRange[0], DRange[-1]),
-              'w') as outfile:
+    outf = 'Spect3_D-%2.2f-%2.2f.dat' % (DRange[0], DRange[-1])
+    with open(outf, 'w') as outfile:
         outfile.write(outs)
+    print('results written in: ', outf)
 
 subprocess.call('rm -rf TQUAOUT.*', shell=True)
 subprocess.call('rm -rf TDQUAOUT.*', shell=True)

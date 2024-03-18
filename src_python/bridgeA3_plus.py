@@ -20,7 +20,7 @@ from four_particle_functions import from3to4
 
 # flag to be set if after the optimization of the model space, a calibration within
 # that space to an observable is ``requested''
-fitt = False
+fitt = True
 
 # numerical stability
 mindi = 1000.3
@@ -417,7 +417,7 @@ for channel in channels_3:
         fixi = -2
 
         # energy to fit to
-        trib = 8.4
+        trib = 10.0
         # initial scaling factor from which the root-finding algorithm commences its search
         fac = 0.01
 
