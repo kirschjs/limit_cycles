@@ -20,26 +20,26 @@ from four_particle_functions import from3to4
 
 # flag to be set if after the optimization of the model space, a calibration within
 # that space to an observable is ``requested''
-fitt = True
+fitt = False
 
 # numerical stability
 mindi = 1000.3
 
-width_bnds = [0.001, 28.15, 0.001, 24.25]
+width_bnds = [0.007, 8.15, 0.005, 7.25]
 minCond = 10**-17
 grdTy = ['log', 0.003, 0.004]  #['log_with_density_enhancement', 0.003, 0.004]
 
 # genetic parameters
 anzNewBV = 5
 muta_initial = .004
-anzGen = 4
+anzGen = 14
 seed_civ_size = 20
 target_pop_size = 20
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 8
-nREL = 7
+nBV = 5
+nREL = 4
 
 J0 = 1 / 2
 

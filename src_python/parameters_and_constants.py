@@ -89,8 +89,8 @@ maxParLen = 120
 cib = 0  # if set, EFTnoPi with charge independence broken by Coulomb and an acompanying
 # contact-term correction is employed (leading order)
 
-lam = 4.00  # 4,6,8,10 (for presentation)
-b3 = 13.0
+lam = 6.00  # 4,6,8,10 (for presentation)
+b3 = 1.00
 la = ('%-4.2f' % lam)[:4]
 tb = ('%-4.2f' % b3)[:4]
 
@@ -104,6 +104,7 @@ D    -- 1730.4873 672.4964 572.2156 317.1505 238.5372 -4.1843 -532.5492 -1703.98
 # LEC dictionary [cutoff][B(3)] [2-body LEC, 3-body LEC] for B(2)=0.5MeV
 lec_set = {
     '6.00': {
+        '1.00': [-702.16, 49.96837],
         '10.0': [-702.16, -787.8583],
         '13.0': [-702.16, -845.1583],
         '20.0': [-702.16, -946.4991],
@@ -266,13 +267,14 @@ elif len(lec_set[la][tb]) == 2:
 evWindow = [-211.5, -1.70]
 nbrStatesOpti2 = list(range(-1, 0))
 nbrStatesOpti3 = list(range(-2, -1))
-nbrStatesOpti4 = list(range(-3, -0))
+nbrStatesOpti4 = list(range(-4, -0))
 
 eDict = {
     #    [#energies, E0, dE, [3bdy GS, 3bdy ES1, 3bdy ES2, ...]]
     '8.00': [100, 0.0, 0.03, [0, 1], [[1, 1], [2, 2]]],
     '10.0': [100, 0.0, 0.03, [0, 1], [[1, 1], [2, 2]]],
-    '13.0': [100, 0.0, 0.2, [0, 1, 1], [[1, 1], [2, 2], [3, 3]]],
+    '13.0': [100, 0.0, 0.2, [0, 1], [[1, 1], [2, 2]]],
+    '1.00': [100, 0.0, 0.2, [0, 1], [[1, 1], [2, 2]]],
 }
 
 # include the n-th 3-body bounstate of the 3-body spectrum as asymptotic fragments
@@ -285,11 +287,11 @@ E0 = eDict[tb][1]
 D0 = eDict[tb][2]
 
 epL = 0.0001
-epU = 0.2
+epU = 0.005
 eps0 = [epL * 1.0, epL, epL, epL, epL]
 eps1 = [epU * 1.0, epU, epU, epU, epU]
 epsM = (np.array(eps1) + np.array(eps0)) / 2
-epsNBR = 40
+epsNBR = 4
 
 phasCalcMethod = 1
 # parameters for the expansion of the fragment-relative function
@@ -323,11 +325,11 @@ MeVfm = 197.3161329
 
 # number of relative widths used for the refinement of the 4-body state
 # in the interaction region (see bridgeA4_opt.py)
-anzRelw4opt = 10
+anzRelw4opt = 20
 
 # number of Gaussian basis functions/widths used to expand the fragment-relative wave function
 anzRelw = 20  # 10, 12, 14, 20, ....
-maxRelW = 30.1
+maxRelW = 20.1
 
 unStable = True
 ite = 0
@@ -339,7 +341,7 @@ while unStable == True:
                 np.abs(
                     np.concatenate([
                         np.array([
-                            ww for ww in np.logspace(-4.2 +
+                            ww for ww in np.logspace(-3.8 +
                                                      0.1 * np.random.random(),
                                                      1.2 +
                                                      0.3 * np.random.random(),
@@ -351,7 +353,7 @@ while unStable == True:
                         np.array([
                             ww for ww in np.logspace(-1.2 +
                                                      0.2 * np.random.random(),
-                                                     1.1 +
+                                                     1.4 +
                                                      0.2 * np.random.random(),
                                                      num=int(anzRelw / 2),
                                                      endpoint=True,

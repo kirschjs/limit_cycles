@@ -19,7 +19,7 @@ from multiprocessing.pool import ThreadPool
 
 # numerical stability
 mindi = 1000.0
-width_bnds = [0.006, 18.15, 0.008, 26.25]
+width_bnds = [0.06, 18.15, 0.08, 26.2]
 minCond = 10**-26
 maxRat = 10**29
 
@@ -28,13 +28,13 @@ grdTy = ['log_with_density_enhancement', 0.005, 0.001]
 # genetic parameters
 anzNewBV = 6
 muta_initial = .002
-anzGen = 2
-seed_civ_size = 10
-target_pop_size = 10
+anzGen = 20
+seed_civ_size = 20
+target_pop_size = 20
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 8
+nBV = 26
 nREL = anzRelw4opt
 
 J0 = 0
@@ -194,7 +194,7 @@ for channel in channels_4:
                     twins.append(daughter)
                     twins.append(son)
 
-            print('Gen %d) offspring created and is now rated.' % nGen)
+            #print('Gen %d) offspring created and is now rated.' % nGen)
             # ---------------------------------------------------------------------
             ParaSets = [[
                 twins[twinID][1][0], twins[twinID][1][1], sbas, nnpotstring,
@@ -237,7 +237,7 @@ for channel in channels_4:
                 for proc in jobs:
                     proc.join()
 
-            print('Gen %d) offspring rated.' % nGen)
+            #print('Gen %d) offspring rated.' % nGen)
 
             samp_ladder = [x.recv() for x in samp_list]
 
@@ -273,21 +273,22 @@ for channel in channels_4:
                 civs[n] for n in range(len(civs))
                 if (n in individual2remove) == False
             ]
+
         toc = time.time() - tic
-        print('>>> generation %d/%d (dt=%f)' % (nGen, anzGen, toc))
+        if dbg:
+            print('>>> generation %d/%d (dt=%f)' % (nGen, anzGen, toc))
         civs = sortprint(civs, pr=dbg)
 
         nGen += 1
 
         outfile = 'civ_%d.dat' % nGen
         if civs[0][2] > qualREF:
-            print('%d) New optimum.' % nGen)
             # wave-function printout (ECCE: in order to work, in addition to the civs[0] argument,
             # I need to hand over the superposition coeffs of the wfkt)
             #write_indiv3(civs[0], outfile)
-            print('   opt E = %4.4f   opt cond. = %4.4e' %
-                  (civs[0][3], civs[0][4]),
-                  end='\n')
+            print(
+                '(Gen., Opt cond., Opt lowest EVs) = %d , %4.4e' %
+                (nGen, civs[0][4]), civs[0][3])
 
     print('\n\n')
 

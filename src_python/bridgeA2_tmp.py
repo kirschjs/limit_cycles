@@ -19,17 +19,18 @@ from multiprocessing.pool import ThreadPool
 
 # flag to be set if after the optimization of the model space, a calibration within
 # that space to an observable is ``requested''
-fitt = True
+fitt = False
 
 # which eigenstate whould have the specified target value? fixi=-1 = ground-state fitting
 fixi = -1
 # energy to fit to
 deub = 2.22
 
-gTy = 'log_with_density_enhancement'  #'log',  #
+gTy = ['log_with_density_enhancement', 0.001, 0.002]  #'log',  #
 
-lecFile = '/home/kirscher/kette_repo/limit_cycles/src_mathematica/Ganesh/PlotLECs.dat'
-lec_set = np.array([line.split() for line in open(lecFile)]).astype(float)
+lecFile = '/home/kirscher/Documents/vault/Vorlesungen/num_methods/lec_ex0_b2.22.dat'
+lec_set = np.array([line.split() for line in open(lecFile)
+                    if line[0] != '#']).astype(float)
 
 las = lec_set[:, 0]
 
@@ -56,7 +57,7 @@ zop = 14 if bin_suffix == '_v18-uix' else 11
 
 ftFac = []
 
-for nlam in [min(30, len(las))]:
+for nlam in range(len(las)):  #[min(30, len(las))]:
 
     nbrStatesOpti2 = list(range(fixi, 0))
 
@@ -199,7 +200,11 @@ for nlam in [min(30, len(las))]:
                     daughterson = [
                         intertwining(mother[1][wset][n],
                                      father[1][wset][n],
-                                     mutation_rate=muta_initial)
+                                     mutation_rate=muta_initial,
+                                     wMin=0.0001,
+                                     wMax=220.,
+                                     dbg=False,
+                                     method='2point')
                         for n in range(len(mother[1][wset]))
                     ]
                     rw1 = np.array(daughterson)[:, 0]  #.sort()
@@ -340,12 +345,12 @@ for nlam in [min(30, len(las))]:
         outfile = 'civ_%d.dat' % nGen
 
         if civs[0][2] > qualREF:
-            print('%d) New optimum.' % nGen)
             # wave-function printout (ECCE: in order to work, in addition to the civs[0] argument,
             # I need to hand over the superposition coeffs of the wfkt)
             #write_indiv3(civs[0], outfile)
-            print('Opt cond. = %4.4e' % civs[0][4] + '\nOpt lowest EVs:\n',
-                  civs[0][3])
+            print(
+                '(Gen., Opt cond., Opt lowest EVs) = %d , %4.4e' %
+                (nGen, civs[0][4]), civs[0][3])
 
     print('\n\n')
 

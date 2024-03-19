@@ -25,7 +25,7 @@ from multiprocessing.pool import ThreadPool
 
 # prepare spin/orbital matrices for parallel computation
 findstablebas = 0
-smallestAllowedDistortionW = 0.1
+smallestAllowedDistortionW = 0.01
 indexOfLargestAllowedDistW = 2
 normStabilityThreshold = 10**-30
 maxCofDev = 1000.1
