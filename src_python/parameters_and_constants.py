@@ -271,10 +271,10 @@ nbrStatesOpti4 = list(range(-4, -0))
 
 eDict = {
     #    [#energies, E0, dE, [3bdy GS, 3bdy ES1, 3bdy ES2, ...]]
-    '8.00': [100, 0.0, 0.03, [0, 1], [[1, 1], [2, 2]]],
-    '10.0': [100, 0.0, 0.03, [0, 1], [[1, 1], [2, 2]]],
-    '13.0': [100, 0.0, 0.2, [0, 1], [[1, 1], [2, 2]]],
-    '1.00': [100, 0.0, 0.2, [0, 1], [[1, 1], [2, 2]]],
+    '8.00': [100, 0.1, 0.03, [0, 1], [[1, 1], [2, 2]]],
+    '10.0': [100, 0.1, 0.03, [0, 1], [[1, 1], [2, 2]]],
+    '13.0': [100, 0.1, 0.2, [0, 1], [[1, 1], [2, 2]]],
+    '1.00': [100, 0.01, 0.001, [0, 1], [[1, 1], [2, 2]]],
 }
 
 # include the n-th 3-body bounstate of the 3-body spectrum as asymptotic fragments
@@ -329,7 +329,7 @@ anzRelw4opt = 20
 
 # number of Gaussian basis functions/widths used to expand the fragment-relative wave function
 anzRelw = 20  # 10, 12, 14, 20, ....
-maxRelW = 20.1
+maxRelW = 38.1
 
 unStable = True
 ite = 0
@@ -341,7 +341,7 @@ while unStable == True:
                 np.abs(
                     np.concatenate([
                         np.array([
-                            ww for ww in np.logspace(-3.8 +
+                            ww for ww in np.logspace(-4.1 +
                                                      0.1 * np.random.random(),
                                                      1.2 +
                                                      0.3 * np.random.random(),

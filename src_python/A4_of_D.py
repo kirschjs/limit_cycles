@@ -18,7 +18,7 @@ from multiprocessing.pool import ThreadPool
 
 # numerical stability
 mindi = 1000.0
-width_bnds = [0.06, 21.15, 0.08, 15.25]
+width_bnds = [0.06, 41.15, 0.08, 53.25]
 minCond = 10**-24
 maxRat = 10**29
 
@@ -28,13 +28,13 @@ grdTy = ['log_with_density_enhancement', 0.005, 0.001]
 anzNewBV = 6
 muta_initial = 0.004
 anzGen = 5
-seed_civ_size = 12
-target_pop_size = 12
+seed_civ_size = 16
+target_pop_size = 14
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 12
-nREL = 10
+nBV = 18
+nREL = 18
 
 J0 = 0
 
@@ -53,19 +53,23 @@ threeBodyTHs = np.array([
 # [LECD,[ev0,ev1,...]]
 results = []
 dbg = False
-for tnifac in DRange:
+thdefault = 39.569694276328
+for tnifac in [DRange[8]]:
     LastEx2opt = 1
-
+    redfac = 0.9
     thEV = [
-        three[1] for three in threeBodyTHs
+        redfac * three[1] for three in threeBodyTHs
         if np.abs(lec_set[la][tb][1] * tnifac - three[0]) < 1e-4
     ]
     if thEV == []:
-        thEV = -float(tb)
+        thEV = -float(thdefault) * redfac
         print('no 3-body threshold found for specific LEC, defaulting to: ',
               thEV)
     else:
-        thEV = thEV[0]
+        thEV = redfac * thEV[0]
+
+    thEV = -float(thdefault) * redfac
+    print('no 3-body threshold found for specific LEC, defaulting to: ', thEV)
 
     sysdir4o = sysdir4 + '/' + channel
     print('>>> working directory: ', sysdir4o)
@@ -98,8 +102,11 @@ for tnifac in DRange:
 
     # 1) prepare an initial set of bases ----------------------------------------------------------------------------------
     civs = []
+    findlowestEx = True
     while len(civs) < seed_civ_size:
-        nbrStatesOpti4 = list(range(-LastEx2opt, 0))
+        #nbrStatesOpti4 = list(range(-LastEx2opt, 0))
+        nbrStatesOpti4 = [list(range(-LastEx2opt, 0))[0]]
+
         new_civs, basi = span_population4(anz_civ=int(seed_civ_size),
                                           fragments=[channels_4[channel]],
                                           Jstreu=float(J0),
@@ -123,16 +130,24 @@ for tnifac in DRange:
 
         civs.sort(key=lambda tup: np.linalg.norm(tup[3]))
 
-        oo = np.array([civs[n][3][0] for n in range(seed_civ_size)])
+        #print(civs[0][3][0])
+        #exit()
+
+        oo = np.array([civ[3][0] for civ in civs])
 
         # if the random bases set has at least one element close to the
         # lowest threshold, restart the seeding process and see if also
         # the next smallest value turns out negative; in this way we
         # will not miss to optimize an excited state below a threshold.
 
-        if np.any(np.less(oo, thEV * np.ones(len(oo)))):
-            LastEx2opt += 1
-            civs = []
+        if findlowestEx:
+            if np.any(np.less(oo, thEV * np.ones(len(oo)))):
+                LastEx2opt += 1
+                civs = []
+            else:
+                LastEx2opt -= 1
+                findlowestEx = False
+                civs = []
 
     civs = sortprint(civs, pr=dbg)
 
