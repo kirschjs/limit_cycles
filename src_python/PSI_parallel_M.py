@@ -133,11 +133,6 @@ def span_population2(anz_civ,
     # minimal distance allowed for between width parameters
     rwma = 20
 
-    # lower bound for width parameters '=' IR cutoff (broadest state)
-    IRcutoff = 0.00001
-
-    # orbital-angular-momentum dependent upper bound '=' UV cutoff (narrowest state)
-    UVcutoff = 951.
     nwrel = ini_dims
     rel_scale = 1.
 

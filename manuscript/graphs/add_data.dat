@@ -1,1 +1,2 @@
-lambda     B_dimer        add(ABAB)
+#lambda     B_dimer     add(ABAB)   add(ABCC)   add(ABCD)   
+4           0.5         

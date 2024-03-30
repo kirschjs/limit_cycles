@@ -446,7 +446,7 @@ def inen_str_4(coeff,
                bvs,
                uec,
                phys_chan,
-               dma=[1, 0, 1, 0, 1, 0, 0],
+               dma=[[0, 1, 0, 1, 0, 1, 0, 1, 0]],
                jay=0,
                anzch=1,
                pari=0,
@@ -465,6 +465,8 @@ def inen_str_4(coeff,
     s += coeff + '\n'
 
     sumuec = list(more_itertools.collapse(uec))
+
+    bvmul = 0 if len(dma) == 1 else 1
 
     cumc = [0]
     for cset in phys_chan[2]:
@@ -542,6 +544,7 @@ def inen_str_4(coeff,
             unique_chs[1].append(phys_chan[1][nn])
             unique_chs[2].append(phys_chan[2][nn])
 
+    nbv = 0
     for nphy_chan in range(len(unique_chs[0])):
         relwoffset = ''
         for i in range(unique_chs[1][nphy_chan][0],
@@ -559,9 +562,11 @@ def inen_str_4(coeff,
             s += '%-4d\n' % nc
             assert np.abs(sumuec[nc - 1]) > 0.1
             s += relwoffset
-            for relw in dma:
+            for relw in dma[nbv]:
                 s += '%3d' % relw
             s += '\n'
+            nbv += 1 * bvmul
+        nbv += 4
 
     # here we attach the additional distortion channels which do not contribute
     # to the expansion of the asymptotic ones

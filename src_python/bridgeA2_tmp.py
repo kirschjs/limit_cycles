@@ -26,13 +26,19 @@ fixi = -1
 # energy to fit to
 deub = 2.22
 
-gTy = ['log_with_density_enhancement', 0.001, 0.002]  #'log',  #
+gTy = ['log_with_density_enhancement', 0.0001, 0.0002]  #'log',  #
 
-lecFile = '/home/kirscher/Documents/vault/Vorlesungen/num_methods/lec_ex0_b2.22.dat'
+lecFile = '/home/kirscher/kette_repo/limit_cycles/manuscript/graphs/LECS.dat'
+lecFile = '/home/kirscher/Documents/vault/Vorlesungen/num_methods/lec_ex1_b2.22.dat'
 lec_set = np.array([line.split() for line in open(lecFile)
                     if line[0] != '#']).astype(float)
 
+# 0:0.5 1:1.0 2:2.22 3:5 4:7 5:10
+bdimer = 0
+# 0:4 1:6 2:8 3:10
 las = lec_set[:, 0]
+lamstart = 0
+lamend = 2  #len(las)
 
 # numerical stability
 minCond = 10**-16
@@ -40,26 +46,26 @@ minidi_breed = 410.1
 minidi_seed = minidi_breed
 minidi_breed_rel = minidi_breed
 denseEVinterval = [-2, 2]
-width_bnds = [0.01, 56.25]
+width_bnds = [0.01, 20.25]
 
-deutDim = 9
+deutDim = 12
 
 miniE_breed = -0.0
 
 # genetic parameters
 anzNewBV = 4
-muta_initial = 0.002
+muta_initial = 0.015
 anzGen = 50
-civ_size = 32
-target_pop_size = 52
+civ_size = 22
+target_pop_size = 32
 
 zop = 14 if bin_suffix == '_v18-uix' else 11
 
 ftFac = []
 
-for nlam in range(len(las)):  #[min(30, len(las))]:
+for nlam in range(lamstart, lamend):
 
-    nbrStatesOpti2 = list(range(fixi, 0))
+    nbrStatesOpti2 = list(range(fixi, fixi + 1))
 
     lam = las[nlam]
     channel = 'np3s'
@@ -77,7 +83,7 @@ for nlam in range(len(las)):  #[min(30, len(las))]:
     print('>>> working directory: ', sysdir2)
 
     cloB = 0.0
-    cloW = lec_set[nlam, 1]
+    cloW = lec_set[nlam, 1 + bdimer]
 
     if bin_suffix == '_v18-uix':
         prep_pot_file_2N(lam=(2 * np.sqrt(float(lam))),
@@ -143,6 +149,7 @@ for nlam in range(len(las)):  #[min(30, len(las))]:
     civs = []
     while len(civs) < civ_size:
 
+        nbrStatesOpti2 = list(range(fixi, -0))
         new_civs, basi = span_population2(anz_civ=int(3 * civ_size),
                                           fragments=channel,
                                           Jstreu=float(J0),
@@ -201,7 +208,7 @@ for nlam in range(len(las)):  #[min(30, len(las))]:
                         intertwining(mother[1][wset][n],
                                      father[1][wset][n],
                                      mutation_rate=muta_initial,
-                                     wMin=0.0001,
+                                     wMin=width_bnds[0],
                                      wMax=220.,
                                      dbg=False,
                                      method='2point')
@@ -377,7 +384,9 @@ for nlam in range(len(las)):  #[min(30, len(las))]:
         wset = get_quaf_width_set()
         cof = parse_ev_coeffs()
         cof2 = parse_ev_coeffs_2()
-        print('exp. coeff.   exp. coeff. (normalized)  width')
+        print(
+            'exp. coeff.   exp. coeff. (normalized)  width   (for lambda = %f fm^-1)'
+            % float(lam))
         wstr = '{'
         for bsb in range(len(wset)):
             wstr += '%12.6f ,' % float(wset[bsb])
@@ -405,7 +414,7 @@ for nlam in range(len(las)):  #[min(30, len(las))]:
     if fitt:
 
         # initial scaling factor from which the root-finding algorithm commences its search
-        fac = 1.2
+        fac = 0.97
 
         ft_lo = fmin(fitti, fac, args=(deub, fixi), disp=False)
 
@@ -415,10 +424,12 @@ for nlam in range(len(las)):  #[min(30, len(las))]:
             'L = %2.2f:  C_opt = %12.4f => B(2,%d-ex) = %8.4f   ;  C_start = %12.4f'
             % (lam, cloW * ft_lo[0], np.abs(fixi) - 1, res_lo, cloW))
 
-outs = ''
-for n in range(len(ftFac)):
-    outs += '%4.4f  %20.8f\n' % (ftFac[n][0], ftFac[n][1])
-    print('%4.4f  %20.8f' % (ftFac[n][0], ftFac[n][1]))
+if fitt:
+    outs = ''
+    for n in range(len(ftFac)):
+        outs += '%4.4f  %20.8f\n' % (ftFac[n][0], ftFac[n][1])
+        print('%4.4f  %20.8f' % (ftFac[n][0], ftFac[n][1]))
 
-with open('lec_ex%d_b%2.2f.dat' % (np.abs(fixi) - 1, deub), 'w') as outfile:
-    outfile.write(outs)
+    with open('lec_ex%d_b%2.2f.dat' % (np.abs(fixi) - 1, deub),
+              'w') as outfile:
+        outfile.write(outs)

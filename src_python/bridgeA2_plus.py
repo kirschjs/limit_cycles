@@ -26,18 +26,18 @@ minidi_breed = 210.1
 minidi_seed = minidi_breed
 minidi_breed_rel = minidi_breed
 denseEVinterval = [-2, 2]
-width_bnds = [0.007, 11.25]
+width_bnds = [0.01, 15.25]
 
 grdTy = ['log_with_density_enhancement', 0.001, 0.001]  #'log',  #
 
-deutDim = 6
+deutDim = 5
 
 miniE_breed = -0.1
 
 # genetic parameters
 anzNewBV = 5
-muta_initial = 0.009
-anzGen = 35
+muta_initial = 0.003
+anzGen = 85
 civ_size = 25
 target_pop_size = 25
 
@@ -178,7 +178,7 @@ for channel in channels_2:
                         intertwining(mother[1][wset][n],
                                      father[1][wset][n],
                                      mutation_rate=muta_initial,
-                                     wMin=0.0001,
+                                     wMin=width_bnds[0],
                                      wMax=220.,
                                      dbg=False,
                                      method='2point')

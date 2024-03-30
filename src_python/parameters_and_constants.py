@@ -90,7 +90,7 @@ cib = 0  # if set, EFTnoPi with charge independence broken by Coulomb and an aco
 # contact-term correction is employed (leading order)
 
 lam = 6.00  # 4,6,8,10 (for presentation)
-b3 = 1.00
+b3 = 0.75
 la = ('%-4.2f' % lam)[:4]
 tb = ('%-4.2f' % b3)[:4]
 
@@ -103,15 +103,36 @@ D    -- 1730.4873 672.4964 572.2156 317.1505 238.5372 -4.1843 -532.5492 -1703.98
 
 # LEC dictionary [cutoff][B(3)] [2-body LEC, 3-body LEC] for B(2)=0.5MeV
 lec_set = {
+    '4.00': {
+        '0.65': [-473.27, 320.7660],
+        '8.00': [-505.15, 1395.62624049],
+        '8.48': [-473.11211426, 668.05019678],
+        '8.90':
+        [-473.27, -906.0455
+         ],  # B(3,2ex)=8.9MeV -1651.3402 (for B(3,1ex)=8.9MeV use -906.0455)
+        '10.0': [-473.27, -933.2201],
+        '13.0': [-473.27, -995.7702],
+    },
     '6.00': {
+        '0.65': [-702.16, 622.5667],
+        '0.75': [-702.16, 383.9022],  #-1775.123
         '1.00': [-702.16, 49.96837],
+        '8.48': [-701.89063682, 1305.5406972],
+        '8.90': [-702.16, -1260.0505],  # B(3,1ex)=8.9MeV
         '10.0': [-702.16, -787.8583],
         '13.0': [-702.16, -845.1583],
         '20.0': [-702.16, -946.4991],
     },
-    '4.00': {
-        '13.0': [-473.27, -995.7702],
-        '8.00': [-505.15, 1395.62624049],
+    '8.00': {
+        '8.48': [-929.68601763, 2100.0342011],
+        '7.00': [-930.2, -1448.2844],
+        '8.90':
+        [-930.2, -1580.0670
+         ],  # B(3,2ex)=8.9MeV -3134.9972 (for B(3,1ex)=8.9MeV use -1580.0670)
+    },
+    '10.0': {
+        '8.48': [-1206.4549962, 7686.28422354],
+        '8.90': [-1157.42, -1887.0829],  # B(3,1ex)=8.9MeV
     },
 }
 
@@ -188,7 +209,7 @@ if la in lec_set.keys():
     if tb in lec_set[la].keys():
         pas = True
 if pas == False:
-    print('LECs unavailable for chosen cutoff! Available cutoffs:\n',
+    print('LECs unavailable for chosen cutoff %s! Available cutoffs:\n' % tb,
           lec_set.keys())
     exit()
 
@@ -267,14 +288,19 @@ elif len(lec_set[la][tb]) == 2:
 evWindow = [-211.5, -1.70]
 nbrStatesOpti2 = list(range(-1, 0))
 nbrStatesOpti3 = list(range(-2, -1))
-nbrStatesOpti4 = list(range(-4, -0))
+nbrStatesOpti4 = list(range(-2, -1))
 
 eDict = {
     #    [#energies, E0, dE, [3bdy GS, 3bdy ES1, 3bdy ES2, ...]]
+    '0.65': [100, 0.01, 0.001, [0, 1], [[1, 1], [2, 2]]],
+    '0.75': [100, 0.001, 0.003, [0, 1], [[1, 1], [2, 2]]],
+    '1.00': [100, 0.01, 0.001, [0, 1], [[1, 1], [2, 2]]],
+    '7.00': [100, 0.1, 0.03, [0, 1], [[1, 1], [2, 2]]],
     '8.00': [100, 0.1, 0.03, [0, 1], [[1, 1], [2, 2]]],
+    '8.48': [100, 0.1, 0.03, [1], [[1, 1]]],
+    '8.90': [100, 0.001, 0.1, [0, 1, 1], [[1, 1], [2, 2], [3, 3]]],
     '10.0': [100, 0.1, 0.03, [0, 1], [[1, 1], [2, 2]]],
     '13.0': [100, 0.1, 0.2, [0, 1], [[1, 1], [2, 2]]],
-    '1.00': [100, 0.01, 0.001, [0, 1], [[1, 1], [2, 2]]],
 }
 
 # include the n-th 3-body bounstate of the 3-body spectrum as asymptotic fragments
@@ -325,11 +351,11 @@ MeVfm = 197.3161329
 
 # number of relative widths used for the refinement of the 4-body state
 # in the interaction region (see bridgeA4_opt.py)
-anzRelw4opt = 20
+anzRelw4opt = 8
 
 # number of Gaussian basis functions/widths used to expand the fragment-relative wave function
 anzRelw = 20  # 10, 12, 14, 20, ....
-maxRelW = 38.1
+maxRelW = 28.1
 
 unStable = True
 ite = 0
@@ -341,9 +367,9 @@ while unStable == True:
                 np.abs(
                     np.concatenate([
                         np.array([
-                            ww for ww in np.logspace(-4.1 +
+                            ww for ww in np.logspace(-4.3 +
                                                      0.1 * np.random.random(),
-                                                     1.2 +
+                                                     1.3 +
                                                      0.3 * np.random.random(),
                                                      num=int(anzRelw / 2),
                                                      endpoint=True,

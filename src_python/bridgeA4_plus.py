@@ -25,6 +25,7 @@ from multiprocessing.pool import ThreadPool
 
 # prepare spin/orbital matrices for parallel computation
 findstablebas = 0
+largestAllowedDistortionW = 15.01
 smallestAllowedDistortionW = 0.01
 indexOfLargestAllowedDistW = 2
 normStabilityThreshold = 10**-30
@@ -114,6 +115,7 @@ fragment_bvrange = []
 cofli = []
 strus = []
 zstrus = []
+wstrus = []
 qua_str = []
 ph2d = []
 
@@ -310,6 +312,10 @@ asyChanLabels = list(
 
 #strus = sum([strus[id] for id in idx], [])
 #zstrus = sum([zstrus[id] for id in idx], [])
+for nn in range(len(zstrus)):
+    wstrus += list(nn * np.ones(len(zstrus[nn])))
+
+wstrus = np.array(wstrus).astype(int)
 strus = sum([strus[id] for id in range(len(strus))], [])
 zstrus = sum([zstrus[id] for id in range(len(zstrus))], [])
 
@@ -323,11 +329,26 @@ J1J2SC = [J1J2SC[id] for id in idx]
 # to guarantee that distortion channels only extend the variational space in the
 # interaction region and that they do NOT interfere with physical, asymptotic states
 maxDistRelW = np.min([
-    len([ww for ww in wsr if ww > smallestAllowedDistortionW])
-    for wsr in widthSet_relative
+    len([
+        ww for ww in wsr
+        if largestAllowedDistortionW > ww > smallestAllowedDistortionW
+    ]) for wsr in widthSet_relative
 ] + [anzRelw4opt])
 
-relwDistCH = [n % 2 for n in range(np.min([maxDistRelW, 12]))] + [0, 0]
+relwDistCH = []
+for nrs in range(len(zstrus)):
+    mws = wstrus[nrs]
+    for nbv in range(zstrus[nrs]):
+        tmp = []
+        for nrw in range(len(widthSet_relative[mws])):
+            if largestAllowedDistortionW > widthSet_relative[mws][
+                    nrw] > smallestAllowedDistortionW:
+                tmp += [(nrw + nrs) % 2]
+            else:
+                tmp += [0]
+        relwDistCH.append(tmp)
+
+# [n % 2 for n in range(np.min([maxDistRelW, 12]))] + [0, 0]
 """
 in the `alpha' directory, an basis is expected which was optimized for the
 4-body bound-state problem; this basis is added to the variational basis in
@@ -368,9 +389,32 @@ if os.path.isdir(sysdir4 + '/alpha') == True:
         if 10**2 > np.abs(coflist[nc]) > 0.1
     ]
 
-    sbasAlphaDist = np.array([
+    sbasAlphaDistBare = np.array([
         ll.split() for ll in open(sysdir4 + '/alpha/alpha_dist_ch.sbas')
     ]).astype(int)
+
+    alphaWi, alphaWr, alphaF = retrieve_widths(inqua=sysdir4 +
+                                               '/alpha/INQUA_N')
+
+    csum = np.cumsum(np.array(alphaF)[:, 0])
+
+    rwset = 0
+    sbasAlphaDist = []
+    for ndl in range(len(sbasAlphaDistBare)):
+        tmp = []
+
+        for rw in range(len(sbasAlphaDistBare[ndl])):
+            if ((sbasAlphaDistBare[ndl][rw] != 0) &
+                (largestAllowedDistortionW > alphaWr[rwset][rw] >
+                 smallestAllowedDistortionW)):
+                tmp.append(1)
+            else:
+                tmp.append(0)
+
+        if ndl > csum[rwset]:
+            rwset += 1
+        sbasAlphaDist.append(tmp)
+    sbasAlphaDist = np.array(sbasAlphaDist).astype(int)
 
     chStr = ''
     bv = 1
@@ -416,7 +460,6 @@ for nbv in range(1, anzch):
     sb.append([nbv, sum(relws, [])])
 
 if newCal > 0:
-
     ma = blunt_ev4(cfgs=strus,
                    bas=sb,
                    dmaa=relwDistCH,
@@ -441,6 +484,13 @@ if newCal > 0:
     print(
         'jj-coupled hamiltonian yields:\n E_0 = %f MeV\ncondition number = %E\n|coeff_max/coeff_min| = %E'
         % (gs, basCond, smartRAT))
+
+    nevFortran = get_n_ev(n=1, ifi='OUTPUT')
+    if nevFortran[0] < 0.0:
+        print(
+            '(ECCE) FORTRAN diagonalization yields negative norm eigenvalue: %e\nAborting...\nConsider de/increasing the variable <largest/smallestAllowedDistortionW>.'
+            % nevFortran[0])
+        exit()
 
 spole_2(nzen=nzEN,
         e0=E0,
@@ -700,6 +750,11 @@ for epsi in np.linspace(eps0, eps1, epsNBR):
                           ch=chToRead,
                           meth=phasCalcMethod,
                           th_shift='')
+        if phdd[nMatch][0] > 0.1:
+            print(
+                '\n\n(ECCE) phase/amplitude in channel %s at E = %4.4f MeV > 0.1 MeV (arbitrary choice) too large for a useful determination of a scattering length. Aborting...\n'
+                % (chToRead, phdd[nMatch][0]))
+            exit()
         if ((chToRead == [2, 2]) | (chToRead == [3, 3])) & cib:
             a_dd = [
                 appC(phdd[n][2] * np.pi / 180.,

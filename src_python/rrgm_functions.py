@@ -364,6 +364,59 @@ def purged_width_set(w0, infil='INEN'):
     return wp, relwip
 
 
+def retrieve_widths(inqua='INQUA_N', writeToFile=False):
+    relw = []
+    intw = []
+    frgm = []
+    inq = [line for line in open(inqua)]
+    lineNR = 0
+    while lineNR < len(inq):
+        if ((re.search('Z', inq[lineNR]) == None) &
+            (re.search('z', inq[lineNR]) == None)):
+            lineNR += 1
+        else:
+            if lineNR == len(inq):
+                print('FATAL: no <Z> qualifier found in <INQUA>!')
+                exit(-1)
+
+            try:
+                anziw = int(inq[lineNR].split()[0])
+            except:
+                break
+            anzrw = int(inq[lineNR + 1].split()[1])
+            frgm.append([anziw, anzrw])
+            anzLNrw = int(np.ceil(anzrw / 6))
+            intwtmp = []
+            relwtmp = []
+            for iws in range(anziw):
+                intwtmp += [
+                    np.array(inq[lineNR + 2 +
+                                 iws].strip().split()).astype(float)
+                ]
+            relwtmp = []
+            for rl in range(anzLNrw):
+                relwtmp += [
+                    float(rrw) for rrw in inq[lineNR + 3 + iws + rl].split()
+                ]
+            intw += [intwtmp]
+            relw += [relwtmp]
+            lineNR += 1
+
+    iw = intw
+    rw = relw
+    if writeToFile:
+        with open('intw4he.dat', 'w') as f:
+            for ws in iw:
+                np.savetxt(f, [ws], fmt='%12.4f', delimiter=' ; ')
+        f.close()
+        with open('relw4he.dat', 'w') as f:
+            for wss in rw:
+                for ws in wss:
+                    np.savetxt(f, [ws], fmt='%12.4f', delimiter=' ; ')
+        f.close()
+    return iw, rw, frgm
+
+
 def get_quaf_width_set(inqua='INQUA_N'):
 
     inq = [line for line in open(inqua)]

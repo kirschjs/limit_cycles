@@ -19,22 +19,23 @@ from multiprocessing.pool import ThreadPool
 
 # numerical stability
 mindi = 1000.0
-width_bnds = [0.06, 18.15, 0.08, 26.2]
+width_bnds = [0.001, 18.15, 0.008, 16.2]
+
 minCond = 10**-26
 maxRat = 10**29
 
-grdTy = ['log_with_density_enhancement', 0.005, 0.001]
+grdTy = ['log_with_density_enhancement', 0.05, 0.01]
 
 # genetic parameters
 anzNewBV = 6
-muta_initial = .002
+muta_initial = .007
 anzGen = 5
-seed_civ_size = 20
-target_pop_size = 20
+seed_civ_size = 30
+target_pop_size = 40
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 36
+nBV = 12
 nREL = anzRelw4opt
 
 J0 = 0
@@ -116,7 +117,7 @@ for channel in channels_4:
         while children < anzNewBV:
             twins = []
 
-            while len(twins) < int(5 * anzNewBV):
+            while len(twins) < int(15 * anzNewBV):
                 #for ntwins in range(int(5 * anzNewBV)):
                 parent_pair = np.random.choice(range(civ_size),
                                                size=2,
@@ -150,13 +151,14 @@ for channel in channels_4:
                     for cfg in range(len(mother[0])):
 
                         daughterson = [
-                            intertwining(mother[1][wset][cfg][n],
-                                         father[1][wset][cfg][n],
-                                         mutation_rate=muta_initial,
-                                         wMin=0.0001,
-                                         wMax=140.,
-                                         dbg=False,
-                                         method='2point')
+                            intertwining(
+                                mother[1][wset][cfg][n],
+                                father[1][wset][cfg][n],
+                                mutation_rate=muta_initial,
+                                wMin=1e-4,  # min(width_bnds[0::2]),
+                                wMax=30,  # max(width_bnds[1::2]),
+                                dbg=False,
+                                method='2point')
                             for n in range(len(mother[1][wset][cfg]))
                         ]
 
@@ -172,6 +174,11 @@ for channel in channels_4:
 
                 #print(mother)
                 #print(father)
+
+                #print(son)
+                #print(daughter)
+
+                #exit()
 
                 wa = sum(daughter[1][0] + daughter[1][1], [])
                 wb = sum(son[1][0] + son[1][1], [])

@@ -22,16 +22,16 @@ def loveliness(relEnergyVals,
                maxRat=10**29):
 
     maxEsum = 1e5
-    energySum = sum(relEnergyVals)
+    energySum = sum([np.exp(-0.085 * ev) for ev in relEnergyVals])
 
-    if ((np.abs(energySum) < maxEsum) &
-        (conditionNumber > minimalConditionnumber)):
+    if (conditionNumber
+            > minimalConditionnumber):  #((np.abs(energySum) < maxEsum) &
 
         # "normalize" quantities
         cF = minimalConditionnumber / conditionNumber  # the smaller the better
         eF = energySum / maxEsum  # the closer to -1 the better
         #print('(ECCE) mind the lovely!')
-        pulchritude = np.tan(np.exp(-0.2 * eF))  #* np.exp(-0.03 * cF**2)
+        pulchritude = eF  #np.tan(np.exp(-0.62 * eF))  #* np.exp(-0.03 * cF**2)
 
     else:
         pulchritude = 0.0
@@ -484,10 +484,12 @@ def intertwining(p1,
         Fc1 = np.abs(bin_to_float(Bchild1mutated))
         Fc2 = np.abs(bin_to_float(Bchild2mutated))
 
-        if (np.isnan(Fc1) | np.isnan(Fc2) | (Fc1 < wMin) | (Fc1 > wMax) |
-            (Fc2 < wMin) | (Fc2 > wMax)):
-            Fc1 = np.random.random() * 12.1
-            Fc2 = np.random.random() * 10.1
+        # Check for out-of-range or NaN values
+        if np.isnan(Fc1) or Fc1 < wMin or Fc1 > wMax:
+            #print(Fc1, p1, p2)
+            Fc1 = np.average(p1 + p2)
+        if np.isnan(Fc2) or Fc2 < wMin or Fc2 > wMax:
+            Fc2 = np.average(p1 + p2)
 
     elif method == '2point':
 
@@ -515,9 +517,9 @@ def intertwining(p1,
 
         # Check for out-of-range or NaN values
         if np.isnan(Fc1) or Fc1 < wMin or Fc1 > wMax:
-            Fc1 = np.random.random() * 12.1
+            Fc1 = np.average(p1 + p2)
         if np.isnan(Fc2) or Fc2 < wMin or Fc2 > wMax:
-            Fc2 = np.random.random() * 10.1
+            Fc2 = np.average(p1 + p2)
 
     elif method == '4point':
 
@@ -545,9 +547,9 @@ def intertwining(p1,
 
         # Check for out-of-range or NaN values
         if np.isnan(Fc1) or Fc1 < wMin or Fc1 > wMax:
-            Fc1 = np.random.random() * 12.1
+            Fc1 = np.average(p1 + p2)
         if np.isnan(Fc2) or Fc2 < wMin or Fc2 > wMax:
-            Fc2 = np.random.random() * 10.1
+            Fc2 = np.average(p1 + p2)
 
     elif method == 'uniform':
 
@@ -574,9 +576,9 @@ def intertwining(p1,
 
         # Check for out-of-range or NaN values
         if np.isnan(Fc1) or Fc1 < wMin or Fc1 > wMax:
-            Fc1 = np.random.random() * 12.1
+            Fc1 = np.average(p1 + p2)
         if np.isnan(Fc2) or Fc2 < wMin or Fc2 > wMax:
-            Fc2 = np.random.random() * 10.1
+            Fc2 = np.average(p1 + p2)
 
     else:
         print('unspecified intertwining method.')

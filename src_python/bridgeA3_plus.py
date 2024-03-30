@@ -25,21 +25,21 @@ fitt = False
 # numerical stability
 mindi = 1000.3
 
-width_bnds = [0.007, 8.15, 0.005, 7.25]
-minCond = 10**-17
+width_bnds = [0.007, 12.15, 0.005, 11.25]
+minCond = 10**-27
 grdTy = ['log', 0.003, 0.004]  #['log_with_density_enhancement', 0.003, 0.004]
 
 # genetic parameters
 anzNewBV = 5
 muta_initial = .004
-anzGen = 14
+anzGen = 15
 seed_civ_size = 20
 target_pop_size = 20
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 5
-nREL = 4
+nBV = 6
+nREL = 5
 
 J0 = 1 / 2
 
@@ -414,10 +414,10 @@ for channel in channels_3:
             return abs(float(E_0) + fitb)
 
         # which eigenstate whould have the specified target value? fixi=-1 = ground-state fitting
-        fixi = -2
+        fixi = nbrStatesOpti3[0]
 
         # energy to fit to
-        trib = 10.0
+        trib = b3
         # initial scaling factor from which the root-finding algorithm commences its search
         fac = 0.01
 
