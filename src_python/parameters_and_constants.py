@@ -90,7 +90,7 @@ cib = 0  # if set, EFTnoPi with charge independence broken by Coulomb and an aco
 # contact-term correction is employed (leading order)
 
 lam = 6.00  # 4,6,8,10 (for presentation)
-b3 = 0.75
+b3 = 1.30
 la = ('%-4.2f' % lam)[:4]
 tb = ('%-4.2f' % b3)[:4]
 
@@ -114,14 +114,16 @@ lec_set = {
         '13.0': [-473.27, -995.7702],
     },
     '6.00': {
-        '0.65': [-702.16, 622.5667],
+        '1.30': [-702.16, -140.8583],
         '0.75': [-702.16, 383.9022],  #-1775.123
-        '1.00': [-702.16, 49.96837],
+        '4.00': [-702.16, -902.6558],
+        '4.42': [-719.16, -992.6558],
+        '3.00': [-702.16, -732.2105],
         '8.48': [-701.89063682, 1305.5406972],
         '8.90': [-702.16, -1260.0505],  # B(3,1ex)=8.9MeV
         '10.0': [-702.16, -787.8583],
         '13.0': [-702.16, -845.1583],
-        '20.0': [-702.16, -946.4991],
+        '2.00': [-702.16, -467.5044],
     },
     '8.00': {
         '8.48': [-929.68601763, 2100.0342011],
@@ -133,6 +135,9 @@ lec_set = {
     '10.0': {
         '8.48': [-1206.4549962, 7686.28422354],
         '8.90': [-1157.42, -1887.0829],  # B(3,1ex)=8.9MeV
+    },
+    '30.0': {
+        '8.48': [-3500.29557543, -1959.6612],
     },
 }
 
@@ -152,7 +157,7 @@ bin_suffix = '_eft-cib' if cib else '_v18-uix'
 
 if bin_suffix == '_v18-uix':
     inenOffset = 7
-    nOperators = 31
+    nOperators = 31 if tnni == 11 else 14
     withCoul = False
 elif bin_suffix == '_eft-cib':
     inenOffset = 6
@@ -288,14 +293,16 @@ elif len(lec_set[la][tb]) == 2:
 evWindow = [-211.5, -1.70]
 nbrStatesOpti2 = list(range(-1, 0))
 nbrStatesOpti3 = list(range(-2, -1))
-nbrStatesOpti4 = list(range(-2, -1))
+nbrStatesOpti4 = list(range(-4, -3))
 
 eDict = {
     #    [#energies, E0, dE, [3bdy GS, 3bdy ES1, 3bdy ES2, ...]]
-    '0.65': [100, 0.01, 0.001, [0, 1], [[1, 1], [2, 2]]],
+    '1.30': [100, 0.01, 0.0075, [0, 1], [[1, 1], [2, 2]]],
     '0.75': [100, 0.001, 0.003, [0, 1], [[1, 1], [2, 2]]],
-    '1.00': [100, 0.01, 0.001, [0, 1], [[1, 1], [2, 2]]],
-    '7.00': [100, 0.1, 0.03, [0, 1], [[1, 1], [2, 2]]],
+    '2.00': [200, 0.05, 0.015, [0, 1], [[1, 1], [2, 2]]],
+    '3.00': [200, 0.01, 0.02, [0, 1], [[1, 1], [2, 2]]],
+    '4.00': [100, 0.01, 0.02, [0, 1], [[1, 1], [2, 2]]],
+    '4.42': [200, 0.01, 0.03, [0, 1, 1], [[1, 1], [2, 2], [3, 3]]],
     '8.00': [100, 0.1, 0.03, [0, 1], [[1, 1], [2, 2]]],
     '8.48': [100, 0.1, 0.03, [1], [[1, 1]]],
     '8.90': [100, 0.001, 0.1, [0, 1, 1], [[1, 1], [2, 2], [3, 3]]],
@@ -313,7 +320,7 @@ E0 = eDict[tb][1]
 D0 = eDict[tb][2]
 
 epL = 0.0001
-epU = 0.005
+epU = 0.0005
 eps0 = [epL * 1.0, epL, epL, epL, epL]
 eps1 = [epU * 1.0, epU, epU, epU, epU]
 epsM = (np.array(eps1) + np.array(eps0)) / 2
@@ -351,11 +358,11 @@ MeVfm = 197.3161329
 
 # number of relative widths used for the refinement of the 4-body state
 # in the interaction region (see bridgeA4_opt.py)
-anzRelw4opt = 8
+anzRelw4opt = 12
 
 # number of Gaussian basis functions/widths used to expand the fragment-relative wave function
 anzRelw = 20  # 10, 12, 14, 20, ....
-maxRelW = 28.1
+maxRelW = 35.1
 
 unStable = True
 ite = 0
@@ -367,7 +374,7 @@ while unStable == True:
                 np.abs(
                     np.concatenate([
                         np.array([
-                            ww for ww in np.logspace(-4.3 +
+                            ww for ww in np.logspace(-4.0 +
                                                      0.1 * np.random.random(),
                                                      1.3 +
                                                      0.3 * np.random.random(),

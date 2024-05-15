@@ -19,7 +19,7 @@ from multiprocessing.pool import ThreadPool
 
 # flag to be set if after the optimization of the model space, a calibration within
 # that space to an observable is ``requested''
-fitt = False
+fitt = 0
 
 # which eigenstate whould have the specified target value? fixi=-1 = ground-state fitting
 fixi = -1
@@ -30,6 +30,7 @@ gTy = ['log_with_density_enhancement', 0.0001, 0.0002]  #'log',  #
 
 lecFile = '/home/kirscher/kette_repo/limit_cycles/manuscript/graphs/LECS.dat'
 lecFile = '/home/kirscher/Documents/vault/Vorlesungen/num_methods/lec_ex1_b2.22.dat'
+lecFile = '/home/kirscher/Documents/vault/Vorlesungen/num_methods/lec_ex0_b2.22.dat'
 lec_set = np.array([line.split() for line in open(lecFile)
                     if line[0] != '#']).astype(float)
 
@@ -37,8 +38,7 @@ lec_set = np.array([line.split() for line in open(lecFile)
 bdimer = 0
 # 0:4 1:6 2:8 3:10
 las = lec_set[:, 0]
-lamstart = 0
-lamend = 2  #len(las)
+lamstart, lamend = len(las) - 2, len(las) - 1
 
 # numerical stability
 minCond = 10**-16
@@ -46,16 +46,16 @@ minidi_breed = 410.1
 minidi_seed = minidi_breed
 minidi_breed_rel = minidi_breed
 denseEVinterval = [-2, 2]
-width_bnds = [0.01, 20.25]
+width_bnds = [0.001, 430.25]
 
-deutDim = 12
+deutDim = 10
 
 miniE_breed = -0.0
 
 # genetic parameters
 anzNewBV = 4
 muta_initial = 0.015
-anzGen = 50
+anzGen = 85
 civ_size = 22
 target_pop_size = 32
 
@@ -69,6 +69,10 @@ for nlam in range(lamstart, lamend):
 
     lam = las[nlam]
     channel = 'np3s'
+    nnpott = nnpot + str(lam)
+    nnnpott = nnnpot + str(lam)
+    nnpotstringt = nnpotstring + str(lam)
+    nnnpotstringt = nnnpotstring + str(lam)
 
     J0 = channels_2[channel][1]
 
@@ -89,24 +93,26 @@ for nlam in range(lamstart, lamend):
         prep_pot_file_2N(lam=(2 * np.sqrt(float(lam))),
                          wiC=cloW,
                          baC=cloB,
-                         ps2=nnpot)
+                         ps2=nnpott)
     elif bin_suffix == '_eft-cib':
         prep_pot_file_2N_pp(lam=2 * np.sqrt(float(lam)),
                             wiC=cloW,
                             baC=cloB,
                             ppC=cpp,
-                            ps2=nnpot)
+                            ps2=nnpott)
     else:
         print('no potential structure assigned to suffix.')
         exit()
 
-    prep_pot_file_3N(lam=2 * np.sqrt(float(lam)), d10=d0, ps3=nnnpot)
-    #continue
+    d00 = lec_set[nlam, 2 + bdimer]
+    print('>>> l = %f fm  C(l) = %f MeV  D(l) = %f MeV' % (lam, cloW, d00))
+    prep_pot_file_3N(lam=2 * np.sqrt(float(lam)), d10=d00, ps3=nnnpott)
 
     os.chdir(sysdir2)
     if id_chan == 0:
         refdir = sysdir2
-    subprocess.call('cp %s .' % nnpot, shell=True)
+    subprocess.call('cp %s .' % nnpott, shell=True)
+    subprocess.call('cp %s .' % nnnpott, shell=True)
 
     prescat = False
     if prescat:
@@ -208,8 +214,8 @@ for nlam in range(lamstart, lamend):
                         intertwining(mother[1][wset][n],
                                      father[1][wset][n],
                                      mutation_rate=muta_initial,
-                                     wMin=width_bnds[0],
-                                     wMax=220.,
+                                     wMin=0.5 * width_bnds[0],
+                                     wMax=2.5 * width_bnds[1],
                                      dbg=False,
                                      method='2point')
                         for n in range(len(mother[1][wset]))
@@ -269,7 +275,7 @@ for nlam in range(lamstart, lamend):
                 break
 
             ParaSets = [[
-                twins[twinID][1], sbas, nnpotstring,
+                twins[twinID][1], sbas, nnpotstringt,
                 float(J0), BINBDGpath, costr, twinID, minCond, evWindow,
                 nbrStatesOpti2
             ] for twinID in range(len(twins))]
@@ -369,7 +375,7 @@ for nlam in range(lamstart, lamend):
                    nzopt=zop,
                    costring=costr,
                    binpath=BINBDGpath,
-                   potNN=nnpotstring,
+                   potNN=nnpotstringt,
                    jay=float(J0),
                    funcPath=sysdir2)
 

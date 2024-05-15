@@ -25,9 +25,9 @@ from multiprocessing.pool import ThreadPool
 
 # prepare spin/orbital matrices for parallel computation
 findstablebas = 0
-largestAllowedDistortionW = 15.01
-smallestAllowedDistortionW = 0.01
-indexOfLargestAllowedDistW = 2
+largestAllowedDistortionW = 26.01
+smallestAllowedDistortionW = 0.3
+
 normStabilityThreshold = 10**-30
 maxCofDev = 1000.1
 newCal = 1
@@ -343,7 +343,7 @@ for nrs in range(len(zstrus)):
         for nrw in range(len(widthSet_relative[mws])):
             if largestAllowedDistortionW > widthSet_relative[mws][
                     nrw] > smallestAllowedDistortionW:
-                tmp += [(nrw + nrs) % 2]
+                tmp += [(nrw + nrs) % 2]  #[1]  #
             else:
                 tmp += [0]
         relwDistCH.append(tmp)
@@ -534,9 +534,6 @@ if findstablebas:
     var0 = 0.0
     nbrRemoved = 0
 
-    #indexOfLargestAllowedDistW = 3
-    #maxDistRelW = 4
-
     for DistCh in range(anzDist - 1):
 
         inen = [line for line in open('INEN')]
@@ -556,7 +553,7 @@ if findstablebas:
         print(
             'Adding rel. widths for basis-vector structure %3d as distortions.'
             % int(inen[linenbrDistCh - 2].split()[1]))
-        for NrelW in range(indexOfLargestAllowedDistW, maxDistRelW, 1):
+        for NrelW in range(maxDistRelW):
 
             start_time = datetime.datetime.now()
 

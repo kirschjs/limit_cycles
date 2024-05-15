@@ -20,26 +20,26 @@ from four_particle_functions import from3to4
 
 # flag to be set if after the optimization of the model space, a calibration within
 # that space to an observable is ``requested''
-fitt = False
+fitt = 0
 
 # numerical stability
 mindi = 1000.3
 
-width_bnds = [0.007, 12.15, 0.005, 11.25]
+width_bnds = [0.0075, 12.15, 0.009, 11.25]
 minCond = 10**-27
 grdTy = ['log', 0.003, 0.004]  #['log_with_density_enhancement', 0.003, 0.004]
 
 # genetic parameters
 anzNewBV = 5
-muta_initial = .004
-anzGen = 15
+muta_initial = .01
+anzGen = 17
 seed_civ_size = 20
 target_pop_size = 20
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 6
-nREL = 5
+nBV = 7
+nREL = 6
 
 J0 = 1 / 2
 
@@ -87,6 +87,8 @@ for channel in channels_3:
                                           funcPath=sysdir3,
                                           binPath=BINBDGpath,
                                           mindists=mindi,
+                                          nnpotstring=nnpotstring,
+                                          nnnpotstring=nnnpotstring,
                                           gridType=grdTy,
                                           ini_grid_bounds=width_bnds,
                                           ini_dims=[nBV, nREL],
@@ -166,8 +168,8 @@ for channel in channels_3:
                             intertwining(mother[1][wset][cfg][n],
                                          father[1][wset][cfg][n],
                                          mutation_rate=muta_initial,
-                                         wMin=0.0001,
-                                         wMax=220.,
+                                         wMin=0.001,
+                                         wMax=160.,
                                          dbg=False,
                                          method='2point')
                             for n in range(len(mother[1][wset][cfg]))

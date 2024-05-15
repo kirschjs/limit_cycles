@@ -121,6 +121,8 @@ def inen_bdg_3(bas,
         head += '  1  1  0  1  0  0  0  0  0  0  0  0  0  0  0  1\n'
     elif nzop == 28:
         head += '  1  1  1  1  1  1  0  0  0  0  0  0  1\n'
+    elif nzop == 14:
+        head += '  1  1  1  1  1  1  1  1  1  1\n'
 
     head += co + '\n'
 

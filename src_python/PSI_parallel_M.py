@@ -434,7 +434,13 @@ def end3(para, send_end):
 
     # paras: widi,widr,sbas,potNN,potNNN,Jstreu,civ,binPath,coefstr
 
-    inen_bdg_3(para[2], para[5], para[8], fn=inenf, pari=0, nzop=para[11])
+    inen_bdg_3(para[2],
+               para[5],
+               para[8],
+               tni=tnni,
+               fn=inenf,
+               pari=0,
+               nzop=para[11])
 
     inqua_3(intwi=para[0], relwi=para[1], potf=para[3], inquaout=inqf)
     inqua_3(intwi=para[0], relwi=para[1], potf=para[4], inquaout=indqf)
@@ -516,6 +522,8 @@ def span_population3(anz_civ,
                      fragments,
                      Jstreu,
                      coefstr,
+                     nnpotstring,
+                     nnnpotstring,
                      funcPath,
                      binPath,
                      nzo=31,
@@ -757,7 +765,7 @@ def span_population3(anz_civ,
 
     for cand in samp_ladder:
         # admit candidate basis as soon as the smallest EV is <0
-        if ((cand[2][-1] < 0) &
+        if ((cand[2][0] < 0) &
                 # admit the basis only if the smallest N EVs (as def. by optRange) are <0
                 #if ((np.all(np.less(cand[2], np.zeros(len(cand[2]))))) &
             (cand[3] > minC)):

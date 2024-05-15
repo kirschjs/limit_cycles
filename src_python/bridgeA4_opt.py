@@ -19,7 +19,7 @@ from multiprocessing.pool import ThreadPool
 
 # numerical stability
 mindi = 1000.0
-width_bnds = [0.001, 18.15, 0.008, 16.2]
+width_bnds = [0.001, 28.15, 0.01, 26.2]
 
 minCond = 10**-26
 maxRat = 10**29
@@ -27,11 +27,11 @@ maxRat = 10**29
 grdTy = ['log_with_density_enhancement', 0.05, 0.01]
 
 # genetic parameters
-anzNewBV = 6
-muta_initial = .007
-anzGen = 5
-seed_civ_size = 30
-target_pop_size = 40
+anzNewBV = 7
+muta_initial = .01
+anzGen = 25
+seed_civ_size = 40
+target_pop_size = 60
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
@@ -151,14 +151,13 @@ for channel in channels_4:
                     for cfg in range(len(mother[0])):
 
                         daughterson = [
-                            intertwining(
-                                mother[1][wset][cfg][n],
-                                father[1][wset][cfg][n],
-                                mutation_rate=muta_initial,
-                                wMin=1e-4,  # min(width_bnds[0::2]),
-                                wMax=30,  # max(width_bnds[1::2]),
-                                dbg=False,
-                                method='2point')
+                            intertwining(mother[1][wset][cfg][n],
+                                         father[1][wset][cfg][n],
+                                         mutation_rate=muta_initial,
+                                         wMin=min(width_bnds[0::2]),
+                                         wMax=max(width_bnds[1::2]),
+                                         dbg=False,
+                                         method='2point')
                             for n in range(len(mother[1][wset][cfg]))
                         ]
 
@@ -193,8 +192,8 @@ for channel in channels_4:
                 # check whether all widths are dufficiently distant
                 # (ecce) in most cases, this condition always fails
                 #        except for relatively small bases => the seemingly
-                prox_check1 = check_dist(width_array1=wai, minDist=mindi * 100)
-                prox_check2 = check_dist(width_array1=wbi, minDist=mindi * 100)
+                prox_check1 = False  #check_dist(width_array1=wai, minDist=mindi * 100)
+                prox_check2 = False  #check_dist(width_array1=wbi, minDist=mindi * 100)
 
                 if (prox_check1 == prox_check2 == False):
 
