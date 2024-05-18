@@ -29,13 +29,13 @@ grdTy = ['log_with_density_enhancement', 0.05, 0.01]
 # genetic parameters
 anzNewBV = 7
 muta_initial = .01
-anzGen = 25
+anzGen = 5
 seed_civ_size = 40
 target_pop_size = 60
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 12
+nBV = 24
 nREL = anzRelw4opt
 
 J0 = 0

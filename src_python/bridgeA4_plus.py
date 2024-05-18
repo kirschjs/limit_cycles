@@ -26,7 +26,7 @@ from multiprocessing.pool import ThreadPool
 # prepare spin/orbital matrices for parallel computation
 findstablebas = 0
 largestAllowedDistortionW = 26.01
-smallestAllowedDistortionW = 0.3
+smallestAllowedDistortionW = 0.07
 
 normStabilityThreshold = 10**-30
 maxCofDev = 1000.1
@@ -35,7 +35,7 @@ newCal = 1
 # ECCE: variable whose consistency with evalChans must be given:
 # nbr_of_threebody_boundstates ,
 evalChans = eDict[lecstring.split('-')[-1]][4]
-pltChans = evalChans  #+ [[1, 2], [1, 3], [2, 3]]
+pltChans = evalChans + [[1, 2]]
 
 chDict = {'[1, 1]': [], '[2, 2]': [], '[3, 3]': []}
 

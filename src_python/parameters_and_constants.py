@@ -293,7 +293,7 @@ elif len(lec_set[la][tb]) == 2:
 evWindow = [-211.5, -1.70]
 nbrStatesOpti2 = list(range(-1, 0))
 nbrStatesOpti3 = list(range(-2, -1))
-nbrStatesOpti4 = list(range(-4, -3))
+nbrStatesOpti4 = list(range(-7, -3))
 
 eDict = {
     #    [#energies, E0, dE, [3bdy GS, 3bdy ES1, 3bdy ES2, ...]]
@@ -358,11 +358,11 @@ MeVfm = 197.3161329
 
 # number of relative widths used for the refinement of the 4-body state
 # in the interaction region (see bridgeA4_opt.py)
-anzRelw4opt = 12
+anzRelw4opt = 16
 
 # number of Gaussian basis functions/widths used to expand the fragment-relative wave function
 anzRelw = 20  # 10, 12, 14, 20, ....
-maxRelW = 35.1
+maxRelW = 25.1
 
 unStable = True
 ite = 0

@@ -485,11 +485,16 @@ def intertwining(p1,
         Fc2 = np.abs(bin_to_float(Bchild2mutated))
 
         # Check for out-of-range or NaN values
+        # if the randomized avg of the sum of the parents is too large,
+        # project it into the wMax sphere (cf. stereographic projection)
         if np.isnan(Fc1) or Fc1 < wMin or Fc1 > wMax:
             #print(Fc1, p1, p2)
-            Fc1 = np.average(p1 + p2)
+            avg12 = np.average(p1 + p2) * (0.01 + 0.3 * np.random.random())
+            Fc1 = avg12 if avg12 < wMax else wMax**2 / avg12
+
         if np.isnan(Fc2) or Fc2 < wMin or Fc2 > wMax:
-            Fc2 = np.average(p1 + p2)
+            avg12 = np.average(p1 + p2) * (0.01 + 0.3 * np.random.random())
+            Fc2 = avg12 if avg12 < wMax else wMax**2 / avg12
 
     elif method == '2point':
 
@@ -516,10 +521,16 @@ def intertwining(p1,
         Fc2 = np.abs(bin_to_float(Bchild2mutated))
 
         # Check for out-of-range or NaN values
+        # if the randomized avg of the sum of the parents is too large,
+        # project it into the wMax sphere (cf. stereographic projection)
         if np.isnan(Fc1) or Fc1 < wMin or Fc1 > wMax:
-            Fc1 = np.average(p1 + p2)
+            #print(Fc1, p1, p2)
+            avg12 = np.average(p1 + p2) * (0.01 + 0.3 * np.random.random())
+            Fc1 = avg12 if avg12 < wMax else wMax**2 / avg12
+
         if np.isnan(Fc2) or Fc2 < wMin or Fc2 > wMax:
-            Fc2 = np.average(p1 + p2)
+            avg12 = np.average(p1 + p2) * (0.01 + 0.3 * np.random.random())
+            Fc2 = avg12 if avg12 < wMax else wMax**2 / avg12
 
     elif method == '4point':
 
@@ -546,10 +557,16 @@ def intertwining(p1,
         Fc2 = np.abs(bin_to_float(Bchild2mutated))
 
         # Check for out-of-range or NaN values
+        # if the randomized avg of the sum of the parents is too large,
+        # project it into the wMax sphere (cf. stereographic projection)
         if np.isnan(Fc1) or Fc1 < wMin or Fc1 > wMax:
-            Fc1 = np.average(p1 + p2)
+            #print(Fc1, p1, p2)
+            avg12 = np.average(p1 + p2) * (0.01 + 0.3 * np.random.random())
+            Fc1 = avg12 if avg12 < wMax else wMax**2 / avg12
+
         if np.isnan(Fc2) or Fc2 < wMin or Fc2 > wMax:
-            Fc2 = np.average(p1 + p2)
+            avg12 = np.average(p1 + p2) * (0.01 + 0.3 * np.random.random())
+            Fc2 = avg12 if avg12 < wMax else wMax**2 / avg12
 
     elif method == 'uniform':
 
@@ -575,10 +592,16 @@ def intertwining(p1,
         Fc2 = np.abs(bin_to_float(Bchild2mutated))
 
         # Check for out-of-range or NaN values
+        # if the randomized avg of the sum of the parents is too large,
+        # project it into the wMax sphere (cf. stereographic projection)
         if np.isnan(Fc1) or Fc1 < wMin or Fc1 > wMax:
-            Fc1 = np.average(p1 + p2)
+            #print(Fc1, p1, p2)
+            avg12 = np.average(p1 + p2) * (0.01 + 0.3 * np.random.random())
+            Fc1 = avg12 if avg12 < wMax else wMax**2 / avg12
+
         if np.isnan(Fc2) or Fc2 < wMin or Fc2 > wMax:
-            Fc2 = np.average(p1 + p2)
+            avg12 = np.average(p1 + p2) * (0.01 + 0.3 * np.random.random())
+            Fc2 = avg12 if avg12 < wMax else wMax**2 / avg12
 
     else:
         print('unspecified intertwining method.')
