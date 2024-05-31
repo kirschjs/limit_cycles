@@ -974,7 +974,6 @@ def end4(para, send_end):
     inen_bdg_4(para[2], para[5], para[8], fn=inenf, pari=0, nzop=para[12])
 
     inqua_4(intwi=para[0], relwi=para[1], potf=para[3], inquaout=inqf)
-
     cmdqua = para[7] + NNhamilEXE_pool + ' %s %s %s' % (inqf, outputqf,
                                                         quaf_to_end)
 
@@ -1172,10 +1171,28 @@ def span_population4(anz_civ,
             # do not sort in order to allow for narrow/broad width combinations
             #lit_w[frg] = np.sort(lit_w_t)[::-1]
             #print(lit_w_t)
+
+            #1 long list
             np.random.shuffle(lit_w_t)
-            #print(lit_w_t)
+
+            #2 distill columns
+            p1 = list(lit_w_t[:nwint])
+            p2 = list(lit_w_t[nwint:])
+
+            #3 ordered pairs
+            lit_w_t = [
+                list(np.sort([p1[n][0], p2[n][0]]))[::-1]
+                for n in range(len(p1))
+            ]
+            tmp = sorted(lit_w_t, key=lambda x: x[0])[::-1]
+
+            p1 = list(np.array(tmp)[:, 0])
+            p2 = list(np.array(tmp)[:, 1])
+
+            tmp = np.concatenate((p1, p2))
+            #print(tmp)
             #exit()
-            lit_w[frg] = lit_w_t
+            lit_w[frg] = tmp
 
             #  -- relative widths --------------------------------------------------
 
@@ -1309,7 +1326,8 @@ def span_population4(anz_civ,
     samp_ladder = [x.recv() for x in samp_list]
 
     for cand in samp_ladder:
-        if (np.all(np.less(cand[2], np.zeros(len(cand[2])))) &
+        # check if the candidates satisfy minimal stability and bound-state criteria
+        if (np.all(np.less(cand[2], 20 * np.ones(len(cand[2])))) &
             (cand[3] > minC)):
             cfgg = np.transpose(np.array([sfrags2, lfrags2],
                                          dtype=object)).tolist()

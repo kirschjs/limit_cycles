@@ -107,14 +107,15 @@ lec_set = {
         '0.65': [-473.27, 320.7660],
         '8.00': [-505.15, 1395.62624049],
         '8.48': [-473.11211426, 668.05019678],
-        '8.90':
-        [-473.27, -906.0455
-         ],  # B(3,2ex)=8.9MeV -1651.3402 (for B(3,1ex)=8.9MeV use -906.0455)
+        '1.20': [-473.27, -141.9911],
+        '1.30': [-473.27, -109.8602],
+        # B(3,2ex)=8.9MeV -1651.3402 (for B(3,1ex)=8.9MeV use -906.0455)
         '10.0': [-473.27, -933.2201],
         '13.0': [-473.27, -995.7702],
     },
     '6.00': {
-        '1.30': [-702.16, -140.8583],
+        '1.20': [-702.16, -82.7583],
+        '1.30': [-702.16, -109.8602],
         '0.75': [-702.16, 383.9022],  #-1775.123
         '4.00': [-702.16, -902.6558],
         '4.42': [-719.16, -992.6558],
@@ -126,6 +127,8 @@ lec_set = {
         '2.00': [-702.16, -467.5044],
     },
     '8.00': {
+        '1.20': [-930.2, 10.1156],
+        '1.30': [-930.2, -40.1598],
         '8.48': [-929.68601763, 2100.0342011],
         '7.00': [-930.2, -1448.2844],
         '8.90':
@@ -133,6 +136,7 @@ lec_set = {
          ],  # B(3,2ex)=8.9MeV -3134.9972 (for B(3,1ex)=8.9MeV use -1580.0670)
     },
     '10.0': {
+        '1.20': [-1157.42, 146.8787],
         '8.48': [-1206.4549962, 7686.28422354],
         '8.90': [-1157.42, -1887.0829],  # B(3,1ex)=8.9MeV
     },
@@ -290,14 +294,15 @@ elif len(lec_set[la][tb]) == 2:
     cloB = 0.0
     d0 = lec_set[la][tb][1]
 
-evWindow = [-211.5, -1.70]
+evWindow = [-0.5, -122.70]
 nbrStatesOpti2 = list(range(-1, 0))
 nbrStatesOpti3 = list(range(-2, -1))
-nbrStatesOpti4 = list(range(-7, -3))
+nbrStatesOpti4 = list(range(-1, 0))
 
 eDict = {
     #    [#energies, E0, dE, [3bdy GS, 3bdy ES1, 3bdy ES2, ...]]
-    '1.30': [100, 0.01, 0.0075, [0, 1], [[1, 1], [2, 2]]],
+    '1.20': [100, 0.01, 0.003, [0, 1], [[1, 1], [2, 2]]],
+    '1.30': [100, 0.01, 0.003, [0, 1], [[1, 1], [2, 2]]],
     '0.75': [100, 0.001, 0.003, [0, 1], [[1, 1], [2, 2]]],
     '2.00': [200, 0.05, 0.015, [0, 1], [[1, 1], [2, 2]]],
     '3.00': [200, 0.01, 0.02, [0, 1], [[1, 1], [2, 2]]],
@@ -341,7 +346,7 @@ beta0 = 2.1
 Bet = [beta0, beta0, beta0, beta0, beta0]
 rgh = 8.0
 anzStuez = 400
-StuezAbs = 1.250
+StuezAbs = 2.250
 StuezBrei = 1.50
 
 MeVfm = 197.3161329
@@ -358,11 +363,11 @@ MeVfm = 197.3161329
 
 # number of relative widths used for the refinement of the 4-body state
 # in the interaction region (see bridgeA4_opt.py)
-anzRelw4opt = 16
+anzRelw4opt = 12
 
 # number of Gaussian basis functions/widths used to expand the fragment-relative wave function
-anzRelw = 20  # 10, 12, 14, 20, ....
-maxRelW = 25.1
+anzRelw = 26  # 10, 12, 14, 20, ....
+maxRelW = 151.1
 
 unStable = True
 ite = 0
@@ -376,7 +381,7 @@ while unStable == True:
                         np.array([
                             ww for ww in np.logspace(-4.0 +
                                                      0.1 * np.random.random(),
-                                                     1.3 +
+                                                     1.8 +
                                                      0.3 * np.random.random(),
                                                      num=int(anzRelw / 2),
                                                      endpoint=True,
@@ -384,9 +389,9 @@ while unStable == True:
                             if ww < maxRelW
                         ]),
                         np.array([
-                            ww for ww in np.logspace(-1.2 +
-                                                     0.2 * np.random.random(),
-                                                     1.4 +
+                            ww for ww in np.logspace(-2.2 +
+                                                     0.1 * np.random.random(),
+                                                     2.1 +
                                                      0.2 * np.random.random(),
                                                      num=int(anzRelw / 2),
                                                      endpoint=True,
@@ -398,6 +403,9 @@ while unStable == True:
     ]
     unStable = check_dist(width_array1=widthSet_relative[0], minDist=10)
     assert ite <= 1000
+
+#print(widthSet_relative)
+#exit()
 
 dbg = False
 if dbg:

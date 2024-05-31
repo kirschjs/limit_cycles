@@ -23,12 +23,12 @@ from four_particle_functions import from3to4
 fitt = 0
 b3 = 8.48
 tnifac = 0.0
-nbrStatesOpti3 = list(range(-3, -1))
+nbrStatesOpti3 = list(range(-3, -2))
 
 # numerical stability
 mindi = 100000.3
 
-width_bnds = [0.002, 162.15, 0.001, 75.25]
+width_bnds = [0.002, 42.15, 0.001, 35.25]
 minCond = 10**-27
 
 grdTy = ['log_with_density_enhancement', 0.001, 0.002]  #'log',  #
@@ -36,18 +36,39 @@ grdTy = ['log_with_density_enhancement', 0.001, 0.002]  #'log',  #
 # genetic parameters
 anzNewBV = 5
 muta_initial = .01
-anzGen = 10
-seed_civ_size = 40
-target_pop_size = 40
+anzGen = 3
+seed_civ_size = 20
+target_pop_size = 20
+
+exit()
+# define a random distribution from which width parameters are chose if and only if
+# the binary intertwining operation yields values outside the acceptable interval
+loc, scale = 1.3, 100.5  # TODO, loc should be where choosen s.t. the Gaussian having the same width as the exponential prop. density
+
+a_transformed, b_transformed = (width_bnds[0] - loc) / scale, (width_bnds[1] -
+                                                               loc) / scale
+rv = truncnorm(a_transformed, b_transformed, loc=loc, scale=scale)
+x = np.linspace(truncnorm.ppf(0.01, width_bnds[0], width_bnds[1]),
+                truncnorm.ppf(1, width_bnds[0], width_bnds[1]), 100)
+
+r = rv.rvs(size=10000)
+
+fig, ax = plt.subplots(1, 1)
+ax.plot(x, rv.pdf(x), 'k-', lw=2, label='frozen pdf')
+ax.hist(r, density=True, bins='auto', histtype='stepfilled', alpha=0.2)
+ax.set_xlim(width_bnds[0], width_bnds[1])
+ax.legend(loc='best', frameon=False)
+
+fig.savefig("default_breeding_widths_trimer.pdf")
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 16
-nREL = 18
+nBV = 12
+nREL = 12
 
 J0 = 1 / 2
 
-lecFile = '/home/kirscher/Documents/vault/Vorlesungen/num_methods/lec_ex0_b2.22.dat'
+lecFile = '/home/kirscher/Documents/vault/Vorlesungen/num_methods/lec_ex0_b2.22_gs3.dat'
 lec_set = np.array([line.split() for line in open(lecFile)
                     if line[0] != '#']).astype(float)
 las = lec_set[:, 0]
@@ -58,22 +79,35 @@ channel = '123'
 sysdir3 = sysdir3base + '/' + channel
 print('>>> working directory: ', sysdir3)
 
-lamstart, lamend = len(las) - 2, len(las)
+lamstart, lamend = 1, 3  #len(las) - 2, len(las)
 for nlam in range(lamstart, lamend):
     lam = las[nlam]
-    d0 = lec_set[nlam, 2]
-    c00 = lec_set[nlam, 1]
-    nnpott = nnpot + str(lam)
-    nnnpott = nnnpot + str(lam)
-    nnpotstringt = nnpotstring + str(lam)
-    nnnpotstringt = nnnpotstring + str(lam)
+    d00 = lec_set[nlam, 2]
+    c00 = lec_set[nlam, 2]
+    nnpott = nnpotstring + str(lam)
+    nnnpott = nnnpotstring + str(lam)
 
     if os.path.isdir(sysdir3) == False:
         subprocess.check_call(['mkdir', '-p', sysdir3])
     os.chdir(sysdir3)
 
-    subprocess.call('cp %s .' % nnpott, shell=True)
-    subprocess.call('cp %s .' % nnnpott, shell=True)
+    if bin_suffix == '_v18-uix':
+        prep_pot_file_2N(lam=(2 * np.sqrt(float(lam))),
+                         wiC=c00,
+                         baC=0.0,
+                         ps2=nnpott)
+    elif bin_suffix == '_eft-cib':
+        prep_pot_file_2N_pp(lam=2 * np.sqrt(float(lam)),
+                            wiC=c00,
+                            baC=0.0,
+                            ppC=0.0,
+                            ps2=nnpott)
+    else:
+        print('no potential structure assigned to suffix.')
+        exit()
+
+    print('>>> l = %f fm  C(l) = %f MeV  D(l) = %f MeV' % (lam, c00, d00))
+    prep_pot_file_3N(lam=2 * np.sqrt(float(lam)), d10=d00, ps3=nnnpott)
 
     subprocess.call('rm -rf *.dat', shell=True)
 
@@ -102,8 +136,8 @@ for nlam in range(lamstart, lamend):
                                           Jstreu=float(J0),
                                           coefstr=costr,
                                           nzo=nOperators,
-                                          nnpotstring=nnpotstringt,
-                                          nnnpotstring=nnnpotstringt,
+                                          nnpotstring=nnpott,
+                                          nnnpotstring=nnnpott,
                                           funcPath=sysdir3,
                                           binPath=BINBDGpath,
                                           mindists=mindi,
@@ -184,6 +218,8 @@ for nlam in range(lamstart, lamend):
                                          mutation_rate=muta_initial,
                                          wMin=width_bnds[0],
                                          wMax=width_bnds[-1],
+                                         def1=rv.rvs(),
+                                         def2=rv.rvs(),
                                          dbg=False,
                                          method='2point')
                             for n in range(len(mother[1][wset][cfg]))
@@ -228,8 +264,8 @@ for nlam in range(lamstart, lamend):
 
             # ---------------------------------------------------------------------
             ParaSets = [[
-                twins[twinID][1][0], twins[twinID][1][1], sbas, nnpotstringt,
-                nnnpotstringt,
+                twins[twinID][1][0], twins[twinID][1][1], sbas, nnpott,
+                nnnpott,
                 float(J0), twinID, BINBDGpath, costr, minCond, evWindow,
                 nOperators, nbrStatesOpti3
             ] for twinID in range(len(twins))]
@@ -333,8 +369,8 @@ for nlam in range(lamstart, lamend):
         costring=costr,
         bin_path=BINBDGpath,
         mpipath=MPIRUN,
-        potNN='%s' % nnpotstringt,
-        potNNN='%s' % nnnpotstringt,
+        potNN='%s' % nnpott,
+        potNNN='%s' % nnnpott,
         # in order to pass superposition coefficients through bndg_out on to 4- and 5- body
         # scattering-calculation input, this function needs to run serial
         parall=-0,
@@ -374,6 +410,9 @@ for nlam in range(lamstart, lamend):
     assert len(lu_strus) == len(ob_strus)
 
     if fitt:
+
+        print('l=%s ) Renormalizing %d-th Eigenvalue to B(3) = %f MeV.' %
+              (lam, nbrStatesOpti3[0], b3))
 
         def fitti(fac3, fitb, fix=-1):
             repl_line(

@@ -6,6 +6,7 @@ import sympy as sy
 from sympy.physics.quantum.cg import CG
 from scipy.linalg import eigh
 from scipy.optimize import fmin
+from scipy.stats import truncnorm, norm
 
 from three_particle_functions import *
 from PSI_parallel_M import *
@@ -18,6 +19,7 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 from four_particle_functions import from3to4
 
+dbg = False
 # flag to be set if after the optimization of the model space, a calibration within
 # that space to an observable is ``requested''
 fitt = 0
@@ -25,7 +27,7 @@ fitt = 0
 # numerical stability
 mindi = 1000.3
 
-width_bnds = [0.0075, 12.15, 0.009, 11.25]
+width_bnds = [0.0075, 39.15, 0.009, 31.25]
 minCond = 10**-27
 grdTy = ['log', 0.003, 0.004]  #['log_with_density_enhancement', 0.003, 0.004]
 
@@ -36,6 +38,18 @@ anzGen = 17
 seed_civ_size = 20
 target_pop_size = 20
 
+# define a random distribution from which width parameters are chose if and only if
+# the binary intertwining operation yields values outside the acceptable interval
+loc, scale = 1.3, 100.5  # TODO, loc should be where choosen s.t. the Gaussian having the same width as the exponential prop. density
+
+a_transformed, b_transformed = (width_bnds[0] - loc) / scale, (width_bnds[1] -
+                                                               loc) / scale
+rv = truncnorm(a_transformed, b_transformed, loc=loc, scale=scale)
+x = np.linspace(truncnorm.ppf(0.01, width_bnds[0], width_bnds[1]),
+                truncnorm.ppf(1, width_bnds[0], width_bnds[1]), 100)
+
+r = rv.rvs(size=10000)
+
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
 nBV = 7
@@ -43,7 +57,6 @@ nREL = 6
 
 J0 = 1 / 2
 
-dbg = False
 for channel in channels_3:
     sysdir3 = sysdir3base + '/' + channel
     print('>>> working directory: ', sysdir3)
@@ -171,6 +184,8 @@ for channel in channels_3:
                                          wMin=0.001,
                                          wMax=160.,
                                          dbg=False,
+                                         def1=rv.rvs(),
+                                         def2=rv.rvs(),
                                          method='2point')
                             for n in range(len(mother[1][wset][cfg]))
                         ]

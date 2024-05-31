@@ -1,18 +1,24 @@
-import matplotlib.pyplot as plt
 import numpy as np
 
-N = 100
-x = np.arange(N)
-mean_1 = 25 + np.random.normal(0.1, 1, N).cumsum()
-std_1 = 3 + np.random.normal(0, .08, N).cumsum()
+import matplotlib.pyplot as plt
+from scipy.stats import truncnorm, norm
 
-mean_2 = 15 + np.random.normal(0.2, 1, N).cumsum()
-std_2 = 4 + np.random.normal(0, .1, N).cumsum()
+a, b = 0, 21
 
-plt.plot(x, mean_1, 'b-', label='mean_1')
-plt.fill_between(x, mean_1 - std_1, mean_1 + std_1, color='b', alpha=0.2)
-plt.plot(x, mean_2, 'r--', label='mean_2')
-plt.fill_between(x, mean_2 - std_2, mean_2 + std_2, color='r', alpha=0.2)
+loc, scale = 1.3, 10.5
 
-plt.legend(title='title')
-plt.show()
+a_transformed, b_transformed = (a - loc) / scale, (b - loc) / scale
+
+rv = truncnorm(a_transformed, b_transformed, loc=loc, scale=scale)
+x = np.linspace(truncnorm.ppf(0.01, a, b), truncnorm.ppf(1, a, b), 100)
+r = rv.rvs(size=1)
+
+print(r)
+
+fig, ax = plt.subplots(1, 1)
+ax.plot(x, rv.pdf(x), 'k-', lw=2, label='frozen pdf')
+ax.hist(r, density=True, bins='auto', histtype='stepfilled', alpha=0.2)
+ax.set_xlim(a, b)
+ax.legend(loc='best', frameon=False)
+
+fig.savefig("clipped_normal_dist.pdf")

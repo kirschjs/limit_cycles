@@ -5,6 +5,7 @@ import sympy as sy
 # CG(j1, m1, j2, m2, j3, m3)
 from sympy.physics.quantum.cg import CG
 from scipy.linalg import eigh
+from scipy.stats import truncnorm, norm
 
 from three_particle_functions import *
 from PSI_parallel_M import *
@@ -16,6 +17,7 @@ from parameters_and_constants import *
 import multiprocessing
 from multiprocessing.pool import ThreadPool
 
+dbg = False
 # flag to be set if after the optimization of the model space, a calibration within
 # that space to an observable is ``requested''
 fitt = False
@@ -26,20 +28,41 @@ minidi_breed = 210.1
 minidi_seed = minidi_breed
 minidi_breed_rel = minidi_breed
 denseEVinterval = [-2, 2]
-width_bnds = [0.01, 9.25]
+width_bnds = [0.008, 21.25]
 
 grdTy = ['log_with_density_enhancement', 0.0001, 0.001]  #'log',  #
 
-deutDim = 5
+deutDim = 6
 
 miniE_breed = -0.1
 
 # genetic parameters
 anzNewBV = 5
 muta_initial = 0.1
-anzGen = 25
+anzGen = 20
 civ_size = 25
 target_pop_size = 25
+
+# define a random distribution from which width parameters are chose if and only if
+# the binary intertwining operation yields values outside the acceptable interval
+loc, scale = 1.3, 100.5  # TODO, loc should be where choosen s.t. the Gaussian having the same width as the exponential prop. density
+
+a_transformed, b_transformed = (width_bnds[0] - loc) / scale, (width_bnds[1] -
+                                                               loc) / scale
+rv = truncnorm(a_transformed, b_transformed, loc=loc, scale=scale)
+x = np.linspace(truncnorm.ppf(0.01, width_bnds[0], width_bnds[1]),
+                truncnorm.ppf(1, width_bnds[0], width_bnds[1]), 100)
+
+r = rv.rvs(size=10000)
+
+if dbg:
+    fig, ax = plt.subplots(1, 1)
+    ax.plot(x, rv.pdf(x), 'k-', lw=2, label='frozen pdf')
+    ax.hist(r, density=True, bins='auto', histtype='stepfilled', alpha=0.2)
+    ax.set_xlim(width_bnds[0], width_bnds[1])
+    ax.legend(loc='best', frameon=False)
+
+    fig.savefig("default_breeding_widths_dimer.pdf")
 
 zop = 14 if bin_suffix == '_v18-uix' else 11
 
@@ -181,6 +204,8 @@ for channel in channels_2:
                                      wMin=width_bnds[0],
                                      wMax=220.,
                                      dbg=False,
+                                     def1=rv.rvs(),
+                                     def2=rv.rvs(),
                                      method='2point')
                         for n in range(len(mother[1][wset]))
                     ]

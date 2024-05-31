@@ -277,11 +277,15 @@ def sortprint(civi, pr=False, ordn=2):
     civi = civi[::-1]
     if pr:
         print(
-            '\n        pulchritude       E_groundstate cond. number (norm)\n-----------------------------------------------------------'
+            '\n        pulchritude   cond. nbr (norm) | eigenvalues to optimize\n-----------------------------------------------------------'
         )
 
         for civ in civi:
-            print('%19.5e %19.5f %19.5e' % (civ[2], civ[3], civ[4]))
+            print('%19.5e' % civ[2], end='')
+            print('%19.5e | ' % civ[4], end='')
+            for ee in range(len(civ[3]) - 1):
+                print('%10.5e' % civ[3][ee], end=' ')
+            print('%10.5e' % civ[3][-1])
         print('-----------------------------------------------------------')
     return civi
 

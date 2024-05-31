@@ -17,9 +17,10 @@ from reduce_model_space_4 import redmod
 import multiprocessing
 from multiprocessing.pool import ThreadPool
 
+dbg = False
 # numerical stability
 mindi = 1000.0
-width_bnds = [0.001, 28.15, 0.01, 26.2]
+width_bnds = [0.001, 38.15, 0.001, 36.2]
 
 minCond = 10**-26
 maxRat = 10**29
@@ -28,20 +29,41 @@ grdTy = ['log_with_density_enhancement', 0.05, 0.01]
 
 # genetic parameters
 anzNewBV = 7
-muta_initial = .01
+muta_initial = .015
+acceptthreshold = 0.025
 anzGen = 5
-seed_civ_size = 40
-target_pop_size = 60
+seed_civ_size = 20
+target_pop_size = 20
+
+# define a random distribution from which width parameters are chose if and only if
+# the binary intertwining operation yields values outside the acceptable interval
+loc, scale = 1.3, 100.5  # TODO, loc should be where choosen s.t. the Gaussian having the same width as the exponential prop. density
+
+a_transformed, b_transformed = (width_bnds[0] - loc) / scale, (width_bnds[1] -
+                                                               loc) / scale
+rv = truncnorm(a_transformed, b_transformed, loc=loc, scale=scale)
+x = np.linspace(truncnorm.ppf(0.01, width_bnds[0], width_bnds[1]),
+                truncnorm.ppf(1, width_bnds[0], width_bnds[1]), 100)
+
+r = rv.rvs(size=10000)
+
+if dbg:
+    fig, ax = plt.subplots(1, 1)
+    ax.plot(x, rv.pdf(x), 'k-', lw=2, label='frozen pdf')
+    ax.hist(r, density=True, bins='auto', histtype='stepfilled', alpha=0.2)
+    ax.set_xlim(width_bnds[0], width_bnds[1])
+    ax.legend(loc='best', frameon=False)
+
+    fig.savefig("default_breeding_widths_tetramer.pdf")
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 24
+nBV = 18
 nREL = anzRelw4opt
 
 J0 = 0
 
 chnbr = 0
-dbg = False
 
 for channel in channels_4:
     sysdir4o = sysdir4 + '/' + channel
@@ -116,7 +138,8 @@ for channel in channels_4:
         children = 0
         while children < anzNewBV:
             twins = []
-
+            nintw = 0
+            ndef = 0
             while len(twins) < int(15 * anzNewBV):
                 #for ntwins in range(int(5 * anzNewBV)):
                 parent_pair = np.random.choice(range(civ_size),
@@ -154,12 +177,19 @@ for channel in channels_4:
                             intertwining(mother[1][wset][cfg][n],
                                          father[1][wset][cfg][n],
                                          mutation_rate=muta_initial,
-                                         wMin=min(width_bnds[0::2]),
-                                         wMax=max(width_bnds[1::2]),
+                                         wMin=0.001,
+                                         wMax=160.0,
                                          dbg=False,
-                                         method='2point')
+                                         def1=rv.rvs(),
+                                         def2=rv.rvs(),
+                                         method='1point')
                             for n in range(len(mother[1][wset][cfg]))
                         ]
+                        de = np.array(daughterson)[:, 2]
+                        daughterson = np.array(daughterson)[:, :2]
+
+                        ndef += np.sum(de)
+                        nintw += len(de)
 
                         rw1 = np.array(daughterson)[:, 0]  #.sort()
                         rw1.sort()
@@ -171,13 +201,15 @@ for channel in channels_4:
                 daughter = [mother[0], wdau, 0, 0, 0]
                 son = [mother[0], wson, 0, 0, 0]
 
-                #print(mother)
-                #print(father)
-
-                #print(son)
-                #print(daughter)
-
-                #exit()
+                #                print('parents:')
+                #                print(mother[1][0][0])
+                #                print(father[1][0][0])
+                #
+                #                print('offspring:')
+                #                print(son)
+                #                print(daughter)
+                #                print('ndef/nintw = ', ndef / nintw)
+                #                exit()
 
                 wa = sum(daughter[1][0] + daughter[1][1], [])
                 wb = sum(son[1][0] + son[1][1], [])
@@ -249,11 +281,15 @@ for channel in channels_4:
 
             samp_ladder.sort(key=lambda tup: np.linalg.norm(tup[2]))
 
-            #for el in samp_ladder:
-            #    print(el[1:])
+            if dbg:
+                for el in samp_ladder:
+                    print(el[1:])
 
             for cand in samp_ladder[::-1]:
-                if ((cand[1] > qualCUT) & (cand[3] > minCond)):
+                # accept child if it excells and satisfies minimal stability criteria *or* with a prob of eps
+                accept = True if np.random.random(
+                ) < acceptthreshold else False
+                if (((cand[1] > qualCUT) & (cand[3] > minCond)) | accept):
                     cfgg = twins[0][0]
 
                     civs.append([cfgg] + cand)
@@ -262,6 +298,7 @@ for channel in channels_4:
                     if children > anzNewBV:
                         break
             print('number of prodigies/target ', children, '/', anzNewBV)
+            #exit()
 
         civs = sortprint(civs, pr=dbg)
 

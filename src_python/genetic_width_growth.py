@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.stats import truncnorm, norm
 import struct
 """
 
@@ -22,7 +23,7 @@ def loveliness(relEnergyVals,
                maxRat=10**29):
 
     maxEsum = 1e5
-    energySum = sum([np.exp(-0.085 * ev) for ev in relEnergyVals])
+    energySum = sum([np.exp(-0.007 * ev) for ev in relEnergyVals])
 
     if (conditionNumber
             > minimalConditionnumber):  #((np.abs(energySum) < maxEsum) &
@@ -31,7 +32,9 @@ def loveliness(relEnergyVals,
         cF = minimalConditionnumber / conditionNumber  # the smaller the better
         eF = energySum / maxEsum  # the closer to -1 the better
         #print('(ECCE) mind the lovely!')
-        pulchritude = eF  #np.tan(np.exp(-0.62 * eF))  #* np.exp(-0.03 * cF**2)
+        pulchritude = eF * (
+            np.sqrt(np.log(1.1 + HeigenvaluesbelowX))
+        )  #np.tan(np.exp(-0.62 * eF))  #* np.exp(-0.03 * cF**2)
 
     else:
         pulchritude = 0.0
@@ -453,6 +456,8 @@ def bin_to_float(binary):
 # uniform crossover
 def intertwining(p1,
                  p2,
+                 def1,
+                 def2,
                  mutation_rate=0.0,
                  wMin=0.00001,
                  wMax=920.,
@@ -461,6 +466,8 @@ def intertwining(p1,
 
     Bp1 = float_to_bin(p1)
     Bp2 = float_to_bin(p2)
+
+    defaul = False
 
     assert len(Bp1) == len(Bp2)
     assert mutation_rate < 1
@@ -485,16 +492,10 @@ def intertwining(p1,
         Fc2 = np.abs(bin_to_float(Bchild2mutated))
 
         # Check for out-of-range or NaN values
-        # if the randomized avg of the sum of the parents is too large,
-        # project it into the wMax sphere (cf. stereographic projection)
-        if np.isnan(Fc1) or Fc1 < wMin or Fc1 > wMax:
-            #print(Fc1, p1, p2)
-            avg12 = np.average(p1 + p2) * (0.01 + 0.3 * np.random.random())
-            Fc1 = avg12 if avg12 < wMax else wMax**2 / avg12
-
-        if np.isnan(Fc2) or Fc2 < wMin or Fc2 > wMax:
-            avg12 = np.average(p1 + p2) * (0.01 + 0.3 * np.random.random())
-            Fc2 = avg12 if avg12 < wMax else wMax**2 / avg12
+        # the defaults are drawn from a clipped normal distribution which is
+        # defined for the system the basis is optimized
+        Fc1 = def1 if (np.isnan(Fc1) or Fc1 < wMin or Fc1 > wMax) else Fc1
+        Fc2 = def2 if (np.isnan(Fc2) or Fc2 < wMin or Fc2 > wMax) else Fc2
 
     elif method == '2point':
 
@@ -521,16 +522,10 @@ def intertwining(p1,
         Fc2 = np.abs(bin_to_float(Bchild2mutated))
 
         # Check for out-of-range or NaN values
-        # if the randomized avg of the sum of the parents is too large,
-        # project it into the wMax sphere (cf. stereographic projection)
-        if np.isnan(Fc1) or Fc1 < wMin or Fc1 > wMax:
-            #print(Fc1, p1, p2)
-            avg12 = np.average(p1 + p2) * (0.01 + 0.3 * np.random.random())
-            Fc1 = avg12 if avg12 < wMax else wMax**2 / avg12
-
-        if np.isnan(Fc2) or Fc2 < wMin or Fc2 > wMax:
-            avg12 = np.average(p1 + p2) * (0.01 + 0.3 * np.random.random())
-            Fc2 = avg12 if avg12 < wMax else wMax**2 / avg12
+        # the defaults are drawn from a clipped normal distribution which is
+        # defined for the system the basis is optimized
+        Fc1 = def1 if (np.isnan(Fc1) or Fc1 < wMin or Fc1 > wMax) else Fc1
+        Fc2 = def2 if (np.isnan(Fc2) or Fc2 < wMin or Fc2 > wMax) else Fc2
 
     elif method == '4point':
 
@@ -557,16 +552,10 @@ def intertwining(p1,
         Fc2 = np.abs(bin_to_float(Bchild2mutated))
 
         # Check for out-of-range or NaN values
-        # if the randomized avg of the sum of the parents is too large,
-        # project it into the wMax sphere (cf. stereographic projection)
-        if np.isnan(Fc1) or Fc1 < wMin or Fc1 > wMax:
-            #print(Fc1, p1, p2)
-            avg12 = np.average(p1 + p2) * (0.01 + 0.3 * np.random.random())
-            Fc1 = avg12 if avg12 < wMax else wMax**2 / avg12
-
-        if np.isnan(Fc2) or Fc2 < wMin or Fc2 > wMax:
-            avg12 = np.average(p1 + p2) * (0.01 + 0.3 * np.random.random())
-            Fc2 = avg12 if avg12 < wMax else wMax**2 / avg12
+        # the defaults are drawn from a clipped normal distribution which is
+        # defined for the system the basis is optimized
+        Fc1 = def1 if (np.isnan(Fc1) or Fc1 < wMin or Fc1 > wMax) else Fc1
+        Fc2 = def2 if (np.isnan(Fc2) or Fc2 < wMin or Fc2 > wMax) else Fc2
 
     elif method == 'uniform':
 
@@ -592,16 +581,10 @@ def intertwining(p1,
         Fc2 = np.abs(bin_to_float(Bchild2mutated))
 
         # Check for out-of-range or NaN values
-        # if the randomized avg of the sum of the parents is too large,
-        # project it into the wMax sphere (cf. stereographic projection)
-        if np.isnan(Fc1) or Fc1 < wMin or Fc1 > wMax:
-            #print(Fc1, p1, p2)
-            avg12 = np.average(p1 + p2) * (0.01 + 0.3 * np.random.random())
-            Fc1 = avg12 if avg12 < wMax else wMax**2 / avg12
-
-        if np.isnan(Fc2) or Fc2 < wMin or Fc2 > wMax:
-            avg12 = np.average(p1 + p2) * (0.01 + 0.3 * np.random.random())
-            Fc2 = avg12 if avg12 < wMax else wMax**2 / avg12
+        # the defaults are drawn from a clipped normal distribution which is
+        # defined for the system the basis is optimized
+        Fc1 = def1 if (np.isnan(Fc1) or Fc1 < wMin or Fc1 > wMax) else Fc1
+        Fc2 = def2 if (np.isnan(Fc2) or Fc2 < wMin or Fc2 > wMax) else Fc2
 
     else:
         print('unspecified intertwining method.')
@@ -613,7 +596,7 @@ def intertwining(p1,
         print('children (binary)       :', Bchild1, ';;', Bchild2)
         print('children (decimal)      :%12.4f%12.4f' % (Fc1, Fc2))
 
-    return Fc1, Fc2
+    return Fc1, Fc2, defaul
 
 
 def essentialize_basis(basis, MaxBVsPERcfg=4):

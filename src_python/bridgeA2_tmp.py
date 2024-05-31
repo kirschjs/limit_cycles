@@ -5,6 +5,7 @@ import sympy as sy
 # CG(j1, m1, j2, m2, j3, m3)
 from sympy.physics.quantum.cg import CG
 from scipy.linalg import eigh
+from scipy.stats import truncnorm, norm
 
 from three_particle_functions import *
 from PSI_parallel_M import *
@@ -22,7 +23,7 @@ from multiprocessing.pool import ThreadPool
 fitt = 0
 
 # which eigenstate whould have the specified target value? fixi=-1 = ground-state fitting
-fixi = -1
+fixi = -2
 # energy to fit to
 deub = 2.22
 
@@ -30,7 +31,7 @@ gTy = ['log_with_density_enhancement', 0.0001, 0.0002]  #'log',  #
 
 lecFile = '/home/kirscher/kette_repo/limit_cycles/manuscript/graphs/LECS.dat'
 lecFile = '/home/kirscher/Documents/vault/Vorlesungen/num_methods/lec_ex1_b2.22.dat'
-lecFile = '/home/kirscher/Documents/vault/Vorlesungen/num_methods/lec_ex0_b2.22.dat'
+lecFile = '/home/kirscher/Documents/vault/Vorlesungen/num_methods/lec_ex0_b2.22_gs3.dat'
 lec_set = np.array([line.split() for line in open(lecFile)
                     if line[0] != '#']).astype(float)
 
@@ -38,7 +39,7 @@ lec_set = np.array([line.split() for line in open(lecFile)
 bdimer = 0
 # 0:4 1:6 2:8 3:10
 las = lec_set[:, 0]
-lamstart, lamend = len(las) - 2, len(las) - 1
+lamstart, lamend = 0, 3  #len(las) - 1
 
 # numerical stability
 minCond = 10**-16
@@ -55,9 +56,29 @@ miniE_breed = -0.0
 # genetic parameters
 anzNewBV = 4
 muta_initial = 0.015
-anzGen = 85
+anzGen = 35
 civ_size = 22
 target_pop_size = 32
+
+# define a random distribution from which width parameters are chose if and only if
+# the binary intertwining operation yields values outside the acceptable interval
+loc, scale = 1.3, 100.5  # TODO, loc should be where choosen s.t. the Gaussian having the same width as the exponential prop. density
+
+a_transformed, b_transformed = (width_bnds[0] - loc) / scale, (width_bnds[1] -
+                                                               loc) / scale
+rv = truncnorm(a_transformed, b_transformed, loc=loc, scale=scale)
+x = np.linspace(truncnorm.ppf(0.01, width_bnds[0], width_bnds[1]),
+                truncnorm.ppf(1, width_bnds[0], width_bnds[1]), 100)
+
+r = rv.rvs(size=10000)
+
+fig, ax = plt.subplots(1, 1)
+ax.plot(x, rv.pdf(x), 'k-', lw=2, label='frozen pdf')
+ax.hist(r, density=True, bins='auto', histtype='stepfilled', alpha=0.2)
+ax.set_xlim(width_bnds[0], width_bnds[1])
+ax.legend(loc='best', frameon=False)
+
+fig.savefig("default_breeding_widths_dimer.pdf")
 
 zop = 14 if bin_suffix == '_v18-uix' else 11
 
@@ -87,7 +108,7 @@ for nlam in range(lamstart, lamend):
     print('>>> working directory: ', sysdir2)
 
     cloB = 0.0
-    cloW = lec_set[nlam, 1 + bdimer]
+    cloW = lec_set[nlam, 2 + bdimer]
 
     if bin_suffix == '_v18-uix':
         prep_pot_file_2N(lam=(2 * np.sqrt(float(lam))),
@@ -217,6 +238,8 @@ for nlam in range(lamstart, lamend):
                                      wMin=0.5 * width_bnds[0],
                                      wMax=2.5 * width_bnds[1],
                                      dbg=False,
+                                     def1=rv.rvs(),
+                                     def2=rv.rvs(),
                                      method='2point')
                         for n in range(len(mother[1][wset]))
                     ]

@@ -25,8 +25,8 @@ from multiprocessing.pool import ThreadPool
 
 # prepare spin/orbital matrices for parallel computation
 findstablebas = 0
-largestAllowedDistortionW = 26.01
-smallestAllowedDistortionW = 0.07
+largestAllowedDistortionW = 120.01
+smallestAllowedDistortionW = 0.005
 
 normStabilityThreshold = 10**-30
 maxCofDev = 1000.1
@@ -83,7 +83,7 @@ J1J2SC = []
 
 if os.path.isdir(sysdir4) == False:
     subprocess.check_call(['mkdir', '-p', sysdir4])
-    prepare_einzel4(sysdir4, BINBDGpath, channels_4_scatt)
+prepare_einzel4(sysdir4, BINBDGpath, channels_4_scatt)
 
 os.chdir(sysdir4)
 subprocess.call('cp %s .' % nnpot, shell=True)
@@ -159,7 +159,7 @@ for chan in channels_4_scatt:
         zstrus_tmp, outs = from2to4(zwei_inq=sysdir21 + '/INQUA_N_%s' % lam,
                                     vier_dir=sysdir4,
                                     fn=nnpotstring,
-                                    relw=widthSet_relative[chnbr],
+                                    relw=widthSet_relative[0 * chnbr],
                                     app='True')
 
     else:
@@ -167,7 +167,7 @@ for chan in channels_4_scatt:
                                      zwei_inq_2=sysdir22 + '/INQUA_N_%s' % lam,
                                      vier_dir=sysdir4,
                                      fn=nnpotstring,
-                                     relw=widthSet_relative[chnbr],
+                                     relw=widthSet_relative[0 * chnbr],
                                      app='True')
 
     zstrus.append(zstrus_tmp)
@@ -264,7 +264,7 @@ for sysdir3 in threedirs:
 
     qua_str.append(''.join(
         replace_wrel('%s/inq_3to4_%s' % (sysdir3, lam),
-                     widthSet_relative[chnbr])))
+                     widthSet_relative[0 * chnbr])))
 
     #qua_str.append(''.join(
     #    [line for line in open('%s/inq_3to4_%s' % (sysdir3, lam))]))
@@ -708,7 +708,7 @@ for epsi in np.linspace(eps0, eps1, epsNBR):
                        oufi='expandedWFKT_%d.pdf' % neps,
                        col=waveToPlot,
                        chan=chans,
-                       titl='$\epsilon=[ $%s$ ]$fm$^{-2}$' %
+                       titl='$\\epsilon=[ $%s$ ]$fm$^{-2}$' %
                        (' , '.join(['%.4g' % float(ep) for ep in epsi])),
                        nbrE=energyToPlot)
 
@@ -716,14 +716,14 @@ for epsi in np.linspace(eps0, eps1, epsNBR):
                          oufi='relWFKT_%d.pdf' % neps,
                          col=relwaveToPlot,
                          chan=chans,
-                         titl='$\epsilon=[ $%s$ ]$fm$^{-2}$' %
+                         titl='$\\epsilon=[ $%s$ ]$fm$^{-2}$' %
                          (' , '.join(['%.4g' % float(ep) for ep in epsi])),
                          nbrE=energyToPlot)
         plotDcoeff(infi='OUTPUTSPOLE',
                    oufi='DcoffHist_%d.pdf' % neps,
                    col=0,
                    chan=chans,
-                   titl='$\epsilon=[ $%s$ ]$fm$^{-2}$' %
+                   titl='$\\epsilon=[ $%s$ ]$fm$^{-2}$' %
                    (' , '.join(['%.4g' % float(ep) for ep in epsi])),
                    nbrE=energyToPlot)
     except:
@@ -735,7 +735,7 @@ for epsi in np.linspace(eps0, eps1, epsNBR):
 
     plotphas(oufi='4_ph_%d_%s_%s.pdf' % (neps, lam, lecstring),
              chs=pltChans,
-             titl='$\epsilon=[ $%s$ ]$fm$^{-2}$' %
+             titl='$\\epsilon=[ $%s$ ]$fm$^{-2}$' %
              (' , '.join(['%.4g' % float(ep) for ep in epsi])))
 
     head_str = '# lambda                       channel   a(ch)     eps                        a(2)     B(4)   B(thresh)\n'
@@ -830,8 +830,8 @@ for ch in a_of_epsi.keys():
 plotarray2(outfi='a_of_eps_%s_%s.pdf' % (lam, lecstring),
            infix=[xx],
            infiy=[yy],
-           title=['$a_{dd}$ dependence on $\epsilon$'],
-           xlab=['$\epsilon$ [fm$^{-2}$]'],
+           title=['$a_{dd}$ dependence on $\\epsilon$'],
+           xlab=['$\\epsilon$ [fm$^{-2}$]'],
            ylab=['$a_{dd}$ [fm]'],
            leg=[leg],
            plotrange=[''])
@@ -845,7 +845,7 @@ for ch in a_of_Ematch.keys():
         for eps_add_set in a_of_Ematch[ch]:
             xx.append(eps_add_set[0])
             yy.append(eps_add_set[1])
-            leg.append(ch + '-$\epsilon_%d$' % epsset)
+            leg.append(ch + '-$\\epsilon_%d$' % epsset)
             epsset += 1
 
 plotarray2(outfi='a_of_Ematch_%s_%s.pdf' % (lam, lecstring),
