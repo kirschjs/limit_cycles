@@ -89,8 +89,8 @@ maxParLen = 120
 cib = 0  # if set, EFTnoPi with charge independence broken by Coulomb and an acompanying
 # contact-term correction is employed (leading order)
 
-lam = 6.00  # 4,6,8,10 (for presentation)
-b3 = 1.30
+lam = 8.00  # 4,6,8,10 (for presentation)
+b3 = 1.20
 la = ('%-4.2f' % lam)[:4]
 tb = ('%-4.2f' % b3)[:4]
 
@@ -301,7 +301,7 @@ nbrStatesOpti4 = list(range(-1, 0))
 
 eDict = {
     #    [#energies, E0, dE, [3bdy GS, 3bdy ES1, 3bdy ES2, ...]]
-    '1.20': [100, 0.01, 0.003, [0, 1], [[1, 1], [2, 2]]],
+    '1.20': [100, 0.001, 0.003, [0, 1], [[1, 1], [2, 2]]],
     '1.30': [100, 0.01, 0.003, [0, 1], [[1, 1], [2, 2]]],
     '0.75': [100, 0.001, 0.003, [0, 1], [[1, 1], [2, 2]]],
     '2.00': [200, 0.05, 0.015, [0, 1], [[1, 1], [2, 2]]],
@@ -324,8 +324,8 @@ nzEN = eDict[tb][0]
 E0 = eDict[tb][1]
 D0 = eDict[tb][2]
 
-epL = 0.0001
-epU = 0.0005
+epL = 0.001
+epU = 0.005
 eps0 = [epL * 1.0, epL, epL, epL, epL]
 eps1 = [epU * 1.0, epU, epU, epU, epU]
 epsM = (np.array(eps1) + np.array(eps0)) / 2
@@ -335,19 +335,19 @@ phasCalcMethod = 1
 # parameters for the expansion of the fragment-relative function
 # (i.e., both fragments charged: Coulomb function, else sperical Bessel)
 # in Gaussians
-SPOLE_adaptweightUP = 0.15
-SPOLE_adaptweightLOW = 0.0
+SPOLE_adaptweightUP = 1.0
+SPOLE_adaptweightLOW = 1.0
 SPOLE_adaptweightL = 0.5
-SPOLE_GEW = 0.8  # smaller values decrease the maximal radius up to which values enter the fit
+SPOLE_GEW = 1.0  # smaller values decrease the maximal radius up to which values enter the fit
 SPOLE_QD = 1.0  # this shifts the interval smaller values try to optimize the behavior closer to zero
-SPOLE_QS = 3.2
+SPOLE_QS = 0.5
 
-beta0 = 2.1
+beta0 = 1.6
 Bet = [beta0, beta0, beta0, beta0, beta0]
-rgh = 8.0
+rgh = 6.0
 anzStuez = 400
-StuezAbs = 2.250
-StuezBrei = 1.50
+StuezAbs = 1.250
+StuezBrei = 0.5
 
 MeVfm = 197.3161329
 
@@ -366,8 +366,8 @@ MeVfm = 197.3161329
 anzRelw4opt = 12
 
 # number of Gaussian basis functions/widths used to expand the fragment-relative wave function
-anzRelw = 26  # 10, 12, 14, 20, ....
-maxRelW = 151.1
+anzRelw = 25  # 10, 12, 14, 20, ....
+maxRelW = 121.1
 
 unStable = True
 ite = 0
@@ -379,9 +379,9 @@ while unStable == True:
                 np.abs(
                     np.concatenate([
                         np.array([
-                            ww for ww in np.logspace(-4.0 +
+                            ww for ww in np.logspace(-4.1 +
                                                      0.1 * np.random.random(),
-                                                     1.8 +
+                                                     1.7 +
                                                      0.3 * np.random.random(),
                                                      num=int(anzRelw / 2),
                                                      endpoint=True,
@@ -389,9 +389,9 @@ while unStable == True:
                             if ww < maxRelW
                         ]),
                         np.array([
-                            ww for ww in np.logspace(-2.2 +
+                            ww for ww in np.logspace(-3.5 +
                                                      0.1 * np.random.random(),
-                                                     2.1 +
+                                                     0.5 +
                                                      0.2 * np.random.random(),
                                                      num=int(anzRelw / 2),
                                                      endpoint=True,

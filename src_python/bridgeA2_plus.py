@@ -39,7 +39,7 @@ miniE_breed = -0.1
 # genetic parameters
 anzNewBV = 5
 muta_initial = 0.1
-anzGen = 20
+anzGen = 5
 civ_size = 25
 target_pop_size = 25
 
@@ -442,3 +442,24 @@ for channel in channels_2:
           (a_aa[0].real, a_aa[0].imag, a_aa[-1].real, a_aa[-1].imag))
     plotarray([float(a.real) for a in a_aa],
               [phaa[n][0] for n in range(len(phaa))], 'a_atom-atom.pdf')
+
+    try:
+        chans = [1]
+        waveToPlot = 1
+        relwaveToPlot = 1
+        energyToPlot = 1
+        plotapproxwave(infi='OUTPUTSPOLE',
+                       oufi='expandedWFKT.pdf',
+                       col=waveToPlot,
+                       chan=chans,
+                       titl='',
+                       nbrE=energyToPlot)
+
+        plotrelativewave(infi='OUTPUTSPOLE',
+                         oufi='relWFKT.pdf',
+                         col=relwaveToPlot,
+                         chan=chans,
+                         titl='',
+                         nbrE=energyToPlot)
+    except:
+        print("Wave-function plotting failed!")

@@ -1066,8 +1066,8 @@ C     SQ=GL*(H-ENERGIE*NORM)*GL
       CALL WRIMATC(SP,NZKBMA,NZAOK,NTEX(1))
       CALL WRIMATC(SQ,NZKBMA,NZAOK,NTEX(3))
  2180 CONTINUE
-c     Asymptotische Beitr�ge
-2179   FORMAT('KANAL ',I4,' PQ0(L),PQ3(L),PQ2(L),PQ1(L) ',8F10.4)
+c     asymptotic contributions
+2179   FORMAT('channel ',I4,' PQ0(L),PQ3(L),PQ2(L),PQ1(L) ',8F10.4)
        if(nad4.gt.0)write(nout,2179) L,PQ0(L),PQ3(L),PQ2(L),PQ1(L)
        SP(L,L) = SP(L,L)+PQ2(L) 
        SC(L,L) = SC(L,L)+PQ3(L) 
@@ -1088,8 +1088,8 @@ C      LOESUNG ZU H - E
       SPT(K,K)=(SPT(K,K)-CI)*1000.
 145   CONTINUE
         WRITE(NOUT,3140) (SPT(K,K),K=1,NZAOK)
-3140  FORMAT(' ABWEICHUNG VOM WERT DER WRONSKI-DETERMINANTE ',
-     *   'SOLLTE FUER REELLE ENERGIE REIN IMAGINAER SEIN',/,
+3140  FORMAT(' deviation from the value of the WRONSKIAN ',
+     *   '(should be purely imaginary for real energies)',/,
      * 3(' ( ', F10.4,',',F10.4,' ) '))
 C
       DO 50 L=1,NZAOK
@@ -2387,7 +2387,7 @@ C     Bestimmung der S-Matrix
       DO 3  K=1,NO
     3 AM(K,I)=W2(K,I)
       IF(NAD7.GT.2) CALL WRIMATC(AM,NZKBMA,NO,HTEX(5))
-C     AM IST DIE DIREKT BERECHNETE TRANSPONIERTE S-MATRIX
+C     AM: directly calculated inverse S-MATRIX
       DO 6  L=1,NO
       DO 6  K=1,NO
       Z(K,L)=CI *HSMM(K,L)
@@ -2395,14 +2395,14 @@ C     AM IST DIE DIREKT BERECHNETE TRANSPONIERTE S-MATRIX
       Z(K,L)=Z(K,L)-CI *AM(M,K)*HSPM(M,L)
 6     CONTINUE
 C
-      IF(NAD7.GT.1) WRITE(NOUT,*) ' VOLLE S-MATRIX'
+      IF(NAD7.GT.1) WRITE(NOUT,*) ' FULL S-MATRIX'
       DO 55 L=1,NO
       IF(NAD7.GT.1) WRITE(NOUT,608)(Z(L,LH),LH=1,L)
 608   FORMAT(1X,10F7.4)      
       DO 55 K=1,NO
  55    SMAT(K,L,1)=Z(K,L)   
 c
-      IF(NAD7.GT.2) WRITE(NOUT,*) ' DIREKTE VARIATION SINV-MATRIX'
+      IF(NAD7.GT.2) WRITE(NOUT,*) ' DIRECT VARIATION SINV-MATRIX'
       DO 104 I=1,NO
       DO 104 K=1,NO
       W2(K,I)=HSMP(K,I)
@@ -2420,7 +2420,7 @@ c
       DO 103  K=1,NO
   103 AMB(K,I)=W2(K,I)
       IF(NAD7.GT.2) CALL WRIMATC(AMB,NZKBMA,NO,HTEX(6))
-C     AMB IST DIE DIREKT BERECHNETE TRANSPONIERTE SINV-MATRIX
+C     AMB: directly calculated transpose of the inverse S-MATRIX
 C
       DO 106  L=1,NO
       DO 106  K=1,NO
@@ -2429,7 +2429,7 @@ C
       ZB(K,L)=ZB(K,L)+CI *AMB(M,K)*HSMP(M,L)
 106     CONTINUE
 C
-      IF(NAD7.GT.1) WRITE(NOUT,*) ' VOLLE SINV-MATRIX'
+      IF(NAD7.GT.1) WRITE(NOUT,*) ' FULL SINV-MATRIX'
       DO 204 I=1,NO
       DO 204 K=1,NO
       W2(K,I)=CNULL
@@ -2454,7 +2454,7 @@ C
 
       CALL SMATEST(SMAT,NO,NAD7,IBESS)
 C
-C     SMAT * SMAT(INVERS)= 1 !!! FUER REELLE ENERGIEN
+C     SMAT * SMAT(INVERS)= 1 !!! for real energies
 C    
       DO 41  L=1,NO
       DO 41  K=1,NO
@@ -2462,13 +2462,14 @@ C
       DO 41  M=1,NO
 41    ZX(K,L)=ZX(K,L)+AM(K,M)*CONJG(AM(L,M))
       WRITE(NOUT,45)
-45    FORMAT(/,'  KONTROLLMAT S-DIREKT')
+45    FORMAT(/,'  control matrix S_var*Sp_var
+     *            (variational/uncorrected)')
       DO 42  K=1,NO
 42    WRITE(NOUT,122) (ZX(L,K),L=1,K)
 C
 C
 c
-C     Streichkriterium: Abweichung der Kontrollmatrix von 1
+C     criterion: deviation of the control matrix from the identity
 C
 C
       IF(NAD6.EQ.0) GOTO 5741
@@ -2480,10 +2481,10 @@ C
       CRIT=CRIT+ABS(CRIMA)
   18  CONTINUE
       WRITE (NOUT,5750) CRIT,CDEF
-5750  FORMAT (2X,' abs(Kontr.mat-1): ',E13.6,' CDEF: ',E12.4)
+5750  FORMAT (2X,' abs(contr.mat-1): ',E13.6,' CDEF: ',E12.4)
       CRITN=CRIT/(NO*NO)
       WRITE (NOUT,5754) CRITN,CDEF
-5754  FORMAT (2X,' abs(Kontr.mat-1)/NO*NO: ',E13.6,' CDEF: ',E12.4)
+5754  FORMAT (2X,' abs(contr.mat-1)/NO*NO: ',E13.6,' CDEF: ',E12.4)
       CRI(MM)=CRITN
 c     IF(CRI(MM).GT.CRI(MM-1)) GOTO 3741
       IF(CRITN.LE.CDEF) GOTO 5741
@@ -2508,7 +2509,8 @@ C
       DO 441  M=1,NO
 441    ZX(K,L)=ZX(K,L)+Z(K,M)*CONJG(Z(L,M))
       WRITE(NOUT,445)
-445    FORMAT(/,'  KONTROLLMAT VOLLE S-MATRIX')
+445    FORMAT(/,'  control matrix S*Sp       
+     *             (full/corrected)')
       DO 442  K=1,NO
 442    WRITE(NOUT,122) (ZX(L,K),L=1,K)
 C
@@ -2536,7 +2538,7 @@ C
       BSIN(KL)=DREAL(FUK(1,1))*HX
 66    BPHAS(KL)= 57.295779513 * ATAN2(BSIN(KL),BCOS(KL))
       WRITE(NOUT,123)(BPHAS(K),K=1,NO)
-123   FORMAT(' BACKGROUNDPHASEN ',(1X,10F10.4))
+123   FORMAT(' BACKGROUNDPHASES ',(1X,10F10.4))
       DO 70 J=1,NO
       DO 69 K=1,NO
       ZZB(K,J)=-AMAT(K,J)*BSIN(J)

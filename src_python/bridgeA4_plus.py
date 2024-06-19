@@ -26,7 +26,7 @@ from multiprocessing.pool import ThreadPool
 # prepare spin/orbital matrices for parallel computation
 findstablebas = 0
 largestAllowedDistortionW = 120.01
-smallestAllowedDistortionW = 0.005
+smallestAllowedDistortionW = 0.025
 
 normStabilityThreshold = 10**-30
 maxCofDev = 1000.1
@@ -894,16 +894,18 @@ phhendd = read_phase(phaout='PHAOUT',
 # phhen -> evalChans[1]
 # phdd -> evalChans[2]
 # phdqdq -> evalChans[3]
-phtp = read_phase(phaout='PHAOUT',
-                  ch=evalChans[0],
-                  meth=phasCalcMethod,
-                  th_shift='')
-phhen = read_phase(phaout='PHAOUT',
-                   ch=evalChans[1],
-                   meth=phasCalcMethod,
-                   th_shift='1-2')
+#phtp = read_phase(phaout='PHAOUT',
+#                  ch=evalChans[0],
+#                  meth=phasCalcMethod,
+#                  th_shift='')
+#phhen = read_phase(phaout='PHAOUT',
+#                   ch=evalChans[1],
+#                   meth=phasCalcMethod,
+#                   th_shift='1-2')
 #phdqdq = read_phase(phaout='PHAOUT', ch=evalChans[3], meth=phasCalcMethod, th_shift='1-4')
 #phmix = read_phase(phaout='PHAOUT', ch=evalChans[3], meth=phasCalcMethod, th_shift='1-2')
+
+subprocess.call('grep -A 2 \'control matrix\' OUTPUTSPOLE', shell=True)
 
 exit()
 
