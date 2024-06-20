@@ -5,23 +5,6 @@ import numpy as np
 import random
 import rrgm_functions, parameters_and_constants
 
-two_body_channels = {
-    # r7 c2:   S  L           S_c
-    'np1s': 1,  #  1   :   0  0  1S0         0
-    'np3s': 2,  #  2   :   1  0  3S1         2
-    'nn1s': 3,  #  4   :   0  0  1S0         0          n-n
-    'nn3p': 4,  #  5   :   1  1  3P0,3P1,3P2 2          n-n
-    'nn1d': 5,  #  6   :   0  2  1D2         2          n-n
-    'nn3f': 6,  #  7   :   0  1  F         0
-    'np1p': 7,  #  8   :   1  1  3P0,3P1,3P2 2
-    'np3p': 8,  #  9   :   1  2  P         2
-    'np3d': 9,  #  9   :   1  2  3D1         2
-    'pp1s': 10,  #  9   :   1  2  S         2
-    'pp3p': 11,  #  9   :   1  2  P         2
-    'pp1d': 12,  #  9   :   1  2  3D1         2
-    'pp3f': 13,  #  9   :   1  2  F         2
-}
-
 
 def h2_inen_str_pdp(relw, costr, j=0, sc=0, ch=[1]):
     s = ''
@@ -45,33 +28,51 @@ def h2_inen_str_pdp(relw, costr, j=0, sc=0, ch=[1]):
 def spole_2(nzen=20,
             e0=0.01,
             d0=0.075,
-            eps=0.01,
+            eps=[0.01],
             bet=1.1,
             nzrw=400,
             frr=0.06,
             rhg=8.0,
             rhf=1.0,
-            pw=1):
+            pw=1,
+            nbrCH=5,
+            adaptweightUP=1.0,
+            adaptweightLOW=0.009,
+            adaptweightL=0.5,
+            GEW=1.0,
+            QD=1.8,
+            QS=0.0):
+    if nbrCH > 5:
+        print(
+            'ECCE (S-POLE): calculation for > 5 physical channels untested!\nViewer discretion is strongly advised.'
+        )
+
+    if len(eps) != nbrCH:
+        print(
+            'ECEE(INPUTSPOLE): number of channels does not match number of eps parameters!'
+        )
+
     s = ''
-    s += ' 11  3  0  0  0  0\n'
+    s += ' 11  3  0  0  0 +0\n'
     s += '%3d  0  1\n' % int(nzen)
-    s += '%12.4f%12.4f\n' % (float(e0), float(d0))
-    s += '%12.4f%12.4f%12.4f\n' % (float(eps), float(eps), float(eps))
-    s += '%12.4f%12.4f%12.4f\n' % (float(bet), float(bet), float(bet))
+    s += '%12.7f%12.7f\n' % (float(e0), float(d0))
+    epsline = ''.join(['%12.8f' % float(epsI) for epsI in eps]) + '\n'
+    betline = ''.join(['%12.8f' % float(betI) for betI in bet]) + '\n'
+    s += epsline + betline
     #    OUT
-    s += '  0  0  1  0  1  0  2  0\n'
+    s += ' +1  0 +1  2  1  0  2  0\n'
     s += '%3d\n' % int(nzrw)
-    s += '%12.4f%12.4f%12.4f\n' % (float(frr), float(rhg), float(rhf))
-    s += '  1  2  3  4\n'
-    s += '0.0         0.0         0.0\n'
-    s += '.001        .001        .001\n'
-    if pw == 0:
-        s += '.5          .5          .5          .5\n'
-    elif pw == 1:
-        s += '.3          .3          .3          .3\n'
-    elif pw == 2:
-        s += '.15         .15         .15         .15\n'
-    s += '1.          1.          0.\n'
+    s += '%12.8f%12.8f%12.8f\n' % (float(frr), float(rhg), float(rhf))
+    channelDescriptorline = ''.join(['%3d' % n
+                                     for n in range(1, nbrCH + 1)]) + '\n'
+    s += channelDescriptorline
+    adaptIntervalWeightlineUP = nbrCH * ('%12.8f' %
+                                         float(adaptweightUP)) + '\n'
+    adaptIntervalWeightlineLOW = nbrCH * ('%12.8f' %
+                                          float(adaptweightLOW)) + '\n'
+    adaptIntervalWeightlineL = nbrCH * ('%12.8f' % float(adaptweightL)) + '\n'
+    s += adaptIntervalWeightlineUP + adaptIntervalWeightlineLOW + adaptIntervalWeightlineL
+    s += '%12.8f%12.8f%12.8f\n' % (GEW, QD, QS)
     with open('INPUTSPOLE', 'w') as outfile:
         outfile.write(s)
     return
@@ -92,6 +93,51 @@ def inlu_2(anzo=5, anzf=1):
     return
 
 
+def inob_2exp(anzo=5, anzf=1):
+    s = ''
+    s += '  0  0\n'
+    for n in range(anzo):
+        s += '  1'
+    s += '\n  4\n'
+    s += '%3d  2\n' % anzf
+    for n in range(anzf):
+        s += '  2 15  6  1\n'
+        s += '  1  1\n'
+        s += '  1  3\n'  #  1) p-up, n-up
+        s += '  1  2\n'  #  2) NN - singlet
+        s += '  3  4\n'
+        s += '  1  4\n'
+        s += '  3  2\n'
+        s += '  4  1\n'
+        s += '  2  3\n'
+        s += '  2  1\n'
+        s += '  4  3\n'
+        s += '  4  3\n'
+        s += '  1  2\n'
+        s += '  2  1\n'
+        s += '  3  4\n'
+        s += '  4  3\n'
+        s += '  3  4\n'  #  6)  n up n down
+        s += '  1  1\n'  # p-up, p-up
+        s += '  0  1  1  2\n'
+        s += '  0  1  1  2\n'
+        s += '  0  1  1  2\n'
+        s += '  0  1  1  2\n'
+        s += '  0  1 -1  2\n'
+        s += '  0  1 -1  2\n'
+        s += '  0  1 -1  2\n'
+        s += '  0  1 -1  2\n'
+        s += '  0  1  0  1  1  4\n'
+        s += '  0  1  0  1 -1  4\n'
+        s += '  0  1  0  1  0  1  1  2\n'
+        s += '  0  1  0  1  0  1 -1  2\n'
+        s += '  0  1  0  1  0  1  0  1  1  1\n'
+        s += '  0  1  0  1  0  1  0  1  0  1  1  1\n'
+    with open('INOB', 'w') as outfile:
+        outfile.write(s)
+    return
+
+
 def inob_2(anzo=5, anzf=1):
     s = ''
     s += '  0  0\n'
@@ -102,20 +148,20 @@ def inob_2(anzo=5, anzf=1):
     for n in range(anzf):
         s += '  2  9  6  1\n'
         s += '  1  1\n'
-        s += '  1  3\n'  #  p-up, n-up
-        s += '  1  4\n'  #  ...
+        s += '  1  3\n'  #  1) p-up, n-up
+        s += '  1  4\n'  #  2) NN - singlet
         s += '  2  3\n'
+        s += '  4  3\n'
         s += '  1  2\n'
         s += '  2  1\n'
         s += '  3  4\n'
         s += '  4  3\n'
-        s += '  3  4\n'  # n-up, n-down
+        s += '  3  4\n'  #  6)  n up n down
         s += '  1  1\n'  # p-up, p-up
-        s += '  1  1\n'
         s += '  0  1  1  2\n'
         s += '  0  1 -1  2\n'
-        s += '  0  1  0  1  1  2\n'
-        s += '  0  1  0  1 -1  2\n'
+        s += '  0  1  0  1  1  4\n'
+        s += '  0  1  0  1 -1  4\n'
         s += '  0  1  0  1  0  1  1  2\n'
         s += '  0  1  0  1  0  1 -1  2\n'
         s += '  0  1  0  1  0  1  0  1  1  1\n'
@@ -125,7 +171,7 @@ def inob_2(anzo=5, anzf=1):
     return
 
 
-def inqua_2(relw, ps2):
+def inqua_2(relw, ps2, inquaout='INQUA_N'):
     s = ''
     s += ' 10  8  9  3 00  0  0  0  0\n'
     #s += pot_dir + ps2 + '\n'
@@ -156,7 +202,7 @@ def inqua_2(relw, ps2):
         s += '  6  2\n1.\n'  # 11:  p-p 3P0,1,2
         s += '  3  3\n1.\n'  # 12:  p-p 1D2
         s += '  6  4\n1.'  # 13:  p-p 3F2,3,4
-    with open('INQUA_N', 'w') as outfile:
+    with open(inquaout, 'w') as outfile:
         outfile.write(s)
     return
     # r7 c2:   S  L           S_c
@@ -171,9 +217,9 @@ def inqua_2(relw, ps2):
     #  9   :   1  2  3D1         2
 
 
-def inen_bdg_2(bas, costr, j, ch=1, anzo=14, fn='INEN', pari=0, tni=10):
+def inen_bdg_2(bas, costr, j, ch=1, anzo=14, fn='INEN', pari=0, tni=10, nzz=2):
     s = ''
-    s += ' 10  3 11%3d  1  1  0  0  0 -1\n' % int(anzo)
+    s += ' 10  3 11%3d  1  1%3d  0  0 -1\n' % (int(anzo), int(nzz))
     #       N  T Co CD^2 LS  T
     s += '  1  1  1  1  1  1  1  1  1  1\n'
 
@@ -187,11 +233,8 @@ def inen_bdg_2(bas, costr, j, ch=1, anzo=14, fn='INEN', pari=0, tni=10):
 
         tmp = ''
 
-        for n in range(1, int(max(1, 1 + max(bv[1])))):
-            if n in bv[1]:
-                tmp += '%3d' % int(1)
-            else:
-                tmp += '%3d' % int(0)
+        for n in range(1, 1 + len(bv[1])):
+            tmp += '%3d' % int(1)
 
         tmp += '\n'
         s += tmp

@@ -956,7 +956,7 @@ c     NENTK AUF 1 (VORHER 0)
    90 CONTINUE
       NZAOK = I
 c     NZAOK IST DIE ANZAHL DER GERECHNETEN KANAELE
-      IF(NOPT.NE.0)  NZAOK=NZKB  
+      IF(NOPT.NE.0)  NZAOK=NZKB
       NZOFFK=I
       IF(NOPT2.NE.1) GOTO 10971
       NZOFFK=NZKB
@@ -1199,7 +1199,9 @@ C     DER S-MATRIX BETRACHTET
 C
       GOTO 278
  279  CONTINUE
-      CALL ZGETRF(NZAOK,NZAOK,SMATFAKT,NZKBMA,IPIV,IFA)
+      NO = NZAOK
+      CALL ZGETRF(NO,NO,SMATFAKT,NZKBMA,IPIV,IFA)
+      NO = NZAOK
       DETSMAT=1.
       DO 128 M=1,NZOFFK
       DSM=SMATFAKT(M,M)
@@ -2274,11 +2276,11 @@ C
 26      FORMAT(' EIGENPHASEN')
    27 FORMAT(' EIGENVEKTOREN ZEILENWEISE',/)
       W0=.0
-      NO=NZAOK
+      Naux=NZAOK
       NX=NZPWX
 c
-      DO 2  L=1,NO
-      DO 2  K=1,NO
+      DO 2  L=1,Naux
+      DO 2  K=1,Naux
       HSMM(K,L)=SQ(K,L)
       HSPM(K,L)=SC(K,L)
       HSMP(K,L)=SP(K,L)
@@ -2293,138 +2295,144 @@ c
  2    CONTINUE
 c
       IF(NAD7.LT.4) GO TO 339
-      CALL WRIMATC(HSPP,NZKBMA,NO,HTEX(1))
-      CALL WRIMATC(HSPM,NZKBMA,NO,HTEX(2))
-      CALL WRIMATC(HSMP,NZKBMA,NO,HTEX(3))
-      CALL WRIMATC(HSMM,NZKBMA,NO,HTEX(4))
+      CALL WRIMATC(HSPP,NZKBMA,Naux,HTEX(1))
+      CALL WRIMATC(HSPM,NZKBMA,Naux,HTEX(2))
+      CALL WRIMATC(HSMP,NZKBMA,Naux,HTEX(3))
+      CALL WRIMATC(HSMM,NZKBMA,Naux,HTEX(4))
  339  CONTINUE
 C
 C     Bestimmung der S-Matrix
       IF(NAD7.GT.2) WRITE(NOUT,*) ' DIREKTE VARIATION S-MATRIX'
-      DO 4  I=1,NO
-      DO 4  K=1,NO
+      DO 4  I=1,Naux
+      DO 4  K=1,Naux
       W2(K,I)=HSPM(K,I)
  4    CONTINUE
-      DO 7  LL=1,NO
-      DO 7  KK=1,NO
+      DO 7  LL=1,Naux
+      DO 7  KK=1,Naux
       XSGG(KK,LL)=HSPP(KK,LL)
 7     CONTINUE
       IFA=0
-      CALL ZGETRF(NO,NO,XSGG,NZKBMA,IPIV,IFA)
+      CALL ZGETRF(Naux,Naux,XSGG,NZKBMA,IPIV,IFA)
+      Naux=NZAOK
       IF(IFA.NE.0) STOP 7
-      CALL ZGETRS(TRANS,NO,NO,XSGG,NZKBMA,IPIV,W2,NZKBMA,IFA)
+      CALL ZGETRS(TRANS,Naux,Naux,XSGG,NZKBMA,IPIV,W2,NZKBMA,IFA)
+      Naux=NZAOK
       IF(IFA.NE.0) STOP 3
-      DO 3  I=1,NO
-      DO 3  K=1,NO
+      DO 3  I=1,Naux
+      DO 3  K=1,Naux
     3 AM(K,I)=W2(K,I)
-      IF(NAD7.GT.2) CALL WRIMATC(AM,NZKBMA,NO,HTEX(5))
+      IF(NAD7.GT.2) CALL WRIMATC(AM,NZKBMA,Naux,HTEX(5))
 C     AM IST DIE DIREKT BERECHNETE TRANSPONIERTE S-MATRIX
-      DO 6  L=1,NO
-      DO 6  K=1,NO
+      DO 6  L=1,Naux
+      DO 6  K=1,Naux
       Z(K,L)=CI *HSMM(K,L)
-      DO 6  M=1,NO
+      DO 6  M=1,Naux
       Z(K,L)=Z(K,L)-CI *AM(M,K)*HSPM(M,L)
 6     CONTINUE
 C
       IF(NAD7.GT.1) WRITE(NOUT,*) ' VOLLE S-MATRIX'
-      DO 55 L=1,NO
+      DO 55 L=1,Naux
       IF(NAD7.GT.1) WRITE(NOUT,608)(Z(L,LH),LH=1,L)
 608   FORMAT(1X,10F7.4)      
-      DO 55 K=1,NO
+      DO 55 K=1,Naux
  55    SMAT(K,L,1)=Z(K,L)   
 c
       IF(NAD7.GT.2) WRITE(NOUT,*) ' DIREKTE VARIATION SINV-MATRIX'
-      DO 104 I=1,NO
-      DO 104 K=1,NO
+      DO 104 I=1,Naux
+      DO 104 K=1,Naux
       W2(K,I)=HSMP(K,I)
 104    CONTINUE
-      DO 107  LL=1,NO
-      DO 107  KK=1,NO
+      DO 107  LL=1,Naux
+      DO 107  KK=1,Naux
       XSGG(KK,LL)=HSMM(KK,LL)
 107     CONTINUE
       IFA=0
-      CALL ZGETRF(NO,NO,XSGG,NZKBMA,IPIV,IFA)
+      CALL ZGETRF(Naux,Naux,XSGG,NZKBMA,IPIV,IFA)
+      Naux=NZAOK
       IF(IFA.NE.0) STOP 107
-      CALL ZGETRS(TRANS,NO,NO,XSGG,NZKBMA,IPIV,W2,NZKBMA,IFA)
+      CALL ZGETRS(TRANS,Naux,Naux,XSGG,NZKBMA,IPIV,W2,NZKBMA,IFA)
+      Naux=NZAOK
       IF(IFA.NE.0) STOP 103
-      DO 103  I=1,NO
-      DO 103  K=1,NO
+      DO 103  I=1,Naux
+      DO 103  K=1,Naux
   103 AMB(K,I)=W2(K,I)
-      IF(NAD7.GT.2) CALL WRIMATC(AMB,NZKBMA,NO,HTEX(6))
+      IF(NAD7.GT.2) CALL WRIMATC(AMB,NZKBMA,Naux,HTEX(6))
 C     AMB IST DIE DIREKT BERECHNETE TRANSPONIERTE SINV-MATRIX
 C
-      DO 106  L=1,NO
-      DO 106  K=1,NO
+      DO 106  L=1,Naux
+      DO 106  K=1,Naux
       ZB(K,L)=-CI *HSPP(K,L)
-      DO 106  M=1,NO
+      DO 106  M=1,Naux
       ZB(K,L)=ZB(K,L)+CI *AMB(M,K)*HSMP(M,L)
 106     CONTINUE
 C
       IF(NAD7.GT.1) WRITE(NOUT,*) ' VOLLE SINV-MATRIX'
-      DO 204 I=1,NO
-      DO 204 K=1,NO
+      DO 204 I=1,Naux
+      DO 204 K=1,Naux
       W2(K,I)=CNULL
       IF(I.EQ.K) W2(K,K)=1.
 204    CONTINUE
-      DO 207  LL=1,NO
-      DO 207  KK=1,NO
+      DO 207  LL=1,Naux
+      DO 207  KK=1,Naux
       XSGG(KK,LL)=ZB(KK,LL)
 207     CONTINUE
       IFA=0
-      CALL ZGETRF(NO,NO,XSGG,NZKBMA,IPIV,IFA)
+      CALL ZGETRF(Naux,Naux,XSGG,NZKBMA,IPIV,IFA)
+      Naux=NZAOK
       IF(IFA.NE.0) STOP 207
-      CALL ZGETRS(TRANS,NO,NO,XSGG,NZKBMA,IPIV,W2,NZKBMA,IFA)
+      CALL ZGETRS(TRANS,Naux,Naux,XSGG,NZKBMA,IPIV,W2,NZKBMA,IFA)
+      Naux=NZAOK
       IF(IFA.NE.0) STOP 203
-      DO 203  I=1,NO
-      DO 203  K=1,NO
+      DO 203  I=1,Naux
+      DO 203  K=1,Naux
   203 SMAT(K,I,2)=W2(K,I)
-      IF(NAD7.GT.2) CALL WRIMATC(W2,NZKBMA,NO,HTEX(7))
-      DO 155 L=1,NO
-      DO 155 K=1,NO
+      IF(NAD7.GT.2) CALL WRIMATC(W2,NZKBMA,Naux,HTEX(7))
+      DO 155 L=1,Naux
+      DO 155 K=1,Naux
 155    ZB(K,L)=SMAT(K,L,2)
 
-      CALL SMATEST(SMAT,NO,NAD7,IBESS)
+      CALL SMATEST(SMAT,Naux,NAD7,IBESS)
 C
 C     SMAT * SMAT(INVERS)= 1 !!! FUER REELLE ENERGIEN
 C    
-      DO 41  L=1,NO
-      DO 41  K=1,NO
+      DO 41  L=1,Naux
+      DO 41  K=1,Naux
       ZX(K,L)= CNULL
-      DO 41  M=1,NO
+      DO 41  M=1,Naux
 41    ZX(K,L)=ZX(K,L)+AM(K,M)*CONJG(AM(L,M))
       WRITE(NOUT,45)
 45    FORMAT(/,'  KONTROLLMAT S-DIREKT')
-      DO 42  K=1,NO
+      DO 42  K=1,Naux
 42    WRITE(NOUT,122) (ZX(L,K),L=1,K)
 C
 C     SMAT * SMAT(INVERS)= 1 !!! FUER REELLE ENERGIEN VOLLE S-MATRIX
 C    
-      DO 441  L=1,NO
-      DO 441  K=1,NO
+      DO 441  L=1,Naux
+      DO 441  K=1,Naux
       ZX(K,L)= CNULL
-      DO 441  M=1,NO
+      DO 441  M=1,Naux
 441    ZX(K,L)=ZX(K,L)+Z(K,M)*CONJG(Z(L,M))
       WRITE(NOUT,445)
 445    FORMAT(/,'  KONTROLLMAT VOLLE S-MATRIX')
-      DO 442  K=1,NO
+      DO 442  K=1,Naux
 442    WRITE(NOUT,122) (ZX(L,K),L=1,K)
 C
 C
       IF (NAD5.EQ.0) GO TO 4711
-        CALL AMATRI(Z,YY,AMAT,NO)
-      DO 43 L=1,NO
-      DO 43 K=1,NO
+        CALL AMATRI(Z,YY,AMAT,Naux)
+      DO 43 L=1,Naux
+      DO 43 K=1,Naux
  43   ZZ(K,L)=AMAT(K,L)
-      CALL HDIAG( NO,0,M,ZZ,HSFF,NZKBMA)
-      DO 60   K = 1,NO
+      CALL HDIAG( Naux,0,M,ZZ,HSFF,NZKBMA)
+      DO 60   K = 1,Naux
  60   ZZ(K,K) = 57.295779513D0 * ATAN(ZZ(K,K))
       WRITE(NOUT,26)
-      WRITE(NOUT,122) (ZZ(K,K),K=1,NO)
+      WRITE(NOUT,122) (ZZ(K,K),K=1,Naux)
       WRITE(NOUT,27)
-      DO 61   K = 1,NO
-   61  WRITE(NOUT,122)   (HSFF(L,K),L=1,NO)
+      DO 61   K = 1,Naux
+   61  WRITE(NOUT,122)   (HSFF(L,K),L=1,Naux)
       IF(IBAC.LE.0) GOTO 4711
-      DO 66 KL=1,NO
+      DO 66 KL=1,Naux
       Q(1,1)=RRAD(KL)
       LWL=LWERT(KL)
       CALL COULF(LWL,1)
@@ -2433,32 +2441,32 @@ C
       BSIN(KL)=DREAL(FUK(1,1))*HX
 c 180/Pi = 57.29...
 66    BPHAS(KL)= 57.295779513D0 * ATAN2(BSIN(KL),BCOS(KL))
-      WRITE(NOUT,123)(BPHAS(K),K=1,NO)
+      WRITE(NOUT,123)(BPHAS(K),K=1,Naux)
 123   FORMAT(' BACKGROUNDPHASEN ',(1X,10F10.4))
-      DO 70 J=1,NO
-      DO 69 K=1,NO
+      DO 70 J=1,Naux
+      DO 69 K=1,Naux
       ZZB(K,J)=-AMAT(K,J)*BSIN(J)
 69    ZZ(K,J)=AMAT(K,J)*BCOS(J)
       ZZB(J,J)=ZZB(J,J)+BCOS(J)
 70    ZZ(J,J)=ZZ(J,J)+BSIN(J)
-72    DO 73 I=1,NO
-      DO 74  K=1,NO
+72    DO 73 I=1,Naux
+      DO 74  K=1,Naux
 74    W111(K)=ZZ(K,I)
-      DO 77  KK=1,NO
-      DO 77  LL=1,NO
+      DO 77  KK=1,Naux
+      DO 77  LL=1,Naux
 77    XSGGR(LL,KK)=ZZB(KK,LL)
-      CALL RLG1(XSGGR,W111,W22,NO)
-      DO 73  K=1,NO
+      CALL RLG1(XSGGR,W111,W22,Naux)
+      DO 73  K=1,Naux
    73 ZC(K,I)=W22(K)
 C     ZC IST DIE TRANSFORMIERTE K-MATRIX
-      CALL HDIAG( NO,0,M,ZC,HSFF,NZKBMA)
-      DO 80   K = 1,NO
+      CALL HDIAG( Naux,0,M,ZC,HSFF,NZKBMA)
+      DO 80   K = 1,Naux
 80    ZC(K,K) = 57.295779513D0 * ATAN(ZC(K,K))
       WRITE(NOUT,26)
-      WRITE(NOUT,122) (ZC(K,K),K=1,NO)
+      WRITE(NOUT,122) (ZC(K,K),K=1,Naux)
       WRITE(NOUT,27)
-      DO 81   K = 1,NO
-   81  WRITE(NOUT,122)   (HSFF(L,K),L=1,NO)
+      DO 81   K = 1,Naux
+   81  WRITE(NOUT,122)   (HSFF(L,K),L=1,Naux)
 4711  CONTINUE
       RETURN
       END

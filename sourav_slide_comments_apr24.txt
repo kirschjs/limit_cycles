@@ -1,0 +1,49 @@
+slide   comment
+1       aspects
+
+2       theory (run a spell check! use uniform logic when capitalizing words)
+
+3		systems belonging to a universality class exhibit common features despite their
+		differences in, e.g., mass, shape, short-distance interaction structure...
+
+		there is no notion of a "qualitative" observable
+
+		typical
+
+		universal = independence of short-distance structure (nothing more or less)
+
+7		easy? we spoke about this, and I hate to repeat myself. If you do not
+		want advise, do not ask for it!
+
+8		this slide looks very unprofessional, and we *do* know the interaction
+		underlying the nuclear one (chiral EFT and below that QCD)
+
+9		give the authors of those graphs credit and do not simply copy and paste
+		from colleagues without acknowledging them.
+
+10		be consistent with the punctuation.
+		"Those are..." this is not a grammatically correct sentence (the ones under the
+		bullet points are incorrect English, too)!
+
+		regularization does not fix the Lambda dependence! Renormalization does!
+
+11		:- why the hyphen/minus?
+
+
+12      again, why the :-
+
+		"which used fully" strange English
+
+13		why a bullet point if  there is only one?
+
+		consider N particles and a partition b thereof. the partition defines how many
+		particles are placed into a cluster.
+
+		drop the "no" which is, again, incorrect English and even worse, misleading.
+
+		where are the graphs from?
+
+14		:- ... again
+
+15		I am getting a bit doubtful that you want my suggestions when I see that you kept
+		the completely superfluous "data points" label in the graphs

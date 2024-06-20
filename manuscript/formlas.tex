@@ -1,0 +1,281 @@
+\documentclass[10pt,landscape,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
+\usepackage{tikz}
+\usetikzlibrary{shapes,positioning,arrows,fit,calc,graphs,graphs.standard}
+\usepackage[nosf]{kpfonts}
+\usepackage[t1]{sourcesanspro}
+%\usepackage[lf]{MyriadPro}
+%\usepackage[lf,minionint]{MinionPro}
+\usepackage{multicol}
+\usepackage{wrapfig}
+\usepackage[top=0mm,bottom=1mm,left=0mm,right=1mm]{geometry}
+\usepackage[framemethod=tikz]{mdframed}
+\usepackage{microtype}
+\usepackage{slashed}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{bbold}
+\usepackage{amssymb,latexsym}
+\usepackage{amsmath,amsbsy,bbm}
+\usepackage{multirow}
+\usepackage[vcentermath]{youngtab}
+\usepackage{nicefrac}
+\usepackage[perpage]{footmisc}
+\usepackage{wrapfig,lipsum,booktabs}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{cjhebrew}
+
+%\usepackage{physics}
+\usepackage{floatrow} 
+%\newfloatcommand{capbtabbox}{table}[][\FBwidth]
+\let\bar\overline
+
+\definecolor{myblue}{cmyk}{1,.72,0,.38}
+
+%=============================================================================
+\newcommand{\es}{1\text{\scriptsize s}}
+\newcommand{\zs}{2\text{\scriptsize s}}
+\newcommand*{\mprime}{^{\prime}\mkern-1.2mu}
+\newcommand{\largescale}{\ensuremath{\Lambda_\text{Hi}}}
+\newcommand{\lc}{\ensuremath{\Lambda_c}}
+\newcommand{\fm}{\ensuremath{\,\text{fm}^{-1}}}
+\newcommand{\abb}{\mbox{\ensuremath{A\oplus 1}}}
+\newcommand{\red}[1]{\textcolor{red}{#1}} 
+\newcommand{\green}[1]{\textcolor{green}{#1}} 
+\newcommand{\blue}[1]{\textcolor{blue}{#1}} 
+\newcommand{\lec}{C^\Lambda}
+\newcommand{\led}{D^\Lambda}
+\newcommand{\ddrei}[1]{\delta_{\tiny \Lambda}^{(3)}\!\big(#1\big)}
+\newcommand{\wrt}{\textit{w.r.t.}~}
+\newcommand{\etc}{\textit{etc.}~}
+\newcommand{\eg}{\textit{e.g.}~}
+\newcommand{\ie}{\textit{i.e.}~}
+\newcommand{\viz}{\textit{viz.}~}
+\newcommand{\eftnopi}{\mbox{EFT$(\not \! \pi)$}}
+\newcommand{\ve}[1]{\ensuremath{\boldsymbol{#1}}}
+\newcommand{\rms}[1]{\ensuremath{\langle r(#1)\rangle}}
+\newcommand{\ls}{\ve{L}\cdot\ve{S}}
+\newcommand{\be}{\begin{equation}}
+\newcommand{\ee}{\end{equation}}
+\newcommand{\bra}{\big\langle}
+\newcommand{\ket}{\big\rangle}
+\newcommand{\hl}{\big\vert}
+\newcommand{\vcl}[1]{\ensuremath{\bar{\boldsymbol{r}}_\text{\tiny #1}}}
+\newcommand{\vsp}[1]{\ensuremath{\boldsymbol{r}}_\text{\tiny #1}}
+\newcommand{\la}{\label}
+\newcommand{\Pe}{\text{\cjRL{p|}}}
+\newcommand{\figref}[1]{fig.~\ref{#1}}
+\newcommand{\tabref}[1]{table~\ref{#1}}
+\newcommand{\ccite}[1]{Ref.~\cite{#1}}
+%\newcommand{\bra}[1] {\left\langle~#1~\right|}
+%\newcommand{\ket}[1] {\left|~#1~\right\rangle}
+\newcommand{\bet}[1] {\left|#1\right|}
+\newcommand{\overlap}[2] {\left\langle\,#1\,\left|\,#2\,\right.\right\rangle}
+\newcommand{\me}[3] {\left\langle\,#1\,\left|\left.\,#2\,\right|\,#3\,\right.\right\rangle}
+\newcommand{\redme}[3] {\left\langle\,#1\,\middle|\right|\,#2\,\left|\middle|\,#3\,\right\rangle}
+
+\definecolor{blue}{HTML}{4169E1}
+\definecolor{red}{HTML}{DC143C}
+\definecolor{green}{HTML}{2E8B57}
+\definecolor{mandarin}{HTML}{FF9933}
+
+\newcommand{\MPV}[1]{\textcolor{purple}{#1}}
+\newcommand{\LC}[1]{\textcolor{mandarin}{#1}}
+\newcommand{\JK}[1]{\textcolor{green}{#1}}
+\newcommand{\note}[1]{\textbf{\textcolor{gray}{#1}}}
+%=============================================================================
+\usepackage[normalem]{ulem}
+
+\DefineFNsymbols*{lamportnostar}[math]{\dagger\ddagger\S\P\|{\dagger\dagger}{\ddagger\ddagger}}
+\setfnsymbol{lamportnostar}
+\renewcommand\thefootnote{\fnsymbol{footnote}}
+\let\endtitlepage\relax
+\def\firstcircle{(0,0) circle (1.5cm)}
+\def\secondcircle{(0:2cm) circle (1.5cm)}
+
+\colorlet{circle edge}{myblue}
+\colorlet{circle area}{myblue!5}
+
+\tikzset{filled/.style={fill=circle area, draw=circle edge, thick},
+    outline/.style={draw=circle edge, thick}}
+    
+\pgfdeclarelayer{background}
+\pgfsetlayers{background,main}
+
+\everymath\expandafter{\the\everymath \color{myblue}}
+\everydisplay\expandafter{\the\everydisplay \color{myblue}}
+
+\renewcommand{\baselinestretch}{.8}
+\pagestyle{empty}
+
+\global\mdfdefinestyle{header}{%
+linecolor=gray,linewidth=1pt,%
+leftmargin=0mm,rightmargin=0mm,skipbelow=0mm,skipabove=0mm,
+}
+
+\newcommand{\header}{
+\begin{mdframed}[style=header]
+\footnotesize
+\sffamily
+A complete set.
+\end{mdframed}
+}
+
+\makeatletter
+\renewcommand{\section}{\@startsection{section}{1}{0mm}%
+                                {.2ex}%
+                                {.2ex}%x
+                                {\color{myblue}\sffamily\small\bfseries}}
+\renewcommand{\subsection}{\@startsection{subsection}{1}{0mm}%
+                                {.2ex}%
+                                {.2ex}%x
+                                {\sffamily\bfseries}}
+
+
+
+\def\multi@column@out{%
+   \ifnum\outputpenalty <-\@M
+   \speci@ls \else
+   \ifvoid\colbreak@box\else
+     \mult@info\@ne{Re-adding forced
+               break(s) for splitting}%
+     \setbox\@cclv\vbox{%
+        \unvbox\colbreak@box
+        \penalty-\@Mv\unvbox\@cclv}%
+   \fi
+   \splittopskip\topskip
+   \splitmaxdepth\maxdepth
+   \dimen@\@colroom
+   \divide\skip\footins\col@number
+   \ifvoid\footins \else
+      \leave@mult@footins
+   \fi
+   \let\ifshr@kingsaved\ifshr@king
+   \ifvbox \@kludgeins
+     \advance \dimen@ -\ht\@kludgeins
+     \ifdim \wd\@kludgeins>\z@
+        \shr@nkingtrue
+     \fi
+   \fi
+   \process@cols\mult@gfirstbox{%
+%%%%% START CHANGE
+\ifnum\count@=\numexpr\mult@rightbox+2\relax
+          \setbox\count@\vsplit\@cclv to \dimexpr \dimen@-1cm\relax
+\setbox\count@\vbox to \dimen@{\vbox to 1cm{\header}\unvbox\count@\vss}%
+\else
+      \setbox\count@\vsplit\@cclv to \dimen@
+\fi
+%%%%% END CHANGE
+            \set@keptmarks
+            \setbox\count@
+                 \vbox to\dimen@
+                  {\unvbox\count@
+                   \remove@discardable@items
+                   \ifshr@nking\vfill\fi}%
+           }%
+   \setbox\mult@rightbox
+       \vsplit\@cclv to\dimen@
+   \set@keptmarks
+   \setbox\mult@rightbox\vbox to\dimen@
+          {\unvbox\mult@rightbox
+           \remove@discardable@items
+           \ifshr@nking\vfill\fi}%
+   \let\ifshr@king\ifshr@kingsaved
+   \ifvoid\@cclv \else
+       \unvbox\@cclv
+       \ifnum\outputpenalty=\@M
+       \else
+          \penalty\outputpenalty
+       \fi
+       \ifvoid\footins\else
+         \PackageWarning{multicol}%
+          {I moved some lines to
+           the next page.\MessageBreak
+           Footnotes on page
+           \thepage\space might be wrong}%
+       \fi
+       \ifnum \c@tracingmulticols>\thr@@
+                    \hrule\allowbreak \fi
+   \fi
+   \ifx\@empty\kept@firstmark
+      \let\firstmark\kept@topmark
+      \let\botmark\kept@topmark
+   \else
+      \let\firstmark\kept@firstmark
+      \let\botmark\kept@botmark
+   \fi
+   \let\topmark\kept@topmark
+   \mult@info\tw@
+        {Use kept top mark:\MessageBreak
+          \meaning\kept@topmark
+         \MessageBreak
+         Use kept first mark:\MessageBreak
+          \meaning\kept@firstmark
+        \MessageBreak
+         Use kept bot mark:\MessageBreak
+          \meaning\kept@botmark
+        \MessageBreak
+         Produce first mark:\MessageBreak
+          \meaning\firstmark
+        \MessageBreak
+        Produce bot mark:\MessageBreak
+          \meaning\botmark
+         \@gobbletwo}%
+   \setbox\@cclv\vbox{\unvbox\partial@page
+                      \page@sofar}%
+   \@makecol\@outputpage
+     \global\let\kept@topmark\botmark
+     \global\let\kept@firstmark\@empty
+     \global\let\kept@botmark\@empty
+     \mult@info\tw@
+        {(Re)Init top mark:\MessageBreak
+         \meaning\kept@topmark
+         \@gobbletwo}%
+   \global\@colroom\@colht
+   \global \@mparbottom \z@
+   \process@deferreds
+   \@whilesw\if@fcolmade\fi{\@outputpage
+      \global\@colroom\@colht
+      \process@deferreds}%
+   \mult@info\@ne
+     {Colroom:\MessageBreak
+      \the\@colht\space
+              after float space removed
+              = \the\@colroom \@gobble}%
+    \set@mult@vsize \global
+  \fi}
+
+\makeatother
+\setlength{\parindent}{0pt}
+
+\begin{document}
+\small
+\begin{multicols*}{3}
+
+\section{Gau\ss ian integrals}
+\subsection*{Real}
+\begin{equation}
+\int d\ve{v}~e^{-\frac{1}{2}\ve{v}^T\ve{A}\ve{v}}
+~=~
+(2\pi)^{N/2}~\det\ve{A}^{-1/2}
+\end{equation}
+
+\begin{equation}
+\int d\ve{v}~e^{-\frac{1}{2}\ve{v}^T\ve{A}\ve{v}+\ve{j}^T\cdot\ve{v}}
+~=~
+(2\pi)^{N/2}~\det\ve{A}^{-1/2}~e^{\frac{1}{2}\ve{j}^T\ve{A}^{-1}\ve{j}}
+\end{equation}
+
+\begin{equation}
+\int d\ve{v}~e^{-\frac{1}{2}\ve{v}^T\ve{A}\ve{v}}
+~(\ldots)
+~=~
+(2\pi)^{N/2}~\det\ve{A}^{-1/2}~
+\sum\limits_{\text{pairings of}\atop\lbrace i_1,\ldots,i_{2n}\rbrace}A_{i_{k_1}i_{k_2}}^{-1}\ldots A_{i_{k_1}i_{k_2}}^{-1}
+\end{equation}
+
+\end{multicols*}
+\end{document}

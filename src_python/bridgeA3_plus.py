@@ -5,6 +5,8 @@ import sympy as sy
 # CG(j1, m1, j2, m2, j3, m3)
 from sympy.physics.quantum.cg import CG
 from scipy.linalg import eigh
+from scipy.optimize import fmin
+from scipy.stats import truncnorm, norm
 
 from three_particle_functions import *
 from PSI_parallel_M import *
@@ -17,416 +19,434 @@ import multiprocessing
 from multiprocessing.pool import ThreadPool
 from four_particle_functions import from3to4
 
+dbg = False
+# flag to be set if after the optimization of the model space, a calibration within
+# that space to an observable is ``requested''
+fitt = 0
+
 # numerical stability
-nBV = 8
-nREL = 18
-mindisti = [0.001, 0.001]
-width_bnds = [0.01, 4.15, 0.1, 26.25]
-minCond = 10**-17
+mindi = 1000.3
+
+width_bnds = [0.0075, 39.15, 0.009, 31.25]
+minCond = 10**-27
+grdTy = ['log', 0.003, 0.004]  #['log_with_density_enhancement', 0.003, 0.004]
 
 # genetic parameters
 anzNewBV = 5
-muta_initial = .1
-anzGen = 32
-seed_civ_size = 12
-target_pop_size = 25
+muta_initial = .01
+anzGen = 5
+seed_civ_size = 20
+target_pop_size = 20
+
+# define a random distribution from which width parameters are chose if and only if
+# the binary intertwining operation yields values outside the acceptable interval
+loc, scale = 1.3, 100.5  # TODO, loc should be where choosen s.t. the Gaussian having the same width as the exponential prop. density
+
+a_transformed, b_transformed = (width_bnds[0] - loc) / scale, (width_bnds[1] -
+                                                               loc) / scale
+rv = truncnorm(a_transformed, b_transformed, loc=loc, scale=scale)
+x = np.linspace(truncnorm.ppf(0.01, width_bnds[0], width_bnds[1]),
+                truncnorm.ppf(1, width_bnds[0], width_bnds[1]), 100)
+
+r = rv.rvs(size=10000)
+
+# number of width parameters used for the radial part of each
+# (spin) angular-momentum-coupling block
+nBV = 6
+nREL = 5
 
 J0 = 1 / 2
 
-# convention: bound-state-expanding BVs: (1-8), i.e., 8 states per rw set => nzf0*8
-channels = [
-    ['000', ['he_no1', 'he_no1', 'he_no6', 'he_no6']],
-    #['000', ['t_no1', 't_no6']],
-    #['000', ['he_no0']],
-]
+for channel in channels_3:
+    sysdir3 = sysdir3base + '/' + channel
+    print('>>> working directory: ', sysdir3)
 
-sysdir3 = sysdir3t if channels[0][1][0].split('_')[0] == 't' else sysdir3he
-print('>>> working directory: ', sysdir3)
+    if id_chan == 0:
+        refdir = sysdir3
 
-os.chdir(sysdir3)
-subprocess.call('rm -rf *.dat', shell=True)
+    if os.path.isdir(sysdir3) == False:
+        subprocess.check_call(['mkdir', '-p', sysdir3])
+    os.chdir(sysdir3)
 
-costr = ''
-zop = 31 if tnni == 11 else 14
-for nn in range(1, zop):
-    cf = 1.0 if ((nn == 1) | (nn == 2) | (nn == 14)) else 0.0
-    #cf = 1.0 if ((nn == 2) | (nn == 14)) else 0.0
-    costr += '%12.7f' % cf if (nn % 7 != 0) else '%12.7f\n' % cf
+    subprocess.call('cp %s .' % nnpot, shell=True)
+    subprocess.call('cp %s .' % nnnpot, shell=True)
 
-prepare_einzel3(sysdir3, BINBDGpath)
+    subprocess.call('rm -rf *.dat', shell=True)
 
-# 1) prepare an initial set of bases ----------------------------------------------------------------------------------
-civs = []
-while len(civs) < seed_civ_size:
-
-    new_civs, basi = span_population3(anz_civ=int(3 * seed_civ_size),
-                                      fragments=channels,
-                                      Jstreu=float(J0),
-                                      coefstr=costr,
-                                      funcPath=sysdir3,
-                                      binPath=BINBDGpath,
-                                      mindists=mindisti,
-                                      ini_grid_bounds=width_bnds,
-                                      ini_dims=[nBV, nREL],
-                                      minC=minCond)
-
-    for cciv in new_civs:
-        civs.append(cciv)
-    print('>>> seed civilizations: %d/%d' % (len(civs), seed_civ_size))
-
-civs.sort(key=lambda tup: np.abs(tup[3]))
-civs = sortprint(civs, pr=True)
-
-#ma = blunt_ev3(civs[-1][0],
-#               civs[-1][1][0],
-#               civs[-1][1][1],
-#               basi,
-#               funcPath=sysdir3,
-#               nzopt=zop,
-#               costring=costr,
-#               bin_path=BINBDGpath,
-#               mpipath=MPIRUN,
-#               potNN='%s' % nnpot,
-#               potNNN='%s' % nnnpot,
-#               parall=-0,
-#               anzcores=max(2, min(len(civs[-1][0]), MaxProc)),
-#               tnnii=tnni,
-#               jay=J0)
-#
-#try:
-#    dim = int(np.sqrt(len(ma) * 0.5))
-#    # read Norm and Hamilton matrices
-#    normat = np.reshape(np.array(ma[:dim**2]).astype(float), (dim, dim))
-#    hammat = np.reshape(np.array(ma[dim**2:]).astype(float), (dim, dim))
-#    # diagonalize normalized norm (using "eigh(ermitian)" to speed-up the computation)
-#    ewN, evN = eigh(normat)
-#    ewH, evH = eigh(hammat, normat)
-#    qualTWIN, gsTWIN, basCondTWIN = basQ(ewN, ewH, minCond)
-#    print(qualTWIN, gsTWIN, basCondTWIN)
-#
-#except:
-#    print('8472')
-#exit()
-
-#civs = []
-#while len(civs) < civ_size:
-#    basCond = -1
-#    gsREF = 42.0
-#
-#    while ((basCond < minCond) | (gsREF == 0)):
-#
-#        seedMat = span_initial_basis3(fragments=channels,
-#                                      coefstr=costr,
-#                                      Jstreu=float(J0),
-#                                      funcPath=sysdir3,
-#                                      mindists=mindisti,
-#                                      ini_grid_bounds=width_bnds,
-#                                      ini_dims=[nBV, nREL],
-#                                      binPath=BINBDGpath,
-#                                      parall=parall)
-#
-#        seedMat = np.core.records.fromfile('MATOUTB', formats='f8', offset=4)
-#
-#        dim = int(np.sqrt(len(seedMat) * 0.5))
-#
-#        # read Norm and Hamilton matricesch
-#        normat = np.reshape(
-#            np.array(seedMat[:dim**2]).astype(float), (dim, dim))
-#        hammat = np.reshape(
-#            np.array(seedMat[dim**2:]).astype(float), (dim, dim))
-#        # diagonalize normalized norm (using "eigh(ermitian)" to speed-up the computation)
-#        # returns e-values in ascending order
-#        try:
-#            ewN, evN = eigh(normat)
-#            ewH, evH = eigh(hammat, normat)
-#
-#            basCond = np.min(np.abs(ewN)) / np.max(np.abs(ewN))
-#            gsREF = ewH[0]
-#            gsvREF = evH[:, 0]
-#            condREF = basCond
-#            subprocess.call('cp -rf INQUA_N_V18 INQUA_N_V18_REF', shell=True)
-#            subprocess.call('cp -rf INQUA_N_UIX INQUA_N_UIX_REF', shell=True)
-#        except:
-#            basCond = 0.0
-#            gsREF = 42.
-#            continue
-#
-#        qualREF, gsREF, basCond = basQ(ewN, ewH, minCond)
-#
-#        gsvREF = evH[:, 0]
-#        condREF = basCond
-#
-#    print('%d -- ' % (civ_size - len(civs)), end='')
-#    print('E0(seed) = %4.4f MeV' % gsREF, condREF)
-#
-#    # 2) rate each basis-vector block according to its contribution to the ground-state energy -------------------
-#
-#    intw = [
-#        np.array(ln.split()).astype(float).tolist() for ln in open('intw.dat')
-#    ]
-#
-#    relw = [
-#        np.array(ln.split()).astype(float).tolist() for ln in open('relw.dat')
-#    ]
-#
-#    cfgs = [con.split() for con in open('frags.dat')]
-#
-#    initialCiv = [cfgs, [intw, relw], qualREF, gsREF, basCond, gsvREF, normat]
-#
-#    civs.append(initialCiv)
-#
-#print(civs[-1][:-2])
-#exit()
-
-for nGen in range(anzGen):
-    tic = time.time()
-
-    qualCUT, gsCUT, basCondCUT = civs[-int(len(civs) / 2)][2:]
-    qualREF, gsREF, basCondREF = civs[0][2:]
-
-    # 3) select a subset of basis vectors which are to be replaced -----------------------------------------------
-
-    civ_size = len(civs)
-    weights = polynomial_sum_weight(civ_size, order=4)[1::][::-1]
-    #print('selection weights: ', weights)
-    # 4) select a subset of basis vectors from which replacements are generated ----------------------------------
-    children = 0
-    while children < anzNewBV:
-        twins = []
-        for ntwins in range(int(5 * anzNewBV)):
-            parent_pair = np.random.choice(range(civ_size),
-                                           size=2,
-                                           replace=False,
-                                           p=weights)
-
-            mother = civs[parent_pair[0]]
-            father = civs[parent_pair[1]]
-
-            sbas = []
-            bv = 1
-            for n in range(len(mother[0])):
-                off = np.mod(n, 2)
-                for m in range(len(mother[1][0][n])):
-                    sbas += [[
-                        bv,
-                        [
-                            x for x in range(1 + off, 1 +
-                                             len(mother[1][1][n]), 2)
-                        ]
-                    ]]
-                    bv += 1
-
-            # 1) N-1 widths sets
-            wson = []
-            wdau = []
-            for wset in range(len(mother[1])):
-                # 2) basis-dependent nbr. of cfgs
-                wdau.append([])
-                wson.append([])
-                for cfg in range(len(mother[0])):
-
-                    daughterson = [
-                        intertwining(mother[1][wset][cfg][n],
-                                     father[1][wset][cfg][n],
-                                     mutation_rate=muta_initial)
-                        for n in range(len(mother[1][wset][cfg]))
-                    ]
-
-                    rw1 = np.array(daughterson)[:, 0]  #.sort()
-                    rw1.sort()
-                    rw2 = np.array(daughterson)[:, 1]  #.sort()
-                    rw2.sort()
-                    wdau[-1].append(list(rw1)[::-1])
-                    wson[-1].append(list(rw2)[::-1])
-
-            daughter = [mother[0], wdau, 0, 0, 0]
-            son = [mother[0], wson, 0, 0, 0]
-            twins.append(daughter)
-            twins.append(son)
-
-        # ---------------------------------------------------------------------
-        ParaSets = [[
-            twins[twinID][1][0], twins[twinID][1][1], sbas, nnpot, nnnpot,
-            float(J0), twinID, BINBDGpath, costr
-        ] for twinID in range(len(twins))]
-
-        samp_list = []
-        cand_list = []
-        pool = ThreadPool(max(min(MaxProc, len(ParaSets)), 2))
-        jobs = []
-        for procnbr in range(len(ParaSets)):
-            recv_end, send_end = multiprocessing.Pipe(False)
-            pars = ParaSets[procnbr]
-            p = multiprocessing.Process(target=end3, args=(pars, send_end))
-            jobs.append(p)
-
-            # sen_end returns [ intw, relw, qualREF, gsREF, basCond ]
-            samp_list.append(recv_end)
-            p.start()
-            for proc in jobs:
-                proc.join()
-
-        samp_ladder = [x.recv() for x in samp_list]
-
-        samp_ladder.sort(key=lambda tup: np.abs(tup[1]))
-
-        #for el in samp_ladder:
-        #    print(el[1:])
-
-        fitchildren = 0
-        for cand in samp_ladder[::-1]:
-            if ((cand[1] > qualCUT) & (cand[3] > minCond)):
-                cfgg = twins[0][0]
-
-                civs.append([cfgg] + cand)
-                fitchildren += 1
-                if fitchildren + children > anzNewBV:
-                    break
-        children += fitchildren
-        if fitchildren == 0:
-            print('%d ' % children, end='')
+    costr = ''
+    zop = nOperators if tnni == 11 else 14
+    for nn in range(1, zop):
+        if (nn == 1):
+            cf = int(withCoul)
+        elif (nn == 2):
+            cf = twofac
+        elif (nn == 14):
+            cf = tnifac
         else:
-            print('adding %d new children.' % children)
+            cf = 0.0
 
-        #cand_list.sort(key=lambda tup: np.abs(tup[2]))
-        # ---------------------------------------------------------------------
+        costr += '%12.7f' % cf if (nn % 7 != 0) else '%12.7f\n' % cf
 
-#        for twin in twins:
-#
-#            ma = blunt_ev3_parallel(twin[0],
-#                                    twin[1][0],
-#                                    twin[1][1],
-#                                    sbas,
-#                                    nzopt=zop,
-#                                    costring=costr,
-#                                    bin_path=BINBDGpath,
-#                                    potNN='%s' % nnpot,
-#                                    potNNN='%s' % nnnpot,
-#                                    tnnii=tnni,
-#                                    jay=J0)
-#
-#            ma = blunt_ev3(twin[0],
-#                           twin[1][0],
-#                           twin[1][1],
-#                           sbas,
-#                           funcPath=sysdir3,
-#                           nzopt=zop,
-#                           costring=costr,
-#                           bin_path=BINBDGpath,
-#                           mpipath=MPIRUN,
-#                           potNN='%s' % nnpot,
-#                           potNNN='%s' % nnnpot,
-#                           parall=-0,
-#                           anzcores=max(2, min(len(civs[0][0]), MaxProc)),
-#                           tnnii=tnni,
-#                           jay=J0)
-#            try:
-#                dim = int(np.sqrt(len(ma) * 0.5))
-#                # read Norm and Hamilton matrices
-#                normat = np.reshape(
-#                    np.array(ma[:dim**2]).astype(float), (dim, dim))
-#                hammat = np.reshape(
-#                    np.array(ma[dim**2:]).astype(float), (dim, dim))
-#                # diagonalize normalized norm (using "eigh(ermitian)" to speed-up the computation)
-#                ewN, evN = eigh(normat)
-#                ewH, evH = eigh(hammat, normat)
-#                qualTWIN, gsTWIN, basCondTWIN = basQ(ewN, ewH, minCond)
-#                twin[2:] = qualTWIN, gsTWIN, basCondTWIN
-#                print(qualTWIN, gsTWIN, basCondTWIN)
-#
-#            except:
-#                # ('unstable child!')
-#                qualTWIN, gsTWIN, basCondTWIN = -42, 42, 0
-#
-#            if ((qualTWIN > qualCUT) & (basCondTWIN > minCond)):
-#                civs.append(twin)
-#                children += 1
-#                if children == anzNewBV:
-#                    break
-#        exit()
+    prepare_einzel3(sysdir3, BINBDGpath)
 
-    civs = sortprint(civs, pr=False)
+    # 1) prepare an initial set of bases ----------------------------------------------------------------------------------
+    civs = []
+    while len(civs) < seed_civ_size:
+        new_civs, basi = span_population3(anz_civ=int(seed_civ_size),
+                                          fragments=channels_3[channel],
+                                          Jstreu=float(J0),
+                                          coefstr=costr,
+                                          nzo=nOperators,
+                                          funcPath=sysdir3,
+                                          binPath=BINBDGpath,
+                                          mindists=mindi,
+                                          nnpotstring=nnpotstring,
+                                          nnnpotstring=nnnpotstring,
+                                          gridType=grdTy,
+                                          ini_grid_bounds=width_bnds,
+                                          ini_dims=[nBV, nREL],
+                                          minC=minCond,
+                                          evWin=evWindow,
+                                          optRange=nbrStatesOpti3)
 
-    if len(civs) > target_pop_size:
-        currentdim = len(civs)
-        weights = polynomial_sum_weight(currentdim, order=4)[1::]
-        #print('removal weights: ', weights)
-        individual2remove = np.random.choice(range(currentdim),
-                                             size=currentdim - target_pop_size,
-                                             replace=False,
-                                             p=weights)
+        for cciv in new_civs:
+            civs.append(cciv)
+        print('>>> seed civilizations: %d/%d' % (len(civs), seed_civ_size))
 
-        civs = [
-            civs[n] for n in range(len(civs))
-            if (n in individual2remove) == False
-        ]
-    toc = time.time() - tic
-    print('>>> generation %d/%d (dt=%f)' % (nGen, anzGen, toc))
-    civs = sortprint(civs, pr=False)
+        if ((id_chan == 1) & (len(civs) > 1)):
+            break
+    civs.sort(key=lambda tup: np.linalg.norm(tup[3]))
+    civs = sortprint(civs, pr=dbg)
 
-    nGen += 1
+    for nGen in range(anzGen):
 
-    outfile = 'civ_%d.dat' % nGen
-    if civs[0][2] > qualREF:
-        print('%d) New optimum.' % nGen)
-        # wave-function printout (ECCE: in order to work, in addition to the civs[0] argument,
-        # I need to hand over the superposition coeffs of the wfkt)
-        #write_indiv3(civs[0], outfile)
-        print('   opt E = %4.4f   opt cond. = %4.4e' %
-              (civs[0][3], civs[0][4]),
-              end='\n')
+        if id_chan == 1:
+            break
 
-print('\n\n')
+        tic = time.time()
 
-civs = sortprint(civs, pr=True)
-#plotwidths3(sysdir3)
+        qualCUT, gsCUT, basCondCUT = civs[-int(len(civs) / 2)][2:]
+        qualREF, gsREF, basCondREF = civs[0][2:]
 
-ma = blunt_ev3(civs[0][0],
-               civs[0][1][0],
-               civs[0][1][1],
-               sbas,
-               funcPath=sysdir3,
-               nzopt=zop,
-               costring=costr,
-               bin_path=BINBDGpath,
-               mpipath=MPIRUN,
-               potNN='%s' % nnpot,
-               potNNN='%s' % nnnpot,
-               parall=-0,
-               anzcores=max(2, min(len(civs[0]), MaxProc)),
-               tnnii=tnni,
-               jay=J0)
+        # 3) select a subset of basis vectors which are to be replaced -----------------------------------------------
 
-os.system('cp INQUA_N INQUA_N_%s' % lam)
-os.system('cp OUTPUT bndg_out_%s' % lam)
+        civ_size = len(civs)
+        weights = polynomial_sum_weight(civ_size, order=4)[1::][::-1]
+        #print('selection weights: ', weights)
+        # 4) select a subset of basis vectors from which replacements are generated ----------------------------------
+        children = 0
+        while children < anzNewBV:
+            twins = []
+            while len(twins) < int(42 * anzNewBV):
+                #for ntwins in range(int(5 * anzNewBV)):
+                parent_pair = np.random.choice(range(civ_size),
+                                               size=2,
+                                               replace=False,
+                                               p=weights)
 
-dim = int(np.sqrt(len(ma) * 0.5))
-# read Norm and Hamilton matrices
-normat = np.reshape(np.array(ma[:dim**2]).astype(float), (dim, dim))
-hammat = np.reshape(np.array(ma[dim**2:]).astype(float), (dim, dim))
-# diagonalize normalized norm (using "eigh(ermitian)" to speed-up the computation)
-ewN, evN = eigh(normat)
-ewH, evH = eigh(hammat, normat)
+                mother = civs[parent_pair[0]]
+                father = civs[parent_pair[1]]
 
-# reformat the basis as input for the 4-body calculation
-finCiv = [civs[0][0], civs[0][1][0], civs[0][1][1], sbas]
-ob_strus, lu_strus, strus = condense_basis_3to4(finCiv,
-                                                widthSet_relative,
-                                                fn='inq_3to4_%s' % lam)
-assert len(lu_strus) == len(ob_strus)
+                sbas = []
+                bv = 1
+                for n in range(len(mother[0])):
+                    off = np.mod(n, 2)
+                    for m in range(len(mother[1][0][n])):
+                        sbas += [[
+                            bv,
+                            [
+                                x for x in range(1 + off, 1 +
+                                                 len(mother[1][1][n]), 2)
+                            ]
+                        ]]
+                        bv += 1
 
-outl = ''
-outs = ''
-outst = ''
+                # 1) N-1 widths sets
+                wson = []
+                wdau = []
 
-for st in range(len(lu_strus)):
-    outl += lu_strus[st] + '\n'
-    outs += ob_strus[st] + '\n'
-    outst += str(strus[st]) + '\n'
+                assert len(mother[1]) % 2 == 0
 
-with open('lustru_%s' % lam, 'w') as outfile:
-    outfile.write(outl)
-with open('obstru_%s' % lam, 'w') as outfile:
-    outfile.write(outs)
-with open('drei_stru_%s' % lam, 'w') as outfile:
-    outfile.write(outst)
+                for wset in range(len(mother[1])):
+                    # 2) basis-dependent nbr. of cfgs
+                    wdau.append([])
+                    wson.append([])
+
+                    # 3) evolve only half of the parameters as the other spin cfg must use the same
+                    #    in case of SU(4) symmetry, anyway
+                    enforceSym = 2 if bin_suffix == 'expl' else 1
+                    for cfg in range(int(len(mother[0]) / enforceSym)):
+
+                        daughterson = [
+                            intertwining(mother[1][wset][cfg][n],
+                                         father[1][wset][cfg][n],
+                                         mutation_rate=muta_initial,
+                                         wMin=0.001,
+                                         wMax=160.,
+                                         dbg=False,
+                                         def1=rv.rvs(),
+                                         def2=rv.rvs(),
+                                         method='2point')
+                            for n in range(len(mother[1][wset][cfg]))
+                        ]
+
+                        rw1 = np.array(daughterson)[:, 0]  #.sort()
+                        rw1.sort()
+                        rw2 = np.array(daughterson)[:, 1]  #.sort()
+                        rw2.sort()
+                        wdau[-1].append(list(rw1)[::-1])
+                        wson[-1].append(list(rw2)[::-1])
+
+                    # 4) enforce the same width parameters for the other half of spin cfgs
+                    if enforceSym == 2:
+                        for cfg in range(int(len(mother[0]) / 2)):
+                            wdau[-1].append(wdau[-1][cfg])
+                            wson[-1].append(wson[-1][cfg])
+
+                daughter = [mother[0], wdau, 0, 0, 0]
+                son = [mother[0], wson, 0, 0, 0]
+
+                wa = sum(daughter[1][0] + daughter[1][1], [])
+                wb = sum(son[1][0] + son[1][1], [])
+
+                prox_check1 = check_dist(width_array1=wa, minDist=mindi * 100)
+                prox_check2 = check_dist(width_array1=wb, minDist=mindi * 100)
+                #                prox_checkr1 = np.all([
+                #                    check_dist(width_array1=wa,
+                #                               width_array2=wsr,
+                #                               minDist=mindi) for wsr in widthSet_relative
+                #                ])
+                #                prox_checkr2 = np.all([
+                #                    check_dist(width_array1=wb,
+                #                               width_array2=wsr,
+                #                               minDist=mindi) for wsr in widthSet_relative
+                #                ])
+
+                if (prox_check1 == prox_check2 == False):
+
+                    twins.append(daughter)
+                    twins.append(son)
+
+            # ---------------------------------------------------------------------
+            ParaSets = [[
+                twins[twinID][1][0], twins[twinID][1][1], sbas, nnpotstring,
+                nnnpotstring,
+                float(J0), twinID, BINBDGpath, costr, minCond, evWindow,
+                nOperators, nbrStatesOpti3
+            ] for twinID in range(len(twins))]
+
+            # x) the parallel environment is set up in sets(chunks) of bases
+            #    in order to limit the number of files open simultaneously
+            split_points = [
+                n * maxParLen
+                for n in range(1 + int(len(ParaSets) / maxParLen))
+            ] + [len(ParaSets) + 1024]
+
+            Parchunks = [
+                ParaSets[split_points[i]:split_points[i + 1]]
+                for i in range(len(split_points) - 1)
+            ]
+
+            samp_list = []
+            cand_list = []
+
+            for chunk in Parchunks:
+
+                pool = ThreadPool(max(min(MaxProc, len(ParaSets)), 2))
+                jobs = []
+
+                for procnbr in range(len(chunk)):
+                    recv_end, send_end = multiprocessing.Pipe(False)
+                    pars = chunk[procnbr]
+                    p = multiprocessing.Process(target=end3,
+                                                args=(pars, send_end))
+                    jobs.append(p)
+
+                    # sen_end returns [ intw, relw, qualREF, gsREF, basCond ]
+                    samp_list.append(recv_end)
+                    p.start()
+                for proc in jobs:
+                    proc.join()
+
+            samp_ladder = [x.recv() for x in samp_list]
+
+            samp_ladder.sort(key=lambda tup: np.abs(tup[1]))
+
+            #for el in samp_ladder:
+            #    print(el[1:])
+
+            fitchildren = 0
+            for cand in samp_ladder[::-1]:
+                if ((cand[1] > qualCUT) & (cand[3] > minCond)):
+                    cfgg = twins[0][0]
+
+                    civs.append([cfgg] + cand)
+                    fitchildren += 1
+                    if fitchildren + children > anzNewBV:
+                        break
+            children += fitchildren
+            #if fitchildren == 0:
+            #    print('%d ' % children, end='')
+            #else:
+            #    print('adding %d new children.' % children)
+
+        civs = sortprint(civs, pr=dbg)
+
+        if len(civs) > target_pop_size:
+            currentdim = len(civs)
+            weights = polynomial_sum_weight(currentdim, order=4)[1::]
+            #print('removal weights: ', weights)
+            individual2remove = np.random.choice(range(currentdim),
+                                                 size=currentdim -
+                                                 target_pop_size,
+                                                 replace=False,
+                                                 p=weights)
+
+            civs = [
+                civs[n] for n in range(len(civs))
+                if (n in individual2remove) == False
+            ]
+        toc = time.time() - tic
+        #print('>>> generation %d/%d (dt=%f)' % (nGen, anzGen, toc))
+        civs = sortprint(civs, pr=dbg)
+
+        nGen += 1
+
+        outfile = 'civ_%d.dat' % nGen
+        if civs[0][2] > qualREF:
+            # wave-function printout (ECCE: in order to work, in addition to the civs[0] argument,
+            # I need to hand over the superposition coeffs of the wfkt)
+            print(
+                '(Gen., Opt cond., Opt lowest EVs) = %d , %4.4e' %
+                (nGen, civs[0][4]), civs[0][3])
+
+    print('\n\n')
+
+    civs = sortprint(civs, pr=dbg)
+
+    ma = blunt_ev3(
+        civs[0][0],
+        civs[0][1][0],
+        civs[0][1][1],
+        sbas,
+        funcPath=sysdir3,
+        nzopt=zop,
+        costring=costr,
+        bin_path=BINBDGpath,
+        mpipath=MPIRUN,
+        potNN='%s' % nnpotstring,
+        potNNN='%s' % nnnpotstring,
+        # in order to pass superposition coefficients through bndg_out on to 4- and 5- body
+        # scattering-calculation input, this function needs to run serial
+        parall=-0,
+        anzcores=max(2, min(len(civs[0]), MaxProc)),
+        tnnii=tnni,
+        jay=float(J0))
+
+    print(sysdir3)
+
+    os.system('cp INQUA_N INQUA_N_%s' % lam)
+    os.system('cp OUTPUT bndg_out_%s' % lam)
+
+    smartEV, parCond, gsRatio = smart_ev(ma, threshold=10**-9)
+    gsEnergy = smartEV[-1]
+
+    print('\n> basType %s : C-nbr = %4.4e E0 = %4.4e\n\n' %
+          (channels_3[channel], parCond, gsEnergy))
+
+    output_nbr(outfi='E0', outval=gsEnergy)
+
+    # reformat the basis as input for the 4-body calculation
+    finCiv = [civs[0][0], civs[0][1][0], civs[0][1][1], sbas]
+    ob_strus, lu_strus, strus, bvwidthString = condense_basis_3to4(
+        finCiv, widthSet_relative[-1], fn='inq_3to4_%s' % lam)
+
+    if id_chan == 1:
+        os.system('cp %s/INQUA_N* .' % (refdir))
+        os.system('cp %s/inq_3to4_%s .' % (refdir, lam))
+
+        os.system('cp INQUA_N_UIX INQUA_N')
+        subprocess.run([BINBDGpath + NNNhamilEXE_serial])
+        os.system('cp INQUA_N_V18 INQUA_N')
+        subprocess.run([BINBDGpath + NNhamilEXE_serial])
+        subprocess.run([BINBDGpath + spectralEXE_serial])
+        os.system('cp OUTPUT bndg_out_%s' % (lam))
+        #continue
+
+    expC = parse_ev_coeffs_normiert(mult=0,
+                                    infil='OUTPUT',
+                                    outf='COEFF_NORMAL')
+
+    if dbg:
+        for wn in range(len(bvwidthString.split('\n'))):
+
+            if bvwidthString.split('\n')[wn] != '':
+
+                print('{%12.8f , %12.8f , %12.8f },' %
+                      (float(expC[wn]),
+                       float(bvwidthString.split('\n')[wn].split()[0]),
+                       float(bvwidthString.split('\n')[wn].split()[1])))
+
+    assert len(lu_strus) == len(ob_strus)
+
+    outl = ''
+    outs = ''
+    outst = ''
+
+    for st in range(len(lu_strus)):
+        outl += lu_strus[st] + '\n'
+        outs += ob_strus[st] + '\n'
+        outst += str(strus[st]) + '\n'
+
+    with open('lustru_%s' % lam, 'w') as outfile:
+        outfile.write(outl)
+    with open('obstru_%s' % lam, 'w') as outfile:
+        outfile.write(outs)
+    with open('drei_stru_%s' % lam, 'w') as outfile:
+        outfile.write(outst)
+
+    print(">>> End of 3-body day in channel %s\n" % channel)
+    if deg_channs:
+        id_chan = 1
+
+    if fitt:
+
+        def fitti(fac3, fitb, fix=-1):
+            repl_line(
+                'INEN', 3,
+                '%+12.6f%+12.6f%+12.6f%+12.6f%+12.6f%+12.6f%+12.6f\n' %
+                (1.0, 1.0, 1.0, 1.0, 1.0, 1.0, fac3))
+
+            subprocess.run([BINBDGpath + spectralEXE_serial])
+
+            matout = np.core.records.fromfile('MATOUTB',
+                                              formats='f8',
+                                              offset=4)
+
+            smartEV, parCond, gsRatio = smart_ev(matout, threshold=10**-10)
+
+            print(np.real(smartEV[-4:]))
+            E_0 = np.real(smartEV[fix])
+            print(abs(float(E_0) + fitb))
+            return abs(float(E_0) + fitb)
+
+        # which eigenstate whould have the specified target value? fixi=-1 = ground-state fitting
+        fixi = nbrStatesOpti3[0]
+
+        # energy to fit to
+        trib = b3
+        # initial scaling factor from which the root-finding algorithm commences its search
+        fac = 0.01
+
+        ft_lo = fmin(fitti, fac, args=(trib, fixi), disp=False)
+
+        res_lo = fitti(fac3=ft_lo[0], fitb=0.0, fix=fixi)
+        print('L = %2.2f:  D = %12.4f => B(3)= %8.4f   ;  D_start = %12.4f' %
+              (lam, d0 * ft_lo[0], res_lo, d0))
+        exit()
+
+    subprocess.call('rm -rf TQUAOUT.*', shell=True)
+    subprocess.call('rm -rf TDQUAOUT.*', shell=True)
+    subprocess.call('rm -rf DMOUT.*', shell=True)
+    subprocess.call('rm -rf DRDMOUT.*', shell=True)
+    subprocess.call('rm -rf matout_*.*', shell=True)

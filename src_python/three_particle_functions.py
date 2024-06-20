@@ -3,13 +3,23 @@ from pathlib import Path
 import os, re
 import numpy as np
 import random
-import rrgm_functions, parameters_and_constants
+
+import rrgm_functions
+import parameters_and_constants
 
 NEWLINE_SIZE_IN_BYTES = -1
 
 elem_spin_prods_3 = {
+    '123':
+    '  3  6  1  2            3n: s12=0 S=1/2 z\n  1  1  1\n  1  2  3\n  1  3  2\n  2  1  3\n  2  3  1\n  3  1  2\n  3  2  1\n -1  1\n  1  1\n  1  1\n -1  1\n -1  1\n  1  1\n',
+    'no6':
+    '  3  2  1  2            3n: s12=0 S=1/2 z\n  1  1  1\n  3  4  3\n  4  3  3\n  1  2\n -1  2\n',
+    'no1':
+    '  3  3  1  2            3n: s12=1 S=1/2 z\n  1  1  1\n  3  3  4\n  4  3  3\n  3  4  3\n  2  3\n -1  6\n -1  6\n',
+    'no2':
+    '  3  1  1  2            3n: s12=1 S=3/2 z\n  1  1  1\n  3  3  3\n  1  1\n',
     'he_no0':
-    '  3  1  1  2            No1: t=0,T=1/2;s=1,S=1/2, l=even\n  1  1  1\n  1  3  2\n  1  1\n',
+    '  3  1  1  2            No1: t=0,T=1/2;s=1,S=1/2, l=even\n  1  1  1\n  3  4  2\n  1  1\n',
     'he_no1':
     '  3  6  1  2            No1: t=0,T=1/2;s=1,S=1/2, l=even\n  1  1  1\n  1  3  2\n  1  4  1\n  2  3  1\n  3  1  2\n  3  2  1\n  4  1  1\n  1  3\n -1 12\n -1 12\n -1  3\n +1 12\n +1 12\n',
     'he_no1y':
@@ -40,6 +50,14 @@ elem_spin_prods_3 = {
     '  3  6  1  2            No1: t=0, S=1/2, l=even\n  1  1  1\n  1  3  4\n  1  4  3\n  2  3  3\n  3  1  4\n  3  2  3\n  4  1  3\n  1  3\n -1 12\n -1 12\n -1  3\n  1 12\n  1 12\n',
     't_no6':
     '  3  6  1  2            No6: t=1, S=1/2, l=even\n  1  1  1\n  1  4  3\n  2  3  3\n  3  2  3\n  4  1  3\n  3  4  1\n  4  3  1\n  1 12\n -1 12\n  1 12\n -1 12\n -1  3\n  1  3\n',
+    't_no3':
+    '  3  4  1  2            No3: t=0, S=1/2, l=odd\n  1  1  1\n  1  4  3\n  2  3  3\n  3  2  3\n  4  1  3\n  1  4\n -1  4\n -1  4\n  1  4\n',
+    't_no2':
+    '  3  2  1  2            No2: t=0, S=3/2, l=even\n  1  1  1\n  1  3  3\n  3  1  3\n  1  2\n -1  2\n',
+    't_no5':
+    '  3  3  1  2            No5: t=1, S=3/2, l=odd\n  1  1  1\n  3  3  1\n  3  1  3\n  1  3  3\n -2  3\n  1  6\n  1  6\n',
+    'dist_3':
+    '  3  1  1  2                    polarized 3-par\n  1  1  1\n  1  2  3\n  1  1\n',
 }
 
 
@@ -52,8 +70,8 @@ def insam(anz, fn='INSAM'):
 
 def inlu_3(anzO, fn='INLU', fr=[], indep=0):
     out = '  0  0  0  0  0%3d\n' % indep
-    for n in range(anzO):
-        out += '  1'
+
+    out += '  1  1'
     out += '\n%d\n' % len(fr)
     for n in range(0, len(fr)):
         out += '  1  3\n'
@@ -72,8 +90,7 @@ def inlu_3(anzO, fn='INLU', fr=[], indep=0):
 def inob_3(fr, anzO, fn='INOB', indep=0):
     #                IBOUND => ISOSPIN coupling allowed
     out = '  0  2  2  1%3d\n' % indep
-    for n in range(anzO):
-        out += '  1'
+    out += '  1  1  1'
     out += '\n  4\n%3d  3\n' % len(fr)
 
     for n in fr:
@@ -87,11 +104,25 @@ def inob_3(fr, anzO, fn='INOB', indep=0):
         outfile.write(out)
 
 
-def inen_bdg_3(bas, jay, co, fn='INEN', pari=0, nzop=31, tni=11, idum=2):
+def inen_bdg_3(bas,
+               jay,
+               co,
+               fn='INEN',
+               pari=0,
+               nzop=31,
+               tni=11,
+               idum=2,
+               nzz=3):
     # idum=2 -> I4 for all other idum's -> I3
     # NBAND1,IDUM,NBAND3,NZOP,IFAKD,IGAK,NZZ,IAUW,IDRU,IPLO,IDUN,ICOPMA(=1 -> stop after N,H output)
-    head = '%3d%3d 12%3d  1  0 +0  0  0 -1  0 +0\n' % (tni, idum, nzop)
-    head += '  1  1  1  1  0  0  0  0  0  0  0  0  0  0  1  1\n'
+    head = '%3d%3d 12%3d  1  0%3d  0  0 -1  0 +0\n' % (tni, idum, nzop, nzz)
+    if nzop == 31:
+        #          N  T Co  C                                  C3
+        head += '  1  1  0  1  0  0  0  0  0  0  0  0  0  0  0  1\n'
+    elif nzop == 28:
+        head += '  1  1  1  1  1  1  0  0  0  0  0  0  1\n'
+    elif nzop == 14:
+        head += '  1  1  1  1  1  1  1  1  1  1\n'
 
     head += co + '\n'
 
@@ -214,56 +245,37 @@ def read_inlu(infile='INLU'):
     return lu_stru
 
 
-def retrieve_he3_M(inqua):
+def replace_wrel(inqua, relwset):
 
-    relw = []
-    intw = []
-    frgm = []
-    inq = [line for line in open(inqua)]
+    s = ''
+    rws = []
+    for rw in range(0, len(relwset)):
+        s += '%12.6f' % float(relwset[rw])
+        if (((rw + 1) % 6 == 0) | ((rw + 1) == len(relwset))):
+            s += '\n'
+            rws.append(s)
+            s = ''
+    oldqua = [line for line in open(inqua)]
+    nl = 0
+    intsets = []
 
-    lineNR = 0
-    while lineNR < len(inq):
-        if ((re.search('Z', inq[lineNR]) != None) |
-            (re.search('z', inq[lineNR]) != None)):
-            break
-        lineNR += 1
-    if lineNR == len(inq):
-        print('no <Z> qualifier found in <INQUA>!')
-        exit()
+    while nl < len(oldqua):
+        nbrint = int(oldqua[nl])
+        fac = 2 if nbrint <= 6 else 3
 
-    while ((lineNR < len(inq)) & (inq[lineNR][0] != '/')):
-        try:
-            anziw = int(inq[lineNR].split()[0])
-        except:
-            break
+        intsets.append(
+            ['%3d\n%3d%3d\n' % (nbrint, nbrint, len(relwset))] +
+            oldqua[nl + 2:nl + 2 + nbrint] + rws +
+            oldqua[nl + 2 + nbrint +
+                   int(np.ceil(int(oldqua[nl + 1].split()[1]) / 6)):nl + 2 +
+                   nbrint + int(np.ceil(int(oldqua[nl + 1].split()[1]) / 6)) +
+                   fac * nbrint])
+        nl = nl + 2 + nbrint + int(np.ceil(
+            int(oldqua[nl + 1].split()[1]) / 6)) + fac * nbrint
 
-        anzbvLN = int(1 + np.ceil(anziw / 6)) * anziw
-        anzrw = int(inq[lineNR + 1].split()[1])
+    outs = ''
+    for intset in intsets:
+        for line in intset:
+            outs += line
 
-        frgm.append([anziw, anzrw])
-        intwtmp = []
-        relwtmp = []
-        for iws in range(0, 2 * anziw, 2):
-            intwtmp += [float(inq[lineNR + 2 + iws].strip())]
-
-            relwtmp.append(
-                [float(rrw) for rrw in inq[lineNR + 3 + iws].split()])
-        intw += [intwtmp]
-        relw += [relwtmp]
-
-        lineNR += 2 * anziw + anzbvLN + 2
-
-    iw = intw
-    rw = relw
-
-    with open('intw3he.dat', 'w') as f:
-        for ws in iw:
-            np.savetxt(f, [ws], fmt='%12.4f', delimiter=' ; ')
-    f.close()
-    with open('relw3he.dat', 'w') as f:
-        for wss in rw:
-            for ws in wss:
-                np.savetxt(f, [ws], fmt='%12.4f', delimiter=' ; ')
-    f.close()
-
-    return iw, rw, frgm
+    return outs
