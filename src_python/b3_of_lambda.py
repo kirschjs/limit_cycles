@@ -9,9 +9,9 @@ from parameters_and_constants import *
 
 os.chdir('/home/johannesk/kette_repo/limit_cycles/systems/3he')
 
-for lam in np.linspace(1, 20, 12):
+for lam in np.linspace(-130, -296, 152):
 
-    lec = -15. * lam
+    lec = lam
     prep_pot_file_2N(lam=2.0, wiC=lec, baC=0.0, ps2='nnpot')
     subprocess.call(BINBDGpath + 'QUAFL_N_pop.exe %s %s %s' %
                     ('INQUA_N', 'output_qua', 'qua2end'),
@@ -23,6 +23,7 @@ for lam in np.linspace(1, 20, 12):
     NormHam = np.core.records.fromfile('matout_%s' % str(lam),
                                        formats='f8',
                                        offset=4)
+
     dim = int(np.sqrt(len(NormHam) * 0.5))
 
     ## read Norm and Hamilton matrices
@@ -40,6 +41,6 @@ for lam in np.linspace(1, 20, 12):
     ewH = [eww for eww in ewH[idx]]
     evH = evH[:, idx]
 
-    print(ewH[-4:])
+    print(lec, ':  ', ewH[-3:])
 
 exit()

@@ -1,136 +1,35 @@
+
 import os
 import numpy as np
-
-dict_3to4 = {
-    't_no1': ['000-0', 'tp_1s0'],
-    't_no6': ['000-0', 'tp_6s0'],
-    'he_no1': ['000-0', 'hen_1s0'],
-    'he_no6': ['000-0', 'hen_6s0'],
-}
+import more_itertools
+from plot_array import *
+from functional_assistants import *
 
 # -- LEC lists
+# see lec_sets.py
 
-lec_list_oneMEV = {}
-lec_list_c = {}
-
-lec_list_c[
-    '450'] = {  #                            E_pp=12    a_pp=7.766    a_pp=3.0
-        '2.00':
-        [-163.71595, -157.447133, 157.961, -3.267336, 39.607794, -7.87235],
-        '4.00':
-        [-483.66597, -473.014504, 837.417, -9.154840, 70.028319, 8.869022],
-        '6.00':
-        [-974.12019, -959.080826, 2710.51, -16.53103, 98.155928, 17.98276],
-        '8.00':
-        [-1635.0553, -1615.626551, 7181.98, -24.93847, 124.958616, 26.50637],
-        '10.0':
-        [-2466.4663, -2442.646318, 17329.9, -34.22299, 150.757077, 34.34971],
-        '12.0':
-        [-3468.3515, -3440.139992, 40042.8, -44.21432, 175.702462, 37.62653],
-        '15.0': [
-            -5290.8112, -5256.012203, 136994.4343, -60.31870, 211.985648,
-            45.16885
-        ]
-    }
-
-lec_list_c['805'] = {  #                       E_pp=15   a_pp=3.0
-    '2.00': [-148.020, -138.168, 71.0200, -2.125143, 6.908400],
-    '4.00': [-404.629, -388.507, 353.8714, -6.886135, 31.56619],
-    '6.00': [-789.207, -766.806, 1001.2247, -12.97822, 47.92537],
-    #'6.00': [-974.12019, -959.080826, 2710.51, -12.97822, 47.92537],
-    '8.00': [-1301.721, -1273.037, 2220.7696, -20.06991, 63.65185],
-    '10.0': [-1941.969, -1907.003, 4307.9937, -28.14412, 77.47199],
-    '12.0': [-2710.252, -2668.999, 7711.9141, -36.76308, 91.74684],
-    '15.0': [-4102.503, -4051.821, 16837.2070, -50.77141, 113.9574]
-}
-
-lec_list_oneMEV['137'] = {  #d0GS TNI-UIX  ZENTRAL NNN   PROJ           d0ES
-    '0.05': [-1.551665, 0.324253617188],
-    '0.10': [-2.241663, 0.2456829375],
-    '0.16': [-3.25382381543, 0.0190507091372],
-    '0.20': [-4.040227, -0.223247242969],
-    '0.22': [-4.46682689578, -0.374771360196],
-    '0.25': [-5.14850032428, -0.641645783435],
-    '0.30': [-6.396510, -1.20682104512],
-    '0.35': [-7.8083, -1.98064161217],
-    '0.40': [-9.31007578154, -2.82776987047],
-    '0.45': [-10.9761364604, -3.91309051448],
-    '0.50': [-12.78163, -5.20893734689],
-    '0.55': [-14.7258111587, -6.71792212184],
-    '0.60': [-16.8090746843, -8.46827168904],
-    '0.65': [-19.03174482, -10.4630055535],
-    '0.70': [-21.39405, -12.7344455911],
-    '0.75': [-23.8940370852, -15.2760761543],
-    '0.80': [-26.53580, -18.1374520182],
-    '0.90': [-32.23375, -24.8126425911],
-    '0.95': [-35.29122, -28.6644794764],
-    '1.00': [-38.48853, -32.9110143276],
-    '1.05': [-41.82441, -37.5268116221],
-    '1.10': [-45.29949, -42.5703870486],
-    '1.20': [-52.66596, -53.9705109645],
-    '1.50': [-78.11106, -100.476136019],
-    '2.00': [-131.64598, -232.412644337],
-    '3.00': [-280.45691, -854.107499493],
-    '4.00': [-484.92093, -2495.36419052],
-    '6.00': [-1060.7967, -16915.6302127],
-    #'10.0': [-2880.3865, -756723.220071],
-    # TNI below is fitted to B(3) = 8.48
-    '10.0': [-2880.3865, -29933.4954397]
-}
-
-lec_list_def = {  #d0GS TNI-UIX  ZENTRAL NNN   PROJ           d0ES
-    '0.50': [-16.3721, 4.436],
-    '0.75': [-28.6714, 12.936],
-    '1.00': [-44.4515, 27.245],
-    '1.50': [-86.4495, 79.22],
-    '2.00': [-142.3625, 173.925],
-    '3.00': [-295.93, 566.65],
-    '4.00': [-505.15, 1426.75],
-    '6.00': [-1090.548, 6552.5],
-    '8.00': [-1898.553, 25697],
-    '10.0': [-2929.165, 92495]
-}
-
-lec_list_c[
-    '137'] = {  #d0GS  TNI-UIX  ZENTRAL    NNN        PROJ           d0ES
-        '2.00':
-        [-142.364, -106.2793, 68.488, 66.8240, 33.4723, -276.2272, -0.830307],
-        '4.00': [
-            -505.164, -434.9584, 677.799, 724.4771, 338.7663, -892.3704,
-            -7.645753
-        ],
-        '6.00': [
-            -1090.584, -986.2518, 2652.651, 3198.9831, 1355.3977, -1692.1660,
-            -16.854889
-        ],
-        '8.00': [
-            -1898.622, -1760.1617, 7816.228, 0.0, 4101.7017, -2539.0099,
-            -27.502527
-        ],
-        '10.0': [
-            -2929.277, -2756.6884, 20483.217, 0.0, 11095.8257, -3328.0227,
-            -39.169742
-        ],
-        '12.0': [
-            -4182.363, -3975.6195, 50939.941, 0.0, 28724.6969, -3999.5813,
-            -52.024708
-        ],
-        '15.0': [
-            -6479.576, -6221.5028, 195570.801, 0.0, 118778.9520, -4694.7019,
-            -71.996883
-        ]
-    }
+# Gaussian width parameters optimized to scattering calculations with
+# V18/UIX interaction potentials
 
 w120 = [
     129.5665, 51.3467, 29.47287, 13.42339, 8.2144556, 4.447413, 2.939,
     1.6901745, 1.185236, 0.84300, 0.50011, 0.257369, 0.13852, 0.071429,
     0.038519, 0.018573, 0.0097261, 0.00561943, 0.002765, 0.00101
 ]
+
+wNew = [
+    19.5665, 11.3467, 9.47287, 3.42339, 2.2144556, 1.447413, 0.939, 0.6901745,
+    0.185236, 0.084300, 0.050011, 0.0257369, 0.013852, 0.0071429, 0.0038519,
+    0.0018573, 0.00097261, 0.000561943, 0.0002765, 0.000101
+]
+
 w12 = [
     12.95665, 5.13467, 2.947287, 1.342339, .82144556, .4447413, 2.939,
     1.6901745, 1.185236, 0.84300, 0.50011, 0.257369, 0.13852, 0.071429,
     0.038519, 0.018573, 0.0097261, 0.00561943, 0.002765, 0.00101
 ]
+
+# nuclear masses for various pion masses
 
 mn = {
     '137': 938.91852,
@@ -140,45 +39,398 @@ mn = {
     '805': 1634.0
 }
 
-home = os.getenv("HOME")
-pathbase = home + '/Variational_calculations/limit_cycles'  # NN: tnni=10   NN+NNN: tnni=11
+two_body_channels = {
+    # r7 c2:    J              S  L              S_c
+    'np1s': 1,  #  1   :   0  0  1S0         0
+    'np3s': 2,  #  2   :   1  0  3S1         2
+    'nn1s': 3,  #  4   :   0  0  1S0         0
+    'nn3p': 4,  #  5   :   1  1  3P0,3P1,3P2 2
+    'nn1d': 5,  #  6   :   0  2  1D2         2
+    'nn3f': 6,  #  7   :   0  1  3F2,3F3,3F4 0
+    'np1p': 7,  #  8   :   1  1  1P1         2
+    'np3p': 8,  #  9   :   1  2  3P0,3P1,3P2 2
+    'np3d': 9,  #  9   :   1  2  3D1,3D2,3D3 2
+    'pp1s': 10,  #  9   :   1  2  1S0         2
+    'pp3p': 11,  #  9   :   1  2  3P0,3P1,3P2 2
+    'pp1d': 12,  #  9   :   1  2  1D0         2
+    'pp3f': 13,  #  9   :   1  2  3F2,3F3,3F4 2
+}
+
+dict_3to4 = {
+    '123': [['000-0'], ['tp_123-4']],
+    't_no1': [['000-0'], ['tp_1s0']],
+    't_no6': [['000-0'], ['tp_6s0']],
+    'he_no1': [['000-0'], ['hen_1s0']],
+    'he_no6': [['000-0'], ['hen_6s0']],
+}
+
+dict_4to5 = {
+    'tp_1s0': [['000-0-0'], ['tpn_1s0h']],
+    'tp_6s0': [['000-0-0'], ['tpn_6s0h']],
+    'hen_1s0': [['000-0-0'], ['henn_1s0h']],
+    'hen_6s0': [['000-0-0'], ['henn_6s0h']],
+}
+
+home = os.getcwd()
+
+pathbase = home + '/..'
 BINBDGpath = pathbase + '/src_nucl/'
 
-sysdir2 = pathbase + '/systems/dd_scattering'
-sysdir2np3s = pathbase + '/systems/dd_scattering/2np3s'
-sysdir2np1s = pathbase + '/systems/dd_scattering/2np1s'
-sysdir3t = pathbase + '/systems/3h'
-sysdir3he = pathbase + '/systems/3he'
-sysdir4 = pathbase + '/systems/4/dd_scattering1'
-
+# NN: tnni=10   NN+NNN: tnni=11
 tnni = 11
+tnifac = 1.0
+twofac = 1.0
 parall = -1
 
-nnpot = sysdir2 + '/nn_pot'
-nnnpot = sysdir2 + '/nnn_pot'
+# limits the number of parallel processes in a single process pool
+# if running on my laptop, I need to set this number in order to avoid
+# too many files too be opened simulataneously
+maxParLen = 120
 
-lam = 4.00
+cib = 0  # if set, EFTnoPi with charge independence broken by Coulomb and an acompanying
+# contact-term correction is employed (leading order)
+
+lam = 6.00  # 4,6,8,10 (for presentation)
+b3 = 1.20
 la = ('%-4.2f' % lam)[:4]
-if la in lec_list_def.keys():
-    pass
+tb = ('%-4.2f' % b3)[:4]
+
+lecstring = 'B2-05_B3-' + tb
+"""
+B(2) = 0.43(1) MeV
+B(3) -- 0.46 (10)  0.66 (30)  0.71 (34)  0.84     0.9      1.1     1.9       8.4
+D    -- 1730.4873 672.4964 572.2156 317.1505 238.5372 -4.1843 -532.5492 -1703.9865
+"""
+
+# LEC dictionary [cutoff][B(3)] [2-body LEC, 3-body LEC] for B(2)=0.5MeV
+lec_set = {
+    '4.00': {
+        '0.55': [-473.27, 629.7660],
+        '0.65': [-473.27, 320.7660],
+        '8.00': [-505.15, 1395.62624049],
+        '8.48': [-473.11211426, 668.05019678],
+        '1.20': [-473.27, -141.9911],
+        '2.00': [-473.27, -403.3203],
+        '3.00': [-473.27, -579.7009],
+        # B(3,2ex)=8.9MeV -1651.3402 (for B(3,1ex)=8.9MeV use -906.0455)
+        '4.50': [-473.27, -719.6228],
+        '0.65': [-473.27, 320.766],
+    },
+    '6.00': {
+        '59.0': [-955.86, 1836.7173],
+        '60.0': [-955.86, 1826.7173],
+        '0.55': [-702.16, 1118.8195],
+        '0.60': [-702.16, 830.8781],
+        '0.96': [-702.16, 120.8066],
+        '1.04': [-702.16, 43.6338],
+        '1.20': [-702.16, -82.7583],
+        '1.30': [-702.16, -109.8602],
+        '0.75': [-702.16, 383.9022],  #-1775.123
+        '4.00': [-702.16, -902.6558],
+        '2.00': [-719.16, -467.5044],
+        '3.00': [-702.16, -732.2105],
+        '4.50': [-702.16,-959.676],
+        '8.90': [-702.16, -1260.0505],  # B(3,1ex)=8.9MeV
+        '0.65': [-702.16, 622.5667],
+        '7.50': [-702.16, -1688.9186],
+        '2.00': [-702.16, -467.5044],
+    },
+    '8.00': {
+        '0.55': [-930.2,1797.2309],
+        '0.60': [-930.2,1351.5316],
+        '0.65': [-930.2,1007.4176],
+        '1.20': [-930.2, 10.1156],
+        '0.96': [-930.2, 283.078],
+        '1.00': [-930.2, 206.078],
+        '1.50': [-930.2, -220.4342],
+        '4.00': [-930.2, -1073.3294],
+        '2.00': [-930.2, -518.6835],
+        '3.00':[-930.2, -1755.6562],
+        '4.50':[-930.2, -1153.37042]
+        ,  # B(3,2ex)=8.9MeV -3134.9972 (for B(3,1ex)=8.9MeV use -1580.0670)
+    },
+    '10.0': {
+        '0.55': [-1157.42, 2882.4077],
+        '0.60': [-1157.42, 1872.2147],
+        '0.65': [-1157.42, 1484.3920],
+        '1.50': [-1157.42, -149.9075],
+        '2.00': [-1157.42, -521.9855],
+        '8.48': [-1206.4549962, 7686.28422354],
+        '3.00': [-1157.42, -960.1387],
+        '4.00': [-1157.42, -1217.3718],
+        '4.50': [-1157.42, -1325.1937],  # B(3,1ex)=8.9MeV
+    },
+    '30.0': {
+        '8.48': [-3500.29557543, -1959.6612],
+    },
+}
+
+SU4 = True
+
+#for mm in lec_lists.keys():
+#    print(mm)
+
+# list of suffices:
+# _m1       : hbar/(2m) = 1  -> modified kinetic-energy operators (available for _v18-uix operator set, only, at present)
+# _v18-uix  :
+# _eft      :
+# _eft-cib  :
+# if there is a 'b' attached it refers to a symmetrization of the total wave function
+
+bin_suffix = '_eft-cib' if cib else '_v18-uix'
+
+if bin_suffix == '_v18-uix':
+    inenOffset = 7
+    nOperators = 31 if tnni == 11 else 14
+    withCoul = False
+elif bin_suffix == '_eft-cib':
+    inenOffset = 6
+    nOperators = 28
+    withCoul = True
 else:
-    print('LECs unavailable for chosen cutoff! Available cutoffs:\n',
-          lec_list_def.keys())
+    print('unrecognized operator structure.')
     exit()
 
-# B2 = 1 MeV and B3 = 8.48 MeV
-cloW = lec_list_def[la][0]
-cloB = 0.0
-d0 = lec_list_def[la][1]
+# 2-body iso-spin and spin matrix elements
+# <<< INOB
+NNspinEXE = 'KOBER%s.exe' % bin_suffix
 
-nzEN = 200
-E0 = 0.01
-D0 = 0.025
-Eps = 0.01
-Bet = 1.1
+# 3-body iso-spin and spin matrix elements
+# <<< INOB
+NNNspinEXE = 'DROBER%s.exe' % bin_suffix
+
+# 2-body orbital-angular-momentum structure of the spatial matrix elements
+# <<< INLUCN
+NNorbitalEXE = 'LUDW%s.exe' % bin_suffix
+
+# 3-body orbital-angular-momentum structure of the spatial matrix elements
+# <<< INLU
+NNNorbitalEXE = 'DRLUD%s.exe' % bin_suffix
+
+# calculation of Hamilton and Norm matrix combining (iso)spin, orbital, and radial wave-function components
+# for 2-body operators
+# <<< INQUA_N (2nd line = 2N potential)
+NNhamilEXE_serial = 'QUAFL_N%s.exe' % bin_suffix
+NNhamilEXE_pool = 'QUAFL_N%s_pop.exe' % bin_suffix
+NNhamilEXE_mpi = 'V18_PAR/mpi_quaf_n%s' % bin_suffix
+NNcollect_mpi = 'V18_PAR/sammel%s' % bin_suffix
+
+# calculation of Hamilton and Norm matrix combining (iso)spin, orbital, and radial wave-function components
+# for 3-body operators
+# <<< INQUA_N (2nd line = 3N potential, otherwise identical to 2N INQUA_N)
+NNNhamilEXE_serial = 'DRQUA_N%s.exe' % bin_suffix
+NNNhamilEXE_pool = 'DRQUA_N%s_pop.exe' % bin_suffix
+NNNhamilEXE_mpi = 'UIX_PAR/mpi_drqua_n%s' % bin_suffix
+NNNcollect_mpi = 'UIX_PAR/drsammel%s' % bin_suffix
+
+# diagonalization of the Norm- and Hamilton matrices
+spectralEXE_serial = 'DR2END%s.exe' % bin_suffix
+spectralEXE_mpi = 'TDR2END%s.exe' % bin_suffix
+spectralEXE_serial_pool = 'DR2END%s_pop.exe' % bin_suffix
+spectralEXE_mpi_pool = 'TDR2END%s_pop.exe' % bin_suffix
+
+# calculation of scattering matrices/amplitudes as solutions to the Kohn variational functional
+smatrixEXE = 'S-POLE_zget.exe'  #'S-POLE_PdP.exe'
+smatrixEXE_multichann = 'S-POLE_zget.exe'  #'S-POLE_PdP.exe'  #
+
+pas = False
+if la in lec_set.keys():
+    if tb in lec_set[la].keys():
+        pas = True
+if pas == False:
+    print('LECs unavailable for chosen cutoff %s! Available cutoffs:\n' % tb,
+          lec_set.keys())
+    exit()
+
+# deg_channs: if true, the spatial wave functions are identical for t and he3, and d,dq,nn,pp
+#                      only the first 2- and 3-body channel - canonical choice t and d - are optimized
+deg_channs = 1
+id_chan = 0
+
+channels_2 = {
+    # L    J
+    'np3s': ['0', '1'],
+    #'np1s': ['0', '0'],
+    #'nn1s': ['0', '0'],
+    #'pp1s': ['0', '0'],
+}
+
+channels_3 = {
+    '123': [['000', ['123', '123']]],
+    #'t': [['000', ['t_no1', 't_no6']]],
+    #'he': [['000', ['he_no1', 'he_no6']]],
+    #'boltz': ['000', ['dist_3', 'dist_3']],
+}
+
+channels_4 = {
+    'alpha': [
+        ['000-0'],
+        [
+            'np3s_np3s_12-34', 'tp_123-4'
+            #'dist_4',
+            #'tp_1s0',
+            #'tp_6s0',
+            #'hen_1s0',
+            #'hen_6s0',
+            #'np3s_np3s_S0',
+            #'np1s_np1s_S0'
+        ],
+        [[2, 2, 0], [1, 1, 0]]
+    ],
+}
+
+channels_4_scatt = [
+    #[['000-0'], ['nn1s_nn1s_S0'], [0, 0, 0]],  # DSI
+    #[['000-0'], ['np1s_np1s_S0'], [0, 0, 0]],  # DSI
+    #[['000-0'], ['np3s_np3s_S0'], [2, 2, 0]],  # DSI
+    #[['000-0'], ['hen_1s0', 'hen_6s0'], [1, 1, 0]],
+    #[['000-0'], ['tp_1s0', 'tp_6s0'], [1, 1, 0]],
+    [['000-0'], ['np3s_np3s_12-34'], [2, 2, 0]],
+    [['000-0'], ['tp_123-4'], [1, 1, 0]],
+]
+
+sysdir2base = pathbase + '/systems/2_%s/%s' % (lecstring, la)
+sysdir3base = pathbase + '/systems/3_%s/%s' % (lecstring, la)
+sysdir4 = pathbase + '/systems/4_%s/%s' % (lecstring, la)
+sysdir5 = pathbase + '/systems/5-dist_%s/%s' % (lecstring, la)
+
+nnpotstring = 'nn_pot'
+nnnpotstring = 'nnn_pot'
+
+nnpot = sysdir2base + '/' + nnpotstring
+nnnpot = sysdir2base + '/' + nnnpotstring
+
+if len(lec_set[la][tb]) >= 4:
+    cloW = 0.5 * (lec_set[la][tb][0] + lec_set[la][tb][1])
+    cloB = 0.5 * (lec_set[la][tb][0] - lec_set[la][tb][1])
+    d0 = lec_set[la][tb][2]
+    cpp = lec_set[la][tb][3]
+elif len(lec_set[la][tb]) == 3:
+    cloW = 0.5 * (lec_set[la][tb][0] + lec_set[la][tb][1])
+    cloB = 0.5 * (lec_set[la][tb][0] - lec_set[la][tb][1])
+    d0 = lec_set[la][tb][2]
+elif len(lec_set[la][tb]) == 2:
+    cloW = lec_set[la][tb][0]
+    cloB = 0.0
+    d0 = lec_set[la][tb][1]
+
+evWindow = [-0.5, -122.70]
+nbrStatesOpti2 = list(range(-1, 0))
+nbrStatesOpti3 = list(range(-2, -1))
+nbrStatesOpti4 = list(range(-1, 0))
+
+eDict = {
+    #    [#energies, E0, dE, [3bdy GS, 3bdy ES1, 3bdy ES2, ...]]
+    '0.96': [200, 0.001, 0.001, [0, 1], [[1, 1], [2, 2]]],
+    '1.04': [400, 0.001, 0.001, [0, 1], [[1, 1], [2, 2]]],
+    '1.20': [400, 0.001, 0.001, [0, 1], [[1, 1], [2, 2]]],
+    '60.0': [400, 0.001, 0.001, [1, 0], [[1, 1], [2, 2]]],
+    '7.50': [990, 0.01, 0.05, [0, 1,1], [[1, 1], [2, 2],[3,3]]],
+    '4.50': [900, 0.01, 0.007, [0, 1], [[1, 1], [2, 2]]],
+    '4.42': [200, 0.01, 0.03, [0, 1, 1], [[1, 1], [2, 2], [3, 3]]],
+    '8.00': [100, 0.1, 0.03, [0, 1], [[1, 1], [2, 2]]],
+    '8.48': [100, 0.1, 0.03, [1], [[1, 1]]],
+    '8.90': [100, 0.001, 0.1, [0, 1, 1], [[1, 1], [2, 2], [3, 3]]],
+    '10.0': [100, 0.1, 0.03, [0, 1], [[1, 1], [2, 2]]],
+    '13.0': [100, 0.1, 0.2, [0, 1], [[1, 1], [2, 2]]],
+}
+
+# include the n-th 3-body bounstate of the 3-body spectrum as asymptotic fragments
+# in the 3-1 partition of the 4-body calculation; e.g. [0,1] includes an asymptotic
+# 4-body channel where 3 atoms are bound in the 1st excited state
+nbr_of_threebody_boundstates = eDict[tb][3]
+
+nzEN = eDict[tb][0]
+E0 = eDict[tb][1]
+D0 = eDict[tb][2]
+
+epL = 0.0001
+epU = 0.005
+eps0 = [epL * 1.0, epL, epL, epL, epL]
+eps1 = [epU * 1.0, epU, epU, epU, epU]
+epsM = (np.array(eps1) + np.array(eps0)) / 2
+epsNBR = 4
+
+phasCalcMethod = 1
+# parameters for the expansion of the fragment-relative function
+# (i.e., both fragments charged: Coulomb function, else sperical Bessel)
+# in Gaussians
+SPOLE_adaptweightUP = 1.0
+SPOLE_adaptweightLOW = 1.0
+SPOLE_adaptweightL = 0.5
+SPOLE_GEW = 1.0  # smaller values decrease the maximal radius up to which values enter the fit
+SPOLE_QD = 1.0  # this shifts the interval smaller values try to optimize the behavior closer to zero
+SPOLE_QS = 0.5
+
+beta0 = 1.6
+Bet = [beta0, beta0, beta0, beta0, beta0]
+rgh = 6.0
+anzStuez = 400
+StuezAbs = 1.250
+StuezBrei = 0.5
 
 MeVfm = 197.3161329
 
-widthSet_relative = w120
+# generate Gaussian-width sets for each physical channel
+#widthSet_relative_geom = [
+#    np.abs(
+#        np.geomspace(start=19.5 + (np.random.random() - 0.5),
+#                     stop=0.001 * np.max([np.random.random(), 0.1]),
+#                     num=38,
+#                     endpoint=True,
+#                     dtype=None)) for nn in range(1, 1 + len(channels_4_scatt))
+#]
+
+# number of relative widths used for the refinement of the 4-body state
+# in the interaction region (see bridgeA4_opt.py)
+anzRelw4opt = 12
+
+# number of Gaussian basis functions/widths used to expand the fragment-relative wave function
+anzRelw = 28  # 10, 12, 14, 20, ....
+maxRelW = 121.1
+
+unStable = True
+ite = 0
+while unStable == True:
+    ite += 1
+    widthSet_relative = [
+        np.append(
+            np.sort(
+                np.abs(
+                    np.concatenate([
+                        np.array([
+                            ww for ww in np.logspace(-4.1 +
+                                                     0.1 * np.random.random(),
+                                                     1.5  +
+                                                     0.3 * np.random.random(),
+                                                     num=int(anzRelw / 2),
+                                                     endpoint=True,
+                                                     dtype=None)[::-1]
+                            if ww < maxRelW
+                        ]),
+                        np.array([
+                            ww for ww in np.logspace(-3.5 +
+                                                     0.1 * np.random.random(),
+                                                     0.5 +
+                                                     0.2 * np.random.random(),
+                                                     num=int(anzRelw / 2),
+                                                     endpoint=True,
+                                                     dtype=None)[::-1]
+                            if ww < maxRelW
+                        ])
+                    ])))[::-1], [])
+        for nn in range(1, 1 + len(channels_4_scatt))
+    ]
+    unStable = check_dist(width_array1=widthSet_relative[0], minDist=10)
+    assert ite <= 1000
+
+#print(widthSet_relative)
+#exit()
+
+dbg = False
+if dbg:
+    print('rel. Widths (after %d iterations):\n' % ite, widthSet_relative)
+
+#np.linspace(start=11.5, stop=0.005, num=30, endpoint=True, dtype=None))
 
 eps = np.finfo(float).eps

@@ -1,6 +1,10 @@
       PARAMETER (NZOPER=9, NZOPOB=8, NZOPLU=7, NZTMAX=11,
      *           NZFMAX=100, NZCMAX=8, MZGMAX=2, NZLWMA=2,
+<<<<<<< HEAD
      *           NZRHOM=16, NZPARM=12, MZPARM=20, NZPOMA=1,
+=======
+     *           NZRHOM=16, NZPARM=12, MZPARM=40, NZPOMA=1,
+>>>>>>> 5622f4468f288a12760ac50af7dec4e2add31097
      *           NZIQMA=9, NZPOTM=20, NZSIOP=4, NDIM=270,
      *           NDIM1=3000, NDIM5=1900, NPDC=11000)
 

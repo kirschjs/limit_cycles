@@ -1,12 +1,41 @@
 import numpy as np
+from scipy.stats import truncnorm, norm
 import struct
+"""
+
+the loveliness function steers the basis optimization
+optimal basis:
+1) converged values for a selected number of eigenvalues *within*
+   the model space limited by the chusen dimension
+2) numerically stable => condition number > numerical accuracy (at least)
+                         norm must be positive definite
+3) (optional=relevance unclear) basis comprises mostly states which have
+   significant overlap with the states of interest (see (1))
+
+"""
 
 
-def loveliness(groundstateEnergy, conditionNumber, HeigenvaluesbelowX,
-               minimalConditionnumber):
+def loveliness(relEnergyVals,
+               conditionNumber,
+               HeigenvaluesbelowX,
+               minimalConditionnumber,
+               coefRAT,
+               maxRat=10**29):
 
-    if np.abs(groundstateEnergy) < 500:
-        pulchritude = np.exp((-1) * groundstateEnergy)
+    maxEsum = 1e5
+    energySum = sum([np.exp(-0.007 * ev) for ev in relEnergyVals])
+
+    if (conditionNumber
+            > minimalConditionnumber):  #((np.abs(energySum) < maxEsum) &
+
+        # "normalize" quantities
+        cF = minimalConditionnumber / conditionNumber  # the smaller the better
+        eF = energySum / maxEsum  # the closer to -1 the better
+        #print('(ECCE) mind the lovely!')
+        pulchritude = eF * (
+            np.sqrt(np.log(1.1 + HeigenvaluesbelowX))
+        )  #np.tan(np.exp(-0.62 * eF))  #* np.exp(-0.03 * cF**2)
+
     else:
         pulchritude = 0.0
 
@@ -16,7 +45,9 @@ def loveliness(groundstateEnergy, conditionNumber, HeigenvaluesbelowX,
 def basQ(normSpectrum,
          hamiltonianSpectrum,
          minCond=10**-10,
-         denseEnergyInterval=[-35, 120]):
+         denseEnergyInterval=[-35, 120],
+         coefRAT=1,
+         maxRat=10**5):
 
     anzSigEV = len(
         [bvv for bvv in hamiltonianSpectrum if bvv < denseEnergyInterval[1]])
@@ -25,7 +56,8 @@ def basQ(normSpectrum,
 
     basCond = np.min(np.abs(normSpectrum)) / np.max(np.abs(normSpectrum))
 
-    attractiveness = loveliness(gsEnergy, basCond, anzSigEV, minCond)
+    attractiveness = loveliness(gsEnergy, basCond, anzSigEV, minCond, coefRAT,
+                                maxRat)
 
     return attractiveness, gsEnergy, basCond
 
@@ -145,6 +177,7 @@ def condense_basis_3to4(inputBasis, rws4, fn, MaxBVsPERcfg=12):
                     ])
 
     outs = ''
+    outwi = ''
     # -----------------------------------------------------
     bvPerZ = 8
 
@@ -152,18 +185,120 @@ def condense_basis_3to4(inputBasis, rws4, fn, MaxBVsPERcfg=12):
     for nz in range(len(D0s[0])):
 
         anzBV = len(D0s[1][nz])
-        zstruct = [bvPerZ for n in range(0, int(anzBV / bvPerZ))]
+        bvinZ = bvPerZ if anzBV >= bvPerZ else anzBV
+        zstruct = [bvinZ for n in range(0, int(anzBV / bvinZ))]
+        if anzBV % bvinZ != 0:
+
+            zstruct.append(anzBV % bvinZ)
+
         drei_strus += zstruct
-        if anzBV % bvPerZ != 0:
-
-            zstruct.append(anzBV % bvPerZ)
-
+        #print(D0s[0], '\n', anzBV, bvinZ, '\n', zstruct, '\n', drei_strus)
+        #        exit()
         for z in range(0, len(zstruct)):
             outs += '%3d\n%3d%3d\n' % (zstruct[z], zstruct[z], len(rws4))
             for bv in range(zstruct[z]):
                 outs += '%48s%-12.6f%-12.6f\n' % (
                     '', float(sum(
                         D0s[1], [])[bvnr][0]), float(sum(D0s[1], [])[bvnr][1]))
+                outwi += '%-12.6f  %-12.6f\n' % (float(
+                    sum(D0s[1], [])[bvnr][0]), float(sum(D0s[1], [])[bvnr][1]))
+                bvnr += 1
+            for rw in range(0, len(rws4)):
+                outs += '%12.6f' % float(rws4[rw])
+                if (((rw + 1) % 6 == 0) & (rw + 1 != len(rws4))):
+                    outs += '\n'
+            outs += '\n'
+            for bb in range(0, zstruct[z]):
+                outs += '  1  1\n'
+                if zstruct[z] < 7:
+                    outs += '1.'.rjust(12 * (bb + 1))
+                    outs += '\n'
+                else:
+                    if bb < 6:
+                        outs += '1.'.rjust(12 * (bb + 1))
+                        outs += '\n\n'
+                    else:
+                        outs += '\n'
+                        outs += '1.'.rjust(12 * (bb % 6 + 1))
+                        outs += '\n'
+
+        ob_strus += len(zstruct) * [D0s[0][nz][0][0]]
+        lu_strus += len(zstruct) * [D0s[0][nz][0][1]]
+
+    with open(fn, 'w') as outfile:
+        outfile.write(outs)
+
+    return ob_strus, lu_strus, drei_strus, outwi
+
+
+def condense_basis_4to5(inputBasis, rws4, fn, MaxBVsPERcfg=12):
+
+    unisA = []
+    for ncfg in range(len(inputBasis[0])):
+        if inputBasis[0][ncfg] in unisA:
+            continue
+        else:
+            unisA.append(inputBasis[0][ncfg])
+
+    bounds = np.add.accumulate([int(len(iws) / 2) for iws in inputBasis[1]])
+
+    lu_strus = []
+    ob_strus = []
+    drei_strus = []
+
+    D0s = [[], [], []]
+
+    for spinCFG in unisA:
+
+        D0s[0].append([])
+        D0s[1].append([])
+        D0s[2].append([])
+
+        for bv in range(len(inputBasis[3])):
+            cfgOFbv = sum([bound < inputBasis[3][bv][0] for bound in bounds])
+
+            if inputBasis[0][cfgOFbv] == spinCFG:
+
+                if D0s[1][-1] == []:
+                    D0s[0][-1].append(spinCFG)
+                    D0s[2][-1].append(rws4)
+
+                for rw in range(len(inputBasis[3][bv][1])):
+                    D0s[1][-1].append([
+                        sum(inputBasis[1], [])[2 * (inputBasis[3][bv][0] - 1)],
+                        sum(inputBasis[1],
+                            [])[2 * (inputBasis[3][bv][0] - 1) + 1],
+                        inputBasis[2][cfgOFbv][inputBasis[3][bv][1][rw] - 1]
+                    ])
+
+    outs = ''
+    outwi = ''
+    # -----------------------------------------------------
+    bvPerZ = 8
+
+    bvnr = 0
+    for nz in range(len(D0s[0])):
+
+        anzBV = len(D0s[1][nz])
+        if anzBV == 0:
+            continue
+        bvinZ = bvPerZ if anzBV >= bvPerZ else anzBV
+        zstruct = [bvinZ for n in range(0, int(anzBV / bvinZ))]
+        if anzBV % bvinZ != 0:
+
+            zstruct.append(anzBV % bvinZ)
+
+        drei_strus += zstruct
+        for z in range(0, len(zstruct)):
+            outs += '%3d\n%3d%3d\n' % (zstruct[z], zstruct[z], len(rws4))
+            for bv in range(zstruct[z]):
+                outs += '%60s%-12.6f\n%-12.6f%-12.6f\n' % (
+                    '', float(sum(
+                        D0s[1], [])[bvnr][0]), float(sum(D0s[1], [])[bvnr][1]),
+                    float(sum(D0s[1], [])[bvnr][2]))
+                outwi += '%-12.6f  %-12.6f  %-12.6f\n' % (float(
+                    sum(D0s[1], [])[bvnr][0]), float(sum(
+                        D0s[1], [])[bvnr][1]), float(sum(D0s[1], [])[bvnr][2]))
                 bvnr += 1
             for rw in range(0, len(rws4)):
                 outs += '%12.6f' % float(rws4[rw])
@@ -190,7 +325,7 @@ def condense_basis_3to4(inputBasis, rws4, fn, MaxBVsPERcfg=12):
     with open(fn, 'w') as outfile:
         outfile.write(outs)
 
-    return ob_strus, lu_strus, drei_strus
+    return ob_strus, sum(lu_strus, []), drei_strus, outwi
 
 
 def write_basis_on_tape(basis, jay, btype, baspath=''):
@@ -318,10 +453,21 @@ def bin_to_float(binary):
     return struct.unpack('!f', struct.pack('!I', int(binary, 2)))[0]
 
 
-def intertwining(p1, p2, mutation_rate=0.0, wMin=0.001, wMax=20., dbg=False):
+# uniform crossover
+def intertwining(p1,
+                 p2,
+                 def1,
+                 def2,
+                 mutation_rate=0.0,
+                 wMin=0.00001,
+                 wMax=920.,
+                 dbg=False,
+                 method='1point'):
 
     Bp1 = float_to_bin(p1)
     Bp2 = float_to_bin(p2)
+
+    defaul = False
 
     assert len(Bp1) == len(Bp2)
     assert mutation_rate < 1
@@ -330,23 +476,119 @@ def intertwining(p1, p2, mutation_rate=0.0, wMin=0.001, wMax=20., dbg=False):
                                     p=[1 - mutation_rate, mutation_rate],
                                     size=len(Bp1))
 
-    pivot = np.random.randint(0, len(Bp1))
+    if method == '1point':
 
-    Bchild1 = Bp1[:pivot] + Bp2[pivot:]
-    Bchild2 = Bp2[:pivot] + Bp1[pivot:]
+        pivot = np.random.randint(0, len(Bp1))
 
-    Bchild2mutated = ''.join(
-        (mutationMask | np.array(list(Bchild2)).astype(int)).astype(str))
-    Bchild1mutated = ''.join(
-        (mutationMask | np.array(list(Bchild1)).astype(int)).astype(str))
+        Bchild1 = Bp1[:pivot] + Bp2[pivot:]
+        Bchild2 = Bp2[:pivot] + Bp1[pivot:]
 
-    Fc1 = np.abs(bin_to_float(Bchild1mutated))
-    Fc2 = np.abs(bin_to_float(Bchild2mutated))
+        Bchild2mutated = ''.join(
+            (mutationMask | np.array(list(Bchild2)).astype(int)).astype(str))
+        Bchild1mutated = ''.join(
+            (mutationMask | np.array(list(Bchild1)).astype(int)).astype(str))
 
-    if (np.isnan(Fc1) | np.isnan(Fc2) | (Fc1 < wMin) | (Fc1 > wMax) |
-        (Fc2 < wMin) | (Fc2 > wMax)):
-        Fc1 = np.random.random() * 12.1
-        Fc2 = np.random.random() * 10.1
+        Fc1 = np.abs(bin_to_float(Bchild1mutated))
+        Fc2 = np.abs(bin_to_float(Bchild2mutated))
+
+        # Check for out-of-range or NaN values
+        # the defaults are drawn from a clipped normal distribution which is
+        # defined for the system the basis is optimized
+        Fc1 = def1 if (np.isnan(Fc1) or Fc1 < wMin or Fc1 > wMax) else Fc1
+        Fc2 = def2 if (np.isnan(Fc2) or Fc2 < wMin or Fc2 > wMax) else Fc2
+
+    elif method == '2point':
+
+        # Determine two pivot points for the multi-point crossover
+        pivot1 = np.random.randint(0, int(len(Bp1) / 2))
+        pivot2 = np.random.randint(pivot1 + 1, len(Bp1))
+
+        # Swap pivot points if pivot2 is less than pivot1
+        if pivot2 < pivot1:
+            pivot1, pivot2 = pivot2, pivot1
+
+        # Perform crossover using the multi-point method
+        Bchild1 = Bp1[:pivot1] + Bp2[pivot1:pivot2] + Bp1[pivot2:]
+        Bchild2 = Bp2[:pivot1] + Bp1[pivot1:pivot2] + Bp2[pivot2:]
+
+        # Apply mutation
+        Bchild1mutated = ''.join(
+            (mutationMask | np.array(list(Bchild1)).astype(int)).astype(str))
+        Bchild2mutated = ''.join(
+            (mutationMask | np.array(list(Bchild2)).astype(int)).astype(str))
+
+        # Convert binary strings to floating-point values
+        Fc1 = np.abs(bin_to_float(Bchild1mutated))
+        Fc2 = np.abs(bin_to_float(Bchild2mutated))
+
+        # Check for out-of-range or NaN values
+        # the defaults are drawn from a clipped normal distribution which is
+        # defined for the system the basis is optimized
+        Fc1 = def1 if (np.isnan(Fc1) or Fc1 < wMin or Fc1 > wMax) else Fc1
+        Fc2 = def2 if (np.isnan(Fc2) or Fc2 < wMin or Fc2 > wMax) else Fc2
+
+    elif method == '4point':
+
+        # Determine four pivot points for the four-point crossover
+        pivot1 = np.random.randint(0, len(Bp1))
+        pivot2 = np.random.randint(pivot1 + 1, len(Bp1))
+        pivot3 = np.random.randint(pivot2 + 1, len(Bp1))
+        pivot4 = np.random.randint(pivot3 + 1, len(Bp1))
+
+        # Perform crossover using the four-point method
+        Bchild1 = Bp1[:pivot1] + Bp2[pivot1:pivot2] + Bp1[pivot2:pivot3] + Bp2[
+            pivot3:pivot4] + Bp1[pivot4:]
+        Bchild2 = Bp2[:pivot1] + Bp1[pivot1:pivot2] + Bp2[pivot2:pivot3] + Bp1[
+            pivot3:pivot4] + Bp2[pivot4:]
+
+        # Apply mutation
+        Bchild1mutated = ''.join(
+            (mutationMask | np.array(list(Bchild1)).astype(int)).astype(str))
+        Bchild2mutated = ''.join(
+            (mutationMask | np.array(list(Bchild2)).astype(int)).astype(str))
+
+        # Convert binary strings to floating-point values
+        Fc1 = np.abs(bin_to_float(Bchild1mutated))
+        Fc2 = np.abs(bin_to_float(Bchild2mutated))
+
+        # Check for out-of-range or NaN values
+        # the defaults are drawn from a clipped normal distribution which is
+        # defined for the system the basis is optimized
+        Fc1 = def1 if (np.isnan(Fc1) or Fc1 < wMin or Fc1 > wMax) else Fc1
+        Fc2 = def2 if (np.isnan(Fc2) or Fc2 < wMin or Fc2 > wMax) else Fc2
+
+    elif method == 'uniform':
+
+        # Perform uniform crossover
+        Bchild1 = ''
+        Bchild2 = ''
+        for i in range(len(Bp1)):
+            if np.random.rand() < 0.5:
+                Bchild1 += Bp1[i]
+                Bchild2 += Bp2[i]
+            else:
+                Bchild1 += Bp2[i]
+                Bchild2 += Bp1[i]
+
+        # Apply mutation
+        Bchild1mutated = ''.join(
+            (mutationMask | np.array(list(Bchild1)).astype(int)).astype(str))
+        Bchild2mutated = ''.join(
+            (mutationMask | np.array(list(Bchild2)).astype(int)).astype(str))
+
+        # Convert binary strings to floating-point values
+        Fc1 = np.abs(bin_to_float(Bchild1mutated))
+        Fc2 = np.abs(bin_to_float(Bchild2mutated))
+
+        # Check for out-of-range or NaN values
+        # the defaults are drawn from a clipped normal distribution which is
+        # defined for the system the basis is optimized
+        Fc1 = def1 if (np.isnan(Fc1) or Fc1 < wMin or Fc1 > wMax) else Fc1
+        Fc2 = def2 if (np.isnan(Fc2) or Fc2 < wMin or Fc2 > wMax) else Fc2
+
+    else:
+        print('unspecified intertwining method.')
+        exit()
 
     if (dbg | np.isnan(Fc1) | np.isnan(Fc2)):
         print('parents (binary)        :%12.4f%12.4f' % (p1, p2))
@@ -354,7 +596,7 @@ def intertwining(p1, p2, mutation_rate=0.0, wMin=0.001, wMax=20., dbg=False):
         print('children (binary)       :', Bchild1, ';;', Bchild2)
         print('children (decimal)      :%12.4f%12.4f' % (Fc1, Fc2))
 
-    return Fc1, Fc2
+    return Fc1, Fc2, defaul
 
 
 def essentialize_basis(basis, MaxBVsPERcfg=4):
