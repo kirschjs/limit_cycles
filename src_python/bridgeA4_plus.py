@@ -736,7 +736,7 @@ for epsi in np.linspace(eps0, eps1, epsNBR):
     subprocess.call('grep "FUNCTIONAL BERUECKSICHTIGT" OUTPUTSPOLE',
                     shell=True)
 
-    plotphas_new(oufi='4_ph_%d_%s_%s.pdf' % (neps, lam, lecstring),
+    plotphas_newmodify3(oufi='4_ph_%d_%s_%s.pdf' % (neps, lam, lecstring),
              outtxt='4_ph_%d_%s_%s.txt' % (neps, lam, lecstring),
              chs=pltChans,
              titl='$\\epsilon=[ $%s$ ]$fm$^{-2}$' %

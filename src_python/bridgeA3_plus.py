@@ -52,7 +52,7 @@ r = rv.rvs(size=10000)
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 7
+nBV = 6
 nREL = 6
 
 J0 = 1 / 2

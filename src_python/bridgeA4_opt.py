@@ -32,8 +32,8 @@ anzNewBV = 7
 muta_initial = .015
 acceptthreshold = 0.025
 anzGen = 5
-seed_civ_size = 20
-target_pop_size = 20
+seed_civ_size = 5
+target_pop_size = 5
 
 # define a random distribution from which width parameters are chose if and only if
 # the binary intertwining operation yields values outside the acceptable interval
@@ -58,7 +58,7 @@ if dbg:
 
 # number of width parameters used for the radial part of each
 # (spin) angular-momentum-coupling block
-nBV = 18
+nBV = 4
 nREL = anzRelw4opt
 
 J0 = 0

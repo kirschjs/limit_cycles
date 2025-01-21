@@ -91,11 +91,11 @@ cib = 0  # if set, EFTnoPi with charge independence broken by Coulomb and an aco
 # contact-term correction is employed (leading order)
 
 lam = 6.00  # 4,6,8,10 (for presentation)
-b3 = 1.20
+b3 = 3.00
 la = ('%-4.2f' % lam)[:4]
 tb = ('%-4.2f' % b3)[:4]
 
-lecstring = 'B2-05_B3-' + tb
+lecstring = 'B2-1_B3-' + tb
 """
 B(2) = 0.43(1) MeV
 B(3) -- 0.46 (10)  0.66 (30)  0.71 (34)  0.84     0.9      1.1     1.9       8.4
@@ -142,6 +142,7 @@ lec_set = {
         '1.20': [-930.2, 10.1156],
         '0.96': [-930.2, 283.078],
         '1.00': [-930.2, 206.078],
+        '1.04': [-930.2, 182.3095],
         '1.50': [-930.2, -220.4342],
         '4.00': [-930.2, -1073.3294],
         '2.00': [-930.2, -518.6835],
@@ -323,8 +324,8 @@ eDict = {
     #    [#energies, E0, dE, [3bdy GS, 3bdy ES1, 3bdy ES2, ...]]
     '0.96': [200, 0.001, 0.001, [0, 1], [[1, 1], [2, 2]]],
     '1.04': [400, 0.001, 0.001, [0, 1], [[1, 1], [2, 2]]],
-    '1.20': [400, 0.001, 0.001, [0, 1], [[1, 1], [2, 2]]],
-    '60.0': [400, 0.001, 0.001, [1, 0], [[1, 1], [2, 2]]],
+    '3.00': [990, 0.001, 0.007, [0, 1], [[1, 1], [2, 2]]],
+    '0.65': [990, 0.001, 0.0025, [0, 1], [[1, 1], [2, 2]]],
     '7.50': [990, 0.01, 0.05, [0, 1,1], [[1, 1], [2, 2],[3,3]]],
     '4.50': [900, 0.01, 0.007, [0, 1], [[1, 1], [2, 2]]],
     '4.42': [200, 0.01, 0.03, [0, 1, 1], [[1, 1], [2, 2], [3, 3]]],
@@ -383,10 +384,10 @@ MeVfm = 197.3161329
 
 # number of relative widths used for the refinement of the 4-body state
 # in the interaction region (see bridgeA4_opt.py)
-anzRelw4opt = 12
+anzRelw4opt = 4
 
 # number of Gaussian basis functions/widths used to expand the fragment-relative wave function
-anzRelw = 28  # 10, 12, 14, 20, ....
+anzRelw = 6 # 10, 12, 14, 20, ....
 maxRelW = 121.1
 
 unStable = True

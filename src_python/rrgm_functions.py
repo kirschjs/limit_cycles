@@ -274,7 +274,349 @@ def plotphas_new(infi='PHAOUT', oufi='tmp.pdf', outtxt='tmp.txt', chs=[], titl='
     plt.savefig(oufi)
 ###############################################
 
+def plotphas_newmodify(infi='PHAOUT', oufi='tmp.pdf', outtxt='tmp.txt', chs=[], titl=''):
+    phases = {}
+    etas = {}
+    method = '1'
+
+    tmp = np.array([
+        line.split() for line in open(infi) if (line.split()[-1] == method)
+    ]).astype(float)
+
+    for line in tmp:
+        for ch in chs:
+            if (ch[0] == line[2] and ch[1] == line[3]):
+                chastr = '%d-%d' % (line[2], line[3])
+                chastrTH = chastr if int(line[2]) == 1 else '%d-%d' % (1, 1)
+                try:
+                    Exx = (float(line[0]) if int(line[2]) == 1 else
+                           phases[chastrTH][-1][0] + float(line[0]))
+                    tmp_phas = float(line[10])
+                    tmp_eta = float(line[9])
+                    phases[chastr].append([Exx, tmp_phas])
+                    etas[chastr].append([Exx, tmp_eta])
+                except:
+                    phases[chastr] = []
+                    etas[chastr] = []
+                    Exx = (float(line[0]) if int(line[2]) == 1 else
+                           phases[chastrTH][-1][0] + float(line[0]))
+                    phases[chastr].append([Exx, float(line[10])])
+                    etas[chastr].append([Exx, float(line[9])])
+
+    plt.cla()
+    fig = plt.figure()
+
+    ax1 = fig.add_axes([0.1, 0.5, 0.8, 0.4], xticklabels=[])
+    ax1.xaxis.set_ticks_position('top')
+    ax1.set_ylabel(r'$\delta$ [deg]')
+
+    for cha in phases:
+        en = np.array(phases[cha])[:, 0]
+        pha = np.array(phases[cha])[:, 1]
+
+        if cha.split('-')[0] == cha.split('-')[1]:
+            stylel = 'solid'
+            mark = 3
+            linew = 2.5
+        else:
+            stylel = 'dashdot'
+            mark = 1
+            linew = 0.5
+
+        ax1.plot(en, pha, label=''.join(cha), linestyle=stylel, marker=mark, linewidth=linew)
+
+    ax1.legend(loc='best', numpoints=1)
+
+    ax2 = fig.add_axes([0.1, 0.1, 0.8, 0.4], ylim=(0, 1))
+    ax2.set_xlabel(r'$E_{cm}$ [MeV]        (%s)' % titl)
+    ax2.set_ylabel(r'$\eta$')
+
+    with PdfPages('cross_sections.pdf') as pdf:
+        for cha in phases:
+            en = np.array(phases[cha])[:, 0]
+            eta = np.array(etas[cha])[:, 1]
+
+            if cha.split('-')[0] == cha.split('-')[1]:
+                stylel = 'solid'
+                mark = 3
+                linew = 2.5
+            else:
+                stylel = 'dashdot'
+                mark = 1
+                linew = 0.5
+
+            ax2.plot(en, eta, linestyle='solid', linewidth=linew)
+
+            channel_outtxt = f'{cha}_' + outtxt
+            np.savetxt(channel_outtxt, np.column_stack((en, eta)))
+
+    #         J = 0
+    #         s1 = 1/2
+    #         s2 = 0
+
+    #         try:
+    #             cross_section = ((2 * J + 1) / ((2 * s1 + 1) * (2 * s2 + 1))) * (eta ** 2) / en
+    #             output_file = f'cross_section_{cha}.txt'
+    #             np.savetxt(output_file, np.column_stack((en, cross_section)), header='Energy CrossSection')
+
+    #             fig_cross, ax_cross = plt.subplots()
+    #             ax_cross.plot(en, cross_section, linestyle='-', marker='o', label='Cross Section')
+    #             ax_cross.set_xlabel('Energy [MeV]')
+    #             ax_cross.set_ylabel('Cross Section')
+    #             ax_cross.set_title(f'Cross Section vs Energy for {cha}')
+
+    #             ax_cross.legend()
+    #             ax_cross.grid(True)
+
+    #             pdf.savefig(fig_cross)
+    #             plt.close(fig_cross)
+
+    #         except Exception as e:
+    #             print(f"Error processing channel {cha}: {e}")
+
+    # plt.savefig(oufi)
+
+
 ##################################################
+
+
+def plotphas_newmodify2(infi='PHAOUT', oufi='tmp.pdf', outtxt='tmp.txt', chs=[], titl=''):
+    phases = {}
+    etas = {}
+    method = '1'
+
+    # Read and process input data
+    tmp = np.array([
+        line.split() for line in open(infi) if (line.split()[-1] == method)
+    ]).astype(float)
+
+    for line in tmp:
+        for ch in chs:
+            if (ch[0] == line[2] and ch[1] == line[3]):
+                chastr = '%d-%d' % (line[2], line[3])
+                chastrTH = chastr if int(line[2]) == 1 else '%d-%d' % (1, 1)
+                try:
+                    # Calculate energy for ch[1,1] and ch[2,2] the same way
+                    if ch[0] == 1 and ch[1] == 1:  # For ch[1,1]
+                        Exx = float(line[0])
+                    elif ch[0] == 2 and ch[1] == 2:  # For ch[2,2]
+                        Exx = float(line[0]) if int(line[2]) == 1 else \
+                            phases[chastrTH][-1][0] + float(line[0])  # Energy for ch[2,2]
+                    else:
+                        # If ch[1,2] == ch[2,1], set energy equal to ch[2,2]
+                        if ch[0] == 1 and ch[1] == 2:  # For ch[1,2]
+                            Exx = phases.get('2-2', [[float(line[0]), 0]])[-1][0]
+                        elif ch[0] == 2 and ch[1] == 1:  # For ch[2,1]
+                            Exx = phases.get('2-2', [[float(line[0]), 0]])[-1][0]
+
+                    tmp_phas = float(line[10])
+                    tmp_eta = float(line[9])
+
+                    # Append the phase and eta values
+                    if chastr not in phases:
+                        phases[chastr] = []
+                        etas[chastr] = []
+                    phases[chastr].append([Exx, tmp_phas])
+                    etas[chastr].append([Exx, tmp_eta])
+
+                except:
+                    phases[chastr] = []
+                    etas[chastr] = []
+                    # Recalculate energy on first insertion
+                    if ch[0] == 1 and ch[1] == 1:  # For ch[1,1]
+                        Exx = float(line[0])
+                    elif ch[0] == 2 and ch[1] == 2:  # For ch[2,2]
+                        Exx = float(line[0]) if int(line[2]) == 1 else \
+                            phases[chastrTH][-1][0] + float(line[0])  # Energy for ch[2,2]
+                    else:
+                        # If ch[1,2] == ch[2,1], set energy equal to ch[2,2]
+                        if ch[0] == 1 and ch[1] == 2:  # For ch[1,2]
+                            Exx = phases.get('2-2', [[float(line[0]), 0]])[-1][0]
+                            
+                        elif ch[0] == 2 and ch[1] == 1:  # For ch[2,1]
+                            Exx = phases.get('2-2', [[float(line[0]), 0]])[-1][0]
+                            
+
+                    phases[chastr].append([Exx, float(line[10])])
+                    etas[chastr].append([Exx, float(line[9])])
+
+    # Plotting phase shift
+    plt.cla()
+    fig = plt.figure()
+
+    ax1 = fig.add_axes([0.1, 0.5, 0.8, 0.4], xticklabels=[])
+    ax1.xaxis.set_ticks_position('top')
+    ax1.set_ylabel(r'$\delta$ [deg]')
+
+    for cha in phases:
+        en = np.array(phases[cha])[:, 0]
+        pha = np.array(phases[cha])[:, 1]
+
+        if cha.split('-')[0] == cha.split('-')[1]:
+            stylel = 'solid'
+            mark = 3
+            linew = 2.5
+        else:
+            stylel = 'dashdot'
+            mark = 1
+            linew = 0.5
+
+        ax1.plot(en, pha, label=''.join(cha), linestyle=stylel, marker=mark, linewidth=linew)
+
+    ax1.legend(loc='best', numpoints=1)
+
+    # Plotting eta values
+    ax2 = fig.add_axes([0.1, 0.1, 0.8, 0.4], ylim=(0, 1))
+    ax2.set_xlabel(r'$E_{cm}$ [MeV]        (%s)' % titl)
+    ax2.set_ylabel(r'$\eta$')
+
+    # Saving phase shift and eta data
+    with PdfPages(oufi) as pdf:
+        for cha in phases:
+            en = np.array(phases[cha])[:, 0]
+            eta = np.array(etas[cha])[:, 1]
+
+            if cha.split('-')[0] == cha.split('-')[1]:
+                stylel = 'solid'
+                mark = 3
+                linew = 2.5
+            else:
+                stylel = 'dashdot'
+                mark = 1
+                linew = 0.5
+
+            ax2.plot(en, eta, linestyle='solid', linewidth=linew)
+
+            # Save data for each channel
+            channel_outtxt = f'{cha}_' + outtxt
+            np.savetxt(channel_outtxt, np.column_stack((en, eta)))
+
+################################################
+
+
+def plotphas_newmodify3(infi='PHAOUT', oufi='tmp.pdf', outtxt='tmp.txt', chs=[], titl=''):
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from matplotlib.backends.backend_pdf import PdfPages
+
+    phases = {}
+    etas = {}
+    method = '1'
+
+    # Read and process input data
+    tmp = np.array([
+        line.split() for line in open(infi) if (line.split()[-1] == method)
+    ]).astype(float)
+
+    for line in tmp:
+        for ch in chs:
+            if (ch[0] == line[2] and ch[1] == line[3]):
+                chastr = '%d-%d' % (line[2], line[3])
+                chastrTH = chastr if int(line[2]) == 1 else '%d-%d' % (1, 1)
+                try:
+                    # Calculate energy for ch[1,1] and ch[2,2] the same way
+                    if ch[0] == 1 and ch[1] == 1:  # For ch[1,1]
+                        Exx = float(line[0])
+                    elif ch[0] == 2 and ch[1] == 2:  # For ch[2,2]
+                        Exx = float(line[0]) if int(line[2]) == 1 else \
+                            phases[chastrTH][-1][0] + float(line[0])
+                    else:
+                        # If ch[1,2] == ch[2,1], set energy equal to ch[2,2]
+                        if ch[0] == 1 and ch[1] == 2:  # For ch[1,2]
+                            Exx = phases.get('2-2', [[float(line[0]), 0]])[-1][0]
+                        elif ch[0] == 2 and ch[1] == 1:  # For ch[2,1]
+                            Exx = phases.get('2-2', [[float(line[0]), 0]])[-1][0]
+
+                    tmp_phas = float(line[10])
+                    tmp_eta = float(line[9])
+
+                    # Append the phase and eta values
+                    if chastr not in phases:
+                        phases[chastr] = []
+                        etas[chastr] = []
+                    phases[chastr].append([Exx, tmp_phas])
+                    etas[chastr].append([Exx, tmp_eta])
+
+                except:
+                    phases[chastr] = []
+                    etas[chastr] = []
+                    # Recalculate energy on first insertion
+                    if ch[0] == 1 and ch[1] == 1:  # For ch[1,1]
+                        Exx = float(line[0])
+                    elif ch[0] == 2 and ch[1] == 2:  # For ch[2,2]
+                        Exx = float(line[0]) if int(line[2]) == 1 else \
+                            phases[chastrTH][-1][0] + float(line[0])
+                    else:
+                        # If ch[1,2] == ch[2,1], set energy equal to ch[2,2]
+                        if ch[0] == 1 and ch[1] == 2:  # For ch[1,2]
+                            Exx = phases.get('2-2', [[float(line[0]), 0]])[-1][0]
+
+                        elif ch[0] == 2 and ch[1] == 1:  # For ch[2,1]
+                            Exx = phases.get('2-2', [[float(line[0]), 0]])[-1][0]
+
+                    phases[chastr].append([Exx, float(line[10])])
+                    etas[chastr].append([Exx, float(line[9])])
+
+    # Plotting phase shift
+    plt.cla()
+    fig = plt.figure()
+
+    ax1 = fig.add_axes([0.1, 0.5, 0.8, 0.4], xticklabels=[])
+    ax1.xaxis.set_ticks_position('top')
+    ax1.set_ylabel(r'$\delta$ [deg]')
+
+    for cha in phases:
+        en = np.array(phases[cha])[:, 0]
+        pha = np.array(phases[cha])[:, 1]
+
+        if cha.split('-')[0] == cha.split('-')[1]:
+            stylel = 'solid'
+            mark = 3
+            linew = 2.5
+        else:
+            stylel = 'dashdot'
+            mark = 1
+            linew = 0.5
+
+        ax1.plot(en, pha, label=''.join(cha), linestyle=stylel, marker=mark, linewidth=linew)
+
+    ax1.legend(loc='best', numpoints=1)
+
+    # Plotting eta values
+    ax2 = fig.add_axes([0.1, 0.1, 0.8, 0.4], ylim=(0, 1))
+    ax2.set_xlabel(r'$E_{cm}$ [MeV]        (%s)' % titl)
+    ax2.set_ylabel(r'$\eta$')
+
+    # Saving phase shift and eta data
+    with PdfPages(oufi) as pdf:
+        for cha in phases:
+            en = np.array(phases[cha])[:, 0]
+            eta = np.array(etas[cha])[:, 1]
+            pha = np.array(phases[cha])[:, 1]
+
+            if cha.split('-')[0] == cha.split('-')[1]:
+                stylel = 'solid'
+                linew = 2.5
+            else:
+                stylel = 'dashdot'
+                linew = 0.5
+
+            ax2.plot(en, eta, linestyle='solid', linewidth=linew)
+
+            # Save data for each channel
+            eta_outtxt = f'{cha}_' + outtxt
+            phase_outtxt = f'phase_{cha}_' + outtxt
+
+            np.savetxt(eta_outtxt, np.column_stack((en, eta)))
+            np.savetxt(phase_outtxt, np.column_stack((en, pha)))
+
+        pdf.savefig(fig)
+    plt.close(fig)
+
+
+
+
+################################################
 def plotphas_new2(infi='PHAOUT', oufi='tmp.pdf', outtxt='tmp.txt', chs=[], titl=''):
     phases = {}
     etas = {}
